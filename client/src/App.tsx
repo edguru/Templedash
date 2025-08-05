@@ -141,6 +141,7 @@ function App() {
                     stencil: false,
                     depth: true
                   }}
+                  shadows
                   dpr={Math.min(window.devicePixelRatio, 2)}
                   performance={{ min: 0.5 }}
                   style={{ 

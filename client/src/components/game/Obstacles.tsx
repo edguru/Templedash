@@ -18,20 +18,27 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
   const groupRef = useRef<THREE.Group>(null);
   const woodTexture = useTexture("/textures/wood.jpg");
   
-  // Generate obstacles
+  // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
     const obstacleArray: ObstacleData[] = [];
+    const lanes = [-5, -2.5, 0, 2.5, 5]; // Define specific lanes like Temple Run
+    const terrainY = -0.5; // Terrain surface level
     
-    for (let i = 0; i < 20; i++) {
-      const z = -20 - (i * 10); // Space obstacles 10 units apart
-      const x = (Math.random() - 0.5) * 16; // Random x position within bounds
-      const type: 'crate' | 'rock' = Math.random() > 0.5 ? 'crate' : 'rock';
+    for (let i = 0; i < 25; i++) {
+      const z = -20 - (i * 8); // Closer spacing for more challenge
+      const laneIndex = Math.floor(Math.random() * lanes.length);
+      const x = lanes[laneIndex]; // Snap to lanes
+      const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
+      
+      // Calculate proper Y position based on obstacle type and terrain
+      const obstacleHeight = type === 'crate' ? 0.5 : 0.6; // Half height for proper positioning
+      const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({
         id: i,
-        position: [x, type === 'crate' ? 0.5 : 0.8, z],
+        position: [x, yPosition, z],
         type,
-        scale: type === 'crate' ? [1, 1, 1] : [1.5, 1.5, 1.5]
+        scale: type === 'crate' ? [1, 1, 1] : [1.2, 1.2, 1.2]
       });
     }
     

@@ -37,28 +37,40 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
 
     const time = clock.getElapsedTime();
     
-    // Basic running animation for the whole model
+    // Enhanced running animation with proper positioning
     if (!isJumping && modelRef.current) {
-      const runSpeed = 6;
-      const bobAmount = Math.sin(time * runSpeed * 2) * 0.05;
-      const rotateAmount = Math.sin(time * runSpeed) * 0.1;
+      const runSpeed = 8; // Faster running animation
+      const bobAmount = Math.sin(time * runSpeed * 2) * 0.08; // More pronounced bobbing
+      const rotateAmount = Math.sin(time * runSpeed) * 0.15;
+      const armSwing = Math.sin(time * runSpeed) * 0.3;
       
       // Model bobbing while running
       modelRef.current.position.y = bobAmount;
-      modelRef.current.rotation.x = rotateAmount * 0.2; // Slight forward lean while running
+      modelRef.current.rotation.x = rotateAmount * 0.15; // Forward lean while running
+      
+      // Simulate arm swinging by rotating the whole upper body slightly
+      modelRef.current.rotation.y = armSwing * 0.1;
     }
 
-    // Leaning animation for direction changes
+    // Smoother leaning animation for direction changes
     if (isMovingLeft) {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0.15, 0.1);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0.2, 0.15);
     } else if (isMovingRight) {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -0.15, 0.1);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -0.2, 0.15);
     } else {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.15);
     }
 
-    // Update position
-    groupRef.current.position.set(position[0], position[1], position[2]);
+    // Jumping animation
+    if (isJumping && modelRef.current) {
+      modelRef.current.rotation.x = -0.3; // Lean back while jumping
+      modelRef.current.position.y = 0.2; // Stay elevated
+    }
+
+    // Update position with proper terrain alignment
+    const terrainY = -0.5; // Terrain surface level
+    const characterHeight = 0.5; // Half character height to place feet on ground
+    groupRef.current.position.set(position[0], terrainY + characterHeight, position[2]);
   });
 
   return (

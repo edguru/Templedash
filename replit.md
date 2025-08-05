@@ -3,16 +3,16 @@
 Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Privy wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
 ## Recent Changes (2025-01-15)
-- **Scene Improvements**: Enhanced camera positioning (8,15 height/distance) and improved Temple Run perspective
-- **Daytime Forest Environment**: Integrated comprehensive daytime skybox with soil-colored terrain lanes  
-- **Character System**: Auto-replacement from shadow character to unlocked NFT character after minting
-- **Character Preview**: Added preview screen accessible during NFT minting process
-- **LOD Optimization**: Implemented Level of Detail scaling system for all game assets
-- **Lazy Loading**: Added throughout application for assets and screens
-- **Database Schema**: Contract storage with public/private keys and deployment addresses
-- **API Endpoints**: Complete contract management routes for smart contract information
-- **Performance Optimization**: Enhanced lighting, terrain positioning, and Canvas settings
-- **Visual Polish**: Improved terrain with lane dividers, forest ground textures, and atmospheric lighting
+- **3-Lane System**: Implemented classic Temple Run 3-lane discrete movement system
+- **Terrain Cleanup**: Removed problematic forest terrain, created clean running path with stone walls
+- **Character Orientation**: Fixed character rotation to face forward with back toward camera
+- **Lane Switching**: Buttons now switch between discrete lanes (-2, 0, 2) instead of continuous movement
+- **Collision Detection**: Enhanced obstacle collision with jumping mechanics - rocks can be jumped over, trees cannot
+- **Touch Controls**: Direct integration with player movement functions for responsive controls
+- **Visual Improvements**: Simplified terrain layout with clear boundaries and better performance
+- **Physics Enhancement**: Improved jumping mechanics and gravity system for realistic movement
+- **Performance Optimization**: Reduced terrain complexity, enhanced lighting, and Canvas settings
+- **Game Flow**: Fixed collision detection to properly trigger game over state
 
 # User Preferences
 

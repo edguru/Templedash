@@ -116,17 +116,18 @@ export default function GameScene() {
       }));
     }
     
-    // Check collisions with obstacles
+    // Check collisions with obstacles - enhanced with jumping consideration
     if (obstaclesRef.current) {
       const collision = checkCollisions(
         position,
         obstaclesRef.current.children,
-        'obstacle'
+        'obstacle',
+        isJumping
       );
       
       if (collision) {
+        console.log("Collision detected with obstacle! Player jumping:", isJumping);
         playHit();
-        endGame();
         setGamePhase('gameOver');
         return;
       }

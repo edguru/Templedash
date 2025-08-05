@@ -48,13 +48,13 @@ export default function Terrain({ offset }: TerrainProps) {
         <meshStandardMaterial color="#654321" />
       </mesh>
       
-      {/* Side walls - closer to create clear boundaries */}
-      <mesh position={[-4, 2, 0]}>
-        <boxGeometry args={[2, 4, 150]} />
+      {/* Side walls - properly positioned */}
+      <mesh position={[-5, 1, 0]}>
+        <boxGeometry args={[2, 2, 150]} />
         <meshStandardMaterial color="#8B4513" />
       </mesh>
-      <mesh position={[4, 2, 0]}>
-        <boxGeometry args={[2, 4, 150]} />
+      <mesh position={[5, 1, 0]}>
+        <boxGeometry args={[2, 2, 150]} />
         <meshStandardMaterial color="#8B4513" />
       </mesh>
     </>

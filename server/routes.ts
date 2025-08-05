@@ -204,25 +204,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Mystery box reward
+  // Mystery box reward with precise distribution
   app.post('/api/game/mystery-box', authenticateToken, async (req: any, res) => {
     try {
       const userId = req.currentUser.userId;
+      const { walletAddress } = req.body;
+
+      // Check if user has already opened mystery box
+      const user = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+
+      if (user.length && user[0].hasOpenedMysteryBox) {
+        return res.status(400).json({ error: 'Mystery box already opened' });
+      }
+
+      // Exact distribution for $500 among 10,000 players
+      const MYSTERY_BOX_REWARDS = [
+        { amount: 10, chance: 0.001 },     // 0.1% → $10 (10 players)  
+        { amount: 1, chance: 0.01 },       // 1% → $1 (100 players)
+        { amount: 0.1, chance: 0.04 },     // 4% → $0.10 (400 players)
+        { amount: 0.05, chance: 0.10 },    // 10% → $0.05 (1000 players)
+        { amount: 0.01, chance: 0.25 },    // 25% → $0.01 (2500 players)
+        { amount: 0.005, chance: 0.30 },   // 30% → $0.005 (3000 players)
+        { amount: 0.001, chance: 0.299 },  // 29.9% → $0.001 (2990 players)
+      ];
+
+      // Generate weighted random reward
+      let random = Math.random();
+      let cumulative = 0;
+      let selectedReward = { amount: 0.001, rarity: 'common' };
       
-      // Random reward between $0.01 and $10
-      const rewards = [0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0];
-      const randomReward = rewards[Math.floor(Math.random() * rewards.length)];
+      for (const reward of MYSTERY_BOX_REWARDS) {
+        cumulative += reward.chance;
+        if (random < cumulative) {
+          let rarity = 'common';
+          if (reward.amount >= 10) rarity = 'legendary';
+          else if (reward.amount >= 1) rarity = 'epic';
+          else if (reward.amount >= 0.1) rarity = 'rare';
+          else if (reward.amount >= 0.05) rarity = 'uncommon';
+          
+          selectedReward = { amount: reward.amount, rarity };
+          break;
+        }
+      }
+
+      // Mark user as having opened mystery box
+      await db
+        .update(users)
+        .set({ 
+          hasOpenedMysteryBox: true,
+          totalTokensEarned: String(Number(user[0]?.totalTokensEarned || 0) + selectedReward.amount)
+        })
+        .where(eq(users.id, userId));
 
       // Add mystery box reward
       const claim = await db.insert(tokenClaims).values({
         userId,
-        amount: randomReward.toString(),
+        amount: selectedReward.amount.toString(),
         reason: 'mystery_box'
       }).returning();
 
       res.json({
-        reward: randomReward,
-        claim: claim[0]
+        reward: selectedReward.amount,
+        rarity: selectedReward.rarity,
+        claim: claim[0],
+        message: `Congratulations! You won $${selectedReward.amount} tokens!`
       });
     } catch (error) {
       console.error('Mystery box error:', error);

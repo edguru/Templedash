@@ -1,27 +1,22 @@
-import { ConnectButton, useActiveAccount } from "thirdweb/react";
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { useAuth } from "../../lib/stores/useAuth";
 import { useEffect, useState } from "react";
-import { createThirdwebClient } from "thirdweb";
-import { defineChain } from "thirdweb/chains";
-
-const client = createThirdwebClient({
-  clientId: process.env.REACT_APP_THIRDWEB_CLIENT_ID || "your-client-id",
-});
 
 export default function WalletConnectScreen() {
-  const account = useActiveAccount();
+  const { ready, authenticated, user, login, logout } = usePrivy();
+  const { wallets } = useWallets();
   const { authenticateWallet, isAuthenticated } = useAuth();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleWalletAuth = async () => {
-      if (account?.address && !isAuthenticated && !isAuthenticating) {
+      if (authenticated && user?.wallet?.address && !isAuthenticated && !isAuthenticating) {
         setIsAuthenticating(true);
         setError(null);
         
         try {
-          const success = await authenticateWallet(account.address);
+          const success = await authenticateWallet(user.wallet.address);
           if (!success) {
             setError("Failed to authenticate wallet. Please try again.");
           }
@@ -34,8 +29,10 @@ export default function WalletConnectScreen() {
       }
     };
 
-    handleWalletAuth();
-  }, [account?.address, isAuthenticated, authenticateWallet, isAuthenticating]);
+    if (ready) {
+      handleWalletAuth();
+    }
+  }, [authenticated, user?.wallet?.address, isAuthenticated, authenticateWallet, isAuthenticating, ready]);
 
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">
@@ -45,22 +42,20 @@ export default function WalletConnectScreen() {
         
         {/* Wallet Connection Status */}
         <div className="mb-8">
-          {!account ? (
+          {!authenticated ? (
             <>
               <div className="text-gray-700 mb-6">
                 <h2 className="text-xl font-semibold mb-2">Connect Your Wallet</h2>
                 <p className="text-sm">Connect your wallet to start playing and earning rewards!</p>
               </div>
               
-              <ConnectButton
-                client={client}
-                theme="light"
-                connectModal={{
-                  size: "wide",
-                  title: "Connect to Temple Runner",
-                  showThirdwebBranding: false,
-                }}
-              />
+              <button
+                onClick={login}
+                disabled={!ready}
+                className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {ready ? 'Connect Wallet' : 'Loading...'}
+              </button>
             </>
           ) : isAuthenticating ? (
             <div className="py-4">
@@ -73,8 +68,8 @@ export default function WalletConnectScreen() {
               <button
                 onClick={() => {
                   setError(null);
-                  if (account?.address) {
-                    authenticateWallet(account.address);
+                  if (user?.wallet?.address) {
+                    authenticateWallet(user.wallet.address);
                   }
                 }}
                 className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
@@ -85,7 +80,13 @@ export default function WalletConnectScreen() {
           ) : (
             <div className="bg-green-100 text-green-700 p-4 rounded-lg">
               <p className="font-semibold">Wallet Connected!</p>
-              <p className="text-sm">{account.address?.slice(0, 6)}...{account.address?.slice(-4)}</p>
+              <p className="text-sm">{user?.wallet?.address?.slice(0, 6)}...{user?.wallet?.address?.slice(-4)}</p>
+              <button
+                onClick={logout}
+                className="mt-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors text-sm"
+              >
+                Disconnect
+              </button>
             </div>
           )}
         </div>

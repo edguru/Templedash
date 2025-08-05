@@ -2,15 +2,14 @@ import { useGameState } from "../../lib/stores/useGameState";
 import { useNFT } from "../../lib/stores/useNFT";
 import { useRewards } from "../../lib/stores/useRewards";
 import { useAuth } from "../../lib/stores/useAuth";
-import { useActiveAccount, useDisconnect } from "thirdweb/react";
+import { usePrivy } from '@privy-io/react-auth';
 
 export default function StartScreen() {
   const { startGame, setGamePhase } = useGameState();
   const { hasCharacterNFT } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
-  const { user, logout } = useAuth();
-  const account = useActiveAccount();
-  const { disconnect } = useDisconnect();
+  const { logout } = useAuth();
+  const { user, logout: privyLogout } = usePrivy();
 
   const handleStartGame = () => {
     if (!hasCharacterNFT) {
@@ -26,12 +25,10 @@ export default function StartScreen() {
 
   const handleDisconnect = async () => {
     try {
-      if (disconnect) {
-        await disconnect();
-      }
+      await privyLogout();
+      logout();
     } catch (error) {
       console.log('Disconnect error:', error); 
-    } finally {
       logout();
     }
   };
@@ -47,7 +44,7 @@ export default function StartScreen() {
           <div className="bg-green-100 text-green-800 p-3 rounded-lg">
             <div className="font-semibold">Wallet Connected</div>
             <div className="text-sm font-mono">
-              {user?.walletAddress?.slice(0, 6)}...{user?.walletAddress?.slice(-4)}
+              {user?.wallet?.address?.slice(0, 6)}...{user?.wallet?.address?.slice(-4)}
             </div>
             <button
               onClick={handleDisconnect}

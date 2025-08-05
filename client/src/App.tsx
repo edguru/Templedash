@@ -1,9 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
-import { createThirdwebClient } from "thirdweb";
-import { ThirdwebProvider } from "thirdweb/react";
-import { defineChain } from "thirdweb/chains";
+import { PrivyProvider } from '@privy-io/react-auth';
 import "@fontsource/inter";
 
 // Import game components
@@ -23,15 +21,8 @@ import { useAuth } from "./lib/stores/useAuth";
 import LeaderboardScreen from "./components/ui/LeaderboardScreen";
 import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
-// Thirdweb config
-const client = createThirdwebClient({
-  clientId: process.env.REACT_APP_THIRDWEB_CLIENT_ID || "your-client-id",
-});
-
-const polygon = defineChain({
-  id: 137,
-  rpc: "https://polygon-rpc.com",
-});
+// Privy config - you'll need to replace with your actual app ID
+const PRIVY_APP_ID = 'clpispdty00ycl80fpueukbhl'; // Replace with your Privy app ID
 
 // Define control keys for the game
 enum Controls {
@@ -64,14 +55,38 @@ function App() {
   // Show wallet connection screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <ThirdwebProvider>
+      <PrivyProvider
+        appId={PRIVY_APP_ID}
+        config={{
+          loginMethods: ['wallet'],
+          appearance: {
+            theme: 'light',
+            accentColor: '#9333EA',
+          },
+          embeddedWallets: {
+            createOnLogin: 'users-without-wallets',
+          },
+        }}
+      >
         <WalletConnectScreen />
-      </ThirdwebProvider>
+      </PrivyProvider>
     );
   }
 
   return (
-    <ThirdwebProvider>
+    <PrivyProvider
+      appId={PRIVY_APP_ID}
+      config={{
+        loginMethods: ['wallet'],
+        appearance: {
+          theme: 'light',
+          accentColor: '#9333EA',
+        },
+        embeddedWallets: {
+          createOnLogin: 'users-without-wallets',
+        },
+      }}
+    >
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <KeyboardControls map={controls}>
@@ -113,7 +128,7 @@ function App() {
           </KeyboardControls>
         )}
       </div>
-    </ThirdwebProvider>
+    </PrivyProvider>
   );
 }
 

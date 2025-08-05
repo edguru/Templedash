@@ -110,18 +110,7 @@ export default function GameScene() {
       setGameState(prev => ({ ...prev, lastCoinClusterSpawn: newDistance }));
     }
     
-    // Spawn mystery boxes based on distance (1000-1500m) or coin trigger (300 coins)
-    if (shouldSpawnMysteryBox(gameState)) {
-      const spawnDistance = newDistance + 100; // Spawn ahead of player
-      const newMysteryBox = generateMysteryBox(spawnDistance);
-      setMysteryBoxes(prev => [...prev, newMysteryBox]);
-      setGameState(prev => ({ 
-        ...prev, 
-        lastMysteryBoxSpawn: newDistance,
-        lastMysteryBoxTime: Date.now(),
-        mysteryBoxActive: true
-      }));
-    }
+    // Mystery boxes removed from play screen - only available on game over
     
     // Check collisions with obstacles - enhanced with jumping consideration
     if (obstaclesRef.current) {

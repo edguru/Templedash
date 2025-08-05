@@ -13,6 +13,7 @@ import MintScreen from "./components/ui/MintScreen";
 import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
 import ChatScreen from "./components/ui/ChatScreen";
 import CharacterPreview from "./components/ui/CharacterPreview";
+import WalletManagerScreen from "./components/ui/WalletManagerScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -46,7 +47,7 @@ const controls = [
 
 // Main App component
 function App() {
-  const { gamePhase } = useGameState();
+  const { gamePhase, setGamePhase } = useGameState();
   const { isAuthenticated } = useAuth();
   const [showCanvas, setShowCanvas] = useState(false);
 
@@ -122,6 +123,8 @@ function App() {
             {gamePhase === 'leaderboard' && <LeaderboardScreen />}
             
             {gamePhase === 'chat' && <ChatScreen />}
+            
+            {gamePhase === 'walletManager' && <WalletManagerScreen onBack={() => setGamePhase('start')} />}
             
             {gamePhase === 'gameOver' && <GameOverScreen />}
 

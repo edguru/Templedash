@@ -155,10 +155,11 @@ export default function GameScene() {
       !box.collected && box.spawnDistance > newDistance - 100
     ));
     
-    // Update camera to follow player
-    state.camera.position.x = position.x * 0.3;
-    state.camera.position.z = 10;
-    state.camera.lookAt(position.x, 2, 0);
+    // Update camera to follow player with better positioning
+    state.camera.position.x = position.x * 0.2;
+    state.camera.position.y = 8;
+    state.camera.position.z = 15;
+    state.camera.lookAt(position.x, 1, position.z - 5);
   });
 
   // Handle coin cluster collection
@@ -226,11 +227,11 @@ export default function GameScene() {
       <Lighting />
       
       {/* Use Shadow Character as default, Player component if NFT owned */}
-      {hasCharacterNFT && characterType ? (
+      {hasCharacterNFT ? (
         <Player />
       ) : (
         <ShadowCharacter 
-          position={[position.x, position.y, position.z]}
+          position={[position.x, position.y + 0.5, position.z]}
           isJumping={isJumping}
           isMovingLeft={isMovingLeft || false}
           isMovingRight={isMovingRight || false}

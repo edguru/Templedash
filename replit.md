@@ -3,16 +3,16 @@
 Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Privy wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
 ## Recent Changes (2025-01-15)
-- Successfully migrated from Thirdweb to Privy wallet authentication
-- Implemented responsive touch controls for mobile devices (circular buttons with visual feedback)
-- Added desktop keyboard controls with UI indicators (A/D/Space keys)
-- Created ShadowCharacter component as default stick human character for all players
-- Added "Chat with your companion - Coming Soon!" as new UI tab
-- Deployed ERC721 smart contract (TempleRunnerNFT.sol) with 0.001 ETH mint price
-- Enhanced mystery box system with exact weighted probabilities totaling $500 across 10,000 players
-- Optimized game performance with reduced rendering load and Canvas optimizations
-- Reduced game speed by 50x and doubled obstacle spacing for better playability
-- Fixed mobile touch controls to work with both touch and mouse events
+- **Scene Improvements**: Enhanced camera positioning (8,15 height/distance) and improved Temple Run perspective
+- **Daytime Forest Environment**: Integrated comprehensive daytime skybox with soil-colored terrain lanes  
+- **Character System**: Auto-replacement from shadow character to unlocked NFT character after minting
+- **Character Preview**: Added preview screen accessible during NFT minting process
+- **LOD Optimization**: Implemented Level of Detail scaling system for all game assets
+- **Lazy Loading**: Added throughout application for assets and screens
+- **Database Schema**: Contract storage with public/private keys and deployment addresses
+- **API Endpoints**: Complete contract management routes for smart contract information
+- **Performance Optimization**: Enhanced lighting, terrain positioning, and Canvas settings
+- **Visual Polish**: Improved terrain with lane dividers, forest ground textures, and atmospheric lighting
 
 # User Preferences
 
@@ -29,9 +29,11 @@ Preferred communication style: Simple, everyday language.
 - **Mobile Optimization**: Reduced shadow quality, lower polygon models, simplified lighting for mobile devices
 
 ## Game Engine Structure
-- **Component-based 3D Scene**: Modular game objects (Player, Terrain, Obstacles, Coins, Lighting)
+- **Component-based 3D Scene**: Modular game objects with DaytimeSkybox, LOD Manager, ShadowCharacter
 - **Game Loop**: Frame-based updates using React Three Fiber's useFrame hook
 - **Physics System**: Custom collision detection and player movement mechanics
+- **Character System**: Automatic replacement from shadow to NFT character after minting
+- **Performance Optimization**: LOD scaling, lazy loading, and Canvas optimizations for mobile/desktop
 - **Audio Management**: Sound effects and background music with mute controls
 - **Progressive Difficulty**: Game speed increases over time for added challenge
 

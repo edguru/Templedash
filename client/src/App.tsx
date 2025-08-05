@@ -70,7 +70,25 @@ function App() {
           },
         }}
       >
-        <WalletConnectScreen />
+        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+          <div className="text-center p-8">
+            <h1 className="text-4xl font-bold text-white mb-4">Temple Runner</h1>
+            <p className="text-xl text-purple-200 mb-8">NFT-Powered Infinite Runner</p>
+            <button 
+              onClick={() => {
+                // Bypass wallet connection for demo
+                window.localStorage.setItem('demo-auth', 'true');
+                window.location.reload();
+              }}
+              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
+            >
+              Demo Mode - View Game Scene
+            </button>
+            <div className="mt-4">
+              <WalletConnectScreen />
+            </div>
+          </div>
+        </div>
       </PrivyProvider>
     );
   }
@@ -110,15 +128,15 @@ function App() {
               <>
                 <Canvas
                   camera={{
-                    position: [0, 5, 10],
-                    fov: 60,
+                    position: [0, 8, 15],
+                    fov: 50,
                     near: 0.1,
                     far: 1000
                   }}
                   gl={{
-                    antialias: false,
+                    antialias: true,
                     powerPreference: "high-performance",
-                    precision: "lowp",
+                    precision: "mediump",
                     alpha: false,
                     stencil: false,
                     depth: true

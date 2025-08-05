@@ -24,28 +24,56 @@ export default function Terrain({ offset }: TerrainProps) {
 
   return (
     <>
-      {/* Main ground plane */}
+      {/* Main soil-colored running path */}
       <mesh 
         ref={meshRef}
-        position={[0, -1, 0]} 
+        position={[0, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
       >
-        <planeGeometry args={[20, 100]} />
-        <meshLambertMaterial 
-          map={grassTexture}
-          color="#8B4513"
+        <planeGeometry args={[8, 150]} />
+        <meshStandardMaterial 
+          color="#A0824C"
+          roughness={0.8}
         />
       </mesh>
       
-      {/* Side walls - optimized with forest green */}
-      <mesh position={[-10, 2, 0]}>
-        <boxGeometry args={[1, 6, 100]} />
-        <meshLambertMaterial color="#4A5D23" />
+      {/* Left forest ground */}
+      <mesh 
+        position={[-8, -0.5, 0]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[16, 150]} />
+        <meshStandardMaterial 
+          map={grassTexture}
+          color="#3A5D2A"
+          roughness={0.9}
+        />
       </mesh>
       
-      <mesh position={[10, 2, 0]}>
-        <boxGeometry args={[1, 6, 100]} />
-        <meshLambertMaterial color="#4A5D23" />
+      {/* Right forest ground */}
+      <mesh 
+        position={[8, -0.5, 0]} 
+        rotation={[-Math.PI / 2, 0, 0]}
+        receiveShadow
+      >
+        <planeGeometry args={[16, 150]} />
+        <meshStandardMaterial 
+          map={grassTexture}
+          color="#3A5D2A"
+          roughness={0.9}
+        />
+      </mesh>
+      
+      {/* Lane dividers */}
+      <mesh position={[-2.5, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.1, 150]} />
+        <meshStandardMaterial color="#8B6F35" />
+      </mesh>
+      <mesh position={[2.5, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.1, 150]} />
+        <meshStandardMaterial color="#8B6F35" />
       </mesh>
     </>
   );

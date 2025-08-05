@@ -73,13 +73,13 @@ export default function Player() {
     
     // Apply running animation to group
     if (groupRef.current && meshRef.current) {
-      const runSpeed = 8;
-      const bobAmount = Math.sin(time * runSpeed * 2) * 0.05;
-      const rotateAmount = Math.sin(time * runSpeed) * 0.1;
+      const runSpeed = 4; // Slower, more natural animation
+      const bobAmount = Math.sin(time * runSpeed * 2) * 0.03;
+      const rotateAmount = Math.sin(time * runSpeed) * 0.06;
       
       // Character positioning with proper terrain alignment
       const terrainY = -0.5;
-      const characterHeight = 1; // Full character height
+      const characterHeight = 0.8; // Character height to match shadow character
       groupRef.current.position.set(position.x, terrainY + characterHeight, position.z);
       
       // Running animation
@@ -124,7 +124,7 @@ export default function Player() {
       try {
         const { scene } = useGLTF(`/assets/characters/character_${characterType}.glb`);
         return (
-          <group ref={groupRef} scale={[2.5, 2.5, 2.5]} castShadow receiveShadow>
+          <group ref={groupRef} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow>
             <primitive 
               ref={meshRef}
               object={scene.clone()}

@@ -21,24 +21,24 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
   // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
     const obstacleArray: ObstacleData[] = [];
-    const lanes = [-5, -2.5, 0, 2.5, 5]; // Define specific lanes like Temple Run
+    const lanes = [-3, -1, 1, 3]; // Four lanes within the running path
     const terrainY = -0.5; // Terrain surface level
     
     for (let i = 0; i < 25; i++) {
-      const z = -20 - (i * 8); // Closer spacing for more challenge
+      const z = -20 - (i * 12); // More spaced out obstacles
       const laneIndex = Math.floor(Math.random() * lanes.length);
       const x = lanes[laneIndex]; // Snap to lanes
       const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
       
       // Calculate proper Y position based on obstacle type and terrain
-      const obstacleHeight = type === 'crate' ? 0.5 : 0.6; // Half height for proper positioning
+      const obstacleHeight = type === 'crate' ? 0.5 : 0.4; // Smaller obstacles
       const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({
         id: i,
         position: [x, yPosition, z],
         type,
-        scale: type === 'crate' ? [1, 1, 1] : [1.2, 1.2, 1.2]
+        scale: type === 'crate' ? [0.8, 0.8, 0.8] : [0.8, 0.8, 0.8] // Smaller scale
       });
     }
     

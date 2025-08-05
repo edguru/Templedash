@@ -39,10 +39,10 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
     
     // Enhanced running animation with proper positioning
     if (!isJumping && modelRef.current) {
-      const runSpeed = 8; // Faster running animation
-      const bobAmount = Math.sin(time * runSpeed * 2) * 0.08; // More pronounced bobbing
-      const rotateAmount = Math.sin(time * runSpeed) * 0.15;
-      const armSwing = Math.sin(time * runSpeed) * 0.3;
+      const runSpeed = 4; // Slower, more natural running animation
+      const bobAmount = Math.sin(time * runSpeed * 2) * 0.04; // Subtle bobbing
+      const rotateAmount = Math.sin(time * runSpeed) * 0.08;
+      const armSwing = Math.sin(time * runSpeed) * 0.15;
       
       // Model bobbing while running
       modelRef.current.position.y = bobAmount;
@@ -69,12 +69,12 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
 
     // Update position with proper terrain alignment
     const terrainY = -0.5; // Terrain surface level
-    const characterHeight = 0.5; // Half character height to place feet on ground
+    const characterHeight = 0.8; // Character height to place feet on ground
     groupRef.current.position.set(position[0], terrainY + characterHeight, position[2]);
   });
 
   return (
-    <group ref={groupRef} scale={[2.5, 2.5, 2.5]} castShadow receiveShadow>
+    <group ref={groupRef} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow>
       {modelLoaded && stickHuman ? (
         <Suspense fallback={
           <mesh castShadow>

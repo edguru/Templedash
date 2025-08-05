@@ -38,30 +38,30 @@ export default function Terrain({ offset }: TerrainProps) {
         />
       </mesh>
       
-      {/* Left forest ground */}
+      {/* Left forest ground - moved further away */}
       <mesh 
-        position={[-8, -0.5, 0]} 
+        position={[-20, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[16, 150]} />
+        <planeGeometry args={[24, 150]} />
         <meshStandardMaterial 
           map={grassTexture}
-          color="#3A5D2A"
+          color="#2D4A1F"
           roughness={0.9}
         />
       </mesh>
       
-      {/* Right forest ground */}
+      {/* Right forest ground - moved further away */}
       <mesh 
-        position={[8, -0.5, 0]} 
+        position={[20, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[16, 150]} />
+        <planeGeometry args={[24, 150]} />
         <meshStandardMaterial 
           map={grassTexture}
-          color="#3A5D2A"
+          color="#2D4A1F"
           roughness={0.9}
         />
       </mesh>

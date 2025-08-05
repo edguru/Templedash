@@ -156,11 +156,11 @@ export default function GameScene() {
       !box.collected && box.spawnDistance > newDistance - 100
     ));
     
-    // Update camera to follow player with better positioning
-    state.camera.position.x = position.x * 0.2;
-    state.camera.position.y = 8;
-    state.camera.position.z = 15;
-    state.camera.lookAt(position.x, 1, position.z - 5);
+    // Update camera to follow player with Temple Run style positioning
+    state.camera.position.x = position.x * 0.1;
+    state.camera.position.y = 4;
+    state.camera.position.z = 8;
+    state.camera.lookAt(position.x, 0, position.z - 3);
   });
 
   // Handle coin cluster collection

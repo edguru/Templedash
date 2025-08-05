@@ -128,8 +128,8 @@ function App() {
               <>
                 <Canvas
                   camera={{
-                    position: [0, 8, 15],
-                    fov: 50,
+                    position: [0, 4, 8],
+                    fov: 60,
                     near: 0.1,
                     far: 1000
                   }}

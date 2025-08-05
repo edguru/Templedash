@@ -74,7 +74,7 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
   });
 
   return (
-    <group ref={groupRef} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow>
+    <group ref={groupRef} scale={[1.2, 1.2, 1.2]} rotation={[0, Math.PI, 0]} castShadow receiveShadow>
       {modelLoaded && stickHuman ? (
         <Suspense fallback={
           <mesh castShadow>

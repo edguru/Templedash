@@ -3,6 +3,7 @@ import { create } from "zustand";
 interface PlayerState {
   position: { x: number; y: number; z: number };
   velocity: { x: number; y: number; z: number };
+  currentLane: number; // 0, 1, 2 for left, center, right
   isJumping: boolean;
   isMoving: boolean;
   isMovingLeft: boolean;
@@ -16,16 +17,16 @@ interface PlayerState {
   resetPlayer: () => void;
 }
 
-const MOVE_SPEED = 0.16; // reduced by 50x (was 8)
-const JUMP_FORCE = 0.24; // reduced by 50x (was 12)
-const GRAVITY = -0.5; // reduced by 50x (was -25)
+const LANE_POSITIONS = [-2, 0, 2]; // Three lane positions
+const LANE_SWITCH_SPEED = 0.2; // Speed of lane transitions
+const JUMP_FORCE = 0.3; // Jump strength
+const GRAVITY = -0.8; // Gravity force
 const GROUND_Y = 0;
-const MAX_X = 8;
-const MIN_X = -8;
 
 export const usePlayer = create<PlayerState>((set, get) => ({
   position: { x: 0, y: GROUND_Y, z: 0 },
   velocity: { x: 0, y: 0, z: 0 },
+  currentLane: 1, // Start in center lane
   isJumping: false,
   isMoving: false,
   isMovingLeft: false,
@@ -36,7 +37,18 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     const newPosition = { ...state.position };
     const newVelocity = { ...state.velocity };
     
-    // Apply gravity
+    // Smooth lane transition
+    const targetX = LANE_POSITIONS[state.currentLane];
+    const xDiff = targetX - newPosition.x;
+    if (Math.abs(xDiff) > 0.1) {
+      newPosition.x += xDiff * LANE_SWITCH_SPEED;
+      set({ isMoving: true });
+    } else {
+      newPosition.x = targetX;
+      set({ isMoving: false });
+    }
+    
+    // Apply gravity and jumping
     if (newPosition.y > GROUND_Y || newVelocity.y !== 0) {
       newVelocity.y += GRAVITY * delta;
       newPosition.y += newVelocity.y * delta;
@@ -49,20 +61,12 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       }
     }
     
-    // Apply horizontal movement decay
-    newVelocity.x *= 0.9;
-    newPosition.x += newVelocity.x * delta;
-    
-    // Clamp horizontal position
-    newPosition.x = Math.max(MIN_X, Math.min(MAX_X, newPosition.x));
-    
     // Update forward movement (for distance tracking)
     newPosition.z -= gameSpeed;
     
     set({ 
       position: newPosition, 
-      velocity: newVelocity,
-      isMoving: Math.abs(newVelocity.x) > 0.1
+      velocity: newVelocity
     });
   },
   
@@ -78,36 +82,41 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   
   moveLeft: () => {
     const state = get();
-    set({ 
-      velocity: { 
-        ...state.velocity, 
-        x: Math.max(state.velocity.x - MOVE_SPEED, -MOVE_SPEED) 
-      },
-      isMovingLeft: true,
-      isMovingRight: false
-    });
-    // Reset direction flags after brief time
-    setTimeout(() => set({ isMovingLeft: false }), 150);
+    const newLane = Math.max(0, state.currentLane - 1);
+    if (newLane !== state.currentLane) {
+      set({ 
+        currentLane: newLane,
+        isMovingLeft: true,
+        isMovingRight: false
+      });
+      // Reset movement flags after animation
+      setTimeout(() => {
+        set({ isMovingLeft: false });
+      }, 300);
+    }
   },
   
   moveRight: () => {
     const state = get();
-    set({ 
-      velocity: { 
-        ...state.velocity, 
-        x: Math.min(state.velocity.x + MOVE_SPEED, MOVE_SPEED) 
-      },
-      isMovingRight: true,
-      isMovingLeft: false
-    });
-    // Reset direction flags after brief time
-    setTimeout(() => set({ isMovingRight: false }), 150);
+    const newLane = Math.min(2, state.currentLane + 1);
+    if (newLane !== state.currentLane) {
+      set({ 
+        currentLane: newLane,
+        isMovingLeft: false,
+        isMovingRight: true
+      });
+      // Reset movement flags after animation
+      setTimeout(() => {
+        set({ isMovingRight: false });
+      }, 300);
+    }
   },
   
   resetPlayer: () => {
     set({
       position: { x: 0, y: GROUND_Y, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
+      currentLane: 1,
       isJumping: false,
       isMoving: false,
       isMovingLeft: false,

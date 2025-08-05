@@ -124,7 +124,7 @@ export default function Player() {
       try {
         const { scene } = useGLTF(`/assets/characters/character_${characterType}.glb`);
         return (
-          <group ref={groupRef} scale={[1.2, 1.2, 1.2]} castShadow receiveShadow>
+          <group ref={groupRef} scale={[1.2, 1.2, 1.2]} rotation={[0, Math.PI, 0]} castShadow receiveShadow>
             <primitive 
               ref={meshRef}
               object={scene.clone()}

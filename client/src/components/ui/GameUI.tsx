@@ -47,17 +47,12 @@ export default function GameUI() {
 
       {/* Touch Controls for Mobile */}
       <TouchControls 
-        onMoveLeft={moveLeft}
-        onMoveRight={moveRight}
+        onLeft={moveLeft}
+        onRight={moveRight}
         onJump={jump}
+        onLeftEnd={() => {}}
+        onRightEnd={() => {}}
       />
-
-      {/* Speed indicator */}
-      <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
-        <div className="bg-black/70 text-white p-2 rounded-lg text-xs">
-          Speed: {Math.abs(position.z).toFixed(1)}
-        </div>
-      </div>
     </div>
   );
 }

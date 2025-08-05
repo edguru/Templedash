@@ -11,6 +11,8 @@ import Environment from "./Environment";
 import Lighting from "./Lighting";
 import MysteryBox from "./MysteryBox";
 import CoinCluster from "./CoinCluster";
+import ShadowCharacter from "./ShadowCharacter";
+import TouchControls from "../ui/TouchControls";
 
 // Import game logic
 import { 
@@ -31,13 +33,15 @@ import { useGameState } from "../../lib/stores/useGameState";
 import { usePlayer } from "../../lib/stores/usePlayer";
 import { useAudio } from "../../lib/stores/useAudio";
 import { useRewards } from "../../lib/stores/useRewards";
+import { useNFT } from "../../lib/stores/useNFT";
 
 // Import game utilities
 import { checkCollisions, updateGameSpeed } from "../../lib/gameUtils";
 
 export default function GameScene() {
   const { gamePhase, endGame, addScore, distance, updateDistance } = useGameState();
-  const { position, velocity, isJumping, updatePosition, resetPlayer } = usePlayer();
+  const { position, velocity, isJumping, updatePosition, resetPlayer, isMovingLeft, isMovingRight } = usePlayer();
+  const { hasCharacterNFT } = useNFT();
   const { playHit, playSuccess } = useAudio();
   const { addCoins, addTokenReward } = useRewards();
   
@@ -217,7 +221,17 @@ export default function GameScene() {
     <>
       <Lighting />
       
-      <Player />
+      {/* Use Shadow Character as default, Player component if NFT owned */}
+      {hasCharacterNFT ? (
+        <Player />
+      ) : (
+        <ShadowCharacter 
+          position={[position.x, position.y, position.z]}
+          isJumping={isJumping}
+          isMovingLeft={isMovingLeft}
+          isMovingRight={isMovingRight}
+        />
+      )}
       
       <Terrain offset={terrainOffset} />
       

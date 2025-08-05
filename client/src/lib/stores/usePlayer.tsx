@@ -5,6 +5,8 @@ interface PlayerState {
   velocity: { x: number; y: number; z: number };
   isJumping: boolean;
   isMoving: boolean;
+  isMovingLeft: boolean;
+  isMovingRight: boolean;
   
   // Actions
   updatePosition: (delta: number, gameSpeed: number) => void;
@@ -26,6 +28,8 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   velocity: { x: 0, y: 0, z: 0 },
   isJumping: false,
   isMoving: false,
+  isMovingLeft: false,
+  isMovingRight: false,
   
   updatePosition: (delta, gameSpeed) => {
     const state = get();
@@ -78,8 +82,12 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       velocity: { 
         ...state.velocity, 
         x: Math.max(state.velocity.x - MOVE_SPEED, -MOVE_SPEED) 
-      }
+      },
+      isMovingLeft: true,
+      isMovingRight: false
     });
+    // Reset direction flags after brief time
+    setTimeout(() => set({ isMovingLeft: false }), 150);
   },
   
   moveRight: () => {
@@ -88,8 +96,12 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       velocity: { 
         ...state.velocity, 
         x: Math.min(state.velocity.x + MOVE_SPEED, MOVE_SPEED) 
-      }
+      },
+      isMovingRight: true,
+      isMovingLeft: false
     });
+    // Reset direction flags after brief time
+    setTimeout(() => set({ isMovingRight: false }), 150);
   },
   
   resetPlayer: () => {
@@ -97,7 +109,9 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       position: { x: 0, y: GROUND_Y, z: 0 },
       velocity: { x: 0, y: 0, z: 0 },
       isJumping: false,
-      isMoving: false
+      isMoving: false,
+      isMovingLeft: false,
+      isMovingRight: false
     });
   }
 }));

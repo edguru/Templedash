@@ -11,6 +11,7 @@ import StartScreen from "./components/ui/StartScreen";
 import GameOverScreen from "./components/ui/GameOverScreen";
 import MintScreen from "./components/ui/MintScreen";
 import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
+import ChatScreen from "./components/ui/ChatScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -98,6 +99,8 @@ function App() {
             
             {gamePhase === 'leaderboard' && <LeaderboardScreen />}
             
+            {gamePhase === 'chat' && <ChatScreen />}
+            
             {gamePhase === 'gameOver' && <GameOverScreen />}
 
             {gamePhase === 'playing' && (
@@ -112,9 +115,14 @@ function App() {
                   gl={{
                     antialias: false,
                     powerPreference: "high-performance",
-                    precision: "lowp"
+                    precision: "lowp",
+                    alpha: false,
+                    stencil: false,
+                    depth: true
                   }}
-                  dpr={Math.min(window.devicePixelRatio, 1.5)}
+                  dpr={Math.min(window.devicePixelRatio, 2)}
+                  performance={{ min: 0.5 }}
+                  frameloop="demand"
                 >
                   <color attach="background" args={["#87CEEB"]} />
                   

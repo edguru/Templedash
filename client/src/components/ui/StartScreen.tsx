@@ -77,6 +77,19 @@ export default function StartScreen() {
           )}
         </div>
 
+        {/* Navigation Tabs */}
+        <div className="mb-6 flex bg-gray-100 rounded-xl p-1">
+          <button className="flex-1 bg-white shadow-sm rounded-lg py-2 px-4 text-sm font-medium text-green-600 border border-green-200">
+            Game
+          </button>
+          <button 
+            onClick={() => setGamePhase('chat')}
+            className="flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors"
+          >
+            Chat Companion
+          </button>
+        </div>
+
         {/* Action buttons */}
         <div className="space-y-3">
           {/* Big Play Button */}

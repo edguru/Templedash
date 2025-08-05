@@ -24,39 +24,43 @@ export default function Terrain({ offset }: TerrainProps) {
 
   return (
     <>
-      {/* Simple clean running path with equal lanes */}
-      <mesh 
-        ref={meshRef}
-        position={[0, -0.5, 0]} 
-        rotation={[-Math.PI / 2, 0, 0]}
-        receiveShadow
-      >
-        <planeGeometry args={[8, 30]} />
-        <meshStandardMaterial 
-          color="#D2B48C"
-          roughness={0.7}
-        />
-      </mesh>
-      
-      {/* Clean lane markings */}
-      <mesh position={[-2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.2, 30]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
-      <mesh position={[2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.2, 30]} />
-        <meshStandardMaterial color="#8B4513" />
-      </mesh>
-      
-      {/* Side boundaries */}
-      <mesh position={[-4.5, 0.5, 0]}>
-        <boxGeometry args={[1, 1, 30]} />
-        <meshStandardMaterial color="#654321" />
-      </mesh>
-      <mesh position={[4.5, 0.5, 0]}>
-        <boxGeometry args={[1, 1, 30]} />
-        <meshStandardMaterial color="#654321" />
-      </mesh>
+      {/* Multiple terrain segments for continuous ground */}
+      {Array.from({ length: 10 }, (_, i) => (
+        <group key={`terrain-${i}`} position={[0, 0, -i * 40]}>
+          {/* Main running path */}
+          <mesh 
+            position={[0, -0.5, 0]} 
+            rotation={[-Math.PI / 2, 0, 0]}
+            receiveShadow
+          >
+            <planeGeometry args={[8, 40]} />
+            <meshStandardMaterial 
+              color="#D2B48C"
+              roughness={0.7}
+            />
+          </mesh>
+          
+          {/* Lane markings */}
+          <mesh position={[-2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.2, 40]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          <mesh position={[2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args={[0.2, 40]} />
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+          
+          {/* Side walls */}
+          <mesh position={[-4.5, 0.5, 0]}>
+            <boxGeometry args={[1, 1, 40]} />
+            <meshStandardMaterial color="#654321" />
+          </mesh>
+          <mesh position={[4.5, 0.5, 0]}>
+            <boxGeometry args={[1, 1, 40]} />
+            <meshStandardMaterial color="#654321" />
+          </mesh>
+        </group>
+      ))}
     </>
   );
 }

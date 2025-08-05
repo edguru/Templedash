@@ -252,11 +252,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
+      // Update mystery box count and check limits
+      const currentBoxes = user[0]?.mysteryBoxesOpened || 0;
+      const canOpenSecond = (parseInt(user[0].id.toString()) % 10) === 0; // 10% of users
+      
+      if (currentBoxes >= (canOpenSecond ? 2 : 1)) {
+        return res.status(400).json({ error: 'Mystery box limit reached' });
+      }
+
       // Mark user as having opened mystery box
       await db
         .update(users)
         .set({ 
           hasOpenedMysteryBox: true,
+          mysteryBoxesOpened: currentBoxes + 1,
+          canOpenSecondBox: canOpenSecond,
           totalTokensEarned: String(Number(user[0]?.totalTokensEarned || 0) + selectedReward.amount)
         })
         .where(eq(users.id, userId));
@@ -306,6 +316,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Token claim error:', error);
       res.status(500).json({ error: 'Failed to claim reward' });
+    }
+  });
+
+  // Get user's mystery box status (limit: 1 per user, <10% get second box)
+  app.get('/api/user/mystery-box-status', authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.currentUser.userId;
+      
+      const user = await db.select().from(users).where(eq(users.id, userId)).limit(1);
+      
+      if (user.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userRecord = user[0];
+      
+      // Check if user gets second box (10% chance assigned randomly based on user ID)
+      const canOpenSecond = (parseInt(userRecord.id.toString()) % 10) === 0; // 10% of users
+
+      res.json({
+        opened: userRecord.mysteryBoxesOpened || 0,
+        canOpenSecond: userRecord.canOpenSecondBox || canOpenSecond,
+        maxBoxes: canOpenSecond ? 2 : 1
+      });
+    } catch (error) {
+      console.error('Mystery box status error:', error);
+      res.status(500).json({ error: 'Failed to fetch mystery box status' });
     }
   });
 

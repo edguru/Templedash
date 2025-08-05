@@ -28,22 +28,22 @@ export default function MintScreen() {
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-center justify-center">
-      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Unlock Your Character</h1>
+    <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl">
+        <h1 className="text-2xl font-bold text-gray-800 mb-3">Unlock Your Character</h1>
         
         {/* Character preview */}
-        <div className="mb-6">
-          <div className="w-32 h-32 mx-auto bg-gradient-to-b from-gray-400 to-gray-600 rounded-lg flex items-center justify-center mb-4 shadow-lg">
-            <div className="text-4xl">👤</div>
+        <div className="mb-4">
+          <div className="w-24 h-24 mx-auto bg-gradient-to-b from-gray-400 to-gray-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
+            <div className="text-3xl">👤</div>
           </div>
-          <p className="text-gray-600">Currently playing as Shadow Character</p>
+          <p className="text-gray-600 text-sm">Currently playing as Shadow Character</p>
         </div>
 
         {/* NFT Benefits */}
-        <div className="bg-blue-50 p-4 rounded-lg mb-6">
-          <h3 className="font-semibold text-blue-800 mb-2">Character NFT Benefits:</h3>
-          <ul className="text-sm text-blue-700 space-y-1">
+        <div className="bg-blue-50 p-3 rounded-lg mb-4">
+          <h3 className="font-semibold text-blue-800 mb-2 text-sm">Character NFT Benefits:</h3>
+          <ul className="text-xs text-blue-700 space-y-1">
             <li>✨ Unlock full 3D character model</li>
             <li>🎮 Enhanced gameplay experience</li>
             <li>💎 Own your character forever</li>

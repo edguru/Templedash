@@ -35,9 +35,9 @@ export default function StartScreen() {
 
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center p-4">
-      <div className="game-card start-screen-card bg-white/90 rounded-lg w-full text-center shadow-2xl">
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Temple Runner</h1>
-        <p className="text-gray-600 mb-6">NFT-Powered Infinite Runner</p>
+      <div className="game-card start-screen-card bg-white/90 rounded-lg max-w-sm w-full mx-auto text-center shadow-2xl p-6">
+        <h1 className="text-3xl font-bold text-gray-800 mb-3">Temple Runner</h1>
+        <p className="text-gray-600 mb-4 text-sm">NFT-Powered Infinite Runner</p>
         
         {/* Wallet connection */}
         <div className="mb-6">

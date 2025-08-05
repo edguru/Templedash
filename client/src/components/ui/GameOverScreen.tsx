@@ -9,6 +9,7 @@ export default function GameOverScreen() {
   const { token } = useAuth();
   const [scoreSaved, setScoreSaved] = useState(false);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
+  const [userMysteryBoxStatus, setUserMysteryBoxStatus] = useState({ opened: 0, canOpenSecond: false });
 
   const coinsEarned = Math.floor(score / 10);
 
@@ -71,16 +72,46 @@ export default function GameOverScreen() {
     setGamePhase('mysteryBox');
   };
 
+  // Check mystery box eligibility on component mount
+  useEffect(() => {
+    const checkMysteryBoxStatus = async () => {
+      if (!token) return;
+      
+      try {
+        const response = await fetch('/api/user/mystery-box-status', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          const status = await response.json();
+          setUserMysteryBoxStatus(status);
+        }
+      } catch (error) {
+        console.error('Failed to fetch mystery box status:', error);
+      }
+    };
+
+    checkMysteryBoxStatus();
+  }, [token]);
+
+  // Determine if user can open mystery box
+  const canOpenBox = canOpenMysteryBox && (
+    userMysteryBoxStatus.opened === 0 || 
+    (userMysteryBoxStatus.opened === 1 && userMysteryBoxStatus.canOpenSecond)
+  );
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-red-900/90 via-black/90 to-purple-900/90 flex items-center justify-center z-50">
-      <div className="bg-gray-900 border-4 border-red-500 rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+    <div className="fixed inset-0 bg-gradient-to-br from-red-900/90 via-black/90 to-purple-900/90 flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-900 border-4 border-red-500 rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl">
         {/* Pixel-style Game Over Title */}
-        <div className="mb-6">
+        <div className="mb-4">
           <h1 
-            className="text-5xl font-bold text-red-400 mb-2 tracking-wider"
+            className="text-3xl font-bold text-red-400 mb-2 tracking-wider"
             style={{ 
               fontFamily: 'Courier New, monospace',
-              textShadow: '4px 4px 0px #8B0000, -1px -1px 0px #FF4444',
+              textShadow: '3px 3px 0px #8B0000, -1px -1px 0px #FF4444',
               imageRendering: 'pixelated'
             }}
           >
@@ -98,8 +129,8 @@ export default function GameOverScreen() {
           </div>
         )}
         
-        {/* Stats with pixel styling */}
-        <div className="space-y-3 mb-8 bg-black/50 p-4 rounded border-2 border-gray-700">
+        {/* Stats with pixel styling - Compact */}
+        <div className="space-y-2 mb-4 bg-black/70 p-3 rounded border-2 border-gray-700 text-sm">
           <div className="flex justify-between items-center">
             <span 
               className="text-cyan-400 font-bold"
@@ -144,21 +175,21 @@ export default function GameOverScreen() {
           </div>
         </div>
 
-        {/* Mystery box notification */}
-        {canOpenMysteryBox && (
-          <div className="bg-purple-800 border-2 border-purple-400 p-3 rounded mb-6 animate-pulse">
-            <div className="text-purple-300 font-bold" style={{ fontFamily: 'Courier New, monospace' }}>
+        {/* Mystery box notification - Updated logic */}
+        {canOpenBox && (
+          <div className="bg-purple-800 border-2 border-purple-400 p-2 rounded mb-4 animate-pulse">
+            <div className="text-purple-300 font-bold text-sm" style={{ fontFamily: 'Courier New, monospace' }}>
               🎁 MYSTERY BOX AVAILABLE!
             </div>
           </div>
         )}
 
-        {/* Pixel-style buttons */}
-        <div className="space-y-4">
-          {canOpenMysteryBox && (
+        {/* Compact button layout */}
+        <div className="space-y-3">
+          {canOpenBox && (
             <button
               onClick={handleMysteryBox}
-              className="w-full bg-purple-600 hover:bg-purple-500 text-white px-6 py-4 border-2 border-purple-400 font-bold text-lg transition-all transform hover:scale-105 hover:shadow-lg"
+              className="w-full bg-purple-600 hover:bg-purple-500 text-white px-4 py-3 border-2 border-purple-400 font-bold text-base transition-all transform hover:scale-105 hover:shadow-lg"
               style={{ 
                 fontFamily: 'Courier New, monospace',
                 textShadow: '2px 2px 0px #4A1A5C'
@@ -170,7 +201,7 @@ export default function GameOverScreen() {
           
           <button
             onClick={handleRestart}
-            className="w-full bg-green-600 hover:bg-green-500 text-white px-6 py-4 border-2 border-green-400 font-bold text-lg transition-all transform hover:scale-105 hover:shadow-lg"
+            className="w-full bg-green-600 hover:bg-green-500 text-white px-4 py-3 border-2 border-green-400 font-bold text-base transition-all transform hover:scale-105 hover:shadow-lg"
             style={{ 
               fontFamily: 'Courier New, monospace',
               textShadow: '2px 2px 0px #2D5A27'
@@ -181,7 +212,7 @@ export default function GameOverScreen() {
           
           <button
             onClick={handleMainMenu}
-            className="w-full bg-gray-600 hover:bg-gray-500 text-white px-6 py-4 border-2 border-gray-400 font-bold text-lg transition-all transform hover:scale-105 hover:shadow-lg"
+            className="w-full bg-gray-600 hover:bg-gray-500 text-white px-4 py-3 border-2 border-gray-400 font-bold text-base transition-all transform hover:scale-105 hover:shadow-lg"
             style={{ 
               fontFamily: 'Courier New, monospace',
               textShadow: '2px 2px 0px #374151'

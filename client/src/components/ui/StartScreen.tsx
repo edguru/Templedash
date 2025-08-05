@@ -23,8 +23,8 @@ export default function StartScreen() {
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center">
-      <div className="bg-white/90 rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+    <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center p-4">
+      <div className="game-card start-screen-card bg-white/90 rounded-lg w-full text-center shadow-2xl">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Temple Runner</h1>
         <p className="text-gray-600 mb-6">NFT-Powered Infinite Runner</p>
         
@@ -60,11 +60,13 @@ export default function StartScreen() {
 
         {/* Action buttons */}
         <div className="space-y-3">
+          {/* Big Play Button */}
           <button
             onClick={handleStartGame}
-            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-8 rounded-xl transition-all transform hover:scale-105 flex items-center justify-center text-xl shadow-lg"
           >
-            {hasCharacterNFT ? "START GAME" : "UNLOCK CHARACTER & PLAY"}
+            <span className="mr-3 text-2xl">▶️</span>
+            {hasCharacterNFT ? "PLAY GAME" : "UNLOCK & PLAY"}
           </button>
           
           {canOpenMysteryBox && (

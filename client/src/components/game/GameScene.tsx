@@ -7,6 +7,7 @@ import Player from "./Player";
 import Terrain from "./Terrain";
 import Obstacles from "./Obstacles";
 import Coins from "./Coins";
+import Environment from "./Environment";
 import Lighting from "./Lighting";
 
 // Import stores
@@ -100,6 +101,8 @@ export default function GameScene() {
       <group ref={coinsRef}>
         <Coins gameSpeed={gameSpeed.current} />
       </group>
+      
+      <Environment gameSpeed={gameSpeed.current} />
     </>
   );
 }

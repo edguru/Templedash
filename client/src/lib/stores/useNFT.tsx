@@ -1,13 +1,17 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+type CharacterType = 'shadow' | 'red' | 'blue' | 'green';
+
 interface NFTState {
   hasCharacterNFT: boolean;
   characterTokenId: string | null;
+  characterType: CharacterType;
   
   // Actions
   setHasCharacterNFT: (hasNFT: boolean) => void;
   setCharacterTokenId: (tokenId: string | null) => void;
+  setCharacterType: (type: CharacterType) => void;
   checkNFTOwnership: () => Promise<void>;
 }
 
@@ -16,6 +20,7 @@ export const useNFT = create<NFTState>()(
     (set, get) => ({
       hasCharacterNFT: false,
       characterTokenId: null,
+      characterType: 'shadow',
       
       setHasCharacterNFT: (hasNFT) => {
         set({ hasCharacterNFT: hasNFT });
@@ -23,6 +28,10 @@ export const useNFT = create<NFTState>()(
       
       setCharacterTokenId: (tokenId) => {
         set({ characterTokenId: tokenId });
+      },
+      
+      setCharacterType: (type) => {
+        set({ characterType: type });
       },
       
       checkNFTOwnership: async () => {

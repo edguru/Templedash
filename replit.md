@@ -13,6 +13,7 @@ Temple Runner is an NFT-powered infinite runner game built with React, Three.js,
 - **Physics Enhancement**: Improved jumping mechanics and gravity system for realistic movement
 - **Performance Optimization**: Reduced terrain complexity, enhanced lighting, and Canvas settings
 - **Game Flow**: Fixed collision detection to properly trigger game over state
+- **UI Cleanup**: Removed duplicate touch controls by eliminating SimpleTouchControls component
 
 # User Preferences
 

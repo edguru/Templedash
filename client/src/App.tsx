@@ -157,7 +157,6 @@ function App() {
                   </Suspense>
                 </Canvas>
                 
-                <SimpleTouchControls />
                 <GameUI />
               </>
             )}

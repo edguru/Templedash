@@ -21,7 +21,7 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
   // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
     const obstacleArray: ObstacleData[] = [];
-    const lanes = [-2, 0, 2]; // Three lanes for classic Temple Run
+    const lanes = [-2.67, 0, 2.67]; // Three equal lanes for Temple Run
     const terrainY = -0.5; // Terrain surface level
     
     for (let i = 0; i < 25; i++) {

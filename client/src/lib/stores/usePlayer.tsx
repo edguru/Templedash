@@ -17,7 +17,7 @@ interface PlayerState {
   resetPlayer: () => void;
 }
 
-const LANE_POSITIONS = [-2, 0, 2]; // Three lane positions
+const LANE_POSITIONS = [-2.67, 0, 2.67]; // Three equal lane positions
 const LANE_SWITCH_SPEED = 0.2; // Speed of lane transitions
 const JUMP_FORCE = 0.3; // Jump strength
 const GRAVITY = -0.8; // Gravity force

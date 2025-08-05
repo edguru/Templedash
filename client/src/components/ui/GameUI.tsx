@@ -3,11 +3,10 @@ import { usePlayer } from "../../lib/stores/usePlayer";
 import { useRewards } from "../../lib/stores/useRewards";
 import { useAudio } from "../../lib/stores/useAudio";
 import { useIsMobile } from "../../hooks/use-is-mobile";
-import TouchControls from "./TouchControls";
 
 export default function GameUI() {
   const { score, distance } = useGameState();
-  const { position, moveLeft, moveRight, jump } = usePlayer();
+  const { position, moveLeft, moveRight, jump, isJumping } = usePlayer();
   const { totalCoins, completedRuns } = useRewards();
   const { isMuted, toggleMute } = useAudio();
   const isMobile = useIsMobile();
@@ -45,15 +44,40 @@ export default function GameUI() {
         </button>
       </div>
 
-      {/* Touch Controls for Mobile */}
+      {/* Mobile Touch Controls */}
       {isMobile && (
-        <TouchControls 
-          onLeft={moveLeft}
-          onRight={moveRight}
-          onJump={jump}
-          onLeftEnd={() => {}}
-          onRightEnd={() => {}}
-        />
+        <div className="fixed bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none z-50">
+          {/* Left/Right Movement */}
+          <div className="flex space-x-3 pointer-events-auto">
+            <button
+              onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
+              onMouseDown={(e) => { e.preventDefault(); moveLeft(); }}
+              className="w-16 h-16 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none"
+              style={{ touchAction: 'manipulation', userSelect: 'none' }}
+            >
+              ←
+            </button>
+            
+            <button
+              onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
+              onMouseDown={(e) => { e.preventDefault(); moveRight(); }}
+              className="w-16 h-16 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none"
+              style={{ touchAction: 'manipulation', userSelect: 'none' }}
+            >
+              →
+            </button>
+          </div>
+
+          {/* Jump Button */}
+          <button
+            onTouchStart={(e) => { e.preventDefault(); if (!isJumping) jump(); }}
+            onMouseDown={(e) => { e.preventDefault(); if (!isJumping) jump(); }}
+            className="w-20 h-20 rounded-full shadow-lg bg-green-500 hover:bg-green-600 active:bg-green-700 text-white text-xl font-bold flex items-center justify-center border-2 border-white/20 select-none pointer-events-auto"
+            style={{ touchAction: 'manipulation', userSelect: 'none' }}
+          >
+            ↑
+          </button>
+        </div>
       )}
     </div>
   );

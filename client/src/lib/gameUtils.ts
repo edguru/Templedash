@@ -50,12 +50,20 @@ export function checkCollisions(
   return null;
 }
 
-// Game speed progression
+// Game speed progression - 5x slower with gradual increase
 export function updateGameSpeed(elapsedTime: number): number {
-  const baseSpeed = 0.1;
-  const speedIncrease = Math.floor(elapsedTime / 10) * 0.02; // Increase every 10 seconds
-  return Math.min(baseSpeed + speedIncrease, 0.3); // Cap at 0.3
+  const baseSpeed = 0.02; // Reduced from 0.1 to 0.02 (5x slower)
+  const speedIncrease = Math.floor(elapsedTime / 15) * 0.004; // Gradual increase every 15 seconds
+  return Math.min(baseSpeed + speedIncrease, 0.06); // Cap at 0.06 (5x slower than 0.3)
 }
+
+// Alternative gradual speed calculation for game constants
+export const GAME_CONSTANTS = {
+  INITIAL_SPEED: 0.02, // 5x slower base speed
+  MAX_SPEED: 0.06, // 5x slower max speed
+  SPEED_INCREASE_RATE: 0.001, // How much speed increases per distance unit
+  SPEED_INCREASE_INTERVAL: 100, // Distance interval for speed increases
+};
 
 // Random position generation
 export function getRandomLanePosition(): number {

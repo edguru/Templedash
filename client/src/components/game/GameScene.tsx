@@ -38,7 +38,7 @@ import { useRewards } from "../../lib/stores/useRewards";
 import { useNFT } from "../../lib/stores/useNFT";
 
 // Import game utilities
-import { checkCollisions, updateGameSpeed } from "../../lib/gameUtils";
+import { checkCollisions, updateGameSpeed, GAME_CONSTANTS as SPEED_CONSTANTS } from "../../lib/gameUtils";
 
 export default function GameScene() {
   const { gamePhase, endGame, addScore, distance, updateDistance } = useGameState();
@@ -50,7 +50,7 @@ export default function GameScene() {
   // Enhanced game state
   const [gameState, setGameState] = useState<GameState>({
     distance: 0,
-    speed: GAME_CONSTANTS.INITIAL_SPEED,
+    speed: SPEED_CONSTANTS.INITIAL_SPEED,
     coinsCollected: 0,
     score: 0,
     lastMysteryBoxSpawn: 0,
@@ -63,7 +63,7 @@ export default function GameScene() {
   const [coinClusters, setCoinClusters] = useState<CoinClusterType[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBoxData[]>([]);
   
-  const gameSpeed = useRef(GAME_CONSTANTS.INITIAL_SPEED);
+  const gameSpeed = useRef(SPEED_CONSTANTS.INITIAL_SPEED);
   const terrainOffset = useRef(0);
   const obstaclesRef = useRef<THREE.Group>(null);
   const coinsRef = useRef<THREE.Group>(null);
@@ -72,8 +72,9 @@ export default function GameScene() {
   useFrame((state, delta) => {
     if (gamePhase !== 'playing') return;
 
-    // Calculate current speed based on game time
-    const currentSpeed = calculateCurrentSpeed(gameState.gameStartTime);
+    // Calculate gradual speed increase (5x slower than original)
+    const elapsedTime = (Date.now() - gameState.gameStartTime) / 1000; // seconds
+    const currentSpeed = updateGameSpeed(elapsedTime);
     gameSpeed.current = currentSpeed;
     
     // Update distance using deltaTime physics
@@ -128,7 +129,7 @@ export default function GameScene() {
       if (collision) {
         console.log("Collision detected with obstacle! Player jumping:", isJumping);
         playHit();
-        setGamePhase('gameOver');
+        endGame();
         return;
       }
     }
@@ -205,10 +206,10 @@ export default function GameScene() {
     if (gamePhase === 'playing') {
       resetPlayer();
       terrainOffset.current = 0;
-      gameSpeed.current = GAME_CONSTANTS.INITIAL_SPEED;
+      gameSpeed.current = SPEED_CONSTANTS.INITIAL_SPEED;
       setGameState({
         distance: 0,
-        speed: GAME_CONSTANTS.INITIAL_SPEED,
+        speed: SPEED_CONSTANTS.INITIAL_SPEED,
         coinsCollected: 0,
         score: 0,
         lastMysteryBoxSpawn: 0,

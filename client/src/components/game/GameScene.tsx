@@ -120,14 +120,14 @@ export default function GameScene() {
     // Check collisions with obstacles - enhanced with jumping consideration
     if (obstaclesRef.current) {
       const collision = checkCollisions(
-        position,
+        { x: position.x, y: position.y, z: position.z },
         obstaclesRef.current.children,
         'obstacle',
         isJumping
       );
       
       if (collision) {
-        console.log("Collision detected with obstacle! Player jumping:", isJumping);
+        console.log("GAME OVER! Collision detected with obstacle! Player jumping:", isJumping, "Position:", position);
         playHit();
         endGame();
         return;

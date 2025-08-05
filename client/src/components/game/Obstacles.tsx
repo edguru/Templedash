@@ -24,11 +24,11 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
     const lanes = [-2.67, 0, 2.67]; // Three equal lanes for Temple Run
     const terrainY = -0.5; // Terrain surface level
     
-    for (let i = 0; i < 25; i++) {
-      const z = -20 - (i * 12); // More spaced out obstacles
-      const laneIndex = Math.floor(Math.random() * lanes.length);
+    for (let i = 0; i < 30; i++) {
+      const z = -15 - (i * 8); // Closer spacing for more challenge
+      const laneIndex = i % 3; // Cycle through all lanes
       const x = lanes[laneIndex]; // Snap to lanes
-      const type: 'crate' | 'rock' = Math.random() > 0.5 ? 'crate' : 'rock';
+      const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
       
       // Calculate proper Y position based on obstacle type and terrain
       const obstacleHeight = type === 'crate' ? 0.5 : 0.4;
@@ -65,10 +65,11 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
       groupRef.current.children.forEach((child, index) => {
         child.position.z += gameSpeed;
         
-        // Reset obstacle position when it passes the player
+        // Reset obstacle position when it passes the player - maintain lane positioning
         if (child.position.z > 15) {
           child.position.z = -200 - (index * 10);
-          child.position.x = (Math.random() - 0.5) * 16;
+          const lanes = [-2.67, 0, 2.67];
+          child.position.x = lanes[Math.floor(Math.random() * lanes.length)];
         }
       });
     }

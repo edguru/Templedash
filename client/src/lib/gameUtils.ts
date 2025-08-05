@@ -9,32 +9,36 @@ export function checkCollisions(
 ): THREE.Object3D | null {
   const playerBox = new THREE.Box3().setFromCenterAndSize(
     new THREE.Vector3(playerPosition.x, playerPosition.y + 1, playerPosition.z),
-    new THREE.Vector3(1, 2, 0.5) // Player dimensions
+    new THREE.Vector3(0.8, 2, 0.8) // Player dimensions - tighter for better detection
   );
 
   for (const object of objects) {
-    if (!object.userData.type || object.userData.type !== type) continue;
+    // Check if object has collision data
+    if (!object.userData || !object.userData.type) continue;
+    if (object.userData.type !== type) continue;
     
-    // Skip if object is too far away
-    if (Math.abs(object.position.z - playerPosition.z) > 2) continue;
+    // Distance check for collision optimization
+    const distance = Math.abs(object.position.z - playerPosition.z);
+    if (distance > 3) continue; // Increased range for better detection
     
     let objectSize: THREE.Vector3;
     if (type === 'obstacle') {
-      const obstacleType = object.userData.obstacleType;
+      const obstacleType = object.userData.obstacleType || 'rock';
       
-      // If jumping and it's a rock, allow pass-through
-      if (isJumping && obstacleType === 'rock') {
-        continue; // Skip collision for rocks when jumping
+      // If jumping and it's a rock, allow pass-through only if player is high enough
+      if (isJumping && obstacleType === 'rock' && playerPosition.y > 1.2) {
+        console.log("Player jumped over rock obstacle!");
+        continue; // Skip collision for rocks when jumping high enough
       }
       
-      // Trees and crates always cause collision regardless of jumping
+      // Trees are tall and cannot be jumped over
       if (obstacleType === 'tree') {
-        objectSize = new THREE.Vector3(1, 3, 1); // Tall tree collision
+        objectSize = new THREE.Vector3(1.2, 4, 1.2); // Tall tree collision
       } else {
-        objectSize = new THREE.Vector3(1, 1, 1); // Standard obstacle
+        objectSize = new THREE.Vector3(1, 1.2, 1); // Rock obstacle
       }
     } else {
-      objectSize = new THREE.Vector3(0.6, 0.6, 0.2);
+      objectSize = new THREE.Vector3(0.8, 0.8, 0.8); // Coin collision
     }
     
     const objectBox = new THREE.Box3().setFromCenterAndSize(
@@ -43,6 +47,7 @@ export function checkCollisions(
     );
 
     if (playerBox.intersectsBox(objectBox)) {
+      console.log(`Collision detected! Type: ${type}, Object: ${obstacleType || 'coin'}, Player Y: ${playerPosition.y}, Jumping: ${isJumping}`);
       return object;
     }
   }
@@ -50,18 +55,18 @@ export function checkCollisions(
   return null;
 }
 
-// Game speed progression - 5x slower with gradual increase
+// Game speed progression - 2x faster than previous (2.5x slower than original)
 export function updateGameSpeed(elapsedTime: number): number {
-  const baseSpeed = 0.02; // Reduced from 0.1 to 0.02 (5x slower)
-  const speedIncrease = Math.floor(elapsedTime / 15) * 0.004; // Gradual increase every 15 seconds
-  return Math.min(baseSpeed + speedIncrease, 0.06); // Cap at 0.06 (5x slower than 0.3)
+  const baseSpeed = 0.04; // Increased from 0.02 to 0.04 (2x faster)
+  const speedIncrease = Math.floor(elapsedTime / 15) * 0.008; // Gradual increase every 15 seconds
+  return Math.min(baseSpeed + speedIncrease, 0.12); // Cap at 0.12 (2x faster)
 }
 
-// Alternative gradual speed calculation for game constants
+// Game constants with 2x speed increase
 export const GAME_CONSTANTS = {
-  INITIAL_SPEED: 0.02, // 5x slower base speed
-  MAX_SPEED: 0.06, // 5x slower max speed
-  SPEED_INCREASE_RATE: 0.001, // How much speed increases per distance unit
+  INITIAL_SPEED: 0.04, // 2x faster base speed
+  MAX_SPEED: 0.12, // 2x faster max speed
+  SPEED_INCREASE_RATE: 0.002, // How much speed increases per distance unit
   SPEED_INCREASE_INTERVAL: 100, // Distance interval for speed increases
 };
 

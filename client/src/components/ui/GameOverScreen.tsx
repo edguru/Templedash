@@ -1,11 +1,48 @@
 import { useGameState } from "../../lib/stores/useGameState";
 import { useRewards } from "../../lib/stores/useRewards";
+import { useAuth } from "../../lib/stores/useAuth";
+import { useEffect, useState } from "react";
 
 export default function GameOverScreen() {
   const { score, distance, restartGame, setGamePhase } = useGameState();
   const { addCoins, addRun, canOpenMysteryBox } = useRewards();
+  const { token } = useAuth();
+  const [scoreSaved, setScoreSaved] = useState(false);
+  const [isPersonalBest, setIsPersonalBest] = useState(false);
 
   const coinsEarned = Math.floor(score / 10);
+
+  // Save score when component mounts
+  useEffect(() => {
+    const saveScore = async () => {
+      if (!token || scoreSaved) return;
+      
+      try {
+        const response = await fetch('/api/scores', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            score,
+            distance: Math.floor(distance),
+            coinsCollected: coinsEarned
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          setIsPersonalBest(result.isPersonalBest);
+          setScoreSaved(true);
+        }
+      } catch (error) {
+        console.error('Failed to save score:', error);
+      }
+    };
+
+    saveScore();
+  }, [token, score, distance, coinsEarned, scoreSaved]);
 
   const handleRestart = () => {
     // Add rewards
@@ -38,6 +75,13 @@ export default function GameOverScreen() {
     <div className="absolute inset-0 bg-black/70 flex items-center justify-center">
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
         <h1 className="text-3xl font-bold text-red-600 mb-4">Game Over!</h1>
+        
+        {/* Personal best notification */}
+        {isPersonalBest && (
+          <div className="bg-gradient-to-r from-yellow-100 to-yellow-200 border border-yellow-400 p-3 rounded-lg mb-4 animate-pulse">
+            <div className="text-yellow-800 font-bold">🏆 NEW PERSONAL BEST!</div>
+          </div>
+        )}
         
         {/* Game stats */}
         <div className="space-y-3 mb-6">

@@ -15,6 +15,11 @@ import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
 import { useAudio } from "./lib/stores/useAudio";
+import { useAuth } from "./lib/stores/useAuth";
+
+// Import auth components
+import LoginScreen from "./components/auth/LoginScreen";
+import LeaderboardScreen from "./components/ui/LeaderboardScreen";
 
 // Thirdweb config - temporarily disabled
 // import { clientId, activeChain } from "./lib/thirdweb";
@@ -39,12 +44,18 @@ const controls = [
 // Main App component
 function App() {
   const { gamePhase } = useGameState();
+  const { isAuthenticated } = useAuth();
   const [showCanvas, setShowCanvas] = useState(false);
 
   // Show the canvas once everything is loaded
   useEffect(() => {
     setShowCanvas(true);
   }, []);
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return <LoginScreen />;
+  }
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
@@ -56,12 +67,13 @@ function App() {
             
             {gamePhase === 'mysteryBox' && <MysteryBoxScreen />}
             
+            {gamePhase === 'leaderboard' && <LeaderboardScreen />}
+            
             {gamePhase === 'gameOver' && <GameOverScreen />}
 
             {gamePhase === 'playing' && (
               <>
                 <Canvas
-                  shadows
                   camera={{
                     position: [0, 5, 10],
                     fov: 60,
@@ -69,9 +81,11 @@ function App() {
                     far: 1000
                   }}
                   gl={{
-                    antialias: true,
-                    powerPreference: "high-performance"
+                    antialias: false,
+                    powerPreference: "high-performance",
+                    precision: "lowp"
                   }}
+                  dpr={Math.min(window.devicePixelRatio, 1.5)}
                 >
                   <color attach="background" args={["#87CEEB"]} />
                   

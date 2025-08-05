@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useRewards } from "../../lib/stores/useRewards";
 import { useAudio } from "../../lib/stores/useAudio";
+import { useAuth } from "../../lib/stores/useAuth";
 
 interface Reward {
   amount: number;
@@ -12,9 +13,11 @@ interface Reward {
 export default function MysteryBoxScreen() {
   const [isOpening, setIsOpening] = useState(false);
   const [reward, setReward] = useState<Reward | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { setGamePhase } = useGameState();
   const { openMysteryBox, addTokenReward } = useRewards();
   const { playSuccess } = useAudio();
+  const { token } = useAuth();
 
   const generateReward = (): Reward => {
     const random = Math.random();
@@ -28,18 +31,52 @@ export default function MysteryBoxScreen() {
     }
   };
 
-  const handleOpenBox = () => {
+  const handleOpenBox = async () => {
+    if (!token) {
+      setError('Please log in to claim rewards');
+      return;
+    }
+
     setIsOpening(true);
+    setError(null);
     
-    // Simulate opening animation
-    setTimeout(() => {
+    try {
+      // Generate reward
       const newReward = generateReward();
-      setReward(newReward);
-      openMysteryBox();
-      addTokenReward(newReward.amount);
-      playSuccess();
+      
+      // Claim reward through backend
+      const response = await fetch('/api/tokens/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          amount: newReward.amount,
+          source: 'mystery_box'
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to claim reward');
+      }
+
+      const claimData = await response.json();
+      
+      // Show reward after animation
+      setTimeout(() => {
+        setReward(newReward);
+        openMysteryBox();
+        addTokenReward(newReward.amount);
+        playSuccess();
+        setIsOpening(false);
+      }, 2000);
+
+    } catch (err) {
+      console.error('Error claiming reward:', err);
+      setError('Failed to claim reward. Please try again.');
       setIsOpening(false);
-    }, 2000);
+    }
   };
 
   const handleContinue = () => {
@@ -70,6 +107,12 @@ export default function MysteryBoxScreen() {
                 </div>
               )}
             </div>
+
+            {error && (
+              <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4">
+                {error}
+              </div>
+            )}
 
             {/* Reward tiers */}
             <div className="bg-gray-50 p-4 rounded-lg mb-6 text-sm">

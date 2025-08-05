@@ -29,24 +29,23 @@ export default function Terrain({ offset }: TerrainProps) {
         ref={meshRef}
         position={[0, -1, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
-        receiveShadow
       >
         <planeGeometry args={[20, 100]} />
-        <meshStandardMaterial 
+        <meshLambertMaterial 
           map={grassTexture}
           color="#4A7C2A"
         />
       </mesh>
       
-      {/* Side walls */}
-      <mesh position={[-10, 2, 0]} receiveShadow>
+      {/* Side walls - optimized */}
+      <mesh position={[-10, 2, 0]}>
         <boxGeometry args={[1, 6, 100]} />
-        <meshStandardMaterial color="#8B4513" />
+        <meshLambertMaterial color="#8B4513" />
       </mesh>
       
-      <mesh position={[10, 2, 0]} receiveShadow>
+      <mesh position={[10, 2, 0]}>
         <boxGeometry args={[1, 6, 100]} />
-        <meshStandardMaterial color="#8B4513" />
+        <meshLambertMaterial color="#8B4513" />
       </mesh>
     </>
   );

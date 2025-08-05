@@ -10,10 +10,11 @@ Preferred communication style: Simple, everyday language.
 
 ## Frontend Architecture
 - **React with TypeScript**: Main UI framework using functional components and hooks
-- **Three.js with React Three Fiber**: 3D graphics engine for the game world, providing immersive gameplay
-- **Zustand**: State management for game state, player progress, audio controls, and NFT ownership
+- **Three.js with React Three Fiber**: 3D graphics engine optimized for mobile performance
+- **Zustand**: State management for game state, player progress, audio controls, authentication, and NFT ownership
 - **Tailwind CSS with Radix UI**: Styling system with pre-built accessible components
 - **Vite**: Build tool and development server with hot module replacement
+- **Mobile Optimization**: Reduced shadow quality, lower polygon models, simplified lighting for mobile devices
 
 ## Game Engine Structure
 - **Component-based 3D Scene**: Modular game objects (Player, Terrain, Obstacles, Coins, Lighting)
@@ -23,10 +24,11 @@ Preferred communication style: Simple, everyday language.
 - **Progressive Difficulty**: Game speed increases over time for added challenge
 
 ## Backend Architecture
-- **Express.js**: RESTful API server with middleware for logging and error handling
-- **In-Memory Storage**: Simple storage interface with methods for user CRUD operations
-- **Modular Route System**: Structured API endpoints with /api prefix
-- **Development Setup**: Vite integration for seamless full-stack development
+- **Express.js**: RESTful API server with JWT authentication and comprehensive error handling
+- **PostgreSQL with Drizzle ORM**: Type-safe database operations with proper schema management
+- **JWT Authentication**: Wallet-based authentication system for secure user sessions
+- **Comprehensive API**: Game scores, leaderboards, token claims, NFT ownership tracking
+- **Real Token Rewards**: Mystery box system with $0.01-$10+ crypto rewards based on performance
 
 ## Database Schema
 - **Drizzle ORM**: Type-safe database operations with PostgreSQL dialect

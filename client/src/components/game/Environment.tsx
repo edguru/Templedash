@@ -19,22 +19,23 @@ export default function Environment({ gameSpeed }: EnvironmentProps) {
   const groupRef = useRef<THREE.Group>(null);
   const grassTexture = useTexture("/textures/grass.png");
   
-  // Generate background environment objects
+  // Generate fewer environment objects for better performance
   const environmentObjects = useMemo<EnvironmentObject[]>(() => {
     const objects: EnvironmentObject[] = [];
     
-    for (let i = 0; i < 50; i++) {
-      const z = -50 - (i * 15); // Space objects far apart
-      const x = (Math.random() - 0.5) * 40; // Wide spread
+    // Reduce to 15 objects for mobile performance
+    for (let i = 0; i < 15; i++) {
+      const z = -50 - (i * 25); // Space objects further apart
+      const x = (Math.random() - 0.5) * 30; // Narrower spread
       const type: 'tree' | 'rock_large' | 'rock_small' = 
-        Math.random() > 0.7 ? 'tree' : 
+        Math.random() > 0.6 ? 'tree' : 
         Math.random() > 0.5 ? 'rock_large' : 'rock_small';
       
       objects.push({
         id: i,
         position: [x, type === 'tree' ? 0 : -0.5, z],
         type,
-        scale: 0.8 + Math.random() * 0.4, // Random scale variation
+        scale: 0.9 + Math.random() * 0.2, // Less scale variation
         rotation: Math.random() * Math.PI * 2
       });
     }
@@ -70,34 +71,34 @@ export default function Environment({ gameSpeed }: EnvironmentProps) {
         />
       );
     } catch (error) {
-      // Fallback to basic geometries
+      // Fallback to low-poly geometries for performance
       if (obj.type === 'tree') {
         return (
           <group position={obj.position} rotation={[0, obj.rotation, 0]} scale={obj.scale}>
-            {/* Tree trunk */}
+            {/* Tree trunk - low poly */}
             <mesh position={[0, 1, 0]}>
-              <cylinderGeometry args={[0.3, 0.4, 2]} />
-              <meshStandardMaterial color="#8B4513" />
+              <cylinderGeometry args={[0.3, 0.4, 2, 6]} />
+              <meshLambertMaterial color="#8B4513" />
             </mesh>
-            {/* Tree foliage */}
+            {/* Tree foliage - low poly */}
             <mesh position={[0, 3, 0]}>
-              <sphereGeometry args={[1.5]} />
-              <meshStandardMaterial color="#228B22" />
+              <sphereGeometry args={[1.5, 8, 6]} />
+              <meshLambertMaterial color="#228B22" />
             </mesh>
           </group>
         );
       } else if (obj.type === 'rock_large') {
         return (
           <mesh position={obj.position} rotation={[0, obj.rotation, 0]} scale={obj.scale}>
-            <dodecahedronGeometry args={[1.2]} />
-            <meshStandardMaterial color="#696969" />
+            <boxGeometry args={[1.2, 1.2, 1.2]} />
+            <meshLambertMaterial color="#696969" />
           </mesh>
         );
       } else {
         return (
           <mesh position={obj.position} rotation={[0, obj.rotation, 0]} scale={obj.scale}>
-            <dodecahedronGeometry args={[0.8]} />
-            <meshStandardMaterial color="#808080" />
+            <boxGeometry args={[0.8, 0.8, 0.8]} />
+            <meshLambertMaterial color="#808080" />
           </mesh>
         );
       }

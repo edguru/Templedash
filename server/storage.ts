@@ -1,7 +1,13 @@
-import { users, type User, type InsertUser } from "@shared/schema";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import * as schema from "../shared/schema";
 
-// modify the interface with any CRUD methods
-// you might need
+// Database connection
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle(sql, { schema });
+
+// Legacy storage interface for backward compatibility
+import { users, type User, type InsertUser } from "../shared/schema";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;

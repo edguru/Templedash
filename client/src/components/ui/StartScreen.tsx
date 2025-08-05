@@ -77,6 +77,13 @@ export default function StartScreen() {
               🎁 OPEN MYSTERY BOX
             </button>
           )}
+
+          <button
+            onClick={() => setGamePhase('leaderboard')}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            🏆 Leaderboard
+          </button>
         </div>
 
         <div className="mt-4 text-xs text-gray-500">

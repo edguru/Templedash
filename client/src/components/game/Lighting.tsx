@@ -15,31 +15,15 @@ export default function Lighting() {
 
   return (
     <>
-      {/* Ambient light for overall scene brightness */}
-      <ambientLight intensity={0.4} color="#ffffff" />
+      {/* Ambient light for overall scene brightness - increased for mobile */}
+      <ambientLight intensity={0.6} color="#ffffff" />
       
-      {/* Main directional light (sun) */}
+      {/* Main directional light (sun) - no shadows for mobile performance */}
       <directionalLight
         ref={dirLightRef}
         position={[10, 20, 10]}
-        intensity={1}
+        intensity={1.2}
         color="#ffffff"
-        castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
-        shadow-camera-near={0.5}
-        shadow-camera-far={50}
-        shadow-camera-left={-20}
-        shadow-camera-right={20}
-        shadow-camera-top={20}
-        shadow-camera-bottom={-20}
-      />
-      
-      {/* Fill light for softer shadows */}
-      <directionalLight
-        position={[-5, 10, 5]}
-        intensity={0.3}
-        color="#87CEEB"
       />
     </>
   );

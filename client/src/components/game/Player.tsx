@@ -97,7 +97,6 @@ export default function Player() {
       <mesh 
         ref={meshRef}
         position={[position.x, position.y, position.z]}
-        castShadow
       >
         <boxGeometry args={[1, 2, 0.5]} />
         <meshStandardMaterial 

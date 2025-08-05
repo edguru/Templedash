@@ -14,7 +14,7 @@ import MysteryBox from "./MysteryBox";
 import CoinCluster from "./CoinCluster";
 import ShadowCharacter from "./ShadowCharacter";
 import LODManager from "./LODManager";
-import SimpleTouchControls from "../ui/SimpleTouchControls";
+
 
 // Import game logic
 import { 

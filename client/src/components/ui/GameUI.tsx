@@ -46,13 +46,15 @@ export default function GameUI() {
       </div>
 
       {/* Touch Controls for Mobile */}
-      <TouchControls 
-        onLeft={moveLeft}
-        onRight={moveRight}
-        onJump={jump}
-        onLeftEnd={() => {}}
-        onRightEnd={() => {}}
-      />
+      {isMobile && (
+        <TouchControls 
+          onLeft={moveLeft}
+          onRight={moveRight}
+          onJump={jump}
+          onLeftEnd={() => {}}
+          onRightEnd={() => {}}
+        />
+      )}
     </div>
   );
 }

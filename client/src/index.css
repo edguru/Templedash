@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+  touch-action: none;
+}
+
+/* Game UI Styles */
+.game-button {
+  @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95;
+}
+
+.game-button:disabled {
+  @apply bg-gray-400 cursor-not-allowed transform-none;
+}
+
+.game-card {
+  @apply bg-white/90 backdrop-blur-sm rounded-lg shadow-2xl border border-white/20;
+}
+
+.score-display {
+  @apply bg-black/70 text-white p-3 rounded-lg backdrop-blur-sm;
+}
+
+.nft-card {
+  @apply bg-gradient-to-br from-purple-100 to-blue-100 p-4 rounded-lg border-2 border-purple-200;
+}
+
+.mystery-box {
+  @apply bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg shadow-lg;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(168, 85, 247, 0.8);
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3) rotate(-45deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(-10deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.bounce-in {
+  animation: bounce-in 0.6s ease-out;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .game-card {
+    @apply mx-2 p-4;
+  }
+  
+  .score-display {
+    @apply p-2 text-sm;
+  }
+}
+
+/* Loading spinner */
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #3498db;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Gradient backgrounds */
+.bg-game-start {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-game-over {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-mystery-box {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* Text shadows for better readability */
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Button hover effects */
+.btn-hover-lift {
+  @apply transition-transform duration-200;
+}
+
+.btn-hover-lift:hover {
+  @apply transform -translate-y-1;
+}
+
+/* Game UI overlay */
+.game-overlay {
+  @apply absolute inset-0 pointer-events-none z-10;
+}
+
+.game-overlay > * {
+  @apply pointer-events-auto;
+}

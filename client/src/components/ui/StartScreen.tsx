@@ -1,0 +1,86 @@
+import { useGameState } from "../../lib/stores/useGameState";
+import { useNFT } from "../../lib/stores/useNFT";
+import { useRewards } from "../../lib/stores/useRewards";
+// import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+
+export default function StartScreen() {
+  const { startGame, setGamePhase } = useGameState();
+  const { hasCharacterNFT } = useNFT();
+  const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
+  // const address = useAddress();
+  const address = null; // Temporarily disabled for demo
+
+  const handleStartGame = () => {
+    if (!hasCharacterNFT) {
+      setGamePhase('mint');
+    } else {
+      startGame();
+    }
+  };
+
+  const handleOpenMysteryBox = () => {
+    setGamePhase('mysteryBox');
+  };
+
+  return (
+    <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center">
+      <div className="bg-white/90 rounded-lg p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Temple Runner</h1>
+        <p className="text-gray-600 mb-6">NFT-Powered Infinite Runner</p>
+        
+        {/* Wallet connection - Demo mode */}
+        <div className="mb-6">
+          <div className="bg-blue-100 text-blue-800 p-3 rounded-lg">
+            <div className="font-semibold">Demo Mode</div>
+            <div className="text-sm">Wallet integration coming soon!</div>
+          </div>
+        </div>
+
+        {/* Game stats */}
+        <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+          <div className="bg-gray-100 p-3 rounded">
+            <div className="font-semibold">Coins</div>
+            <div className="text-xl text-yellow-600">{totalCoins}</div>
+          </div>
+          <div className="bg-gray-100 p-3 rounded">
+            <div className="font-semibold">Runs</div>
+            <div className="text-xl text-blue-600">{completedRuns}</div>
+          </div>
+        </div>
+
+        {/* Character status */}
+        <div className="mb-6 p-4 bg-gray-100 rounded-lg">
+          <div className="text-sm font-semibold mb-2">Character Status</div>
+          {hasCharacterNFT ? (
+            <div className="text-green-600">✅ Character Unlocked</div>
+          ) : (
+            <div className="text-orange-600">🔒 Shadow Character Only</div>
+          )}
+        </div>
+
+        {/* Action buttons */}
+        <div className="space-y-3">
+          <button
+            onClick={handleStartGame}
+            className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            {hasCharacterNFT ? "START GAME" : "UNLOCK CHARACTER & PLAY"}
+          </button>
+          
+          {canOpenMysteryBox && (
+            <button
+              onClick={handleOpenMysteryBox}
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-lg transition-colors animate-pulse"
+            >
+              🎁 OPEN MYSTERY BOX
+            </button>
+          )}
+        </div>
+
+        <div className="mt-4 text-xs text-gray-500">
+          Collect coins and complete runs to earn rewards!
+        </div>
+      </div>
+    </div>
+  );
+}

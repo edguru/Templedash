@@ -36,4 +36,4 @@ args = "npm run dev"
 waitForPort = 5000
 
 [agent]
-integrations = ["javascript_notion==1.0.0"]
+integrations = ["javascript_notion==1.0.0", "gamestack_custom_model==1.0.0"]

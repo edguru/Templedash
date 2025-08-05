@@ -1,7 +1,12 @@
-import { useRef } from 'react';
+import { useRef, useEffect, useState, Suspense } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { Group, Mesh } from 'three';
+import { useGLTF } from '@react-three/drei';
+import { Group } from 'three';
 import * as THREE from 'three';
+import { GLTF } from 'three-stdlib';
+
+// Preload the stick human model
+useGLTF.preload('/models/stick_human.glb');
 
 interface ShadowCharacterProps {
   position: [number, number, number];
@@ -12,94 +17,109 @@ interface ShadowCharacterProps {
 
 export default function ShadowCharacter({ position, isJumping, isMovingLeft, isMovingRight }: ShadowCharacterProps) {
   const groupRef = useRef<Group>(null);
-  const headRef = useRef<Mesh>(null);
-  const bodyRef = useRef<Mesh>(null);
-  const leftArmRef = useRef<Mesh>(null);
-  const rightArmRef = useRef<Mesh>(null);
-  const leftLegRef = useRef<Mesh>(null);
-  const rightLegRef = useRef<Mesh>(null);
+  const modelRef = useRef<Group>(null);
+  const [modelLoaded, setModelLoaded] = useState(false);
+
+  // Load the 3D stick human model
+  const { scene: stickHuman } = useGLTF('/models/stick_human.glb') as GLTF & {
+    scene: THREE.Group
+  };
+
+  useEffect(() => {
+    if (stickHuman) {
+      setModelLoaded(true);
+      console.log("Stick human model loaded successfully");
+    }
+  }, [stickHuman]);
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
 
     const time = clock.getElapsedTime();
     
-    // Running animation
-    if (!isJumping) {
-      const runSpeed = 8;
-      const armSwing = Math.sin(time * runSpeed) * 0.5;
-      const legSwing = Math.sin(time * runSpeed) * 0.8;
+    // Basic running animation for the whole model
+    if (!isJumping && modelRef.current) {
+      const runSpeed = 6;
+      const bobAmount = Math.sin(time * runSpeed * 2) * 0.05;
+      const rotateAmount = Math.sin(time * runSpeed) * 0.1;
       
-      // Animate arms
-      if (leftArmRef.current) leftArmRef.current.rotation.x = armSwing;
-      if (rightArmRef.current) rightArmRef.current.rotation.x = -armSwing;
-      
-      // Animate legs
-      if (leftLegRef.current) leftLegRef.current.rotation.x = legSwing;
-      if (rightLegRef.current) rightLegRef.current.rotation.x = -legSwing;
-      
-      // Body bob
-      if (bodyRef.current) bodyRef.current.position.y = Math.sin(time * runSpeed * 2) * 0.05;
+      // Model bobbing while running
+      modelRef.current.position.y = bobAmount;
+      modelRef.current.rotation.x = rotateAmount * 0.2; // Slight forward lean while running
     }
 
-    // Leaning animation
+    // Leaning animation for direction changes
     if (isMovingLeft) {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0.2, 0.1);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0.15, 0.1);
     } else if (isMovingRight) {
-      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -0.2, 0.1);
+      groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, -0.15, 0.1);
     } else {
       groupRef.current.rotation.z = THREE.MathUtils.lerp(groupRef.current.rotation.z, 0, 0.1);
     }
+
+    // Update position
+    groupRef.current.position.set(position[0], position[1], position[2]);
   });
 
   return (
-    <group ref={groupRef} position={position}>
-      {/* Shadow material for all parts */}
-      <meshLambertMaterial attach="material" color="#1a1a1a" transparent opacity={0.8} />
-      
-      {/* Head */}
-      <mesh ref={headRef} position={[0, 1.7, 0]}>
-        <sphereGeometry args={[0.15, 8, 6]} />
-        <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-      </mesh>
-      
-      {/* Body */}
-      <mesh ref={bodyRef} position={[0, 1.2, 0]}>
-        <cylinderGeometry args={[0.12, 0.15, 0.6, 8]} />
-        <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-      </mesh>
-      
-      {/* Left Arm */}
-      <group position={[-0.2, 1.4, 0]}>
-        <mesh ref={leftArmRef} position={[0, -0.15, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 0.3, 6]} />
-          <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-        </mesh>
-      </group>
-      
-      {/* Right Arm */}
-      <group position={[0.2, 1.4, 0]}>
-        <mesh ref={rightArmRef} position={[0, -0.15, 0]}>
-          <cylinderGeometry args={[0.04, 0.04, 0.3, 6]} />
-          <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-        </mesh>
-      </group>
-      
-      {/* Left Leg */}
-      <group position={[-0.08, 0.9, 0]}>
-        <mesh ref={leftLegRef} position={[0, -0.2, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.4, 6]} />
-          <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-        </mesh>
-      </group>
-      
-      {/* Right Leg */}
-      <group position={[0.08, 0.9, 0]}>
-        <mesh ref={rightLegRef} position={[0, -0.2, 0]}>
-          <cylinderGeometry args={[0.05, 0.05, 0.4, 6]} />
-          <meshLambertMaterial color="#1a1a1a" transparent opacity={0.8} />
-        </mesh>
-      </group>
+    <group ref={groupRef} scale={[2.5, 2.5, 2.5]} castShadow receiveShadow>
+      {modelLoaded && stickHuman ? (
+        <Suspense fallback={
+          <mesh castShadow>
+            <boxGeometry args={[0.5, 2, 0.5]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+        }>
+          <group ref={modelRef}>
+            <primitive 
+              object={stickHuman.clone()} 
+              castShadow 
+              receiveShadow 
+              scale={[1, 1, 1]}
+              position={[0, 0, 0]}
+            />
+          </group>
+        </Suspense>
+      ) : (
+        // Fallback stick figure if model doesn't load
+        <group>
+          {/* Head */}
+          <mesh position={[0, 1.7, 0]} castShadow>
+            <sphereGeometry args={[0.15, 8, 6]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+          
+          {/* Body */}
+          <mesh position={[0, 1, 0]} castShadow>
+            <cylinderGeometry args={[0.08, 0.12, 0.8, 8]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+          
+          {/* Left Arm */}
+          <mesh position={[-0.25, 1.2, 0]} castShadow>
+            <cylinderGeometry args={[0.04, 0.04, 0.6, 6]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+          
+          {/* Right Arm */}
+          <mesh position={[0.25, 1.2, 0]} castShadow>
+            <cylinderGeometry args={[0.04, 0.04, 0.6, 6]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+          
+          {/* Left Leg */}
+          <mesh position={[-0.12, 0.3, 0]} castShadow>
+            <cylinderGeometry args={[0.05, 0.05, 0.7, 6]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+          
+          {/* Right Leg */}
+          <mesh position={[0.12, 0.3, 0]} castShadow>
+            <cylinderGeometry args={[0.05, 0.05, 0.7, 6]} />
+            <meshStandardMaterial color="#2a2a2a" />
+          </mesh>
+        </group>
+      )}
     </group>
   );
 }

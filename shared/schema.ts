@@ -48,24 +48,10 @@ export const contracts = pgTable("contracts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   contractAddress: text("contract_address").notNull(),
-  privateKey: text("private_key").notNull(),
-  publicKey: text("public_key").notNull(),
-  chainId: integer("chain_id").notNull().default(11155111), // Sepolia testnet
-  rpcUrl: text("rpc_url").notNull().default("https://sepolia.infura.io/v3/"),
-  networkName: text("network_name").notNull().default("Sepolia"),
-  blockExplorerUrl: text("block_explorer_url").default("https://sepolia.etherscan.io"),
+  privateKey: text("private_key"),
+  publicKey: text("public_key"),
+  chainId: integer("chain_id").notNull().default(137),
   deployedAt: timestamp("deployed_at").defaultNow(),
-  isActive: boolean("is_active").default(true),
-});
-
-export const wallets = pgTable("wallets", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  address: text("address").notNull().unique(),
-  privateKey: text("private_key").notNull(),
-  publicKey: text("public_key").notNull(),
-  mnemonic: text("mnemonic"),
-  createdAt: timestamp("created_at").defaultNow(),
   isActive: boolean("is_active").default(true),
 });
 

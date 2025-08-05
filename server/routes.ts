@@ -2,9 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import jwt from 'jsonwebtoken';
 import { db } from "./storage";
-import { users, gameScores, tokenClaims, nftOwnership, contracts, wallets } from '../shared/schema';
+import { users, gameScores, tokenClaims, nftOwnership, contracts } from '../shared/schema';
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
-import { generateWallet, deployERC721Contract, mintNFT } from "./walletService";
 import { eq, desc, sum, count, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
@@ -347,106 +346,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Wallet Management Routes
-  app.post('/api/wallets/generate', async (req, res) => {
-    try {
-      const { name } = req.body;
-      const walletData = await generateWallet(name || 'Game Wallet');
-      
-      res.json({
-        success: true,
-        wallet: {
-          address: walletData.address,
-          // Don't return private keys in API response for security
-          publicKey: walletData.publicKey
-        }
-      });
-    } catch (error) {
-      console.error('Wallet generation error:', error);
-      res.status(500).json({ error: 'Failed to generate wallet' });
-    }
-  });
-
-  app.get('/api/wallets', async (req, res) => {
-    try {
-      const allWallets = await db.select({
-        id: wallets.id,
-        name: wallets.name,
-        address: wallets.address,
-        publicKey: wallets.publicKey,
-        createdAt: wallets.createdAt,
-        isActive: wallets.isActive
-      }).from(wallets);
-      
-      res.json(allWallets);
-    } catch (error) {
-      console.error('Wallet fetch error:', error);
-      res.status(500).json({ error: 'Failed to fetch wallets' });
-    }
-  });
-
   // Contract Management Routes
-  app.post('/api/contracts/deploy', async (req, res) => {
+  app.post('/api/contracts', async (req, res) => {
     try {
-      const { walletId, networkName, contractName, contractSymbol } = req.body;
+      const { name, contractAddress, privateKey, publicKey, chainId } = req.body;
       
-      if (!walletId) {
-        return res.status(400).json({ error: 'Wallet ID is required' });
-      }
-
-      const deployment = await deployERC721Contract(
-        walletId,
-        networkName || 'sepolia',
-        contractName || 'Temple Runner NFT',
-        contractSymbol || 'TRN'
-      );
-
-      res.json({
-        success: true,
-        deployment
+      const contract = await storeContract({
+        name,
+        contractAddress,
+        privateKey,
+        publicKey,
+        chainId: chainId || 137
       });
+      
+      res.json({ success: true, contract });
     } catch (error) {
-      console.error('Contract deployment error:', error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : 'Failed to deploy contract'
-      });
+      console.error('Store contract error:', error);
+      res.status(500).json({ error: 'Failed to store contract' });
     }
   });
-
-  app.get('/api/contracts', async (req, res) => {
-    try {
-      const allContracts = await db.select().from(contracts);
-      res.json(allContracts);
-    } catch (error) {
-      console.error('Contract fetch error:', error);
-      res.status(500).json({ error: 'Failed to fetch contracts' });
-    }
-  });
-
-  app.post('/api/contracts/:id/mint', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { toAddress, tokenId } = req.body;
-      
-      if (!toAddress || !tokenId) {
-        return res.status(400).json({ error: 'toAddress and tokenId are required' });
-      }
-
-      const result = await mintNFT(parseInt(id), toAddress, tokenId);
-      
-      res.json({
-        success: true,
-        mint: result
-      });
-    } catch (error) {
-      console.error('NFT minting error:', error);
-      res.status(500).json({ 
-        error: error instanceof Error ? error.message : 'Failed to mint NFT'
-      });
-    }
-  });
-
-  // Legacy routes for backward compatibility
+  
   app.get('/api/contracts/:name', async (req, res) => {
     try {
       const contract = await getContract(req.params.name);
@@ -457,6 +376,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Get contract error:', error);
       res.status(500).json({ error: 'Failed to fetch contract' });
+    }
+  });
+  
+  app.get('/api/contracts', async (req, res) => {
+    try {
+      const contracts = await getAllContracts();
+      res.json(contracts);
+    } catch (error) {
+      console.error('Get contracts error:', error);
+      res.status(500).json({ error: 'Failed to fetch contracts' });
     }
   });
 

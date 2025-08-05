@@ -1,14 +1,16 @@
 import { useGameState } from "../../lib/stores/useGameState";
 import { useNFT } from "../../lib/stores/useNFT";
 import { useRewards } from "../../lib/stores/useRewards";
-// import { ConnectWallet, useAddress } from "@thirdweb-dev/react";
+import { useAuth } from "../../lib/stores/useAuth";
+import { useActiveAccount, useDisconnect } from "thirdweb/react";
 
 export default function StartScreen() {
   const { startGame, setGamePhase } = useGameState();
   const { hasCharacterNFT } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
-  // const address = useAddress();
-  const address = null; // Temporarily disabled for demo
+  const { user, logout } = useAuth();
+  const account = useActiveAccount();
+  const { disconnect } = useDisconnect();
 
   const handleStartGame = () => {
     if (!hasCharacterNFT) {
@@ -22,17 +24,37 @@ export default function StartScreen() {
     setGamePhase('mysteryBox');
   };
 
+  const handleDisconnect = async () => {
+    try {
+      if (disconnect) {
+        await disconnect();
+      }
+    } catch (error) {
+      console.log('Disconnect error:', error); 
+    } finally {
+      logout();
+    }
+  };
+
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center p-4">
       <div className="game-card start-screen-card bg-white/90 rounded-lg w-full text-center shadow-2xl">
         <h1 className="text-4xl font-bold text-gray-800 mb-4">Temple Runner</h1>
         <p className="text-gray-600 mb-6">NFT-Powered Infinite Runner</p>
         
-        {/* Wallet connection - Demo mode */}
+        {/* Wallet connection */}
         <div className="mb-6">
-          <div className="bg-blue-100 text-blue-800 p-3 rounded-lg">
-            <div className="font-semibold">Demo Mode</div>
-            <div className="text-sm">Wallet integration coming soon!</div>
+          <div className="bg-green-100 text-green-800 p-3 rounded-lg">
+            <div className="font-semibold">Wallet Connected</div>
+            <div className="text-sm font-mono">
+              {user?.walletAddress?.slice(0, 6)}...{user?.walletAddress?.slice(-4)}
+            </div>
+            <button
+              onClick={handleDisconnect}
+              className="mt-2 text-sm text-green-600 hover:text-green-800 underline"
+            >
+              Disconnect Wallet
+            </button>
           </div>
         </div>
 

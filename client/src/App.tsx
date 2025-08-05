@@ -1,7 +1,9 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
-// import { ThirdwebProvider, ConnectWallet } from "@thirdweb-dev/react";
+import { createThirdwebClient } from "thirdweb";
+import { ThirdwebProvider } from "thirdweb/react";
+import { defineChain } from "thirdweb/chains";
 import "@fontsource/inter";
 
 // Import game components
@@ -17,12 +19,19 @@ import { useGameState } from "./lib/stores/useGameState";
 import { useAudio } from "./lib/stores/useAudio";
 import { useAuth } from "./lib/stores/useAuth";
 
-// Import auth components
-import LoginScreen from "./components/auth/LoginScreen";
+// Import screens
 import LeaderboardScreen from "./components/ui/LeaderboardScreen";
+import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
-// Thirdweb config - temporarily disabled
-// import { clientId, activeChain } from "./lib/thirdweb";
+// Thirdweb config
+const client = createThirdwebClient({
+  clientId: process.env.REACT_APP_THIRDWEB_CLIENT_ID || "your-client-id",
+});
+
+const polygon = defineChain({
+  id: 137,
+  rpc: "https://polygon-rpc.com",
+});
 
 // Define control keys for the game
 enum Controls {
@@ -52,13 +61,18 @@ function App() {
     setShowCanvas(true);
   }, []);
 
-  // Show login screen if not authenticated
+  // Show wallet connection screen if not authenticated
   if (!isAuthenticated) {
-    return <LoginScreen />;
+    return (
+      <ThirdwebProvider>
+        <WalletConnectScreen />
+      </ThirdwebProvider>
+    );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <ThirdwebProvider>
+      <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <KeyboardControls map={controls}>
             {gamePhase === 'start' && <StartScreen />}
@@ -99,6 +113,7 @@ function App() {
           </KeyboardControls>
         )}
       </div>
+    </ThirdwebProvider>
   );
 }
 

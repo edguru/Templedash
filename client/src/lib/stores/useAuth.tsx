@@ -16,6 +16,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (walletAddress: string, username?: string) => Promise<void>;
+  authenticateWallet: (walletAddress: string) => Promise<boolean>;
   logout: () => void;
   submitScore: (score: number, distance: number, coinsCollected: number, characterUsed: string) => Promise<number>;
   claimMysteryBox: () => Promise<number>;
@@ -55,6 +56,37 @@ export const useAuth = create<AuthState>()(
           console.error('Login error:', error);
           set({ isLoading: false });
           throw error;
+        }
+      },
+
+      authenticateWallet: async (walletAddress: string) => {
+        set({ isLoading: true });
+        try {
+          const response = await fetch('/api/auth/wallet', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ walletAddress }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Wallet authentication failed');
+          }
+
+          const data = await response.json();
+          set({
+            user: data.user,
+            token: data.token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+          
+          return true;
+        } catch (error) {
+          console.error('Wallet authentication error:', error);
+          set({ isLoading: false });
+          return false;
         }
       },
 

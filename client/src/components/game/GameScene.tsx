@@ -14,6 +14,7 @@ import MysteryBox from "./MysteryBox";
 import CoinCluster from "./CoinCluster";
 import ShadowCharacter from "./ShadowCharacter";
 import LODManager from "./LODManager";
+import CoinAnimation from "./CoinAnimation";
 
 
 // Import game logic
@@ -62,6 +63,11 @@ export default function GameScene() {
   
   const [coinClusters, setCoinClusters] = useState<CoinClusterType[]>([]);
   const [mysteryBoxes, setMysteryBoxes] = useState<MysteryBoxData[]>([]);
+  const [coinAnimations, setCoinAnimations] = useState<Array<{
+    id: string;
+    startPosition: [number, number, number];
+    targetPosition: [number, number, number];
+  }>>([]);
   
   const gameSpeed = useRef(SPEED_CONSTANTS.INITIAL_SPEED);
   const terrainOffset = useRef(0);
@@ -134,18 +140,28 @@ export default function GameScene() {
       }
     }
     
-    // Check coin collection from legacy coins
+    // Check coin collection from legacy coins with animation
     if (coinsRef.current) {
       const coinHit = checkCollisions(
-        position,
+        { x: position.x, y: position.y, z: position.z },
         coinsRef.current.children,
         'coin'
       );
       
       if (coinHit) {
+        // Create coin animation to top-right corner
+        const coinId = `coin_${Date.now()}_${Math.random()}`;
+        setCoinAnimations(prev => [...prev, {
+          id: coinId,
+          startPosition: [coinHit.position.x, coinHit.position.y, coinHit.position.z],
+          targetPosition: [6, 8, position.z] // Top-right corner of screen
+        }]);
+        
         coinsRef.current.remove(coinHit);
         addScore(10);
+        addCoins(1);
         playSuccess();
+        console.log("Coin collected! Animation started.");
       }
     }
     
@@ -157,6 +173,12 @@ export default function GameScene() {
     setMysteryBoxes(prev => prev.filter(box => 
       !box.collected && box.spawnDistance > newDistance - 100
     ));
+    
+    // Dynamic camera positioning - adjust during jumps
+    const cameraHeight = isJumping ? 5.5 : 4; // Higher camera when jumping
+    const cameraDistance = isJumping ? 10 : 8; // Further back when jumping
+    state.camera.position.set(position.x * 0.1, cameraHeight, position.z + cameraDistance);
+    state.camera.lookAt(position.x, position.y + 1, position.z - 2);
     
     // Update camera to follow player from behind
     state.camera.position.x = position.x;
@@ -244,13 +266,8 @@ export default function GameScene() {
         <Terrain offset={terrainOffset} />
       </LODManager>
       
-      <group ref={obstaclesRef}>
-        <Obstacles gameSpeed={gameSpeed.current} />
-      </group>
-      
-      <group ref={coinsRef}>
-        <Coins gameSpeed={gameSpeed.current} />
-      </group>
+      <Obstacles ref={obstaclesRef} gameSpeed={gameSpeed.current} />
+      <Coins ref={coinsRef} gameSpeed={gameSpeed.current} />
       
       {/* Enhanced coin clusters */}
       {coinClusters.map(cluster => (
@@ -273,6 +290,18 @@ export default function GameScene() {
         )
       )}
       
+      {/* Coin collection animations */}
+      {coinAnimations.map(animation => (
+        <CoinAnimation
+          key={animation.id}
+          startPosition={animation.startPosition}
+          targetPosition={animation.targetPosition}
+          onComplete={() => {
+            setCoinAnimations(prev => prev.filter(a => a.id !== animation.id));
+          }}
+        />
+      ))}
+
       {/* <Environment gameSpeed={gameSpeed.current} /> */}
     </>
   );

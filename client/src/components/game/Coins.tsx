@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -12,16 +12,19 @@ interface CoinData {
   rotation: number;
 }
 
-export default function Coins({ gameSpeed }: CoinProps) {
+const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
   const groupRef = useRef<THREE.Group>(null);
+  
+  useImperativeHandle(ref, () => groupRef.current!);
   
   // Generate coins
   const coins = useMemo<CoinData[]>(() => {
     const coinArray: CoinData[] = [];
     
     for (let i = 0; i < 30; i++) {
-      const z = -15 - (i * 8); // Space coins 8 units apart
-      const x = (Math.random() - 0.5) * 14; // Random x position
+      const z = -20 - (i * 12); // Space coins 12 units apart  
+      const lanes = [-2.67, 0, 2.67]; // Use lane positions
+      const x = lanes[Math.floor(Math.random() * lanes.length)];
       const rotation = Math.random() * Math.PI * 2;
       
       coinArray.push({
@@ -47,8 +50,9 @@ export default function Coins({ gameSpeed }: CoinProps) {
         
         // Reset coin position when it passes the player
         if (child.position.z > 15) {
-          child.position.z = -240 - (index * 8);
-          child.position.x = (Math.random() - 0.5) * 14;
+          child.position.z = -240 - (index * 12);
+          const lanes = [-2.67, 0, 2.67];
+          child.position.x = lanes[Math.floor(Math.random() * lanes.length)];
         }
       });
     }
@@ -73,4 +77,6 @@ export default function Coins({ gameSpeed }: CoinProps) {
       ))}
     </group>
   );
-}
+});
+
+export default Coins;

@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
@@ -14,8 +14,11 @@ interface ObstacleData {
   scale: [number, number, number];
 }
 
-export default function Obstacles({ gameSpeed }: ObstacleProps) {
+const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) => {
   const groupRef = useRef<THREE.Group>(null);
+  
+  useImperativeHandle(ref, () => groupRef.current!);
+  
   const woodTexture = useTexture("/textures/wood.jpg");
   
   // Generate obstacles with proper terrain positioning
@@ -116,4 +119,6 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
       ))}
     </group>
   );
-}
+});
+
+export default Obstacles;

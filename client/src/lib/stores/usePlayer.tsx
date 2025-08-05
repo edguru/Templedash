@@ -18,9 +18,9 @@ interface PlayerState {
 }
 
 const LANE_POSITIONS = [-2.67, 0, 2.67]; // Three equal lane positions
-const LANE_SWITCH_SPEED = 0.08; // 2x faster lane transitions
-const JUMP_FORCE = 0.12; // 2x faster jump strength
-const GRAVITY = -0.32; // 2x faster gravity force
+const LANE_SWITCH_SPEED = 0.15; // Faster lane transitions for responsive movement
+const JUMP_FORCE = 0.25; // Higher jump to clear 1m obstacles
+const GRAVITY = -0.6; // Stronger gravity for realistic jumping
 const GROUND_Y = 0;
 
 export const usePlayer = create<PlayerState>((set, get) => ({

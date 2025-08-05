@@ -24,27 +24,27 @@ export default function Terrain({ offset }: TerrainProps) {
 
   return (
     <>
-      {/* Main soil-colored running path */}
+      {/* Main soil-colored running path - wider */}
       <mesh 
         ref={meshRef}
         position={[0, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[8, 150]} />
+        <planeGeometry args={[12, 150]} />
         <meshStandardMaterial 
           color="#A0824C"
           roughness={0.8}
         />
       </mesh>
       
-      {/* Left forest ground - moved further away */}
+      {/* Left forest ground - positioned to not overlap */}
       <mesh 
-        position={[-20, -0.5, 0]} 
+        position={[-18, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[24, 150]} />
+        <planeGeometry args={[12, 150]} />
         <meshStandardMaterial 
           map={grassTexture}
           color="#2D4A1F"
@@ -52,13 +52,13 @@ export default function Terrain({ offset }: TerrainProps) {
         />
       </mesh>
       
-      {/* Right forest ground - moved further away */}
+      {/* Right forest ground - positioned to not overlap */}
       <mesh 
-        position={[20, -0.5, 0]} 
+        position={[18, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[24, 150]} />
+        <planeGeometry args={[12, 150]} />
         <meshStandardMaterial 
           map={grassTexture}
           color="#2D4A1F"
@@ -67,11 +67,19 @@ export default function Terrain({ offset }: TerrainProps) {
       </mesh>
       
       {/* Lane dividers */}
-      <mesh position={[-2.5, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[-4, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.1, 150]} />
         <meshStandardMaterial color="#8B6F35" />
       </mesh>
-      <mesh position={[2.5, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <mesh position={[-1.3, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.1, 150]} />
+        <meshStandardMaterial color="#8B6F35" />
+      </mesh>
+      <mesh position={[1.3, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.1, 150]} />
+        <meshStandardMaterial color="#8B6F35" />
+      </mesh>
+      <mesh position={[4, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[0.1, 150]} />
         <meshStandardMaterial color="#8B6F35" />
       </mesh>

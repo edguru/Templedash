@@ -1,10 +1,11 @@
 import * as THREE from "three";
 
-// Collision detection utility
+// Enhanced collision detection utility that considers jumping and obstacle types
 export function checkCollisions(
   playerPosition: { x: number; y: number; z: number },
   objects: THREE.Object3D[],
-  type: 'obstacle' | 'coin'
+  type: 'obstacle' | 'coin',
+  isJumping?: boolean
 ): THREE.Object3D | null {
   const playerBox = new THREE.Box3().setFromCenterAndSize(
     new THREE.Vector3(playerPosition.x, playerPosition.y + 1, playerPosition.z),
@@ -19,7 +20,19 @@ export function checkCollisions(
     
     let objectSize: THREE.Vector3;
     if (type === 'obstacle') {
-      objectSize = new THREE.Vector3(1, 1, 1);
+      const obstacleType = object.userData.obstacleType;
+      
+      // If jumping and it's a rock, allow pass-through
+      if (isJumping && obstacleType === 'rock') {
+        continue; // Skip collision for rocks when jumping
+      }
+      
+      // Trees and crates always cause collision regardless of jumping
+      if (obstacleType === 'tree') {
+        objectSize = new THREE.Vector3(1, 3, 1); // Tall tree collision
+      } else {
+        objectSize = new THREE.Vector3(1, 1, 1); // Standard obstacle
+      }
     } else {
       objectSize = new THREE.Vector3(0.6, 0.6, 0.2);
     }

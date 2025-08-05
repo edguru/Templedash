@@ -10,7 +10,7 @@ interface ObstacleProps {
 interface ObstacleData {
   id: number;
   position: [number, number, number];
-  type: 'crate' | 'rock';
+  type: 'crate' | 'rock' | 'tree';
   scale: [number, number, number];
 }
 
@@ -21,24 +21,38 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
   // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
     const obstacleArray: ObstacleData[] = [];
-    const lanes = [-3, -1, 1, 3]; // Four lanes within the running path
+    const lanes = [-2.7, -0.9, 0.9, 2.7]; // Four lanes within the running path
     const terrainY = -0.5; // Terrain surface level
     
     for (let i = 0; i < 25; i++) {
       const z = -20 - (i * 12); // More spaced out obstacles
       const laneIndex = Math.floor(Math.random() * lanes.length);
       const x = lanes[laneIndex]; // Snap to lanes
-      const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
+      const type: 'crate' | 'rock' = Math.random() > 0.5 ? 'crate' : 'rock';
       
       // Calculate proper Y position based on obstacle type and terrain
-      const obstacleHeight = type === 'crate' ? 0.5 : 0.4; // Smaller obstacles
+      const obstacleHeight = type === 'crate' ? 0.5 : 0.4;
       const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({
         id: i,
         position: [x, yPosition, z],
         type,
-        scale: type === 'crate' ? [0.8, 0.8, 0.8] : [0.8, 0.8, 0.8] // Smaller scale
+        scale: type === 'crate' ? [0.8, 0.8, 0.8] : [0.6, 0.6, 0.6] // Rocks smaller for jumping
+      });
+    }
+    
+    // Add some trees that block lanes (non-jumpable)
+    for (let i = 0; i < 10; i++) {
+      const z = -40 - (i * 25);
+      const laneIndex = Math.floor(Math.random() * lanes.length);
+      const x = lanes[laneIndex];
+      
+      obstacleArray.push({
+        id: 100 + i,
+        position: [x, 1.5, z],
+        type: 'tree',
+        scale: [0.8, 2.5, 0.8] // Tall trees that can't be jumped over
       });
     }
     
@@ -68,7 +82,7 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
           position={obstacle.position}
           scale={obstacle.scale}
           castShadow
-          userData={{ type: 'obstacle' }}
+          userData={{ type: 'obstacle', obstacleType: obstacle.type }}
         >
           {obstacle.type === 'crate' ? (
             <>
@@ -76,12 +90,25 @@ export default function Obstacles({ gameSpeed }: ObstacleProps) {
               <meshStandardMaterial 
                 map={woodTexture}
                 color="#8B4513"
+                roughness={0.8}
+              />
+            </>
+          ) : obstacle.type === 'rock' ? (
+            <>
+              <sphereGeometry args={[0.5, 8, 8]} />
+              <meshStandardMaterial 
+                color="#666666"
+                roughness={0.9}
               />
             </>
           ) : (
+            // Tree - tall cylinder that can't be jumped over
             <>
-              <dodecahedronGeometry args={[0.8]} />
-              <meshStandardMaterial color="#666666" />
+              <cylinderGeometry args={[0.3, 0.5, 2, 8]} />
+              <meshStandardMaterial 
+                color="#654321"
+                roughness={0.9}
+              />
             </>
           )}
         </mesh>

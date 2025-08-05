@@ -22,6 +22,7 @@ import { useAuth } from "./lib/stores/useAuth";
 // Import screens
 import LeaderboardScreen from "./components/ui/LeaderboardScreen";
 import WalletConnectScreen from "./components/ui/WalletConnectScreen";
+import SimpleTouchControls from "./components/ui/SimpleTouchControls";
 
 // Privy config - you'll need to replace with your actual app ID
 const PRIVY_APP_ID = 'clpispdty00ycl80fpueukbhl'; // Replace with your Privy app ID
@@ -155,6 +156,8 @@ function App() {
                     <GameScene />
                   </Suspense>
                 </Canvas>
+                
+                <SimpleTouchControls />
                 <GameUI />
               </>
             )}

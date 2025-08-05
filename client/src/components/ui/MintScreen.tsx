@@ -15,24 +15,8 @@ export default function MintScreen() {
   // const { mutateAsync: mintNFT } = useContractWrite(contract, "mint");
 
   const handleMint = async () => {
-    setIsMinting(true);
-    try {
-      // Simulate minting process in demo mode
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Update NFT ownership status
-      setHasCharacterNFT(true);
-      
-      // Show success and start game
-      alert("Character unlocked! Welcome to Temple Runner!");
-      startGame();
-      
-    } catch (error) {
-      console.error("Minting failed:", error);
-      alert("Minting failed. Please try again.");
-    } finally {
-      setIsMinting(false);
-    }
+    // Redirect to character preview instead of direct minting
+    setGamePhase('characterPreview');
   };
 
   const handlePlayAsShadow = () => {

@@ -33,19 +33,19 @@ export default function Terrain({ offset }: TerrainProps) {
         <planeGeometry args={[20, 100]} />
         <meshLambertMaterial 
           map={grassTexture}
-          color="#4A7C2A"
+          color="#8B4513"
         />
       </mesh>
       
-      {/* Side walls - optimized */}
+      {/* Side walls - optimized with forest green */}
       <mesh position={[-10, 2, 0]}>
         <boxGeometry args={[1, 6, 100]} />
-        <meshLambertMaterial color="#8B4513" />
+        <meshLambertMaterial color="#4A5D23" />
       </mesh>
       
       <mesh position={[10, 2, 0]}>
         <boxGeometry args={[1, 6, 100]} />
-        <meshLambertMaterial color="#8B4513" />
+        <meshLambertMaterial color="#4A5D23" />
       </mesh>
     </>
   );

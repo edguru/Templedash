@@ -42,6 +42,17 @@ export const nftOwnership = pgTable("nft_ownership", {
   transactionHash: text("transaction_hash").notNull(),
 });
 
+export const contracts = pgTable("contracts", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull().unique(),
+  contractAddress: text("contract_address").notNull(),
+  privateKey: text("private_key"),
+  publicKey: text("public_key"),
+  chainId: integer("chain_id").notNull().default(137),
+  deployedAt: timestamp("deployed_at").defaultNow(),
+  isActive: boolean("is_active").default(true),
+});
+
 export const insertUserSchema = createInsertSchema(users).pick({
   walletAddress: true,
   username: true,

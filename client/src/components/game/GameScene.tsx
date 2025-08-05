@@ -12,6 +12,8 @@ import Lighting from "./Lighting";
 import MysteryBox from "./MysteryBox";
 import CoinCluster from "./CoinCluster";
 import ShadowCharacter from "./ShadowCharacter";
+import DaytimeSkybox from "./DaytimeSkybox";
+import LODManager from "./LODManager";
 import TouchControls from "../ui/TouchControls";
 
 // Import game logic
@@ -219,21 +221,25 @@ export default function GameScene() {
 
   return (
     <>
+      <DaytimeSkybox />
+      <Environment />
       <Lighting />
       
       {/* Use Shadow Character as default, Player component if NFT owned */}
-      {hasCharacterNFT ? (
+      {hasCharacterNFT && characterType ? (
         <Player />
       ) : (
         <ShadowCharacter 
           position={[position.x, position.y, position.z]}
           isJumping={isJumping}
-          isMovingLeft={isMovingLeft}
-          isMovingRight={isMovingRight}
+          isMovingLeft={isMovingLeft || false}
+          isMovingRight={isMovingRight || false}
         />
       )}
       
-      <Terrain offset={terrainOffset} />
+      <LODManager position={[0, 0, 0]} distances={[50, 100, 200]}>
+        <Terrain offset={terrainOffset} />
+      </LODManager>
       
       <group ref={obstaclesRef}>
         <Obstacles gameSpeed={gameSpeed.current} />

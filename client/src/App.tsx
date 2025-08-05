@@ -12,6 +12,7 @@ import GameOverScreen from "./components/ui/GameOverScreen";
 import MintScreen from "./components/ui/MintScreen";
 import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
 import ChatScreen from "./components/ui/ChatScreen";
+import CharacterPreview from "./components/ui/CharacterPreview";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -94,6 +95,8 @@ function App() {
             {gamePhase === 'start' && <StartScreen />}
             
             {gamePhase === 'mint' && <MintScreen />}
+            
+            {gamePhase === 'characterPreview' && <CharacterPreview />}
             
             {gamePhase === 'mysteryBox' && <MysteryBoxScreen />}
             

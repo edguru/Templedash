@@ -2,7 +2,8 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import jwt from 'jsonwebtoken';
 import { db } from "./storage";
-import { users, gameScores, tokenClaims, nftOwnership } from '../shared/schema';
+import { users, gameScores, tokenClaims, nftOwnership, contracts } from '../shared/schema';
+import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
 import { eq, desc, sum, count, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
@@ -276,6 +277,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Mystery box error:', error);
       res.status(500).json({ error: 'Failed to process mystery box' });
+    }
+  });
+
+  // Contract Management Routes
+  app.post('/api/contracts', async (req, res) => {
+    try {
+      const { name, contractAddress, privateKey, publicKey, chainId } = req.body;
+      
+      const contract = await storeContract({
+        name,
+        contractAddress,
+        privateKey,
+        publicKey,
+        chainId: chainId || 137
+      });
+      
+      res.json({ success: true, contract });
+    } catch (error) {
+      console.error('Store contract error:', error);
+      res.status(500).json({ error: 'Failed to store contract' });
+    }
+  });
+  
+  app.get('/api/contracts/:name', async (req, res) => {
+    try {
+      const contract = await getContract(req.params.name);
+      if (!contract) {
+        return res.status(404).json({ error: 'Contract not found' });
+      }
+      res.json(contract);
+    } catch (error) {
+      console.error('Get contract error:', error);
+      res.status(500).json({ error: 'Failed to fetch contract' });
+    }
+  });
+  
+  app.get('/api/contracts', async (req, res) => {
+    try {
+      const contracts = await getAllContracts();
+      res.json(contracts);
+    } catch (error) {
+      console.error('Get contracts error:', error);
+      res.status(500).json({ error: 'Failed to fetch contracts' });
     }
   });
 

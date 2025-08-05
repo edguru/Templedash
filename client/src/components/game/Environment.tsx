@@ -105,11 +105,5 @@ export default function Environment({ gameSpeed }: EnvironmentProps) {
     }
   };
 
-  return (
-    <group ref={groupRef}>
-      {environmentObjects.map((obj) => (
-        <EnvironmentObject key={obj.id} obj={obj} />
-      ))}
-    </group>
-  );
+  return null; // Temporarily disable to fix green overlay
 }

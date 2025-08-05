@@ -24,38 +24,38 @@ export default function Terrain({ offset }: TerrainProps) {
 
   return (
     <>
-      {/* Main running path - 3 equal lanes */}
+      {/* Simple clean running path with equal lanes */}
       <mesh 
         ref={meshRef}
         position={[0, -0.5, 0]} 
         rotation={[-Math.PI / 2, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[8, 50]} />
+        <planeGeometry args={[8, 30]} />
         <meshStandardMaterial 
           color="#D2B48C"
-          roughness={0.8}
+          roughness={0.7}
         />
       </mesh>
       
-      {/* Lane dividers for 3 equal lanes */}
-      <mesh position={[-2.67, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.1, 50]} />
+      {/* Clean lane markings */}
+      <mesh position={[-2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.2, 30]} />
         <meshStandardMaterial color="#8B4513" />
       </mesh>
-      <mesh position={[2.67, -0.4, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.1, 50]} />
+      <mesh position={[2.67, -0.45, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.2, 30]} />
         <meshStandardMaterial color="#8B4513" />
       </mesh>
       
-      {/* Side walls - closer and shorter */}
-      <mesh position={[-5, 1, 0]}>
-        <boxGeometry args={[2, 2, 50]} />
-        <meshStandardMaterial color="#8B4513" />
+      {/* Side boundaries */}
+      <mesh position={[-4.5, 0.5, 0]}>
+        <boxGeometry args={[1, 1, 30]} />
+        <meshStandardMaterial color="#654321" />
       </mesh>
-      <mesh position={[5, 1, 0]}>
-        <boxGeometry args={[2, 2, 50]} />
-        <meshStandardMaterial color="#8B4513" />
+      <mesh position={[4.5, 0.5, 0]}>
+        <boxGeometry args={[1, 1, 30]} />
+        <meshStandardMaterial color="#654321" />
       </mesh>
     </>
   );

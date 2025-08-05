@@ -272,7 +272,7 @@ export default function GameScene() {
         )
       )}
       
-      <Environment gameSpeed={gameSpeed.current} />
+      {/* <Environment gameSpeed={gameSpeed.current} /> */}
     </>
   );
 }

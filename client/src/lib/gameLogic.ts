@@ -21,13 +21,13 @@ export const GAME_CONSTANTS = {
   COIN_SPAWN_DISTANCE_MIN: 40, // doubled
   COIN_SPAWN_DISTANCE_MAX: 60, // doubled
   
-  // Mystery Box settings
+  // Mystery Box settings - Much rarer (500 morning runs)
   MYSTERY_BOX_HEIGHT_OFFSET: 1.2,
   MYSTERY_BOX_SIZE: 1,
-  MYSTERY_BOX_DISTANCE_MIN: 2000, // doubled
-  MYSTERY_BOX_DISTANCE_MAX: 3000, // doubled
-  MYSTERY_BOX_COIN_TRIGGER: 300,
-  MYSTERY_BOX_COOLDOWN: 3 * 60 * 1000, // 3 minutes in milliseconds
+  MYSTERY_BOX_DISTANCE_MIN: 5000, // Much higher distance requirement
+  MYSTERY_BOX_DISTANCE_MAX: 6000, // Spawn only after very long runs
+  MYSTERY_BOX_COIN_TRIGGER: 500, // Increased from 300 to 500 runs worth
+  MYSTERY_BOX_COOLDOWN: 10 * 60 * 1000, // 10 minutes cooldown
   
   // Player movement
   INITIAL_SPEED: 0.1, // meters/second (reduced by 50x)
@@ -132,12 +132,12 @@ export function shouldSpawnMysteryBox(gameState: GameState): boolean {
     return false;
   }
   
-  // Check distance trigger
+  // Check distance trigger - much stricter
   const distanceSinceLastBox = gameState.distance - gameState.lastMysteryBoxSpawn;
   const distanceCondition = distanceSinceLastBox >= GAME_CONSTANTS.MYSTERY_BOX_DISTANCE_MIN && 
-                           Math.random() < 0.3; // 30% chance when in distance range
+                           Math.random() < 0.05; // Only 5% chance even when distance met
   
-  // Check coin trigger
+  // Check coin trigger - requires 500 runs equivalent
   const coinCondition = gameState.coinsCollected >= GAME_CONSTANTS.MYSTERY_BOX_COIN_TRIGGER;
   
   return distanceCondition || coinCondition;

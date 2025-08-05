@@ -280,6 +280,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Claim mystery box reward (separate endpoint for claiming tokens)
+  app.post('/api/tokens/claim', authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.currentUser.userId;
+      const { amount, reason } = req.body;
+      
+      // Validate amount
+      if (!amount || isNaN(parseFloat(amount))) {
+        return res.status(400).json({ error: 'Invalid reward amount' });
+      }
+
+      // Add token claim
+      const claim = await db.insert(tokenClaims).values({
+        userId,
+        amount: parseFloat(amount).toString(),
+        reason: reason || 'mystery_box'
+      }).returning();
+
+      res.json({
+        success: true,
+        claim: claim[0],
+        message: `Successfully claimed $${amount} tokens!`
+      });
+    } catch (error) {
+      console.error('Token claim error:', error);
+      res.status(500).json({ error: 'Failed to claim reward' });
+    }
+  });
+
   // Contract Management Routes
   app.post('/api/contracts', async (req, res) => {
     try {

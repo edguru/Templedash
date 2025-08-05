@@ -197,24 +197,48 @@ export default function GameScene() {
     playSuccess();
   };
 
-  // Handle mystery box collection
-  const handleMysteryBoxCollection = (boxId: string) => {
-    const reward = generateMysteryBoxReward();
-    
-    setMysteryBoxes(prev => 
-      prev.map(box => 
-        box.id === boxId ? { ...box, collected: true } : box
-      )
-    );
-    
-    setGameState(prev => ({ 
-      ...prev, 
-      mysteryBoxActive: false,
-      coinsCollected: 0 // Reset coin counter after mystery box
-    }));
-    
-    addTokenReward(reward.amount);
-    playSuccess();
+  // Handle mystery box collection with proper API call
+  const handleMysteryBoxCollection = async (boxId: string) => {
+    try {
+      const reward = generateMysteryBoxReward();
+      
+      setMysteryBoxes(prev => 
+        prev.map(box => 
+          box.id === boxId ? { ...box, collected: true } : box
+        )
+      );
+      
+      setGameState(prev => ({ 
+        ...prev, 
+        mysteryBoxActive: false,
+        coinsCollected: 0 // Reset coin counter after mystery box
+      }));
+      
+      // Make API call to claim reward with authentication
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('/api/tokens/claim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': token ? `Bearer ${token}` : '',
+        },
+        body: JSON.stringify({
+          amount: reward.amount,
+          reason: 'mystery_box'
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Mystery reward claimed successfully:', data);
+        addTokenReward(reward.amount);
+        playSuccess();
+      } else {
+        console.error('Failed to claim mystery reward:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error claiming mystery reward:', error);
+    }
   };
 
   // Reset game state when starting new game

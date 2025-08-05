@@ -8,11 +8,11 @@ import Terrain from "./Terrain";
 import Obstacles from "./Obstacles";
 import Coins from "./Coins";
 import Environment from "./Environment";
+import SimpleEnvironment from "./SimpleEnvironment";
 import Lighting from "./Lighting";
 import MysteryBox from "./MysteryBox";
 import CoinCluster from "./CoinCluster";
 import ShadowCharacter from "./ShadowCharacter";
-import DaytimeSkybox from "./DaytimeSkybox";
 import LODManager from "./LODManager";
 import TouchControls from "../ui/TouchControls";
 
@@ -222,8 +222,7 @@ export default function GameScene() {
 
   return (
     <>
-      <DaytimeSkybox />
-      <Environment />
+      <SimpleEnvironment />
       <Lighting />
       
       {/* Use Shadow Character as default, Player component if NFT owned */}

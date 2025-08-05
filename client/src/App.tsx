@@ -143,6 +143,9 @@ function App() {
                   }}
                   dpr={Math.min(window.devicePixelRatio, 2)}
                   performance={{ min: 0.5 }}
+                  style={{ 
+                    background: 'linear-gradient(to bottom, #87CEEB 0%, #98D8E8 30%, #F0E68C 70%, #90EE90 100%)'
+                  }}
                   frameloop="demand"
                 >
                   <color attach="background" args={["#87CEEB"]} />

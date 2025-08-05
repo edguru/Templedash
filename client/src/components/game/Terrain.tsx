@@ -75,6 +75,16 @@ export default function Terrain({ offset }: TerrainProps) {
         <planeGeometry args={[0.1, 150]} />
         <meshStandardMaterial color="#8B6F35" />
       </mesh>
+      
+      {/* Side barriers/walls */}
+      <mesh position={[-12, 1, 0]}>
+        <boxGeometry args={[2, 3, 150]} />
+        <meshStandardMaterial color="#654321" />
+      </mesh>
+      <mesh position={[12, 1, 0]}>
+        <boxGeometry args={[2, 3, 150]} />
+        <meshStandardMaterial color="#654321" />
+      </mesh>
     </>
   );
 }

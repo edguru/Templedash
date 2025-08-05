@@ -47,7 +47,8 @@ export function checkCollisions(
     );
 
     if (playerBox.intersectsBox(objectBox)) {
-      console.log(`Collision detected! Type: ${type}, Object: ${obstacleType || 'coin'}, Player Y: ${playerPosition.y}, Jumping: ${isJumping}`);
+      const obstacleType = object.userData.obstacleType || 'unknown';
+      console.log(`Collision detected! Type: ${type}, Object: ${obstacleType}, Player Y: ${playerPosition.y}, Jumping: ${isJumping}`);
       return object;
     }
   }

@@ -175,16 +175,10 @@ export default function GameScene() {
     ));
     
     // Dynamic camera positioning - adjust during jumps
-    const cameraHeight = isJumping ? 5.5 : 4; // Higher camera when jumping
+    const cameraHeight = isJumping ? 6 : 5; // Higher camera when jumping
     const cameraDistance = isJumping ? 10 : 8; // Further back when jumping
     state.camera.position.set(position.x * 0.1, cameraHeight, position.z + cameraDistance);
     state.camera.lookAt(position.x, position.y + 1, position.z - 2);
-    
-    // Update camera to follow player from behind
-    state.camera.position.x = position.x;
-    state.camera.position.y = 5;
-    state.camera.position.z = position.z + 8;
-    state.camera.lookAt(position.x, 1, position.z - 10);
   });
 
   // Handle coin cluster collection
@@ -242,6 +236,7 @@ export default function GameScene() {
       });
       setCoinClusters([]);
       setMysteryBoxes([]);
+      setCoinAnimations([]);
     }
   }, [gamePhase, resetPlayer]);
 

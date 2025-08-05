@@ -1,6 +1,18 @@
 # Overview
 
-Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Web3 integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
+Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Privy wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
+
+## Recent Changes (2025-01-15)
+- Successfully migrated from Thirdweb to Privy wallet authentication
+- Implemented responsive touch controls for mobile devices (circular buttons with visual feedback)
+- Added desktop keyboard controls with UI indicators (A/D/Space keys)
+- Created ShadowCharacter component as default stick human character for all players
+- Added "Chat with your companion - Coming Soon!" as new UI tab
+- Deployed ERC721 smart contract (TempleRunnerNFT.sol) with 0.001 ETH mint price
+- Enhanced mystery box system with exact weighted probabilities totaling $500 across 10,000 players
+- Optimized game performance with reduced rendering load and Canvas optimizations
+- Reduced game speed by 50x and doubled obstacle spacing for better playability
+- Fixed mobile touch controls to work with both touch and mouse events
 
 # User Preferences
 

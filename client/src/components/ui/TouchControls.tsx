@@ -18,8 +18,9 @@ export default function TouchControls({ onLeft, onRight, onJump, onLeftEnd, onRi
   // Only show controls during gameplay
   if (gamePhase !== 'playing') return null;
 
-  const handleTouchStart = (action: string) => (e: React.TouchEvent) => {
+  const handleTouchStart = (action: string) => (e: React.TouchEvent | React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (action === 'left') {
       setLeftPressed(true);
@@ -33,8 +34,9 @@ export default function TouchControls({ onLeft, onRight, onJump, onLeftEnd, onRi
     }
   };
 
-  const handleTouchEnd = (action: string) => (e: React.TouchEvent) => {
+  const handleTouchEnd = (action: string) => (e: React.TouchEvent | React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     
     if (action === 'left') {
       setLeftPressed(false);
@@ -56,12 +58,14 @@ export default function TouchControls({ onLeft, onRight, onJump, onLeftEnd, onRi
           <button
             onTouchStart={handleTouchStart('left')}
             onTouchEnd={handleTouchEnd('left')}
+            onMouseDown={handleTouchStart('left')}
+            onMouseUp={handleTouchEnd('left')}
             className={`w-16 h-16 rounded-full shadow-lg transition-all ${
               leftPressed 
                 ? 'bg-blue-600 scale-110' 
                 : 'bg-blue-500 hover:bg-blue-600'
-            } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20`}
-            style={{ touchAction: 'manipulation' }}
+            } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none`}
+            style={{ touchAction: 'manipulation', userSelect: 'none' }}
           >
             ←
           </button>
@@ -69,12 +73,14 @@ export default function TouchControls({ onLeft, onRight, onJump, onLeftEnd, onRi
           <button
             onTouchStart={handleTouchStart('right')}
             onTouchEnd={handleTouchEnd('right')}
+            onMouseDown={handleTouchStart('right')}
+            onMouseUp={handleTouchEnd('right')}
             className={`w-16 h-16 rounded-full shadow-lg transition-all ${
               rightPressed 
                 ? 'bg-blue-600 scale-110' 
                 : 'bg-blue-500 hover:bg-blue-600'
-            } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20`}
-            style={{ touchAction: 'manipulation' }}
+            } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none`}
+            style={{ touchAction: 'manipulation', userSelect: 'none' }}
           >
             →
           </button>
@@ -84,12 +90,14 @@ export default function TouchControls({ onLeft, onRight, onJump, onLeftEnd, onRi
         <button
           onTouchStart={handleTouchStart('jump')}
           onTouchEnd={handleTouchEnd('jump')}
+          onMouseDown={handleTouchStart('jump')}
+          onMouseUp={handleTouchEnd('jump')}
           className={`w-20 h-20 rounded-full shadow-lg transition-all ${
             jumpPressed 
               ? 'bg-green-600 scale-110' 
               : 'bg-green-500 hover:bg-green-600'
-          } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20`}
-          style={{ touchAction: 'manipulation' }}
+          } text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none`}
+          style={{ touchAction: 'manipulation', userSelect: 'none' }}
         >
           ↑
         </button>

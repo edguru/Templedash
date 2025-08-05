@@ -16,9 +16,9 @@ interface PlayerState {
   resetPlayer: () => void;
 }
 
-const MOVE_SPEED = 8;
-const JUMP_FORCE = 12;
-const GRAVITY = -25;
+const MOVE_SPEED = 0.16; // reduced by 50x (was 8)
+const JUMP_FORCE = 0.24; // reduced by 50x (was 12)
+const GRAVITY = -0.5; // reduced by 50x (was -25)
 const GROUND_Y = 0;
 const MAX_X = 8;
 const MIN_X = -8;

@@ -127,6 +127,7 @@ export default function GameScene() {
       if (collision) {
         playHit();
         endGame();
+        setGamePhase('gameOver');
         return;
       }
     }

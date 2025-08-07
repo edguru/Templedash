@@ -40,7 +40,7 @@ export const useNFT = create<NFTState>()(
         console.log("Checking NFT ownership...");
         
         // TODO: Implement actual NFT ownership check using Thirdweb SDK
-        // const { contract } = useContract(NFT_CONTRACT_ADDRESS);
+        // const contract = "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
         // const balance = await contract.balanceOf(address);
         // set({ hasCharacterNFT: balance.gt(0) });
       }

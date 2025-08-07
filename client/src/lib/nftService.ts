@@ -174,8 +174,8 @@ export class NFTService {
   getContractInfo() {
     return {
       address: this.contractAddress,
-      chainId: this.chainId,
-      explorer: `https://polygonscan.com/address/${this.contractAddress}`
+      chainId: 123420001114,
+      explorer: `https://basescan.org/address/${this.contractAddress}`
     };
   }
 }

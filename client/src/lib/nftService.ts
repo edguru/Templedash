@@ -32,7 +32,16 @@ export const useNFTService = () => {
       const contract = getNFTContract();
       const transaction = prepareContractCall({
         contract,
-        method: "mint",
+        method: {
+          name: "mint",
+          type: "function",
+          inputs: [
+            { name: "to", type: "address" },
+            { name: "characterType", type: "string" }
+          ],
+          outputs: [],
+          stateMutability: "nonpayable"
+        },
         params: [account.address, characterType],
       });
 
@@ -86,8 +95,10 @@ export const useNFTService = () => {
   }, [account]);
 
   const shareOnX = useCallback((reward: MysteryBoxReward) => {
-    const shareText = `${SOCIAL_CONFIG.TWITTER_SHARE_TEXT}\n\nJust won ${reward.amount} ${reward.currency} tokens! 💰`;
-    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&hashtags=${SOCIAL_CONFIG.TWITTER_HASHTAGS}`;
+    const shareText = `Just won ${reward.amount} PUPPETS tokens! 💰 @PuppetsAI
+
+Check out Temple Runner NFT game powered by @PuppetsAI`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     window.open(twitterUrl, '_blank');
   }, []);
 

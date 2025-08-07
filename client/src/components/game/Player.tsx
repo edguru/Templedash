@@ -127,27 +127,39 @@ export default function Player() {
     );
   }, [subscribe, jump, isJumping, playSuccess]);
 
-  // Add focus debugging and raw keyboard event listener
+  // Add focus debugging and direct keyboard handler as fallback
   useEffect(() => {
-    const handleFocus = () => console.log('🎯 Game canvas focused');
-    const handleBlur = () => console.log('🎯 Game canvas lost focus');
     const handleKeyDown = (e: KeyboardEvent) => {
       console.log('⌨️ Raw keyboard event:', e.code, e.key);
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
         console.log('🎮 Game key detected:', e.code);
+        
+        // Direct keyboard handling as fallback
+        e.preventDefault();
+        if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+          console.log('🔵 Direct keyboard: Moving LEFT');
+          moveLeft();
+          setIsMovingLeftState(true);
+          setTimeout(() => setIsMovingLeftState(false), 300);
+        } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+          console.log('🔴 Direct keyboard: Moving RIGHT');
+          moveRight();
+          setIsMovingRightState(true);
+          setTimeout(() => setIsMovingRightState(false), 300);
+        } else if (e.code === 'Space' && !isJumping) {
+          console.log('🟢 Direct keyboard: JUMP');
+          jump();
+          playSuccess();
+        }
       }
     };
     
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
     window.addEventListener('keydown', handleKeyDown);
     
     return () => {
-      window.removeEventListener('focus', handleFocus);
-      window.removeEventListener('blur', handleBlur);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [moveLeft, moveRight, jump, playSuccess, isJumping]);
 
   // Character model rendering with enhanced fallback
   const CharacterModel = () => {

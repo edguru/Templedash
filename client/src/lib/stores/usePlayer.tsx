@@ -19,7 +19,7 @@ interface PlayerState {
 
 const LANE_POSITIONS = [-2.67, 0, 2.67]; // Three equal lane positions
 const LANE_SWITCH_SPEED = 0.15; // Faster lane transitions for responsive movement
-const JUMP_FORCE = 0.55; // High enough to clear rocks and crates (1.0+ units high)
+const JUMP_FORCE = 0.75; // Much higher to reliably clear obstacles
 const GRAVITY = -0.9; // Strong gravity for snappy, realistic jumping
 const GROUND_Y = 0;
 

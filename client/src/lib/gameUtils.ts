@@ -25,17 +25,19 @@ export function checkCollisions(
     if (type === 'obstacle') {
       const obstacleType = object.userData.obstacleType || 'rock';
       
-      // If jumping and it's a rock, allow pass-through only if player is high enough
-      if (isJumping && obstacleType === 'rock' && playerPosition.y > 1.2) {
-        console.log("Player jumped over rock obstacle!");
-        continue; // Skip collision for rocks when jumping high enough
+      // If jumping and it's a jumpable obstacle, allow pass-through if player is off ground
+      if (isJumping && (obstacleType === 'rock' || obstacleType === 'crate') && playerPosition.y > 0.05) {
+        console.log(`✅ Player jumped over ${obstacleType} obstacle! Height: ${playerPosition.y.toFixed(3)}`);
+        continue; // Skip collision for jumpable obstacles when airborne
       }
       
       // Trees are tall and cannot be jumped over
       if (obstacleType === 'tree') {
         objectSize = new THREE.Vector3(1.2, 4, 1.2); // Tall tree collision
+      } else if (obstacleType === 'crate') {
+        objectSize = new THREE.Vector3(1, 1.2, 1); // Crate obstacle
       } else {
-        objectSize = new THREE.Vector3(1, 1.2, 1); // Rock obstacle
+        objectSize = new THREE.Vector3(1, 1, 1); // Rock obstacle - lower height for easier jumping
       }
     } else {
       objectSize = new THREE.Vector3(0.8, 0.8, 0.8); // Coin collision

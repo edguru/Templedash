@@ -50,19 +50,17 @@ export default function GameUI() {
           {/* Left/Right Movement */}
           <div className="flex space-x-3 pointer-events-auto">
             <button
-              onTouchStart={(e) => { e.preventDefault(); moveLeft(); }}
-              onMouseDown={(e) => { e.preventDefault(); moveLeft(); }}
+              onPointerDown={(e) => { e.preventDefault(); moveLeft(); }}
               className="w-16 h-16 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none"
-              style={{ touchAction: 'manipulation', userSelect: 'none' }}
+              style={{ touchAction: 'none', userSelect: 'none' }}
             >
               ←
             </button>
             
             <button
-              onTouchStart={(e) => { e.preventDefault(); moveRight(); }}
-              onMouseDown={(e) => { e.preventDefault(); moveRight(); }}
+              onPointerDown={(e) => { e.preventDefault(); moveRight(); }}
               className="w-16 h-16 rounded-full shadow-lg bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white text-2xl font-bold flex items-center justify-center border-2 border-white/20 select-none"
-              style={{ touchAction: 'manipulation', userSelect: 'none' }}
+              style={{ touchAction: 'none', userSelect: 'none' }}
             >
               →
             </button>
@@ -70,10 +68,9 @@ export default function GameUI() {
 
           {/* Jump Button */}
           <button
-            onTouchStart={(e) => { e.preventDefault(); if (!isJumping) jump(); }}
-            onMouseDown={(e) => { e.preventDefault(); if (!isJumping) jump(); }}
+            onPointerDown={(e) => { e.preventDefault(); if (!isJumping) jump(); }}
             className="w-20 h-20 rounded-full shadow-lg bg-green-500 hover:bg-green-600 active:bg-green-700 text-white text-xl font-bold flex items-center justify-center border-2 border-white/20 select-none pointer-events-auto"
-            style={{ touchAction: 'manipulation', userSelect: 'none' }}
+            style={{ touchAction: 'none', userSelect: 'none' }}
           >
             ↑
           </button>

@@ -42,11 +42,10 @@ export default function Player() {
     
     // No need for keyboard controls debugging since we have direct handlers
     
-    // Reduced keyboard handling - direct events take priority
-    // Update previous states for consistency
-    setPrevLeftPressed(controls.left);
-    setPrevRightPressed(controls.right);
-    setPrevJumpPressed(controls.jump);
+    // Update previous states for consistency (remove old keyboard handling)
+    setPrevLeftPressed(false);
+    setPrevRightPressed(false);
+    setPrevJumpPressed(false);
     
     // Touch controls handled by mobile UI buttons directly - no need to handle here
     
@@ -90,35 +89,39 @@ export default function Player() {
 
   // Remove duplicate jump subscription - handled by direct keyboard events
 
-  // Direct keyboard controls - single streamlined system
+  // Single keyboard handler with debouncing to prevent double triggers
   useEffect(() => {
-    console.log('🔧 Setting up streamlined keyboard controls');
+    let keyProcessing = false;
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle our game keys
-      if (e.target === document.body && ['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        console.log('⌨️ Game key detected:', e.code, '| Current lane:', currentLane);
+      if (keyProcessing) return; // Prevent double processing
+      
+      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        keyProcessing = true;
         e.preventDefault();
         e.stopPropagation();
         
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
-          console.log('🔵 Direct LEFT command');
+          console.log('🔵 LEFT key - Lane:', currentLane);
           moveLeft();
         } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
-          console.log('🔴 Direct RIGHT command');
+          console.log('🔴 RIGHT key - Lane:', currentLane);
           moveRight();
         } else if (e.code === 'Space' && !isJumping) {
-          console.log('🟢 Direct JUMP command');
+          console.log('🟢 JUMP key');
           jump();
           playSuccess();
         }
+        
+        // Reset processing flag after short delay
+        setTimeout(() => { keyProcessing = false; }, 150);
       }
     };
     
-    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
     
     return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [moveLeft, moveRight, jump, playSuccess, isJumping, currentLane]);
 

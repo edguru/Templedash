@@ -199,8 +199,15 @@ export default function UserProfileScreen() {
               
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() => {
-                    disconnect({});
+                  onClick={async () => {
+                    try {
+                      // Disconnect from Thirdweb wallet
+                      if (account) {
+                        await account.disconnect();
+                      }
+                    } catch (error) {
+                      console.error('Disconnect error:', error);
+                    }
                     setGamePhase('start');
                   }}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"

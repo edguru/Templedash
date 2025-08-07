@@ -1,7 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
-import { PrivyProvider } from '@privy-io/react-auth';
+import { ThirdwebProvider } from '@thirdweb-dev/react';
+import { activeChain, clientId } from './lib/thirdweb';
 import "@fontsource/inter";
 
 // Import game components
@@ -24,8 +25,8 @@ import LeaderboardScreen from "./components/ui/LeaderboardScreen";
 import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
 
-// Privy config - you'll need to replace with your actual app ID
-const PRIVY_APP_ID = 'clpispdty00ycl80fpueukbhl'; // Replace with your Privy app ID
+// Thirdweb config
+const THIRDWEB_CLIENT_ID = process.env.VITE_THIRDWEB_CLIENT_ID || clientId;
 
 // Define control keys for the game
 enum Controls {
@@ -58,18 +59,9 @@ function App() {
   // Show wallet connection screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <PrivyProvider
-        appId={PRIVY_APP_ID}
-        config={{
-          loginMethods: ['wallet'],
-          appearance: {
-            theme: 'light',
-            accentColor: '#9333EA',
-          },
-          embeddedWallets: {
-            createOnLogin: 'users-without-wallets',
-          },
-        }}
+      <ThirdwebProvider
+        clientId={THIRDWEB_CLIENT_ID}
+        activeChain={activeChain}
       >
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
           <div className="text-center p-8">
@@ -90,23 +82,14 @@ function App() {
             </div>
           </div>
         </div>
-      </PrivyProvider>
+      </ThirdwebProvider>
     );
   }
 
   return (
-    <PrivyProvider
-      appId={PRIVY_APP_ID}
-      config={{
-        loginMethods: ['wallet'],
-        appearance: {
-          theme: 'light',
-          accentColor: '#9333EA',
-        },
-        embeddedWallets: {
-          createOnLogin: 'users-without-wallets',
-        },
-      }}
+    <ThirdwebProvider
+      clientId={THIRDWEB_CLIENT_ID}
+      activeChain={activeChain}
     >
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
@@ -163,7 +146,7 @@ function App() {
           </KeyboardControls>
         )}
       </div>
-    </PrivyProvider>
+    </ThirdwebProvider>
   );
 }
 

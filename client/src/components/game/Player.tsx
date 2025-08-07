@@ -27,45 +27,43 @@ export default function Player() {
   
   // Touch controls
   const { isMovingLeft, isMovingRight, isJumping: touchJumping } = useTouchControls();
+  
+  // Track previous keyboard states for edge detection
+  const [prevLeftPressed, setPrevLeftPressed] = useState(false);
+  const [prevRightPressed, setPrevRightPressed] = useState(false);
+  const [prevJumpPressed, setPrevJumpPressed] = useState(false);
 
   // Handle keyboard and touch input with animation states
   useFrame(({ clock }) => {
     const controls = getState();
     const time = clock.getElapsedTime();
     
-    // Keyboard controls
-    if (controls.left) {
+    // Keyboard controls - only trigger on key press (edge detection)
+    if (controls.left && !prevLeftPressed) {
       moveLeft();
       setIsMovingLeftState(true);
-    } else {
+    } else if (!controls.left) {
       setIsMovingLeftState(false);
     }
     
-    if (controls.right) {
+    if (controls.right && !prevRightPressed) {
       moveRight();
       setIsMovingRightState(true);
-    } else {
+    } else if (!controls.right) {
       setIsMovingRightState(false);
     }
     
-    if (controls.jump && !isJumping) {
+    if (controls.jump && !prevJumpPressed && !isJumping) {
       jump();
       playSuccess();
     }
     
-    // Touch controls
-    if (isMovingLeft) {
-      moveLeft();
-      setIsMovingLeftState(true);
-    }
-    if (isMovingRight) {
-      moveRight();
-      setIsMovingRightState(true);
-    }
-    if (touchJumping && !isJumping) {
-      jump();
-      playSuccess();
-    }
+    // Update previous states
+    setPrevLeftPressed(controls.left);
+    setPrevRightPressed(controls.right);
+    setPrevJumpPressed(controls.jump);
+    
+    // Touch controls are handled directly by the UI buttons, no need to handle here
     
     // Update animation states
     if (!isMovingLeft && !controls.left) setIsMovingLeftState(false);

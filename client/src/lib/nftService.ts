@@ -1,54 +1,60 @@
-// NFT Contract Integration for Temple Runner Characters
-export const NFT_CONTRACT_ADDRESS = "0x742d35Cc6634C0532925a3b8D1C4f42f3c4A0123"; // Replace with deployed contract address
-export const CHAIN_ID = 137; // Polygon mainnet
+import { useContract, useContractRead, useContractWrite, useNFTs, useOwnedNFTs } from '@thirdweb-dev/react';
+import { NFT_CONTRACT_ADDRESS } from './thirdweb';
 
 export interface NFTCharacter {
   tokenId: string;
   characterType: string;
   owner: string;
   transactionHash: string;
+  metadata?: any;
 }
 
+// NFT Contract Integration using Thirdweb hooks
+export const useNFTContract = () => {
+  const { contract } = useContract(NFT_CONTRACT_ADDRESS);
+  return contract;
+};
+
+export const useNFTService = (walletAddress?: string) => {
+  const contract = useNFTContract();
+  const { data: ownedNFTs, isLoading: isLoadingNFTs } = useOwnedNFTs(contract, walletAddress);
+  const { mutateAsync: mintNFT, isLoading: isMinting } = useContractWrite(contract, "mint");
+
+  return {
+    contract,
+    ownedNFTs,
+    isLoadingNFTs,
+    mintNFT,
+    isMinting,
+  };
+};
+
+// Legacy class for backward compatibility
 export class NFTService {
   private contractAddress: string;
-  private chainId: number;
 
-  constructor(contractAddress = NFT_CONTRACT_ADDRESS, chainId = CHAIN_ID) {
+  constructor(contractAddress = NFT_CONTRACT_ADDRESS) {
     this.contractAddress = contractAddress;
-    this.chainId = chainId;
   }
 
-  // Check if user owns any character NFTs
+  // Check if user owns any character NFTs (use hooks instead for React components)
   async checkNFTOwnership(walletAddress: string): Promise<boolean> {
     try {
-      // In a real implementation, this would call the smart contract
-      // For now, return false as placeholder (everyone gets shadow character)
       console.log(`Checking NFT ownership for ${walletAddress}`);
-      
-      // TODO: Replace with actual contract call
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // const contract = new ethers.Contract(this.contractAddress, ABI, provider);
-      // const balance = await contract.balanceOf(walletAddress);
-      // return balance > 0;
-      
-      return false; // Default: shadow character only
+      // This is now handled by useNFTService hook
+      return false; // Use hooks in components instead
     } catch (error) {
       console.error('Error checking NFT ownership:', error);
       return false;
     }
   }
 
-  // Get user's character NFTs
+  // Get user's character NFTs (use hooks instead for React components)
   async getUserCharacters(walletAddress: string): Promise<NFTCharacter[]> {
     try {
       console.log(`Fetching characters for ${walletAddress}`);
-      
-      // TODO: Replace with actual contract call
-      // const provider = new ethers.providers.Web3Provider(window.ethereum);
-      // const contract = new ethers.Contract(this.contractAddress, ABI, provider);
-      // const tokenIds = await contract.walletOfOwner(walletAddress);
-      
-      return []; // Default: no characters owned
+      // This is now handled by useNFTService hook
+      return []; // Use hooks in components instead
     } catch (error) {
       console.error('Error fetching user characters:', error);
       return [];

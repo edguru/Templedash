@@ -43,7 +43,7 @@ export default function GameOverScreen() {
     };
 
     saveScore();
-  }, [token, score, distance, coinsEarned, scoreSaved]);
+  }, [account?.address, score, distance, coinsEarned, scoreSaved]);
 
   const handleRestart = () => {
     // Add rewards
@@ -75,12 +75,12 @@ export default function GameOverScreen() {
   // Check mystery box eligibility on component mount
   useEffect(() => {
     const checkMysteryBoxStatus = async () => {
-      if (!token) return;
+      if (!account?.address) return;
       
       try {
         const response = await fetch('/api/user/mystery-box-status', {
           headers: {
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer wallet_${account.address}`
           }
         });
 
@@ -94,7 +94,7 @@ export default function GameOverScreen() {
     };
 
     checkMysteryBoxStatus();
-  }, [token]);
+  }, [account?.address]);
 
   // Determine if user can open mystery box
   const canOpenBox = canOpenMysteryBox && (

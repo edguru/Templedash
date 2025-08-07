@@ -8,7 +8,7 @@ import { eq, desc, sum, count, and } from 'drizzle-orm';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
 
-// Middleware to verify JWT token
+// Middleware to verify wallet-based authentication
 const authenticateToken = (req: any, res: any, next: Function) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -17,6 +17,18 @@ const authenticateToken = (req: any, res: any, next: Function) => {
     return res.status(401).json({ error: 'Access token required' });
   }
 
+  // Handle wallet-based authentication (wallet_ADDRESS format)
+  if (token.startsWith('wallet_')) {
+    const walletAddress = token.replace('wallet_', '');
+    if (!walletAddress || walletAddress.length < 10) {
+      return res.status(403).json({ error: 'Invalid wallet address' });
+    }
+    req.currentUser = { walletAddress };
+    next();
+    return;
+  }
+
+  // Handle JWT authentication (fallback)
   jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
     if (err) {
       return res.status(403).json({ error: 'Invalid token' });

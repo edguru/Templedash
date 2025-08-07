@@ -25,8 +25,8 @@ export const baseCampTestnet = defineChain({
   id: CHAIN_CONFIG.CHAIN_ID,
   name: CHAIN_CONFIG.NETWORK_NAME,
   nativeCurrency: {
-    name: "Ether",
-    symbol: "ETH", 
+    name: "CAMP",
+    symbol: "CAMP", 
     decimals: 18,
   },
   rpc: CHAIN_CONFIG.RPC_URL,

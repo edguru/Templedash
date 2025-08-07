@@ -41,6 +41,7 @@ export default function WalletConnectScreen() {
           </div>
           <h1 className="text-2xl font-bold text-gray-800 mb-2">Temple Runner</h1>
           <p className="text-gray-600">NFT-Powered Infinite Runner on Base Camp</p>
+          <p className="text-xs text-gray-500 mt-1">Uses CAMP tokens for transactions</p>
         </div>
 
         <div className="text-gray-700 mb-6">

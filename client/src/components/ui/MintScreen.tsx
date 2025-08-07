@@ -32,7 +32,7 @@ export default function MintScreen() {
       let errorMessage = 'Failed to mint NFT';
       if (err instanceof Error) {
         if (err.message.includes('execution reverted')) {
-          errorMessage = 'Transaction failed. Make sure you have at least 0.001 ETH for the mint fee.';
+          errorMessage = 'Transaction failed. Make sure you have at least 0.001 CAMP tokens for the mint fee.';
         } else if (err.message.includes('User rejected')) {
           errorMessage = 'Transaction was cancelled by user.';
         } else {
@@ -82,6 +82,7 @@ export default function MintScreen() {
         <div className="bg-blue-50 p-4 rounded-lg mb-6">
           <div className="text-sm font-semibold text-blue-700">Base Camp Testnet</div>
           <div className="text-xs text-blue-600">Powered by Camp Network</div>
+          <div className="text-xs text-blue-500 mt-1">Mint Fee: 0.001 CAMP tokens</div>
         </div>
 
         {error && (

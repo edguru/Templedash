@@ -9,7 +9,7 @@ contract TempleRunnerNFT is ERC721, Ownable {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
     
-    uint256 public constant MINT_PRICE = 0.001 ether; // Very low price for accessibility
+    uint256 public constant MINT_PRICE = 0.001 ether; // 0.001 CAMP tokens for accessibility
     uint256 public constant MAX_SUPPLY = 10000;
     
     mapping(uint256 => string) private _characterTypes;

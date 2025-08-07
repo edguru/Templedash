@@ -83,10 +83,9 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   
   moveLeft: () => {
     const state = get();
-    console.log('🔵 moveLeft() called - Current lane:', state.currentLane, 'Lanes: [0=Left, 1=Center, 2=Right]');
+    console.log('🔵 MOVE LEFT: Current lane', state.currentLane, '→', state.currentLane === 0 ? 'BLOCKED (already leftmost)' : `lane ${state.currentLane - 1}`);
     const newLane = Math.max(0, state.currentLane - 1);
     if (newLane !== state.currentLane) {
-      console.log('✅ Moving LEFT: lane', state.currentLane, '→ lane', newLane);
       set({ 
         currentLane: newLane,
         isMovingLeft: true,
@@ -96,17 +95,14 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       setTimeout(() => {
         set({ isMovingLeft: false });
       }, 300);
-    } else {
-      console.log('❌ Already at leftmost lane (0)');
     }
   },
   
   moveRight: () => {
     const state = get();
-    console.log('🔴 moveRight() called - Current lane:', state.currentLane, 'Lanes: [0=Left, 1=Center, 2=Right]');
+    console.log('🔴 MOVE RIGHT: Current lane', state.currentLane, '→', state.currentLane === 2 ? 'BLOCKED (already rightmost)' : `lane ${state.currentLane + 1}`);
     const newLane = Math.min(2, state.currentLane + 1);
     if (newLane !== state.currentLane) {
-      console.log('✅ Moving RIGHT: lane', state.currentLane, '→ lane', newLane);
       set({ 
         currentLane: newLane,
         isMovingLeft: false,
@@ -116,8 +112,6 @@ export const usePlayer = create<PlayerState>((set, get) => ({
       setTimeout(() => {
         set({ isMovingRight: false });
       }, 300);
-    } else {
-      console.log('❌ Already at rightmost lane (2)');
     }
   },
   

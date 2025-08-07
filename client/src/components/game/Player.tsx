@@ -40,35 +40,10 @@ export default function Player() {
     const controls = getState();
     const time = clock.getElapsedTime();
     
-    // Debug all keyboard activity
-    const hasAnyKey = controls.left || controls.right || controls.jump;
-    if (hasAnyKey) {
-      console.log('🎮 Keyboard input detected:', controls, 'Current lane:', currentLane);
-    }
+    // No need for keyboard controls debugging since we have direct handlers
     
-    // Keyboard controls - only trigger on key press (edge detection)
-    if (controls.left && !prevLeftPressed) {
-      console.log('⬅️ Moving LEFT - Lane before:', currentLane);
-      moveLeft();
-      setIsMovingLeftState(true);
-    } else if (!controls.left && prevLeftPressed) {
-      setIsMovingLeftState(false);
-    }
-    
-    if (controls.right && !prevRightPressed) {
-      console.log('➡️ Moving RIGHT - Lane before:', currentLane);
-      moveRight();
-      setIsMovingRightState(true);
-    } else if (!controls.right && prevRightPressed) {
-      setIsMovingRightState(false);
-    }
-    
-    if (controls.jump && !prevJumpPressed && !isJumping) {
-      jump();
-      playSuccess();
-    }
-    
-    // Update previous states
+    // Reduced keyboard handling - direct events take priority
+    // Update previous states for consistency
     setPrevLeftPressed(controls.left);
     setPrevRightPressed(controls.right);
     setPrevJumpPressed(controls.jump);
@@ -113,58 +88,39 @@ export default function Player() {
     }
   });
 
-  // Subscribe to jump key for immediate feedback
-  useEffect(() => {
-    return subscribe(
-      state => state.jump,
-      isPressed => {
-        if (isPressed && !isJumping) {
-          console.log('🟢 JUMP key pressed via subscription');
-          jump();
-          playSuccess();
-        }
-      }
-    );
-  }, [subscribe, jump, isJumping, playSuccess]);
+  // Remove duplicate jump subscription - handled by direct keyboard events
 
-  // Direct keyboard controls - completely bypass KeyboardControls
+  // Direct keyboard controls - single streamlined system
   useEffect(() => {
-    console.log('🔧 Setting up direct keyboard controls');
+    console.log('🔧 Setting up streamlined keyboard controls');
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('⌨️ Raw keyboard event detected:', e.code, e.key, 'Target:', e.target);
-      
-      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        console.log('🎮 Game key detected, preventing default and handling:', e.code);
+      // Only handle our game keys
+      if (e.target === document.body && ['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        console.log('⌨️ Game key detected:', e.code, '| Current lane:', currentLane);
         e.preventDefault();
         e.stopPropagation();
         
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
-          console.log('🔵 EXECUTING: moveLeft()');
+          console.log('🔵 Direct LEFT command');
           moveLeft();
-          setIsMovingLeftState(true);
-          setTimeout(() => setIsMovingLeftState(false), 300);
         } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
-          console.log('🔴 EXECUTING: moveRight()');
+          console.log('🔴 Direct RIGHT command');
           moveRight();
-          setIsMovingRightState(true);
-          setTimeout(() => setIsMovingRightState(false), 300);
         } else if (e.code === 'Space' && !isJumping) {
-          console.log('🟢 EXECUTING: jump()');
+          console.log('🟢 Direct JUMP command');
           jump();
           playSuccess();
         }
       }
     };
     
-    // Add to document instead of window for broader capture
-    document.addEventListener('keydown', handleKeyDown, { capture: true });
+    document.addEventListener('keydown', handleKeyDown, true);
     
     return () => {
-      console.log('🧹 Cleaning up keyboard controls');
-      document.removeEventListener('keydown', handleKeyDown, { capture: true });
+      document.removeEventListener('keydown', handleKeyDown, true);
     };
-  }, [moveLeft, moveRight, jump, playSuccess, isJumping]);
+  }, [moveLeft, moveRight, jump, playSuccess, isJumping, currentLane]);
 
   // Character model rendering with enhanced fallback
   const CharacterModel = () => {

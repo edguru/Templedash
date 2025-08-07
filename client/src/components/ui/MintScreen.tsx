@@ -42,8 +42,8 @@ export default function MintScreen() {
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl">
+    <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-start justify-center p-4 pt-8 overflow-y-auto">
+      <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl mb-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-3">Unlock Your Character</h1>
         
         {/* Character preview */}

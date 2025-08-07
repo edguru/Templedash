@@ -32,17 +32,8 @@ export const useNFTService = () => {
       const contract = getNFTContract();
       const transaction = prepareContractCall({
         contract,
-        method: {
-          name: "mint",
-          type: "function",
-          inputs: [
-            { name: "to", type: "address" },
-            { name: "characterType", type: "string" }
-          ],
-          outputs: [],
-          stateMutability: "nonpayable"
-        },
-        params: [account.address, characterType],
+        method: "function mintCharacter(string memory characterType) payable",
+        params: [characterType],
       });
 
       return new Promise((resolve, reject) => {

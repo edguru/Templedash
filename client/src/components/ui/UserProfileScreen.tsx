@@ -163,7 +163,7 @@ export default function UserProfileScreen() {
 
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 overflow-auto">
-      <div className="min-h-screen p-4">
+      <div className="min-h-screen p-4 pt-8">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="bg-white rounded-2xl p-6 mb-6 shadow-2xl">
@@ -199,12 +199,9 @@ export default function UserProfileScreen() {
               
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={async () => {
+                  onClick={() => {
                     try {
-                      // Disconnect from Thirdweb wallet
-                      if (account) {
-                        await account.disconnect();
-                      }
+                      disconnect();
                     } catch (error) {
                       console.error('Disconnect error:', error);
                     }

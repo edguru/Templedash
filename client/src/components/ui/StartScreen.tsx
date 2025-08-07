@@ -6,7 +6,7 @@ import { useRewards } from "../../lib/stores/useRewards";
 
 export default function StartScreen() {
   const account = useActiveAccount();
-  const { disconnect } = useDisconnect();
+  const { mutate: disconnect } = useDisconnect();
   const { startGame, setGamePhase } = useGameState();
   const { hasCharacterNFT } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
@@ -33,8 +33,8 @@ export default function StartScreen() {
   };
 
   return (
-    <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-center justify-center p-4">
-      <div className="game-card start-screen-card bg-white/90 rounded-lg max-w-sm w-full mx-auto text-center shadow-2xl p-6">
+    <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-start justify-center p-4 pt-8 overflow-y-auto">
+      <div className="game-card start-screen-card bg-white/90 rounded-lg max-w-sm w-full mx-auto text-center shadow-2xl p-6 min-h-fit mb-8">
         <h1 className="text-3xl font-bold text-gray-800 mb-3">Temple Runner</h1>
         <p className="text-gray-600 mb-4 text-sm">NFT-Powered Infinite Runner</p>
         

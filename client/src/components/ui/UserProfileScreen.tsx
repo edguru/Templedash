@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { useActiveAccount } from "thirdweb/react";
+import { useActiveAccount, useDisconnect } from "thirdweb/react";
 import { ConnectButton } from "thirdweb/react";
 import { lightTheme } from "thirdweb/react";
-import { createWallet } from "thirdweb/wallets";
+import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { client, baseCampTestnet } from "../../lib/thirdweb";
 import { useGameState } from "../../lib/stores/useGameState";
 
-// Wallet configuration
+// Enhanced wallet configuration with email support
 const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["email", "google", "apple", "facebook", "phone"],
+    },
+  }),
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
   createWallet("me.rainbow"),
@@ -43,6 +48,7 @@ interface NFTOwned {
 
 export default function UserProfileScreen() {
   const account = useActiveAccount();
+  const { disconnect } = useDisconnect();
   const { setGamePhase } = useGameState();
   const [userStats, setUserStats] = useState<UserStats>({
     totalEarnings: 0,
@@ -170,32 +176,32 @@ export default function UserProfileScreen() {
                   <h1 className="text-2xl font-bold text-gray-800">User Profile</h1>
                   <p className="text-gray-600">{formatAddress(account.address)}</p>
                   <p className="text-sm text-green-600">Base Camp Testnet</p>
+                  <div className="flex items-center space-x-2 mt-2">
+                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                      {(() => {
+                        if (!account.id) return 'Connected';
+                        if (account.id.includes('inApp')) return '📧 Email/Social';
+                        if (account.id.includes('metamask')) return '🦊 MetaMask';
+                        if (account.id.includes('coinbase')) return '🔵 Coinbase';
+                        if (account.id.includes('rainbow')) return '🌈 Rainbow';
+                        return '👛 Wallet';
+                      })()}
+                    </span>
+                  </div>
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <ConnectButton
-                  client={client}
-                  accountAbstraction={{
-                    chain: baseCampTestnet,
-                    sponsorGas: true,
+                <button
+                  onClick={() => {
+                    disconnect();
+                    setGamePhase('start');
                   }}
-                  connectModal={{ 
-                    showThirdwebBranding: false, 
-                    size: "compact"
-                  }}
-                  theme={lightTheme({
-                    colors: {
-                      accentText: "hsl(258, 90%, 65%)",
-                      borderColor: "hsl(258, 90%, 65%)",
-                      primaryButtonBg: "hsl(258, 90%, 65%)",
-                      primaryButtonText: "hsl(0, 0%, 100%)",
-                      connectedButtonBg: "hsl(142, 76%, 36%)",
-                      connectedButtonBgHover: "hsl(142, 76%, 30%)",
-                    },
-                  })}
-                  wallets={wallets}
-                />
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"
+                >
+                  <span>🚪</span>
+                  <span>Disconnect</span>
+                </button>
                 <button
                   onClick={() => setGamePhase('start')}
                   className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition-colors"

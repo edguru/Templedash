@@ -1,16 +1,37 @@
-import { ConnectButton } from "thirdweb/react";
+import { ConnectButton, useActiveAccount } from "thirdweb/react";
 import { lightTheme } from "thirdweb/react";
-import { createWallet } from "thirdweb/wallets";
+import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { client, baseCampTestnet } from "../../lib/thirdweb";
 import { ethereum } from "thirdweb/chains";
+import { useEffect } from "react";
+import { useGameState } from "../../lib/stores/useGameState";
 
-// Simplified wallet configuration for better compatibility
+// Enhanced wallet configuration with email support
 const wallets = [
+  inAppWallet({
+    auth: {
+      options: ["email", "google", "apple", "facebook", "phone"],
+    },
+  }),
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
+  createWallet("me.rainbow"),
+  createWallet("io.rabby"),
+  createWallet("io.zerion.wallet"),
 ];
 
 export default function WalletConnectScreen() {
+  const account = useActiveAccount();
+  const { setGamePhase } = useGameState();
+
+  // Auto-redirect if already connected
+  useEffect(() => {
+    if (account) {
+      console.log('User already connected, redirecting to game');
+      setGamePhase('start');
+    }
+  }, [account, setGamePhase]);
+
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">
       <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
@@ -23,39 +44,65 @@ export default function WalletConnectScreen() {
         </div>
 
         <div className="text-gray-700 mb-6">
-          <h2 className="text-xl font-semibold mb-2">Connect Your Wallet</h2>
-          <p className="text-sm">Connect your wallet to start playing and earning PUPPETS rewards!</p>
+          <h2 className="text-xl font-semibold mb-2">Get Started</h2>
+          <p className="text-sm mb-3">Connect with your wallet or sign up with email to start playing!</p>
+          <div className="bg-blue-50 p-3 rounded-lg text-xs text-blue-700">
+            <div className="font-medium mb-1">New to crypto?</div>
+            <div>Choose "Continue with Email" for an easier start!</div>
+          </div>
         </div>
 
-        {/* Thirdweb ConnectButton with chain switching support */}
+        {/* Enhanced ConnectButton with email and wallet options */}
         <div className="mb-6">
           <ConnectButton
             client={client}
             chains={[baseCampTestnet, ethereum]}
             connectModal={{ 
               showThirdwebBranding: false, 
-              size: "compact",
+              size: "wide",
               privacyPolicyUrl: "https://thirdweb.com/privacy",
-              termsOfServiceUrl: "https://thirdweb.com/tos"
+              termsOfServiceUrl: "https://thirdweb.com/tos",
+              title: "Join Temple Runner",
+              titleIcon: "🎮"
             }}
             switchButton={{
-              label: "Switch to Base Camp",
+              label: "Switch to Base Camp Testnet",
               style: {
                 background: "hsl(258, 90%, 65%)",
-                color: "white"
+                color: "white",
+                borderRadius: "8px",
+                padding: "12px 24px",
+                fontWeight: "600"
               }
             }}
             theme={lightTheme({
               colors: {
-                accentText: "hsl(258, 90%, 65%)", // Purple accent
-                borderColor: "hsl(258, 90%, 65%)", // Purple border
-                primaryButtonBg: "hsl(258, 90%, 65%)", // Purple button
-                primaryButtonText: "hsl(0, 0%, 100%)", // White text
-                connectedButtonBg: "hsl(142, 76%, 36%)", // Green when connected
-                connectedButtonBgHover: "hsl(142, 76%, 30%)", // Darker green on hover
+                accentText: "hsl(258, 90%, 65%)", 
+                borderColor: "hsl(258, 90%, 65%)", 
+                primaryButtonBg: "hsl(258, 90%, 65%)", 
+                primaryButtonText: "hsl(0, 0%, 100%)", 
+                connectedButtonBg: "hsl(142, 76%, 36%)", 
+                connectedButtonBgHover: "hsl(142, 76%, 30%)", 
+                modalBg: "hsl(0, 0%, 100%)",
+                separatorLine: "hsl(0, 0%, 90%)",
+                secondaryText: "hsl(0, 0%, 50%)",
               },
             })}
             wallets={wallets}
+            connectButton={{
+              label: "Connect & Play",
+              style: {
+                background: "hsl(258, 90%, 65%)",
+                color: "white",
+                borderRadius: "12px",
+                padding: "16px 32px",
+                fontSize: "16px",
+                fontWeight: "600",
+                width: "100%",
+                border: "none",
+                cursor: "pointer"
+              }
+            }}
           />
         </div>
 
@@ -66,10 +113,18 @@ export default function WalletConnectScreen() {
           </div>
         )}
 
-        <div className="mt-6 text-xs text-gray-500">
-          <p>🌐 Base Camp Testnet by Camp Network</p>
-          <p>💰 Earn $0.001-$10 PUPPETS tokens</p>
-          <p>🐦 Share on X to tag @PuppetsAI</p>
+        <div className="mt-6 space-y-3">
+          <div className="text-xs text-gray-500">
+            <p>🌐 Base Camp Testnet by Camp Network</p>
+            <p>💰 Earn $0.001-$10 PUPPETS tokens</p>
+            <p>🐦 Share on X to tag @thepuppetsai</p>
+          </div>
+          
+          <div className="bg-green-50 p-3 rounded-lg text-xs text-green-700">
+            <div className="font-medium mb-1">✅ Choose Your Method:</div>
+            <div>• Email/Social: Easy signup, no crypto needed</div>
+            <div>• Wallet: Full Web3 experience with your own wallet</div>
+          </div>
         </div>
       </div>
     </div>

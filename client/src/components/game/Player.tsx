@@ -12,7 +12,9 @@ import { useTouchControls } from "../../hooks/use-touch-controls";
 enum Controls {
   left = 'left',
   right = 'right',
-  jump = 'jump'
+  jump = 'jump',
+  start = 'start',
+  restart = 'restart'
 }
 
 export default function Player() {
@@ -125,17 +127,25 @@ export default function Player() {
     );
   }, [subscribe, jump, isJumping, playSuccess]);
 
-  // Add focus debugging
+  // Add focus debugging and raw keyboard event listener
   useEffect(() => {
     const handleFocus = () => console.log('🎯 Game canvas focused');
     const handleBlur = () => console.log('🎯 Game canvas lost focus');
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log('⌨️ Raw keyboard event:', e.code, e.key);
+      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        console.log('🎮 Game key detected:', e.code);
+      }
+    };
     
     window.addEventListener('focus', handleFocus);
     window.addEventListener('blur', handleBlur);
+    window.addEventListener('keydown', handleKeyDown);
     
     return () => {
       window.removeEventListener('focus', handleFocus);
       window.removeEventListener('blur', handleBlur);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 

@@ -449,14 +449,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get aggregated game stats
       const gameStatsResult = await db.select({
         totalGames: count(gameScores.id),
-        highestScore: desc(gameScores.score),
         totalDistance: sum(gameScores.distance),
         totalCoins: sum(gameScores.coinsCollected)
       }).from(gameScores).where(eq(gameScores.userId, userId));
 
       const gameStats = gameStatsResult[0] || {
         totalGames: 0,
-        highestScore: 0,
         totalDistance: 0,
         totalCoins: 0
       };
@@ -476,10 +474,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalEarnings,
         mysteryBoxesClaimed: user[0].mysteryBoxesOpened || 0,
         nftsMinted: nftCount[0]?.count || 0,
-        gamesPlayed: gameStats.totalGames || 0,
+        gamesPlayed: Number(gameStats.totalGames) || 0,
         highestScore: highestScoreResult[0]?.score || 0,
-        totalDistance: gameStats.totalDistance || 0,
-        totalCoins: gameStats.totalCoins || 0
+        totalDistance: Number(gameStats.totalDistance) || 0,
+        totalCoins: Number(gameStats.totalCoins) || 0
       });
     } catch (error) {
       console.error('Get user stats error:', error);

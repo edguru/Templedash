@@ -34,6 +34,7 @@ export const useNFTService = () => {
         contract,
         method: "function mintCharacter(string memory characterType) payable",
         params: [characterType],
+        value: BigInt("1000000000000000"), // 0.001 ETH in wei
       });
 
       return new Promise((resolve, reject) => {

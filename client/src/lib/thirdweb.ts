@@ -1,6 +1,6 @@
 import { createThirdwebClient, defineChain, getContract } from "thirdweb";
 
-// Environment variables for Base Camp testnet
+// Environment variables for Base Camp testnet (keeping original for contract compatibility)
 export const CHAIN_CONFIG = {
   CHAIN_ID: Number(import.meta.env.VITE_CHAIN_ID) || 123420001114,
   RPC_URL: import.meta.env.VITE_RPC_URL || "https://rpc.camp-network-testnet.gelato.digital",
@@ -20,7 +20,7 @@ export const client = createThirdwebClient({
   clientId: THIRDWEB_CLIENT_ID || "demo-client-id"
 });
 
-// Define Base Camp testnet using defineChain method
+// Define Base Camp testnet using defineChain method  
 export const baseCampTestnet = defineChain({
   id: CHAIN_CONFIG.CHAIN_ID,
   name: CHAIN_CONFIG.NETWORK_NAME,

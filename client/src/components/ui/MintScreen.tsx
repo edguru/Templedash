@@ -27,7 +27,20 @@ export default function MintScreen() {
       setGamePhase('characterPreview');
     } catch (err) {
       console.error('Minting failed:', err);
-      setError('Failed to mint NFT. Please try again.');
+      
+      // Detailed error handling
+      let errorMessage = 'Failed to mint NFT';
+      if (err instanceof Error) {
+        if (err.message.includes('execution reverted')) {
+          errorMessage = 'Transaction failed. Make sure you have at least 0.001 ETH for the mint fee.';
+        } else if (err.message.includes('User rejected')) {
+          errorMessage = 'Transaction was cancelled by user.';
+        } else {
+          errorMessage = `Minting error: ${err.message}`;
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setIsMinting(false);
     }

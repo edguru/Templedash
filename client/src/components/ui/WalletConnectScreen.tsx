@@ -28,18 +28,32 @@ export default function WalletConnectScreen() {
               <button
                 onClick={async () => {
                   try {
+                    setError(null);
                     const wallet = createWallet("io.metamask");
                     await connect(wallet);
                   } catch (error) {
                     console.error('Connection failed:', error);
-                    setError('Failed to connect wallet. Please try again.');
+                    setError(`Failed to connect wallet: ${error?.message || 'Unknown error'}. Make sure MetaMask is installed and try again.`);
                   }
                 }}
                 disabled={isConnecting}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors disabled:opacity-50"
               >
-                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+                {isConnecting ? 'Connecting...' : 'Connect MetaMask'}
               </button>
+              
+              {/* Environment variable warning */}
+              {!import.meta.env.VITE_THIRDWEB_CLIENT_ID && (
+                <div className="mt-4 bg-yellow-100 text-yellow-800 p-3 rounded-lg text-sm">
+                  ⚠️ VITE_THIRDWEB_CLIENT_ID not configured. Please add your Thirdweb client ID.
+                </div>
+              )}
+              
+              {error && (
+                <div className="mt-4 bg-red-100 text-red-600 p-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
             </>
           ) : isAuthenticating ? (
             <div className="py-4">

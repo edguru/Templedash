@@ -1,30 +1,40 @@
 import { createThirdwebClient, defineChain, getContract } from "thirdweb";
 
-// Environment variables with defaults for Base Camp
-const THIRDWEB_CLIENT_ID = import.meta.env.VITE_THIRDWEB_CLIENT_ID || "your_thirdweb_client_id_here";
-const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID) || 123420001114;
-const RPC_URL = import.meta.env.VITE_RPC_URL || "https://rpc.camp-network-testnet.gelato.digital";
-export const NFT_CONTRACT_ADDRESS = import.meta.env.VITE_NFT_CONTRACT_ADDRESS || "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
+// Environment variables for Base Camp testnet
+export const CHAIN_CONFIG = {
+  CHAIN_ID: Number(import.meta.env.VITE_CHAIN_ID) || 123420001114,
+  RPC_URL: import.meta.env.VITE_RPC_URL || "https://rpc.camp-network-testnet.gelato.digital",
+  BLOCK_EXPLORER_URL: import.meta.env.VITE_BLOCK_EXPLORER_URL || "https://explorer.camp-network-testnet.gelato.digital",
+  NETWORK_NAME: import.meta.env.VITE_NETWORK_NAME || "Base Camp Testnet",
+};
 
-// Create the client with your clientId
+export const NFT_CONTRACT_ADDRESS = import.meta.env.VITE_NFT_CONTRACT_ADDRESS || "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
+const THIRDWEB_CLIENT_ID = import.meta.env.VITE_THIRDWEB_CLIENT_ID;
+
+if (!THIRDWEB_CLIENT_ID) {
+  console.warn("VITE_THIRDWEB_CLIENT_ID is not set. Please add it to your environment variables.");
+}
+
+// Create Thirdweb client
 export const client = createThirdwebClient({
-  clientId: THIRDWEB_CLIENT_ID
+  clientId: THIRDWEB_CLIENT_ID || "demo-client-id"
 });
 
-// Define Base Camp testnet
+// Define Base Camp testnet using defineChain method
 export const baseCampTestnet = defineChain({
-  id: CHAIN_ID,
-  name: "Base Camp Testnet by Camp Network",
+  id: CHAIN_CONFIG.CHAIN_ID,
+  name: CHAIN_CONFIG.NETWORK_NAME,
   nativeCurrency: {
     name: "Ether",
     symbol: "ETH", 
     decimals: 18,
   },
-  rpc: RPC_URL,
+  rpc: CHAIN_CONFIG.RPC_URL,
   blockExplorers: [{
     name: "Base Camp Explorer",
-    url: "https://explorer.camp-network-testnet.gelato.digital"
-  }]
+    url: CHAIN_CONFIG.BLOCK_EXPLORER_URL
+  }],
+  testnet: true
 });
 
 // Mystery box configuration

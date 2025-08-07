@@ -179,13 +179,19 @@ export default function UserProfileScreen() {
                   <div className="flex items-center space-x-2 mt-2">
                     <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                       {(() => {
-                        if (!account.id) return 'Connected';
-                        if (account.id.includes('inApp')) return '📧 Email';
-                        if (account.id.includes('metamask')) return '🦊 MetaMask';
-                        if (account.id.includes('coinbase')) return '🔵 Coinbase';
-                        if (account.id.includes('rainbow')) return '🌈 Rainbow';
+                        // All wallets are connected via Thirdweb
+                        const walletId = (account as any)?.wallet?.id || '';
+                        if (walletId.includes('inApp')) return '📧 Email';
+                        if (walletId.includes('metamask')) return '🦊 MetaMask';
+                        if (walletId.includes('coinbase')) return '🔵 Coinbase';
+                        if (walletId.includes('rainbow')) return '🌈 Rainbow';
+                        if (walletId.includes('rabby')) return '🐰 Rabby';
+                        if (walletId.includes('zerion')) return '⚡ Zerion';
                         return '👛 Wallet';
                       })()}
+                    </span>
+                    <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                      🔗 Thirdweb
                     </span>
                   </div>
                 </div>
@@ -194,7 +200,7 @@ export default function UserProfileScreen() {
               <div className="flex items-center space-x-4">
                 <button
                   onClick={() => {
-                    disconnect();
+                    disconnect({});
                     setGamePhase('start');
                   }}
                   className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors flex items-center space-x-2"

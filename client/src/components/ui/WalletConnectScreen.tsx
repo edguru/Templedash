@@ -121,9 +121,9 @@ export default function WalletConnectScreen() {
           </div>
           
           <div className="bg-green-50 p-3 rounded-lg text-xs text-green-700">
-            <div className="font-medium mb-1">✅ Choose Your Method:</div>
+            <div className="font-medium mb-1">✅ Secure Authentication via Thirdweb:</div>
             <div>• Email: Easy signup, no crypto knowledge needed</div>
-            <div>• Wallet: Full Web3 experience with your own wallet</div>
+            <div>• Wallet: MetaMask, Coinbase, Rainbow, Rabby, Zerion</div>
           </div>
         </div>
       </div>

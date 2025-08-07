@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
+import { useActiveAccount } from 'thirdweb/react';
 import { useGameState } from "../../lib/stores/useGameState";
 import { useRewards } from "../../lib/stores/useRewards";
 import { useAudio } from "../../lib/stores/useAudio";
-import { useAuth } from "../../lib/stores/useAuth";
 import { useNFTService, MysteryBoxReward } from "../../lib/nftService";
 import { MYSTERY_BOX_CONFIG } from "../../lib/thirdweb";
 
@@ -16,10 +16,10 @@ export default function MysteryBoxScreen() {
   const [reward, setReward] = useState<Reward | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [canClaim, setCanClaim] = useState(true);
+  const account = useActiveAccount();
   const { setGamePhase } = useGameState();
   const { openMysteryBox, addTokenReward } = useRewards();
   const { playSuccess } = useAudio();
-  const { token } = useAuth();
   const { openMysteryBox: openBox, shareOnX, userAddress } = useNFTService();
 
   // Check if user can claim mystery box

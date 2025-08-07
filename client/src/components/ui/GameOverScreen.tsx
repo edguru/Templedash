@@ -1,12 +1,12 @@
+import { useActiveAccount } from 'thirdweb/react';
 import { useGameState } from "../../lib/stores/useGameState";
 import { useRewards } from "../../lib/stores/useRewards";
-import { useAuth } from "../../lib/stores/useAuth";
 import { useEffect, useState } from "react";
 
 export default function GameOverScreen() {
+  const account = useActiveAccount();
   const { score, distance, restartGame, setGamePhase } = useGameState();
   const { addCoins, addRun, canOpenMysteryBox } = useRewards();
-  const { token } = useAuth();
   const [scoreSaved, setScoreSaved] = useState(false);
   const [isPersonalBest, setIsPersonalBest] = useState(false);
   const [userMysteryBoxStatus, setUserMysteryBoxStatus] = useState({ opened: 0, canOpenSecond: false });
@@ -16,14 +16,14 @@ export default function GameOverScreen() {
   // Save score when component mounts
   useEffect(() => {
     const saveScore = async () => {
-      if (!token || scoreSaved) return;
+      if (!account?.address || scoreSaved) return;
       
       try {
-        const response = await fetch('/api/scores', {
+        const response = await fetch('/api/game/score', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer wallet_${account.address}`
           },
           body: JSON.stringify({
             score,

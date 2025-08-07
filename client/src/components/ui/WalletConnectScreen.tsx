@@ -52,8 +52,6 @@ export default function WalletConnectScreen() {
               },
             })}
             wallets={wallets}
-            chain={baseCampTestnet}
-            switchToActiveChain={true}
           />
         </div>
 

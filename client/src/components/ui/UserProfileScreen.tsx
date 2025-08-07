@@ -142,8 +142,6 @@ export default function UserProfileScreen() {
               },
             })}
             wallets={wallets}
-            chain={baseCampTestnet}
-            switchToActiveChain={true}
           />
           
           <button

@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useGameState } from "../../lib/stores/useGameState";
-import { useAuth } from "../../lib/stores/useAuth";
 
 interface LeaderboardEntry {
   userId: number;
@@ -13,7 +12,6 @@ interface LeaderboardEntry {
 
 export default function LeaderboardScreen() {
   const { setGamePhase } = useGameState();
-  const { token } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

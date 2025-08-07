@@ -134,7 +134,7 @@ function AppContent() {
 // Main App component wrapped in ThirdwebProvider
 function App() {
   return (
-    <ThirdwebProvider client={client}>
+    <ThirdwebProvider>
       <AppContent />
     </ThirdwebProvider>
   );

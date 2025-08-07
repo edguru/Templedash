@@ -42,6 +42,27 @@ function AppContent() {
     setShowCanvas(true);
   }, []);
 
+  // Global keyboard debugging - this should always work
+  useEffect(() => {
+    console.log('🌐 Setting up GLOBAL keyboard debugging');
+    
+    const globalKeyHandler = (e: KeyboardEvent) => {
+      console.log('🌍 GLOBAL keyboard event detected:', e.code, e.key, 'Game phase:', gamePhase);
+      
+      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        console.log('🎯 GLOBAL game key detected:', e.code, 'in phase:', gamePhase);
+      }
+    };
+    
+    window.addEventListener('keydown', globalKeyHandler, true);
+    document.addEventListener('keydown', globalKeyHandler, true);
+    
+    return () => {
+      window.removeEventListener('keydown', globalKeyHandler, true);
+      document.removeEventListener('keydown', globalKeyHandler, true);
+    };
+  }, [gamePhase]);
+
   // Show wallet connection screen if no wallet connected
   if (!account) {
     return (

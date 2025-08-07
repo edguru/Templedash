@@ -32,6 +32,43 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
     }
   }, [stickHuman]);
 
+  // Keyboard controls for ShadowCharacter
+  useEffect(() => {
+    console.log('🔧 Setting up keyboard controls in ShadowCharacter');
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      console.log('⌨️ ShadowCharacter key event:', e.code, e.key);
+      
+      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        console.log('🎮 ShadowCharacter game key detected:', e.code);
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+          console.log('🔵 ShadowCharacter EXECUTING LEFT');
+          moveLeft();
+        } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+          console.log('🔴 ShadowCharacter EXECUTING RIGHT');
+          moveRight();
+        } else if (e.code === 'Space') {
+          console.log('🟢 ShadowCharacter EXECUTING JUMP');
+          if (!isJumping) {
+            jump();
+            playSuccess();
+          }
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keydown', handleKeyDown, true);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [moveLeft, moveRight, jump, playSuccess, isJumping]);
+
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
 

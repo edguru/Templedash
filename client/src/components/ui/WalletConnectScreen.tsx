@@ -1,15 +1,13 @@
 import { ConnectButton } from "thirdweb/react";
 import { lightTheme } from "thirdweb/react";
-import { createWallet } from "thirdweb/wallets";
+import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { client, baseCampTestnet } from "../../lib/thirdweb";
+import { ethereum } from "thirdweb/chains";
 
-// Wallet configuration for Base Camp testnet
+// Simplified wallet configuration for better compatibility
 const wallets = [
   createWallet("io.metamask"),
   createWallet("com.coinbase.wallet"),
-  createWallet("me.rainbow"),
-  createWallet("io.rabby"),
-  createWallet("io.zerion.wallet"),
 ];
 
 export default function WalletConnectScreen() {
@@ -29,17 +27,23 @@ export default function WalletConnectScreen() {
           <p className="text-sm">Connect your wallet to start playing and earning PUPPETS rewards!</p>
         </div>
 
-        {/* Thirdweb ConnectButton */}
+        {/* Thirdweb ConnectButton with chain switching support */}
         <div className="mb-6">
           <ConnectButton
             client={client}
-            accountAbstraction={{
-              chain: baseCampTestnet,
-              sponsorGas: true,
-            }}
+            chains={[baseCampTestnet, ethereum]}
             connectModal={{ 
               showThirdwebBranding: false, 
-              size: "compact"
+              size: "compact",
+              privacyPolicyUrl: "https://thirdweb.com/privacy",
+              termsOfServiceUrl: "https://thirdweb.com/tos"
+            }}
+            switchButton={{
+              label: "Switch to Base Camp",
+              style: {
+                background: "hsl(258, 90%, 65%)",
+                color: "white"
+              }
             }}
             theme={lightTheme({
               colors: {

@@ -6,11 +6,11 @@ import { createWallet, inAppWallet } from "thirdweb/wallets";
 import { client, baseCampTestnet } from "../../lib/thirdweb";
 import { useGameState } from "../../lib/stores/useGameState";
 
-// Enhanced wallet configuration with email support
+// Email and wallet-based authentication only
 const wallets = [
   inAppWallet({
     auth: {
-      options: ["email", "google", "apple", "facebook", "phone"],
+      options: ["email"], // Only email auth, no social logins
     },
   }),
   createWallet("io.metamask"),
@@ -180,7 +180,7 @@ export default function UserProfileScreen() {
                     <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                       {(() => {
                         if (!account.id) return 'Connected';
-                        if (account.id.includes('inApp')) return '📧 Email/Social';
+                        if (account.id.includes('inApp')) return '📧 Email';
                         if (account.id.includes('metamask')) return '🦊 MetaMask';
                         if (account.id.includes('coinbase')) return '🔵 Coinbase';
                         if (account.id.includes('rainbow')) return '🌈 Rainbow';

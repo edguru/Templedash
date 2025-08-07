@@ -18,7 +18,7 @@ Temple Runner is an NFT-powered infinite runner game built with React, Three.js,
 # User Preferences
 
 - Preferred communication style: Simple, everyday language
-- Authentication: Thirdweb wallet connection only (no JWT or additional auth layers)  
+- Authentication: Email and wallet-based auth only (no social login options like Google, Apple, Facebook, phone)  
 - Reward system: Save token recipients for later claiming rather than immediate distribution
 - Network: Base Camp testnet by Camp Network for all blockchain operations
 

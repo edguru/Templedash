@@ -6,11 +6,11 @@ import { ethereum } from "thirdweb/chains";
 import { useEffect } from "react";
 import { useGameState } from "../../lib/stores/useGameState";
 
-// Enhanced wallet configuration with email support
+// Email and wallet-based authentication only
 const wallets = [
   inAppWallet({
     auth: {
-      options: ["email", "google", "apple", "facebook", "phone"],
+      options: ["email"], // Only email auth, no social logins
     },
   }),
   createWallet("io.metamask"),
@@ -122,7 +122,7 @@ export default function WalletConnectScreen() {
           
           <div className="bg-green-50 p-3 rounded-lg text-xs text-green-700">
             <div className="font-medium mb-1">✅ Choose Your Method:</div>
-            <div>• Email/Social: Easy signup, no crypto needed</div>
+            <div>• Email: Easy signup, no crypto knowledge needed</div>
             <div>• Wallet: Full Web3 experience with your own wallet</div>
           </div>
         </div>

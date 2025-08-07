@@ -1,40 +1,14 @@
 import { useActiveAccount, useConnect, useDisconnect } from 'thirdweb/react';
 import { createWallet } from 'thirdweb/wallets';
-import { useAuth } from "../../lib/stores/useAuth";
 import { useEffect, useState } from "react";
 
 export default function WalletConnectScreen() {
   const account = useActiveAccount();
   const { connect, isConnecting } = useConnect();
   const { disconnect } = useDisconnect();
-  const { authenticateWallet, isAuthenticated } = useAuth();
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const handleWalletAuth = async () => {
-      if (account && !isAuthenticated && !isAuthenticating) {
-        setIsAuthenticating(true);
-        setError(null);
-        
-        try {
-          const success = await authenticateWallet(account.address);
-          if (!success) {
-            setError("Failed to authenticate wallet. Please try again.");
-          }
-        } catch (err) {
-          setError("Wallet authentication failed. Please try again.");
-          console.error("Auth error:", err);
-        } finally {
-          setIsAuthenticating(false);
-        }
-      }
-    };
-
-    if (account) {
-      handleWalletAuth();
-    }
-  }, [account, isAuthenticated, authenticateWallet, isAuthenticating]);
+  // Removed complex authentication - wallet connection is enough
 
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">

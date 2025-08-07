@@ -2,6 +2,7 @@ import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import { ThirdwebProvider } from 'thirdweb/react';
+import { useActiveAccount } from 'thirdweb/react';
 import { client, baseCampTestnet } from './lib/thirdweb';
 import "@fontsource/inter";
 
@@ -18,7 +19,7 @@ import CharacterPreview from "./components/ui/CharacterPreview";
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
 import { useAudio } from "./lib/stores/useAudio";
-import { useAuth } from "./lib/stores/useAuth";
+// Removed useAuth - using only Thirdweb wallet connection
 
 // Import screens
 import LeaderboardScreen from "./components/ui/LeaderboardScreen";
@@ -44,10 +45,10 @@ const controls = [
   { name: Controls.restart, keys: ["KeyR"] },
 ];
 
-// Main App component
-function App() {
+// Inner App component that uses Thirdweb hooks
+function AppContent() {
   const { gamePhase } = useGameState();
-  const { isAuthenticated } = useAuth();
+  const account = useActiveAccount();
   const [showCanvas, setShowCanvas] = useState(false);
 
   // Show the canvas once everything is loaded
@@ -55,36 +56,21 @@ function App() {
     setShowCanvas(true);
   }, []);
 
-  // Show wallet connection screen if not authenticated
-  if (!isAuthenticated) {
+  // Show wallet connection screen if no wallet connected
+  if (!account) {
     return (
-      <ThirdwebProvider>
-        <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-          <div className="text-center p-8">
-            <h1 className="text-4xl font-bold text-white mb-4">Temple Runner</h1>
-            <p className="text-xl text-purple-200 mb-8">NFT-Powered Infinite Runner</p>
-            <button 
-              onClick={() => {
-                // Bypass wallet connection for demo
-                window.localStorage.setItem('demo-auth', 'true');
-                window.location.reload();
-              }}
-              className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-colors"
-            >
-              Demo Mode - View Game Scene
-            </button>
-            <div className="mt-4">
-              <WalletConnectScreen />
-            </div>
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+        <div className="text-center p-8">
+          <h1 className="text-4xl font-bold text-white mb-4">Temple Runner</h1>
+          <p className="text-xl text-purple-200 mb-8">NFT-Powered Infinite Runner on Base Camp</p>
+          <WalletConnectScreen />
         </div>
-      </ThirdwebProvider>
+      </div>
     );
   }
 
   return (
-    <ThirdwebProvider>
-      <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <KeyboardControls map={controls}>
             {gamePhase === 'start' && <StartScreen />}
@@ -139,6 +125,14 @@ function App() {
           </KeyboardControls>
         )}
       </div>
+  );
+}
+
+// Main App component wrapped in ThirdwebProvider
+function App() {
+  return (
+    <ThirdwebProvider>
+      <AppContent />
     </ThirdwebProvider>
   );
 }

@@ -3,22 +3,24 @@
 Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Privy wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
 ## Recent Changes (2025-01-07)
-- **Thirdweb v5 Migration**: Complete migration from Privy to Thirdweb v5 for all blockchain functionality
-- **Base Camp Testnet**: Configured for basecamp testnet by Camp Network (chain ID: 123420001114)
-- **NFT Contract Integration**: Set up with contract address 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
-- **Mystery Box Reward System**: Implemented 1 mystery box per wallet with Puppets AI token rewards
+- **Authentication Simplification**: Removed JWT/complex auth layers - now uses only Thirdweb wallet connection
+- **Base Camp Testnet Integration**: Fully configured for Camp Network's Base Camp testnet (chain ID: 123420001114)
+- **NFT Contract**: Set up with contract address 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
+- **Deferred Reward System**: Mystery box tokens save recipient addresses for later claiming instead of immediate distribution
   - Standard reward: $0.001 worth of PUPPETS tokens
   - Jackpot reward: $10 PUPPETS (1 in 5000 chance)
-- **X (Twitter) Integration**: Added automatic draft post sharing functionality tagging @PuppetsAI
-- **Wallet Authentication**: Updated to use Thirdweb v5 hooks (useActiveAccount, useConnect, useDisconnect)
-- **Smart Contract Integration**: NFT minting and reward distribution using Thirdweb v5 SDK
+- **Environment Configuration**: Organized all environment variables for easy Base Camp deployment
+- **X (Twitter) Integration**: Automatic draft post sharing functionality tagging @PuppetsAI
+- **Simplified Wallet Flow**: Direct wallet connection without additional authentication layers
 - **3-Lane System**: Maintained classic Temple Run 3-lane discrete movement system
-- **Terrain System**: Clean running path with stone walls and proper collision detection
 - **Performance Optimization**: Mobile-optimized 3D rendering with LOD management
 
 # User Preferences
 
-Preferred communication style: Simple, everyday language.
+- Preferred communication style: Simple, everyday language
+- Authentication: Thirdweb wallet connection only (no JWT or additional auth layers)  
+- Reward system: Save token recipients for later claiming rather than immediate distribution
+- Network: Base Camp testnet by Camp Network for all blockchain operations
 
 # System Architecture
 

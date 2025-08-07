@@ -15,6 +15,7 @@ import MintScreen from "./components/ui/MintScreen";
 import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
 import ChatScreen from "./components/ui/ChatScreen";
 import CharacterPreview from "./components/ui/CharacterPreview";
+import UserProfileScreen from "./components/ui/UserProfileScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -84,6 +85,8 @@ function AppContent() {
             {gamePhase === 'leaderboard' && <LeaderboardScreen />}
             
             {gamePhase === 'chat' && <ChatScreen />}
+            
+            {gamePhase === 'profile' && <UserProfileScreen />}
             
             {gamePhase === 'gameOver' && <GameOverScreen />}
 

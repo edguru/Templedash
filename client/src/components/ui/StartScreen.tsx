@@ -116,6 +116,13 @@ export default function StartScreen() {
           >
             🏆 Leaderboard
           </button>
+          
+          <button 
+            onClick={() => setGamePhase('profile')}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg"
+          >
+            👤 Profile
+          </button>
         </div>
 
         <div className="mt-4 text-xs text-gray-500">

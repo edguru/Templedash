@@ -389,6 +389,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User profile routes (wallet address based)
+  app.get('/api/user/:address/stats', async (req, res) => {
+    try {
+      const walletAddress = req.params.address;
+      
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.json({
+          totalEarnings: 0,
+          mysteryBoxesClaimed: 0,
+          nftsMinted: 0,
+          gamesPlayed: 0,
+          highestScore: 0,
+          totalDistance: 0,
+          totalCoins: 0
+        });
+      }
+
+      const userId = user[0].id;
+      
+      // Get aggregated game stats
+      const gameStatsResult = await db.select({
+        totalGames: count(gameScores.id),
+        highestScore: desc(gameScores.score),
+        totalDistance: sum(gameScores.distance),
+        totalCoins: sum(gameScores.coinsCollected)
+      }).from(gameScores).where(eq(gameScores.userId, userId));
+
+      const gameStats = gameStatsResult[0] || {
+        totalGames: 0,
+        highestScore: 0,
+        totalDistance: 0,
+        totalCoins: 0
+      };
+
+      // Get highest score separately
+      const highestScoreResult = await db
+        .select({ score: gameScores.score })
+        .from(gameScores)
+        .where(eq(gameScores.userId, userId))
+        .orderBy(desc(gameScores.score))
+        .limit(1);
+
+      const totalEarnings = parseFloat(user[0].totalTokensEarned || '0');
+      const nftCount = await db.select({ count: count() }).from(nftOwnership).where(eq(nftOwnership.userId, userId));
+
+      res.json({
+        totalEarnings,
+        mysteryBoxesClaimed: user[0].mysteryBoxesOpened || 0,
+        nftsMinted: nftCount[0]?.count || 0,
+        gamesPlayed: gameStats.totalGames || 0,
+        highestScore: highestScoreResult[0]?.score || 0,
+        totalDistance: gameStats.totalDistance || 0,
+        totalCoins: gameStats.totalCoins || 0
+      });
+    } catch (error) {
+      console.error('Get user stats error:', error);
+      res.status(500).json({ error: 'Failed to fetch user stats' });
+    }
+  });
+
+  app.get('/api/user/:address/claims', async (req, res) => {
+    try {
+      const walletAddress = req.params.address;
+      
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.json([]);
+      }
+
+      const claims = await db.select({
+        id: tokenClaims.id,
+        amount: tokenClaims.amount,
+        tokenType: tokenClaims.reason,
+        rarity: tokenClaims.reason, // Use reason as rarity indicator
+        claimed: tokenClaims.claimed,
+        createdAt: tokenClaims.createdAt
+      }).from(tokenClaims)
+        .where(eq(tokenClaims.userId, user[0].id))
+        .orderBy(desc(tokenClaims.createdAt));
+
+      const formattedClaims = claims.map(claim => ({
+        ...claim,
+        tokenType: 'PUPPETS',
+        rarity: parseFloat(claim.amount) >= 10 ? 'legendary' : 
+                parseFloat(claim.amount) >= 1 ? 'epic' : 
+                parseFloat(claim.amount) >= 0.1 ? 'rare' : 
+                parseFloat(claim.amount) >= 0.05 ? 'uncommon' : 'common'
+      }));
+
+      res.json(formattedClaims);
+    } catch (error) {
+      console.error('Get user claims error:', error);
+      res.status(500).json({ error: 'Failed to fetch user claims' });
+    }
+  });
+
+  app.get('/api/user/:address/nfts', async (req, res) => {
+    try {
+      const walletAddress = req.params.address;
+      
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.json([]);
+      }
+
+      const nfts = await db.select({
+        id: nftOwnership.id,
+        tokenId: nftOwnership.tokenId,
+        characterType: nftOwnership.characterType,
+        mintedAt: nftOwnership.mintedAt
+      }).from(nftOwnership)
+        .where(eq(nftOwnership.userId, user[0].id))
+        .orderBy(desc(nftOwnership.id));
+
+      res.json(nfts);
+    } catch (error) {
+      console.error('Get user NFTs error:', error);
+      res.status(500).json({ error: 'Failed to fetch user NFTs' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

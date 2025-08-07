@@ -1,5 +1,7 @@
-import { useContract, useContractRead, useContractWrite, useNFTs, useOwnedNFTs } from '@thirdweb-dev/react';
-import { NFT_CONTRACT_ADDRESS } from './thirdweb';
+import { getNFTContract, MYSTERY_BOX_CONFIG, SOCIAL_CONFIG } from './thirdweb';
+import { prepareContractCall, sendTransaction } from "thirdweb";
+import { useActiveAccount, useSendTransaction } from "thirdweb/react";
+import { useState, useCallback } from 'react';
 
 export interface NFTCharacter {
   tokenId: string;
@@ -9,32 +11,103 @@ export interface NFTCharacter {
   metadata?: any;
 }
 
-// NFT Contract Integration using Thirdweb hooks
-export const useNFTContract = () => {
-  const { contract } = useContract(NFT_CONTRACT_ADDRESS);
-  return contract;
-};
+export interface MysteryBoxReward {
+  type: 'token' | 'jackpot';
+  amount: number;
+  currency: string;
+  transactionHash?: string;
+}
 
-export const useNFTService = (walletAddress?: string) => {
-  const contract = useNFTContract();
-  const { data: ownedNFTs, isLoading: isLoadingNFTs } = useOwnedNFTs(contract, walletAddress);
-  const { mutateAsync: mintNFT, isLoading: isMinting } = useContractWrite(contract, "mint");
+// NFT and Mystery Box service using Thirdweb v5
+export const useNFTService = () => {
+  const account = useActiveAccount();
+  const { mutate: sendTx, isPending } = useSendTransaction();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const mintNFT = useCallback(async (characterType: string) => {
+    if (!account) throw new Error('No wallet connected');
+    
+    setIsProcessing(true);
+    try {
+      const contract = getNFTContract();
+      const transaction = prepareContractCall({
+        contract,
+        method: "mint",
+        params: [account.address, characterType],
+      });
+
+      return new Promise((resolve, reject) => {
+        sendTx(transaction, {
+          onSuccess: (result) => {
+            setIsProcessing(false);
+            resolve({
+              success: true,
+              transactionHash: result.transactionHash,
+              tokenId: Date.now().toString(), // This would come from contract event
+            });
+          },
+          onError: (error) => {
+            setIsProcessing(false);
+            reject(error);
+          },
+        });
+      });
+    } catch (error) {
+      setIsProcessing(false);
+      throw error;
+    }
+  }, [account, sendTx]);
+
+  const openMysteryBox = useCallback(async (): Promise<MysteryBoxReward> => {
+    if (!account) throw new Error('No wallet connected');
+
+    // Check if user already claimed mystery box (this would be stored in backend)
+    const hasClaimedBox = localStorage.getItem(`mysteryBox_${account.address}`);
+    if (hasClaimedBox) {
+      throw new Error('You can only claim one mystery box per account');
+    }
+
+    // Determine reward type
+    const isJackpot = Math.random() < (1 / MYSTERY_BOX_CONFIG.JACKPOT_ODDS);
+    
+    const reward: MysteryBoxReward = {
+      type: isJackpot ? 'jackpot' : 'token',
+      amount: isJackpot ? MYSTERY_BOX_CONFIG.JACKPOT_REWARD : MYSTERY_BOX_CONFIG.PUPPETS_TOKEN_REWARD,
+      currency: 'PUPPETS',
+    };
+
+    // Mark as claimed
+    localStorage.setItem(`mysteryBox_${account.address}`, 'true');
+    
+    // In a real implementation, this would trigger token transfer
+    console.log(`Mystery box opened! Reward: ${reward.amount} ${reward.currency}`);
+    
+    return reward;
+  }, [account]);
+
+  const shareOnX = useCallback((reward: MysteryBoxReward) => {
+    const shareText = `${SOCIAL_CONFIG.TWITTER_SHARE_TEXT}\n\nJust won ${reward.amount} ${reward.currency} tokens! 💰`;
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&hashtags=${SOCIAL_CONFIG.TWITTER_HASHTAGS}`;
+    window.open(twitterUrl, '_blank');
+  }, []);
 
   return {
-    contract,
-    ownedNFTs,
-    isLoadingNFTs,
     mintNFT,
-    isMinting,
+    openMysteryBox,
+    shareOnX,
+    isProcessing: isProcessing || isPending,
+    userAddress: account?.address,
   };
 };
 
 // Legacy class for backward compatibility
 export class NFTService {
-  private contractAddress: string;
+  private contractAddress: string = "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
 
-  constructor(contractAddress = NFT_CONTRACT_ADDRESS) {
-    this.contractAddress = contractAddress;
+  constructor(contractAddress?: string) {
+    if (contractAddress) {
+      this.contractAddress = contractAddress;
+    }
   }
 
   // Check if user owns any character NFTs (use hooks instead for React components)

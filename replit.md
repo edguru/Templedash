@@ -2,18 +2,19 @@
 
 Temple Runner is an NFT-powered infinite runner game built with React, Three.js, and Privy wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-01-15)
-- **3-Lane System**: Implemented classic Temple Run 3-lane discrete movement system
-- **Terrain Cleanup**: Removed problematic forest terrain, created clean running path with stone walls
-- **Character Orientation**: Fixed character rotation to face forward with back toward camera
-- **Lane Switching**: Buttons now switch between discrete lanes (-2, 0, 2) instead of continuous movement
-- **Collision Detection**: Enhanced obstacle collision with jumping mechanics - rocks can be jumped over, trees cannot
-- **Touch Controls**: Direct integration with player movement functions for responsive controls
-- **Visual Improvements**: Simplified terrain layout with clear boundaries and better performance
-- **Physics Enhancement**: Improved jumping mechanics and gravity system for realistic movement
-- **Performance Optimization**: Reduced terrain complexity, enhanced lighting, and Canvas settings
-- **Game Flow**: Fixed collision detection to properly trigger game over state
-- **UI Cleanup**: Removed duplicate touch controls by eliminating SimpleTouchControls component
+## Recent Changes (2025-01-07)
+- **Thirdweb v5 Migration**: Complete migration from Privy to Thirdweb v5 for all blockchain functionality
+- **Base Camp Testnet**: Configured for basecamp testnet by Camp Network (chain ID: 123420001114)
+- **NFT Contract Integration**: Set up with contract address 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
+- **Mystery Box Reward System**: Implemented 1 mystery box per wallet with Puppets AI token rewards
+  - Standard reward: $0.001 worth of PUPPETS tokens
+  - Jackpot reward: $10 PUPPETS (1 in 5000 chance)
+- **X (Twitter) Integration**: Added automatic draft post sharing functionality tagging @PuppetsAI
+- **Wallet Authentication**: Updated to use Thirdweb v5 hooks (useActiveAccount, useConnect, useDisconnect)
+- **Smart Contract Integration**: NFT minting and reward distribution using Thirdweb v5 SDK
+- **3-Lane System**: Maintained classic Temple Run 3-lane discrete movement system
+- **Terrain System**: Clean running path with stone walls and proper collision detection
+- **Performance Optimization**: Mobile-optimized 3D rendering with LOD management
 
 # User Preferences
 
@@ -51,10 +52,12 @@ Preferred communication style: Simple, everyday language.
 - **Migration System**: Database schema versioning in ./migrations directory
 
 ## Web3 Integration
-- **Thirdweb SDK**: Blockchain connectivity and NFT contract interactions
-- **Polygon Network**: Low-cost transactions for NFT minting and gameplay
-- **Wallet Connection**: Web3 wallet integration for user authentication
-- **Smart Contract Interaction**: NFT minting and ownership verification
+- **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks
+- **Base Camp Testnet**: Camp Network testnet (chain ID: 123420001114) for low-cost testing
+- **Smart Contract**: NFT contract at 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
+- **Mystery Box System**: One-time claimable rewards with Puppets AI tokens
+- **Wallet Authentication**: MetaMask and compatible wallets via Thirdweb Connect
+- **Social Integration**: X (Twitter) sharing with automatic draft posts
 
 ## Game State Management
 - **Phase Management**: Game states (start, playing, gameOver, mint, mysteryBox)

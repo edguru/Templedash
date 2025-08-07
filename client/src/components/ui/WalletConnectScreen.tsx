@@ -1,24 +1,24 @@
-import { useAddress, useConnect, useConnectionStatus, useDisconnect } from '@thirdweb-dev/react';
+import { useActiveAccount, useConnect, useDisconnect } from 'thirdweb/react';
+import { createWallet } from 'thirdweb/wallets';
 import { useAuth } from "../../lib/stores/useAuth";
 import { useEffect, useState } from "react";
 
 export default function WalletConnectScreen() {
-  const address = useAddress();
-  const connect = useConnect();
-  const disconnect = useDisconnect();
-  const connectionStatus = useConnectionStatus();
+  const account = useActiveAccount();
+  const { connect, isConnecting } = useConnect();
+  const { disconnect } = useDisconnect();
   const { authenticateWallet, isAuthenticated } = useAuth();
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleWalletAuth = async () => {
-      if (address && connectionStatus === 'connected' && !isAuthenticated && !isAuthenticating) {
+      if (account && !isAuthenticated && !isAuthenticating) {
         setIsAuthenticating(true);
         setError(null);
         
         try {
-          const success = await authenticateWallet(address);
+          const success = await authenticateWallet(account.address);
           if (!success) {
             setError("Failed to authenticate wallet. Please try again.");
           }
@@ -31,10 +31,10 @@ export default function WalletConnectScreen() {
       }
     };
 
-    if (connectionStatus === 'connected') {
+    if (account) {
       handleWalletAuth();
     }
-  }, [address, connectionStatus, isAuthenticated, authenticateWallet, isAuthenticating]);
+  }, [account, isAuthenticated, authenticateWallet, isAuthenticating]);
 
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">
@@ -44,7 +44,7 @@ export default function WalletConnectScreen() {
         
         {/* Wallet Connection Status */}
         <div className="mb-8">
-          {connectionStatus === 'disconnected' || !address ? (
+          {!account ? (
             <>
               <div className="text-gray-700 mb-6">
                 <h2 className="text-xl font-semibold mb-2">Connect Your Wallet</h2>
@@ -54,15 +54,17 @@ export default function WalletConnectScreen() {
               <button
                 onClick={async () => {
                   try {
-                    await connect();
+                    const wallet = createWallet("io.metamask");
+                    await connect(wallet);
                   } catch (error) {
                     console.error('Connection failed:', error);
+                    setError('Failed to connect wallet. Please try again.');
                   }
                 }}
-                disabled={connectionStatus === 'connecting'}
+                disabled={isConnecting}
                 className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors disabled:opacity-50"
               >
-                {connectionStatus === 'connecting' ? 'Connecting...' : 'Connect Wallet'}
+                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
               </button>
             </>
           ) : isAuthenticating ? (
@@ -76,8 +78,8 @@ export default function WalletConnectScreen() {
               <button
                 onClick={() => {
                   setError(null);
-                  if (address) {
-                    authenticateWallet(address);
+                  if (account) {
+                    authenticateWallet(account.address);
                   }
                 }}
                 className="mt-2 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
@@ -88,7 +90,7 @@ export default function WalletConnectScreen() {
           ) : (
             <div className="bg-green-100 text-green-700 p-4 rounded-lg">
               <p className="font-semibold">Wallet Connected!</p>
-              <p className="text-sm">{address?.slice(0, 6)}...{address?.slice(-4)}</p>
+              <p className="text-sm">{account?.address?.slice(0, 6)}...{account?.address?.slice(-4)}</p>
               <button
                 onClick={() => disconnect()}
                 className="mt-2 bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded transition-colors text-sm"

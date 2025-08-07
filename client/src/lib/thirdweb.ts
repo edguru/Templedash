@@ -1,32 +1,36 @@
-import { Chain } from "@thirdweb-dev/chains";
+import { createThirdwebClient, getContract } from "thirdweb";
+import { defineChain } from "thirdweb/chains";
 
-// Thirdweb configuration
-export const clientId = process.env.VITE_THIRDWEB_CLIENT_ID || "your-client-id";
+// Base Camp Testnet by Camp Network
+export const baseCampTestnet = defineChain(123420001114);
 
-// Use Polygon for lower gas fees, or change to your preferred chain
-export const activeChain: Chain = {
-  chainId: 137, // Polygon Mainnet
-  rpc: [process.env.VITE_POLYGON_RPC_URL || "https://polygon-rpc.com/"],
-  nativeCurrency: {
-    decimals: 18,
-    name: "Matic",
-    symbol: "MATIC",
-  },
-  shortName: "polygon",
-  slug: "polygon", 
-  testnet: false,
-  chain: "Polygon",
-  name: "Polygon Mainnet",
+// NFT Contract configuration
+export const NFT_CONTRACT_ADDRESS = "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
+
+// Thirdweb v5 client configuration
+export const client = createThirdwebClient({
+  clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID || "YOUR_CLIENT_ID",
+});
+
+// Get NFT contract instance
+export const getNFTContract = () => {
+  return getContract({
+    client,
+    chain: baseCampTestnet,
+    address: NFT_CONTRACT_ADDRESS,
+  });
 };
 
-// Your deployed NFT contract address
-export const NFT_CONTRACT_ADDRESS = process.env.VITE_NFT_CONTRACT_ADDRESS || "0x...";
+// Mystery Box reward configuration
+export const MYSTERY_BOX_CONFIG = {
+  PUPPETS_TOKEN_REWARD: 0.001, // $0.001 worth of Puppets AI token
+  JACKPOT_REWARD: 10, // $10 reward
+  JACKPOT_ODDS: 5000, // 1 in 5000 chance
+  MAX_BOXES_PER_USER: 1, // Only 1 mystery box per person
+};
 
-// Thirdweb SDK configuration
-export const sdkOptions = {
-  gasless: {
-    openzeppelin: {
-      relayerUrl: process.env.VITE_OPENZEPPELIN_RELAYER_URL,
-    },
-  },
+// Social sharing configuration
+export const SOCIAL_CONFIG = {
+  TWITTER_SHARE_TEXT: "Just earned rewards in Temple Runner - the NFT-powered infinite runner! 🏃‍♂️💎 Play now and earn real crypto rewards! @PuppetsAI",
+  TWITTER_HASHTAGS: "TempleRunner,NFTGaming,Web3Gaming,PuppetsAI,CryptoRewards",
 };

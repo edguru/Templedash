@@ -3,9 +3,10 @@ import { useGameState } from "../../lib/stores/useGameState";
 import { useRewards } from "../../lib/stores/useRewards";
 import { useAudio } from "../../lib/stores/useAudio";
 import { useAuth } from "../../lib/stores/useAuth";
+import { useNFTService, MysteryBoxReward } from "../../lib/nftService";
+import { MYSTERY_BOX_CONFIG } from "../../lib/thirdweb";
 
-interface Reward {
-  amount: number;
+interface Reward extends MysteryBoxReward {
   rarity: 'common' | 'rare' | 'legendary';
   color: string;
 }
@@ -14,26 +15,38 @@ export default function MysteryBoxScreen() {
   const [isOpening, setIsOpening] = useState(false);
   const [reward, setReward] = useState<Reward | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [canClaim, setCanClaim] = useState(true);
   const { setGamePhase } = useGameState();
   const { openMysteryBox, addTokenReward } = useRewards();
   const { playSuccess } = useAudio();
   const { token } = useAuth();
+  const { openMysteryBox: openBox, shareOnX, userAddress } = useNFTService();
 
-  const generateReward = (): Reward => {
-    const random = Math.random();
-    
-    if (random < 0.001) { // 0.1% chance
-      return { amount: 10, rarity: 'legendary', color: 'text-purple-600' };
-    } else if (random < 0.2) { // 19.9% chance  
-      return { amount: 0.1, rarity: 'rare', color: 'text-blue-600' };
-    } else { // 80% chance
-      return { amount: 0.01, rarity: 'common', color: 'text-green-600' };
+  // Check if user can claim mystery box
+  useEffect(() => {
+    if (userAddress) {
+      const hasClaimedBox = localStorage.getItem(`mysteryBox_${userAddress}`);
+      setCanClaim(!hasClaimedBox);
     }
+  }, [userAddress]);
+
+  const convertRewardToDisplay = (boxReward: MysteryBoxReward): Reward => {
+    const isJackpot = boxReward.type === 'jackpot';
+    return {
+      ...boxReward,
+      rarity: isJackpot ? 'legendary' : 'common',
+      color: isJackpot ? 'text-purple-600' : 'text-green-600',
+    };
   };
 
   const handleOpenBox = async () => {
-    if (!token) {
-      setError('Please log in to claim rewards');
+    if (!userAddress) {
+      setError('Please connect your wallet to claim rewards');
+      return;
+    }
+
+    if (!canClaim) {
+      setError('You can only claim one mystery box per wallet');
       return;
     }
 
@@ -41,41 +54,57 @@ export default function MysteryBoxScreen() {
     setError(null);
     
     try {
-      // Generate reward
-      const newReward = generateReward();
+      // Open mystery box using Thirdweb service
+      const boxReward = await openBox();
+      const displayReward = convertRewardToDisplay(boxReward);
       
-      // Claim reward through backend
-      const response = await fetch('/api/tokens/claim', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          amount: newReward.amount,
-          source: 'mystery_box'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to claim reward');
+      // Claim reward through backend if available
+      if (token) {
+        try {
+          const response = await fetch('/api/tokens/claim', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              amount: boxReward.amount,
+              source: 'mystery_box',
+              currency: boxReward.currency,
+              walletAddress: userAddress
+            })
+          });
+          
+          if (response.ok) {
+            const claimData = await response.json();
+            console.log('Reward claimed:', claimData);
+          }
+        } catch (backendError) {
+          console.warn('Backend reward claim failed:', backendError);
+          // Continue anyway - local storage tracking is still valid
+        }
       }
-
-      const claimData = await response.json();
       
       // Show reward after animation
       setTimeout(() => {
-        setReward(newReward);
+        setReward(displayReward);
         openMysteryBox();
-        addTokenReward(newReward.amount);
+        addTokenReward(boxReward.amount);
         playSuccess();
         setIsOpening(false);
+        setCanClaim(false);
       }, 2000);
 
     } catch (err) {
-      console.error('Error claiming reward:', err);
-      setError('Failed to claim reward. Please try again.');
+      console.error('Error opening mystery box:', err);
+      setError(typeof err === 'string' ? err : 'Failed to open mystery box. Please try again.');
       setIsOpening(false);
+    }
+  };
+
+  const handleShareOnX = () => {
+    if (reward) {
+      shareOnX(reward);
     }
   };
 
@@ -116,29 +145,28 @@ export default function MysteryBoxScreen() {
 
             {/* Reward tiers */}
             <div className="bg-gray-50 p-4 rounded-lg mb-6 text-sm">
-              <h3 className="font-semibold mb-2">Possible Rewards:</h3>
+              <h3 className="font-semibold mb-2">Puppets AI Token Rewards:</h3>
               <div className="space-y-1">
                 <div className="flex justify-between">
-                  <span className="text-green-600">Common</span>
-                  <span>$0.01 (80%)</span>
+                  <span className="text-green-600">Standard</span>
+                  <span>${MYSTERY_BOX_CONFIG.PUPPETS_TOKEN_REWARD} PUPPETS</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-blue-600">Rare</span>
-                  <span>$0.10 (19.9%)</span>
+                  <span className="text-purple-600">Jackpot</span>
+                  <span>${MYSTERY_BOX_CONFIG.JACKPOT_REWARD} PUPPETS (1 in {MYSTERY_BOX_CONFIG.JACKPOT_ODDS})</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-purple-600">Legendary</span>
-                  <span>$10.00 (0.1%)</span>
-                </div>
+              </div>
+              <div className="mt-2 text-xs text-gray-500">
+                Only {MYSTERY_BOX_CONFIG.MAX_BOXES_PER_USER} mystery box per wallet
               </div>
             </div>
 
             <button
               onClick={handleOpenBox}
-              disabled={isOpening}
+              disabled={isOpening || !canClaim}
               className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors"
             >
-              {isOpening ? "Opening..." : "🎁 OPEN MYSTERY BOX"}
+              {isOpening ? "Opening..." : !canClaim ? "Already Claimed" : "🎁 OPEN MYSTERY BOX"}
             </button>
           </>
         ) : (
@@ -152,11 +180,15 @@ export default function MysteryBoxScreen() {
               </div>
               
               <div className={`text-3xl font-bold ${reward.color} mb-2`}>
-                ${reward.amount}
+                ${reward.amount} {reward.currency}
               </div>
               
               <div className={`font-semibold ${reward.color} capitalize`}>
                 {reward.rarity} Reward!
+              </div>
+              
+              <div className="text-sm text-gray-600 mt-2">
+                {reward.type === 'jackpot' ? '🎉 JACKPOT! You won the big prize!' : '🎯 Standard Puppets AI token reward'}
               </div>
               
               {reward.rarity === 'legendary' && (
@@ -168,6 +200,13 @@ export default function MysteryBoxScreen() {
 
             {/* Continue buttons */}
             <div className="space-y-3">
+              <button
+                onClick={handleShareOnX}
+                className="w-full bg-black hover:bg-gray-800 text-white font-bold py-2 px-4 rounded transition-colors flex items-center justify-center gap-2"
+              >
+                🐦 Share on X (Twitter)
+              </button>
+              
               <button
                 onClick={handlePlayAgain}
                 className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"

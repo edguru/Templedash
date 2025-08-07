@@ -1,8 +1,8 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
 import { KeyboardControls } from "@react-three/drei";
-import { ThirdwebProvider } from '@thirdweb-dev/react';
-import { activeChain, clientId } from './lib/thirdweb';
+import { ThirdwebProvider } from 'thirdweb/react';
+import { client, baseCampTestnet } from './lib/thirdweb';
 import "@fontsource/inter";
 
 // Import game components
@@ -25,8 +25,7 @@ import LeaderboardScreen from "./components/ui/LeaderboardScreen";
 import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
 
-// Thirdweb config
-const THIRDWEB_CLIENT_ID = process.env.VITE_THIRDWEB_CLIENT_ID || clientId;
+// Thirdweb v5 config is handled in thirdweb.ts
 
 // Define control keys for the game
 enum Controls {
@@ -59,10 +58,7 @@ function App() {
   // Show wallet connection screen if not authenticated
   if (!isAuthenticated) {
     return (
-      <ThirdwebProvider
-        clientId={THIRDWEB_CLIENT_ID}
-        activeChain={activeChain}
-      >
+      <ThirdwebProvider>
         <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
           <div className="text-center p-8">
             <h1 className="text-4xl font-bold text-white mb-4">Temple Runner</h1>
@@ -87,10 +83,7 @@ function App() {
   }
 
   return (
-    <ThirdwebProvider
-      clientId={THIRDWEB_CLIENT_ID}
-      activeChain={activeChain}
-    >
+    <ThirdwebProvider>
       <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <KeyboardControls map={controls}>

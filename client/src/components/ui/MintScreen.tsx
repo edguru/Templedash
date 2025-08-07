@@ -1,22 +1,36 @@
 import { useState } from "react";
-// import { useAddress, useContract, useContractWrite } from "@thirdweb-dev/react";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useNFT } from "../../lib/stores/useNFT";
-// import { NFT_CONTRACT_ADDRESS } from "../../lib/thirdweb";
+import { useNFTService } from "../../lib/nftService";
+import { MYSTERY_BOX_CONFIG } from "../../lib/thirdweb";
 
 export default function MintScreen() {
   const [isMinting, setIsMinting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { setGamePhase, startGame } = useGameState();
   const { setHasCharacterNFT } = useNFT();
-  // const address = useAddress();
-  const address = null; // Demo mode
-
-  // const { contract } = useContract(NFT_CONTRACT_ADDRESS);
-  // const { mutateAsync: mintNFT } = useContractWrite(contract, "mint");
+  const { mintNFT, userAddress, isProcessing } = useNFTService();
 
   const handleMint = async () => {
-    // Redirect to character preview instead of direct minting
-    setGamePhase('characterPreview');
+    if (!userAddress) {
+      setError('Please connect your wallet to mint an NFT');
+      return;
+    }
+
+    setIsMinting(true);
+    setError(null);
+
+    try {
+      const result = await mintNFT('blue'); // Default character type
+      console.log('Mint successful:', result);
+      setHasCharacterNFT(true);
+      setGamePhase('characterPreview');
+    } catch (err) {
+      console.error('Minting failed:', err);
+      setError('Failed to mint NFT. Please try again.');
+    } finally {
+      setIsMinting(false);
+    }
   };
 
   const handlePlayAsShadow = () => {
@@ -51,24 +65,32 @@ export default function MintScreen() {
           </ul>
         </div>
 
-        {/* Pricing */}
-        <div className="bg-green-50 p-4 rounded-lg mb-6">
-          <div className="text-2xl font-bold text-green-700">$2.00</div>
-          <div className="text-sm text-green-600">One-time purchase</div>
+        {/* Network Info */}
+        <div className="bg-blue-50 p-4 rounded-lg mb-6">
+          <div className="text-sm font-semibold text-blue-700">Base Camp Testnet</div>
+          <div className="text-xs text-blue-600">Powered by Camp Network</div>
         </div>
+
+        {error && (
+          <div className="bg-red-100 text-red-600 p-3 rounded-lg mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="space-y-3">
           <button
             onClick={handleMint}
-            disabled={isMinting}
+            disabled={isMinting || isProcessing || !userAddress}
             className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
           >
-            {isMinting ? (
+            {isMinting || isProcessing ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                 Minting...
               </>
+            ) : !userAddress ? (
+              "Connect Wallet to Mint"
             ) : (
               "🚀 MINT CHARACTER NFT"
             )}

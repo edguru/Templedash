@@ -29,11 +29,20 @@ const authenticateToken = async (req: any, res: any, next: Function) => {
     try {
       let user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
       if (user.length === 0) {
-        const newUser = await db.insert(users).values({
-          walletAddress,
-          username: `Player_${walletAddress.slice(-6)}`
-        }).returning();
-        user = newUser;
+        try {
+          const newUser = await db.insert(users).values({
+            walletAddress,
+            username: `Player_${walletAddress.slice(-6)}`
+          }).returning();
+          user = newUser;
+        } catch (insertError: any) {
+          // Handle duplicate key error - user was created by another request
+          if (insertError.code === '23505') {
+            user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+          } else {
+            throw insertError;
+          }
+        }
       }
       req.currentUser = { userId: user[0].id, walletAddress: user[0].walletAddress };
       next();
@@ -130,13 +139,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.currentUser.userId;
       const { score, distance, coinsCollected, characterUsed } = req.body;
 
-      // Save game score
+      // Save game score with default character if none provided
       const gameScore = await db.insert(gameScores).values({
         userId,
-        score: parseInt(score),
-        distance: parseInt(distance),
-        coinsCollected: parseInt(coinsCollected),
-        characterUsed
+        score: parseInt(score) || 0,
+        distance: parseInt(distance) || 0,
+        coinsCollected: parseInt(coinsCollected) || 0,
+        characterUsed: characterUsed || 'shadow'
       }).returning();
 
       // Calculate token reward based on performance

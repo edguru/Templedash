@@ -1,6 +1,6 @@
 import { ConnectButton } from "thirdweb/react";
 import { lightTheme } from "thirdweb/react";
-import { createWallet, inAppWallet } from "thirdweb/wallets";
+import { createWallet } from "thirdweb/wallets";
 import { client, baseCampTestnet } from "../../lib/thirdweb";
 import { ethereum } from "thirdweb/chains";
 

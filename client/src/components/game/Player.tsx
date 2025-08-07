@@ -38,6 +38,11 @@ export default function Player() {
     const controls = getState();
     const time = clock.getElapsedTime();
     
+    // Debug keyboard controls
+    if (controls.left || controls.right) {
+      console.log('Keyboard activity detected:', { left: controls.left, right: controls.right });
+    }
+    
     // Keyboard controls - only trigger on key press (edge detection)
     if (controls.left && !prevLeftPressed) {
       console.log('Keyboard: Moving left, current lane:', currentLane, 'controls object:', controls);

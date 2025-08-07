@@ -34,7 +34,8 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
       const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
       
       // Calculate proper Y position based on obstacle type and terrain
-      const obstacleHeight = type === 'crate' ? 0.5 : 0.4;
+      // Rocks and crates should be jumpable with improved jump mechanics
+      const obstacleHeight = type === 'crate' ? 0.6 : 0.5; // Slightly higher for challenge
       const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({

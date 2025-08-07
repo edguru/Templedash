@@ -19,8 +19,8 @@ interface PlayerState {
 
 const LANE_POSITIONS = [-2.67, 0, 2.67]; // Three equal lane positions
 const LANE_SWITCH_SPEED = 0.15; // Faster lane transitions for responsive movement
-const JUMP_FORCE = 0.25; // Higher jump to clear 1m obstacles
-const GRAVITY = -0.6; // Stronger gravity for realistic jumping
+const JUMP_FORCE = 0.55; // High enough to clear rocks and crates (1.0+ units high)
+const GRAVITY = -0.9; // Strong gravity for snappy, realistic jumping
 const GROUND_Y = 0;
 
 export const usePlayer = create<PlayerState>((set, get) => ({
@@ -73,6 +73,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   jump: () => {
     const state = get();
     if (!state.isJumping && state.position.y <= GROUND_Y + 0.1) {
+      console.log('🦘 JUMPING with force:', JUMP_FORCE);
       set({ 
         velocity: { ...state.velocity, y: JUMP_FORCE },
         isJumping: true 
@@ -82,10 +83,10 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   
   moveLeft: () => {
     const state = get();
-    console.log('🔵 moveLeft() called - Current lane:', state.currentLane);
+    console.log('🔵 moveLeft() called - Current lane:', state.currentLane, 'Lanes: [0=Left, 1=Center, 2=Right]');
     const newLane = Math.max(0, state.currentLane - 1);
     if (newLane !== state.currentLane) {
-      console.log('✅ Moving left from lane', state.currentLane, 'to lane', newLane);
+      console.log('✅ Moving LEFT: lane', state.currentLane, '→ lane', newLane);
       set({ 
         currentLane: newLane,
         isMovingLeft: true,
@@ -96,16 +97,16 @@ export const usePlayer = create<PlayerState>((set, get) => ({
         set({ isMovingLeft: false });
       }, 300);
     } else {
-      console.log('❌ Already at leftmost lane');
+      console.log('❌ Already at leftmost lane (0)');
     }
   },
   
   moveRight: () => {
     const state = get();
-    console.log('🔴 moveRight() called - Current lane:', state.currentLane);
+    console.log('🔴 moveRight() called - Current lane:', state.currentLane, 'Lanes: [0=Left, 1=Center, 2=Right]');
     const newLane = Math.min(2, state.currentLane + 1);
     if (newLane !== state.currentLane) {
-      console.log('✅ Moving right from lane', state.currentLane, 'to lane', newLane);
+      console.log('✅ Moving RIGHT: lane', state.currentLane, '→ lane', newLane);
       set({ 
         currentLane: newLane,
         isMovingLeft: false,
@@ -116,7 +117,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
         set({ isMovingRight: false });
       }, 300);
     } else {
-      console.log('❌ Already at rightmost lane');
+      console.log('❌ Already at rightmost lane (2)');
     }
   },
   

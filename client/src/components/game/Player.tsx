@@ -43,7 +43,7 @@ export default function Player() {
     // Debug all keyboard activity
     const hasAnyKey = controls.left || controls.right || controls.jump;
     if (hasAnyKey) {
-      console.log('🎮 Keyboard input detected:', controls);
+      console.log('🎮 Keyboard input detected:', controls, 'Current lane:', currentLane);
     }
     
     // Keyboard controls - only trigger on key press (edge detection)
@@ -73,7 +73,7 @@ export default function Player() {
     setPrevRightPressed(controls.right);
     setPrevJumpPressed(controls.jump);
     
-    // Touch controls are handled directly by the UI buttons, no need to handle here
+    // Touch controls handled by mobile UI buttons directly - no need to handle here
     
     // Update animation states
     if (!isMovingLeft && !controls.left) setIsMovingLeftState(false);

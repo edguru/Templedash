@@ -38,14 +38,15 @@ export default function Player() {
     const controls = getState();
     const time = clock.getElapsedTime();
     
-    // Debug keyboard controls
-    if (controls.left || controls.right) {
-      console.log('Keyboard activity detected:', { left: controls.left, right: controls.right });
+    // Debug all keyboard activity
+    const hasAnyKey = controls.left || controls.right || controls.jump;
+    if (hasAnyKey) {
+      console.log('🎮 Keyboard input detected:', controls);
     }
     
     // Keyboard controls - only trigger on key press (edge detection)
     if (controls.left && !prevLeftPressed) {
-      console.log('Keyboard: Moving left, current lane:', currentLane, 'controls object:', controls);
+      console.log('⬅️ Moving LEFT - Lane before:', currentLane);
       moveLeft();
       setIsMovingLeftState(true);
     } else if (!controls.left && prevLeftPressed) {
@@ -53,7 +54,7 @@ export default function Player() {
     }
     
     if (controls.right && !prevRightPressed) {
-      console.log('Keyboard: Moving right, current lane:', currentLane, 'controls object:', controls);
+      console.log('➡️ Moving RIGHT - Lane before:', currentLane);
       moveRight();
       setIsMovingRightState(true);
     } else if (!controls.right && prevRightPressed) {
@@ -116,12 +117,27 @@ export default function Player() {
       state => state.jump,
       isPressed => {
         if (isPressed && !isJumping) {
+          console.log('🟢 JUMP key pressed via subscription');
           jump();
           playSuccess();
         }
       }
     );
   }, [subscribe, jump, isJumping, playSuccess]);
+
+  // Add focus debugging
+  useEffect(() => {
+    const handleFocus = () => console.log('🎯 Game canvas focused');
+    const handleBlur = () => console.log('🎯 Game canvas lost focus');
+    
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+    };
+  }, []);
 
   // Character model rendering with enhanced fallback
   const CharacterModel = () => {

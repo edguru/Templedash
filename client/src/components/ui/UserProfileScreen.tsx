@@ -124,7 +124,7 @@ export default function UserProfileScreen() {
     return (
       <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl p-8 max-w-md w-full text-center shadow-2xl">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">User Profile</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-4">Puppets AI Profile</h1>
           <p className="text-gray-600 mb-6">Connect your wallet to view your profile</p>
           
           <ConnectButton
@@ -173,26 +173,39 @@ export default function UserProfileScreen() {
                   <span className="text-2xl">👤</span>
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-800">User Profile</h1>
+                  <h1 className="text-2xl font-bold text-gray-800">Puppets AI Profile</h1>
                   <p className="text-gray-600">{formatAddress(account.address)}</p>
                   <p className="text-sm text-green-600">Base Camp Testnet</p>
-                  <div className="flex items-center space-x-2 mt-2">
-                    <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                  <div className="mt-3 space-y-2">
+                    {/* Wallet Type */}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+                        {(() => {
+                          const walletId = (account as any)?.wallet?.id || '';
+                          if (walletId.includes('inApp')) return '📧 Email Wallet';
+                          if (walletId.includes('metamask')) return '🦊 MetaMask';
+                          if (walletId.includes('coinbase')) return '🔵 Coinbase Wallet';
+                          if (walletId.includes('rainbow')) return '🌈 Rainbow';
+                          if (walletId.includes('rabby')) return '🐰 Rabby';
+                          if (walletId.includes('zerion')) return '⚡ Zerion';
+                          return '👛 External Wallet';
+                        })()}
+                      </span>
+                      <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
+                        🔗 Thirdweb Managed
+                      </span>
+                    </div>
+                    {/* Authentication Method */}
+                    <div className="text-xs text-gray-500">
                       {(() => {
-                        // All wallets are connected via Thirdweb
                         const walletId = (account as any)?.wallet?.id || '';
-                        if (walletId.includes('inApp')) return '📧 Email';
-                        if (walletId.includes('metamask')) return '🦊 MetaMask';
-                        if (walletId.includes('coinbase')) return '🔵 Coinbase';
-                        if (walletId.includes('rainbow')) return '🌈 Rainbow';
-                        if (walletId.includes('rabby')) return '🐰 Rabby';
-                        if (walletId.includes('zerion')) return '⚡ Zerion';
-                        return '👛 Wallet';
+                        if (walletId.includes('inApp')) {
+                          return 'Connected via email authentication • Thirdweb generates and manages wallet';
+                        } else {
+                          return 'External wallet connected • Thirdweb integration layer';
+                        }
                       })()}
-                    </span>
-                    <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-full">
-                      🔗 Thirdweb
-                    </span>
+                    </div>
                   </div>
                 </div>
               </div>

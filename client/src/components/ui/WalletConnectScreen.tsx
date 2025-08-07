@@ -39,8 +39,8 @@ export default function WalletConnectScreen() {
           <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
             <span className="text-2xl">🎮</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Temple Runner</h1>
-          <p className="text-gray-600">NFT-Powered Infinite Runner on Base Camp</p>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">Puppets AI</h1>
+          <p className="text-gray-600">Puppet Runner - NFT-Powered Game</p>
           <p className="text-xs text-gray-500 mt-1">Uses CAMP tokens for transactions</p>
         </div>
 
@@ -63,7 +63,7 @@ export default function WalletConnectScreen() {
               size: "wide",
               privacyPolicyUrl: "https://thirdweb.com/privacy",
               termsOfServiceUrl: "https://thirdweb.com/tos",
-              title: "Join Temple Runner",
+              title: "Join Puppets AI",
               titleIcon: "🎮"
             }}
             switchButton={{

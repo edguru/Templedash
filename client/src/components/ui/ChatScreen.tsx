@@ -12,41 +12,45 @@ export default function ChatScreen() {
             <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
               <span className="text-3xl">🤖</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Chat Companion</h1>
-            <p className="text-purple-600 font-medium">AI-Powered Game Assistant</p>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Puppets AI</h1>
+            <p className="text-purple-600 font-medium">Your Everyday AI Buddy</p>
           </div>
 
-          {/* Coming Soon Content */}
+          {/* About Puppets AI */}
           <div className="mb-8 p-6 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl border border-purple-100">
-            <div className="text-6xl mb-4">🚀</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">Coming Soon!</h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Your AI companion will help you master Temple Runner with personalized tips, 
-              strategy advice, and real-time game coaching.
-            </p>
+            <div className="text-6xl mb-4">🤖</div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">About Puppets AI</h2>
+            <div className="text-gray-600 leading-relaxed mb-4 text-left space-y-3">
+              <p>
+                Puppets AI is your everyday AI buddy for web3 tasks, daily work, and fun games — all powered by a smart multi-agent system. With its drag-and-drop agent builder, anyone can create new skills for their AI friend.
+              </p>
+              <p>
+                Puppets AI solves the messy agent UX by acting as a single gateway and simple interface for managing many agents in one place — no more juggling separate bots for each task.
+              </p>
+            </div>
             
             {/* Features Preview */}
             <div className="text-left space-y-2 mb-4">
               <div className="flex items-center text-sm text-gray-700">
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>
-                Real-time gameplay tips
+                Multi-agent system
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <span className="w-2 h-2 bg-pink-400 rounded-full mr-3"></span>
-                Strategy optimization
+                Drag-and-drop builder
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <span className="w-2 h-2 bg-purple-400 rounded-full mr-3"></span>
-                Performance analysis
+                Web3 & daily tasks
               </div>
               <div className="flex items-center text-sm text-gray-700">
                 <span className="w-2 h-2 bg-pink-400 rounded-full mr-3"></span>
-                Personalized challenges
+                Single interface for all agents
               </div>
             </div>
 
             <div className="text-sm text-purple-600 font-medium">
-              Stay tuned for updates! 📢
+              Chat feature coming soon! 🚀
             </div>
           </div>
 

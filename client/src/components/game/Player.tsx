@@ -89,39 +89,53 @@ export default function Player() {
 
   // Remove duplicate jump subscription - handled by direct keyboard events
 
-  // Single keyboard handler with debouncing to prevent double triggers
+  // Direct keyboard handling with extensive debugging
   useEffect(() => {
-    let keyProcessing = false;
+    console.log('🔧 Setting up keyboard controls for Player component');
     
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (keyProcessing) return; // Prevent double processing
+      console.log('⌨️ Raw key event:', e.code, e.key, 'Target:', (e.target as Element)?.tagName, 'Active:', document.activeElement?.tagName);
       
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        keyProcessing = true;
+        console.log('🎮 Game key detected:', e.code, 'Preventing default');
         e.preventDefault();
         e.stopPropagation();
         
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
-          console.log('🔵 LEFT key - Lane:', currentLane);
+          console.log('🔵 EXECUTING LEFT from lane:', currentLane);
           moveLeft();
         } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
-          console.log('🔴 RIGHT key - Lane:', currentLane);
+          console.log('🔴 EXECUTING RIGHT from lane:', currentLane);
           moveRight();
-        } else if (e.code === 'Space' && !isJumping) {
-          console.log('🟢 JUMP key');
-          jump();
-          playSuccess();
+        } else if (e.code === 'Space') {
+          console.log('🟢 EXECUTING JUMP, isJumping:', isJumping);
+          if (!isJumping) {
+            jump();
+            playSuccess();
+          }
         }
-        
-        // Reset processing flag after short delay
-        setTimeout(() => { keyProcessing = false; }, 150);
       }
     };
     
-    document.addEventListener('keydown', handleKeyDown, { capture: true, passive: false });
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
+        console.log('🔓 Key released:', e.code);
+      }
+    };
+    
+    // Add both keydown and keyup listeners
+    window.addEventListener('keydown', handleKeyDown, true);
+    window.addEventListener('keyup', handleKeyUp, true);
+    
+    // Also add to document as fallback
+    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keyup', handleKeyUp, true);
     
     return () => {
-      document.removeEventListener('keydown', handleKeyDown, { capture: true });
+      window.removeEventListener('keydown', handleKeyDown, true);
+      window.removeEventListener('keyup', handleKeyUp, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keyup', handleKeyUp, true);
     };
   }, [moveLeft, moveRight, jump, playSuccess, isJumping, currentLane]);
 

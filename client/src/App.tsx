@@ -1,6 +1,6 @@
 import { Canvas } from "@react-three/fiber";
 import { Suspense, useEffect, useState } from "react";
-import { KeyboardControls } from "@react-three/drei";
+// Removed KeyboardControls - using direct event handlers
 import { ThirdwebProvider } from 'thirdweb/react';
 import { useActiveAccount } from 'thirdweb/react';
 import { client, baseCampTestnet } from './lib/thirdweb';
@@ -29,22 +29,7 @@ import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
 // Thirdweb v5 config is handled in thirdweb.ts
 
-// Define control keys for the game
-enum Controls {
-  left = 'left',
-  right = 'right',
-  jump = 'jump',
-  start = 'start',
-  restart = 'restart'
-}
-
-const controls = [
-  { name: Controls.left, keys: ["KeyA", "ArrowLeft"] },
-  { name: Controls.right, keys: ["KeyD", "ArrowRight"] },
-  { name: Controls.jump, keys: ["Space"] },
-  { name: Controls.start, keys: ["Enter"] },
-  { name: Controls.restart, keys: ["KeyR"] },
-];
+// Using direct keyboard event handlers instead of KeyboardControls
 
 // Inner App component that uses Thirdweb hooks
 function AppContent() {
@@ -73,7 +58,7 @@ function AppContent() {
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
-          <KeyboardControls map={controls}>
+          <>
             {gamePhase === 'start' && <StartScreen />}
             
             {gamePhase === 'mint' && <MintScreen />}
@@ -125,7 +110,7 @@ function AppContent() {
                 <GameUI />
               </>
             )}
-          </KeyboardControls>
+          </>
         )}
       </div>
   );

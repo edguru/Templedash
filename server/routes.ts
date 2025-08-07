@@ -6,10 +6,11 @@ import { users, gameScores, tokenClaims, nftOwnership, contracts } from '../shar
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
 import { eq, desc, sum, count, and } from 'drizzle-orm';
 
+
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
 
 // Middleware to verify wallet-based authentication
-const authenticateToken = (req: any, res: any, next: Function) => {
+const authenticateToken = async (req: any, res: any, next: Function) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
@@ -23,9 +24,24 @@ const authenticateToken = (req: any, res: any, next: Function) => {
     if (!walletAddress || walletAddress.length < 10) {
       return res.status(403).json({ error: 'Invalid wallet address' });
     }
-    req.currentUser = { walletAddress };
-    next();
-    return;
+    
+    // Find or create user for this wallet
+    try {
+      let user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        const newUser = await db.insert(users).values({
+          walletAddress,
+          username: `Player_${walletAddress.slice(-6)}`
+        }).returning();
+        user = newUser;
+      }
+      req.currentUser = { userId: user[0].id, walletAddress: user[0].walletAddress };
+      next();
+      return;
+    } catch (error) {
+      console.error('Wallet auth error:', error);
+      return res.status(500).json({ error: 'Authentication failed' });
+    }
   }
 
   // Handle JWT authentication (fallback)

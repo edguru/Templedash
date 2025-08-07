@@ -40,18 +40,18 @@ export default function Player() {
     
     // Keyboard controls - only trigger on key press (edge detection)
     if (controls.left && !prevLeftPressed) {
-      console.log('Moving left, current lane:', currentLane);
+      console.log('Keyboard: Moving left, current lane:', currentLane, 'controls object:', controls);
       moveLeft();
       setIsMovingLeftState(true);
-    } else if (!controls.left) {
+    } else if (!controls.left && prevLeftPressed) {
       setIsMovingLeftState(false);
     }
     
     if (controls.right && !prevRightPressed) {
-      console.log('Moving right, current lane:', currentLane);
+      console.log('Keyboard: Moving right, current lane:', currentLane, 'controls object:', controls);
       moveRight();
       setIsMovingRightState(true);
-    } else if (!controls.right) {
+    } else if (!controls.right && prevRightPressed) {
       setIsMovingRightState(false);
     }
     

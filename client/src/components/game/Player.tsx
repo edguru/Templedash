@@ -127,37 +127,42 @@ export default function Player() {
     );
   }, [subscribe, jump, isJumping, playSuccess]);
 
-  // Add focus debugging and direct keyboard handler as fallback
+  // Direct keyboard controls - completely bypass KeyboardControls
   useEffect(() => {
+    console.log('🔧 Setting up direct keyboard controls');
+    
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('⌨️ Raw keyboard event:', e.code, e.key);
+      console.log('⌨️ Raw keyboard event detected:', e.code, e.key, 'Target:', e.target);
+      
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight', 'Space'].includes(e.code)) {
-        console.log('🎮 Game key detected:', e.code);
-        
-        // Direct keyboard handling as fallback
+        console.log('🎮 Game key detected, preventing default and handling:', e.code);
         e.preventDefault();
+        e.stopPropagation();
+        
         if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
-          console.log('🔵 Direct keyboard: Moving LEFT');
+          console.log('🔵 EXECUTING: moveLeft()');
           moveLeft();
           setIsMovingLeftState(true);
           setTimeout(() => setIsMovingLeftState(false), 300);
         } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
-          console.log('🔴 Direct keyboard: Moving RIGHT');
+          console.log('🔴 EXECUTING: moveRight()');
           moveRight();
           setIsMovingRightState(true);
           setTimeout(() => setIsMovingRightState(false), 300);
         } else if (e.code === 'Space' && !isJumping) {
-          console.log('🟢 Direct keyboard: JUMP');
+          console.log('🟢 EXECUTING: jump()');
           jump();
           playSuccess();
         }
       }
     };
     
-    window.addEventListener('keydown', handleKeyDown);
+    // Add to document instead of window for broader capture
+    document.addEventListener('keydown', handleKeyDown, { capture: true });
     
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      console.log('🧹 Cleaning up keyboard controls');
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
     };
   }, [moveLeft, moveRight, jump, playSuccess, isJumping]);
 

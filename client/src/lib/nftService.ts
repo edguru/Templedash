@@ -95,9 +95,9 @@ export const useNFTService = () => {
   }, [account]);
 
   const shareOnX = useCallback((reward: MysteryBoxReward) => {
-    const shareText = `Just won ${reward.amount} PUPPETS tokens! 💰 @PuppetsAI
+    const shareText = `Just won ${reward.amount} PUPPETS tokens! 💰 @thepuppetsai
 
-Check out Temple Runner NFT game powered by @PuppetsAI`;
+Check out Temple Runner NFT game powered by @thepuppetsai`;
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
     window.open(twitterUrl, '_blank');
   }, []);

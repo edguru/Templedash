@@ -4,6 +4,8 @@ import { useGLTF } from '@react-three/drei';
 import { Group } from 'three';
 import * as THREE from 'three';
 import { GLTF } from 'three-stdlib';
+import { usePlayer } from '../../lib/stores/usePlayer';
+import { useAudio } from '../../lib/stores/useAudio';
 
 // Preload the stick human model
 useGLTF.preload('/models/stick_human.glb');
@@ -19,6 +21,8 @@ export default function ShadowCharacter({ position, isJumping, isMovingLeft, isM
   const groupRef = useRef<Group>(null);
   const modelRef = useRef<Group>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
+  const { moveLeft, moveRight, jump } = usePlayer();
+  const { playSuccess } = useAudio();
 
   // Load the 3D stick human model
   const { scene: stickHuman } = useGLTF('/models/stick_human.glb') as GLTF & {

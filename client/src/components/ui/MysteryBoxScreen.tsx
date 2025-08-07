@@ -59,13 +59,13 @@ export default function MysteryBoxScreen() {
       const displayReward = convertRewardToDisplay(boxReward);
       
       // Claim reward through backend if available
-      if (token) {
+      if (account?.address) {
         try {
           const response = await fetch('/api/tokens/claim', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
+              'Authorization': `Bearer wallet_${account.address}`
             },
             body: JSON.stringify({
               amount: boxReward.amount,

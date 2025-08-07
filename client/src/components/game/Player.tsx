@@ -18,7 +18,7 @@ enum Controls {
 export default function Player() {
   const meshRef = useRef<THREE.Group>(null);
   const groupRef = useRef<THREE.Group>(null);
-  const { position, velocity, isJumping, jump, moveLeft, moveRight } = usePlayer();
+  const { position, velocity, isJumping, jump, moveLeft, moveRight, currentLane } = usePlayer();
   const { hasCharacterNFT, characterType } = useNFT();
   const { playSuccess } = useAudio();
   const [subscribe, getState] = useKeyboardControls<Controls>();
@@ -40,6 +40,7 @@ export default function Player() {
     
     // Keyboard controls - only trigger on key press (edge detection)
     if (controls.left && !prevLeftPressed) {
+      console.log('Moving left, current lane:', currentLane);
       moveLeft();
       setIsMovingLeftState(true);
     } else if (!controls.left) {
@@ -47,6 +48,7 @@ export default function Player() {
     }
     
     if (controls.right && !prevRightPressed) {
+      console.log('Moving right, current lane:', currentLane);
       moveRight();
       setIsMovingRightState(true);
     } else if (!controls.right) {

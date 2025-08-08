@@ -133,7 +133,6 @@ export default function GameScene() {
       );
       
       if (collision) {
-        console.log("GAME OVER! Collision detected with obstacle! Player jumping:", isJumping, "Position:", position);
         playHit();
         endGame();
         return;
@@ -161,7 +160,6 @@ export default function GameScene() {
         addScore(10);
         addCoins(1);
         playSuccess();
-        console.log("Coin collected! Animation started.");
       }
     }
     

@@ -56,7 +56,7 @@ function AppContent() {
 
   // Global keyboard debugging - this should always work
   useEffect(() => {
-    console.log('🌐 Setting up GLOBAL keyboard debugging');
+
     
     const globalKeyHandler = (e: KeyboardEvent) => {
       console.log('🌍 GLOBAL keyboard event detected:', e.code, e.key, 'Game phase:', gamePhase);

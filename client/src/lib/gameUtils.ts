@@ -27,7 +27,6 @@ export function checkCollisions(
       
       // If jumping and it's a jumpable obstacle, allow pass-through if player is off ground
       if (isJumping && (obstacleType === 'rock' || obstacleType === 'crate') && playerPosition.y > 0.05) {
-        console.log(`✅ Player jumped over ${obstacleType} obstacle! Height: ${playerPosition.y.toFixed(3)}`);
         continue; // Skip collision for jumpable obstacles when airborne
       }
       
@@ -49,8 +48,6 @@ export function checkCollisions(
     );
 
     if (playerBox.intersectsBox(objectBox)) {
-      const obstacleType = object.userData.obstacleType || 'unknown';
-      console.log(`Collision detected! Type: ${type}, Object: ${obstacleType}, Player Y: ${playerPosition.y}, Jumping: ${isJumping}`);
       return object;
     }
   }

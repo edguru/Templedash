@@ -152,23 +152,8 @@ export default function Player() {
 
   // Character model rendering with enhanced fallback
   const CharacterModel = () => {
-    if (hasCharacterNFT && currentCharacterType !== 'shadow') {
-      try {
-        const { scene } = useGLTF(`/assets/characters/character_${currentCharacterType}.glb`);
-        return (
-          <group ref={groupRef} scale={[1.2, 1.2, 1.2]} rotation={[0, Math.PI, 0]} castShadow receiveShadow>
-            <primitive 
-              ref={meshRef}
-              object={scene.clone()}
-              castShadow 
-              receiveShadow
-            />
-          </group>
-        );
-      } catch (error) {
-        console.log(`Character model ${currentCharacterType} not found, using fallback`);
-      }
-    }
+    // Always use the enhanced stick figure character
+    // NFT ownership changes colors and effects, not the model
     
     // Enhanced shadow character or fallback with proper proportions
     return (

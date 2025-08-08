@@ -8,15 +8,19 @@ export default function StartScreen() {
   const account = useActiveAccount();
   const { mutate: disconnect } = useDisconnect();
   const { startGame, setGamePhase } = useGameState();
-  const { hasCharacterNFT } = useNFT();
+  const { hasCharacterNFT, ownedCharacters } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
 
 
   const handleStartGame = () => {
-    if (!hasCharacterNFT) {
+    if (!hasCharacterNFT || ownedCharacters.length === 0) {
       setGamePhase('mint');
-    } else {
+    } else if (ownedCharacters.length === 1) {
+      // If only one character, start game directly
       startGame();
+    } else {
+      // Multiple characters, show selection
+      setGamePhase('characterSelect');
     }
   };
 

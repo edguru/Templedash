@@ -1,17 +1,25 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-type CharacterType = 'shadow' | 'red' | 'blue' | 'green';
+type CharacterType = 'shadow' | 'ninja_warrior' | 'space_ranger' | 'crystal_mage';
+
+interface OwnedCharacter {
+  tokenId: string;
+  characterType: CharacterType;
+  name: string;
+}
 
 interface NFTState {
   hasCharacterNFT: boolean;
-  characterTokenId: string | null;
-  characterType: CharacterType;
+  ownedCharacters: OwnedCharacter[];
+  selectedCharacterTokenId: string | null;
+  currentCharacterType: CharacterType;
   
   // Actions
   setHasCharacterNFT: (hasNFT: boolean) => void;
-  setCharacterTokenId: (tokenId: string | null) => void;
-  setCharacterType: (type: CharacterType) => void;
+  addOwnedCharacter: (character: OwnedCharacter) => void;
+  setSelectedCharacter: (tokenId: string) => void;
+  setCurrentCharacterType: (type: CharacterType) => void;
   checkNFTOwnership: () => Promise<void>;
 }
 
@@ -19,19 +27,38 @@ export const useNFT = create<NFTState>()(
   persist(
     (set, get) => ({
       hasCharacterNFT: false,
-      characterTokenId: null,
-      characterType: 'shadow',
+      ownedCharacters: [],
+      selectedCharacterTokenId: null,
+      currentCharacterType: 'shadow',
       
       setHasCharacterNFT: (hasNFT) => {
         set({ hasCharacterNFT: hasNFT });
       },
       
-      setCharacterTokenId: (tokenId) => {
-        set({ characterTokenId: tokenId });
+      addOwnedCharacter: (character) => {
+        const state = get();
+        const updatedCharacters = [...state.ownedCharacters, character];
+        set({ 
+          ownedCharacters: updatedCharacters,
+          hasCharacterNFT: true,
+          selectedCharacterTokenId: character.tokenId,
+          currentCharacterType: character.characterType
+        });
       },
       
-      setCharacterType: (type) => {
-        set({ characterType: type });
+      setSelectedCharacter: (tokenId) => {
+        const state = get();
+        const character = state.ownedCharacters.find(char => char.tokenId === tokenId);
+        if (character) {
+          set({ 
+            selectedCharacterTokenId: tokenId,
+            currentCharacterType: character.characterType
+          });
+        }
+      },
+      
+      setCurrentCharacterType: (type) => {
+        set({ currentCharacterType: type });
       },
       
       checkNFTOwnership: async () => {

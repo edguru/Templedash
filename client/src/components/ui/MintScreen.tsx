@@ -8,10 +8,10 @@ export default function MintScreen() {
   const [isMinting, setIsMinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setGamePhase, startGame } = useGameState();
-  const { setHasCharacterNFT } = useNFT();
+  const { addOwnedCharacter } = useNFT();
   const { mintNFT, userAddress, isProcessing } = useNFTService();
 
-  const handleMint = async () => {
+  const handleMint = async (characterType: string = 'shadow_stick_human') => {
     if (!userAddress) {
       setError('Please connect your wallet to mint an NFT');
       return;
@@ -21,10 +21,22 @@ export default function MintScreen() {
     setError(null);
 
     try {
-      const result = await mintNFT('blue'); // Default character type
-      console.log('Mint successful:', result);
-      setHasCharacterNFT(true);
-      setGamePhase('characterPreview');
+      const tokenId = await mintNFT(characterType);
+      
+      if (tokenId) {
+        // Find character info  
+        const characterInfo = characters.find(char => char.id === characterType) || characters[0];
+        
+        // Add to owned characters
+        addOwnedCharacter({
+          tokenId,
+          characterType: characterType as 'ninja_warrior' | 'space_ranger' | 'crystal_mage',
+          name: characterInfo.name
+        });
+        
+        console.log('✅ NFT minted successfully with token ID:', tokenId);
+        setGamePhase('characterPreview');
+      }
     } catch (err) {
       console.error('Minting failed:', err);
       
@@ -54,17 +66,67 @@ export default function MintScreen() {
     setGamePhase('start');
   };
 
+  // Define available characters
+  const characters = [
+    {
+      id: 'ninja_warrior',
+      name: 'Ninja Warrior',
+      emoji: '🥷',
+      color: 'from-red-500 to-red-700',
+      description: 'Swift and agile fighter'
+    },
+    {
+      id: 'space_ranger',
+      name: 'Space Ranger', 
+      emoji: '🚀',
+      color: 'from-blue-500 to-blue-700',
+      description: 'Galactic explorer'
+    },
+    {
+      id: 'crystal_mage',
+      name: 'Crystal Mage',
+      emoji: '🔮',
+      color: 'from-purple-500 to-purple-700', 
+      description: 'Master of magic arts'
+    }
+  ];
+
+  const [selectedCharacter, setSelectedCharacter] = useState(characters[0]);
+
+  const handleMintSelected = async () => {
+    await handleMint(selectedCharacter.id);
+  };
+
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-start justify-center p-4 pt-8 overflow-y-auto">
-      <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-3">Unlock Your Character</h1>
+      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto text-center shadow-2xl mb-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-3">Choose Your Character</h1>
         
-        {/* Character preview */}
-        <div className="mb-4">
-          <div className="w-24 h-24 mx-auto bg-gradient-to-b from-gray-400 to-gray-600 rounded-lg flex items-center justify-center mb-3 shadow-lg">
-            <div className="text-3xl">👤</div>
-          </div>
-          <p className="text-gray-600 text-sm">Currently playing as Shadow Character</p>
+        {/* Character Selection */}
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {characters.map((char) => (
+            <div
+              key={char.id}
+              onClick={() => setSelectedCharacter(char)}
+              className={`cursor-pointer p-3 rounded-lg border-2 transition-all ${
+                selectedCharacter.id === char.id 
+                  ? 'border-purple-500 bg-purple-50' 
+                  : 'border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <div className={`w-16 h-16 mx-auto bg-gradient-to-b ${char.color} rounded-lg flex items-center justify-center mb-2 shadow-lg`}>
+                <div className="text-2xl">{char.emoji}</div>
+              </div>
+              <p className="text-xs font-semibold text-gray-700">{char.name}</p>
+              <p className="text-xs text-gray-500">{char.description}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Selected Character Info */}
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+          <p className="text-sm text-gray-600">Selected: <span className="font-semibold">{selectedCharacter.name}</span></p>
+          <p className="text-xs text-gray-500">{selectedCharacter.description}</p>
         </div>
 
         {/* NFT Benefits */}
@@ -94,7 +156,7 @@ export default function MintScreen() {
         {/* Action buttons */}
         <div className="space-y-3">
           <button
-            onClick={handleMint}
+            onClick={handleMintSelected}
             disabled={isMinting || isProcessing || !userAddress}
             className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center"
           >
@@ -106,7 +168,7 @@ export default function MintScreen() {
             ) : !userAddress ? (
               "Connect Wallet to Mint"
             ) : (
-              "🚀 MINT CHARACTER NFT"
+              `🚀 MINT ${selectedCharacter.name.toUpperCase()}`
             )}
           </button>
           

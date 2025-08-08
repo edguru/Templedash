@@ -17,6 +17,7 @@ import MysteryBoxScreen from "./components/ui/MysteryBoxScreen";
 import ChatScreen from "./components/ui/ChatScreen";
 import CharacterPreview from "./components/ui/CharacterPreview";
 import UserProfileScreen from "./components/ui/UserProfileScreen";
+import CharacterSelector from "./components/ui/CharacterSelector";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -93,6 +94,8 @@ function AppContent() {
             {gamePhase === 'mint' && <MintScreen />}
             
             {gamePhase === 'characterPreview' && <CharacterPreview />}
+            
+            {gamePhase === 'characterSelect' && <CharacterSelector />}
             
             {gamePhase === 'mysteryBox' && <MysteryBoxScreen />}
             

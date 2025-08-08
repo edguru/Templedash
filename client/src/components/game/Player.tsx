@@ -21,7 +21,7 @@ export default function Player() {
   const meshRef = useRef<THREE.Group>(null);
   const groupRef = useRef<THREE.Group>(null);
   const { position, velocity, isJumping, jump, moveLeft, moveRight, currentLane } = usePlayer();
-  const { hasCharacterNFT, characterType } = useNFT();
+  const { hasCharacterNFT, currentCharacterType } = useNFT();
   const { playSuccess } = useAudio();
   const [subscribe, getState] = useKeyboardControls<Controls>();
   const [isMovingLeftState, setIsMovingLeftState] = useState(false);
@@ -139,11 +139,22 @@ export default function Player() {
     };
   }, [moveLeft, moveRight, jump, playSuccess, isJumping, currentLane]);
 
+  // Get character color based on type
+  const getCharacterColor = () => {
+    const characterColors = {
+      'ninja_warrior': '#dc2626', // red
+      'space_ranger': '#2563eb',  // blue  
+      'crystal_mage': '#7c3aed',  // purple
+      'shadow': '#1a1a1a'         // dark gray
+    };
+    return characterColors[currentCharacterType] || characterColors['shadow'];
+  };
+
   // Character model rendering with enhanced fallback
   const CharacterModel = () => {
-    if (hasCharacterNFT && characterType !== 'shadow') {
+    if (hasCharacterNFT && currentCharacterType !== 'shadow') {
       try {
-        const { scene } = useGLTF(`/assets/characters/character_${characterType}.glb`);
+        const { scene } = useGLTF(`/assets/characters/character_${currentCharacterType}.glb`);
         return (
           <group ref={groupRef} scale={[1.2, 1.2, 1.2]} rotation={[0, Math.PI, 0]} castShadow receiveShadow>
             <primitive 
@@ -155,7 +166,7 @@ export default function Player() {
           </group>
         );
       } catch (error) {
-        console.log(`Character model ${characterType} not found, using fallback`);
+        console.log(`Character model ${currentCharacterType} not found, using fallback`);
       }
     }
     
@@ -168,7 +179,7 @@ export default function Player() {
           <mesh position={[0, 1.7, 0]} castShadow>
             <sphereGeometry args={[0.12, 8, 6]} />
             <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#1a1a1a"} 
+              color={hasCharacterNFT ? getCharacterColor() : "#1a1a1a"} 
               transparent={!hasCharacterNFT}
               opacity={hasCharacterNFT ? 1 : 0.8}
             />

@@ -94,7 +94,8 @@ export default function GameScene() {
       speed: currentSpeed
     }));
     
-    updateDistance(newDistance);
+    // Update global distance state for UI
+    updateDistance(Math.floor(newDistance));
     
     // Move terrain
     terrainOffset.current += gameSpeed.current * delta;
@@ -259,8 +260,11 @@ export default function GameScene() {
       setCoinClusters([]);
       setMysteryBoxes([]);
       setCoinAnimations([]);
+      
+      // Reset global distance state
+      updateDistance(0);
     }
-  }, [gamePhase, resetPlayer]);
+  }, [gamePhase, resetPlayer, updateDistance]);
 
   return (
     <>

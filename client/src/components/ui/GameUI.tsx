@@ -17,7 +17,7 @@ export default function GameUI() {
       <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-auto">
         <div className="bg-black/70 text-white p-3 rounded-lg">
           <div className="text-lg font-bold">Score: {score}</div>
-          <div className="text-sm">Distance: {Math.floor(distance)}m</div>
+          <div className="text-sm">Distance: {distance}m</div>
         </div>
         
         <div className="bg-black/70 text-white p-3 rounded-lg">

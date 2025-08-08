@@ -48,7 +48,7 @@ export const useNFTService = () => {
 
       console.log('Prepared transaction:', {
         value: transaction.value?.toString(),
-        params: transaction.params
+        method: "mintCharacter"
       });
 
       return new Promise((resolve, reject) => {
@@ -157,7 +157,7 @@ export class NFTService {
   // Mint a new character NFT
   async mintCharacter(characterType: string): Promise<{ success: boolean; tokenId?: string; transactionHash?: string }> {
     try {
-      if (!window.ethereum) {
+      if (!(window as any).ethereum) {
         throw new Error('MetaMask not found');
       }
 

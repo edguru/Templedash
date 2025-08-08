@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGameState } from "../../lib/stores/useGameState";
 import { useNFT } from "../../lib/stores/useNFT";
-import { nftService } from "../../lib/nftService";
+import { useNFTService } from "../../lib/nftService";
 
 const availableCharacters = [
   {
@@ -28,11 +28,11 @@ const availableCharacters = [
 ];
 
 export default function MintMoreScreen() {
-  const [isMinting, setIsMinting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(null);
   const { setGamePhase } = useGameState();
   const { ownedCharacters, addOwnedCharacter } = useNFT();
+  const { mintNFT, isProcessing } = useNFTService();
 
   // Get characters user hasn't minted yet
   const ownedCharacterTypes = ownedCharacters.map(char => char.characterType);
@@ -41,12 +41,11 @@ export default function MintMoreScreen() {
   );
 
   const handleMint = async (characterType: string) => {
-    setIsMinting(true);
     setError(null);
     setSelectedCharacter(characterType);
 
     try {
-      const result = await nftService.mintCharacter(characterType);
+      const result = await mintNFT(characterType);
       
       if (result.success && result.tokenId) {
         const characterInfo = availableCharacters.find(char => char.id === characterType);
@@ -82,7 +81,6 @@ export default function MintMoreScreen() {
       
       setError(errorMessage);
     } finally {
-      setIsMinting(false);
       setSelectedCharacter(null);
     }
   };
@@ -166,14 +164,14 @@ export default function MintMoreScreen() {
                 
                 <button
                   onClick={() => handleMint(char.id)}
-                  disabled={isMinting && selectedCharacter === char.id}
+                  disabled={isProcessing && selectedCharacter === char.id}
                   className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                    isMinting && selectedCharacter === char.id
+                    isProcessing && selectedCharacter === char.id
                       ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                       : 'bg-purple-500 hover:bg-purple-600 text-white'
                   }`}
                 >
-                  {isMinting && selectedCharacter === char.id ? 'Minting...' : 'Mint'}
+                  {isProcessing && selectedCharacter === char.id ? 'Minting...' : 'Mint'}
                 </button>
               </div>
             </div>

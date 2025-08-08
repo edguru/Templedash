@@ -21,20 +21,20 @@ export default function MintScreen() {
     setError(null);
 
     try {
-      const tokenId = await mintNFT(characterType);
+      const result = await mintNFT(characterType) as { success: boolean; tokenId?: string; transactionHash?: string };
       
-      if (tokenId) {
+      if (result.success && result.tokenId) {
         // Find character info  
         const characterInfo = characters.find(char => char.id === characterType) || characters[0];
         
         // Add to owned characters
         addOwnedCharacter({
-          tokenId,
+          tokenId: result.tokenId,
           characterType: characterType as 'ninja_warrior' | 'space_ranger' | 'crystal_mage',
           name: characterInfo.name
         });
         
-        console.log('✅ NFT minted successfully with token ID:', tokenId);
+        console.log('✅ NFT minted successfully with token ID:', result.tokenId);
         setGamePhase('characterPreview');
       }
     } catch (err) {

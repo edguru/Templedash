@@ -14,12 +14,14 @@ interface NFTState {
   ownedCharacters: OwnedCharacter[];
   selectedCharacterTokenId: string | null;
   currentCharacterType: CharacterType;
+  currentCharacter: OwnedCharacter | null;
   
   // Actions
   setHasCharacterNFT: (hasNFT: boolean) => void;
   addOwnedCharacter: (character: OwnedCharacter) => void;
   setSelectedCharacter: (tokenId: string) => void;
   setCurrentCharacterType: (type: CharacterType) => void;
+  setCurrentCharacter: (character: OwnedCharacter | null) => void;
   checkNFTOwnership: () => Promise<void>;
 }
 
@@ -30,6 +32,7 @@ export const useNFT = create<NFTState>()(
       ownedCharacters: [],
       selectedCharacterTokenId: null,
       currentCharacterType: 'shadow',
+      currentCharacter: null,
       
       setHasCharacterNFT: (hasNFT) => {
         set({ hasCharacterNFT: hasNFT });
@@ -59,6 +62,22 @@ export const useNFT = create<NFTState>()(
       
       setCurrentCharacterType: (type) => {
         set({ currentCharacterType: type });
+      },
+
+      setCurrentCharacter: (character) => {
+        if (character) {
+          set({ 
+            currentCharacter: character,
+            currentCharacterType: character.characterType,
+            hasCharacterNFT: true
+          });
+        } else {
+          set({ 
+            currentCharacter: null,
+            currentCharacterType: 'shadow',
+            hasCharacterNFT: false
+          });
+        }
       },
       
       checkNFTOwnership: async () => {

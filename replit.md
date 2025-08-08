@@ -2,14 +2,17 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-01-07)
+## Recent Changes (2025-01-08)
 - **Authentication Simplification**: Removed JWT/complex auth layers - now uses only Thirdweb wallet connection
 - **Base Camp Testnet Integration**: Fully configured for Camp Network's Base Camp testnet (chain ID: 123420001114)
-  - **Currency**: Uses CAMP tokens as native gas currency (not ETH)
-  - **NFT Minting**: Requires 0.001 CAMP tokens for mint fee
-- **NFT Contract**: Set up with contract address 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
-- **Keyboard Controls Fix**: Added complete keyboard support to ShadowCharacter component (default character)
-- **NFT Minting Fix**: Added proper 0.001 CAMP payment to contract transactions
+  - **Currency**: Uses CAMP as native gas currency
+  - **NFT Minting**: Requires 0.001 CAMP for mint fee
+  - **Block Explorer**: https://basecamp.cloud.blockscout.com
+- **NFT Contract**: Confirmed deployed at 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500 (proxy contract with TokenERC721 implementation)
+- **Critical Fix: NFT Character Keyboard Controls**: Added KeyboardControls provider wrapper to game Canvas
+  - Fixed "object null is not iterable" error when playing with minted NFT characters
+  - Player component now properly receives keyboard control context from @react-three/drei
+  - Both shadow and NFT characters now have full keyboard functionality
 - **Database Fix**: Resolved SQL GROUP BY error in user stats endpoint
 - **Deferred Reward System**: Mystery box tokens save recipient addresses for later claiming instead of immediate distribution
   - Standard reward: $0.001 worth of PUPPETS tokens

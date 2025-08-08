@@ -1,0 +1,67 @@
+2chunk-NW7DE7LD.js?v=af67acb5:17814 Uncaught TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+    at useKeyboardControls (@react-three_drei.js?v=af67acb5:8981:30)
+    at Player (Player.tsx:26:33)
+    at renderWithHooks (chunk-NW7DE7LD.js?v=af67acb5:5892:26)
+    at mountIndeterminateComponent (chunk-NW7DE7LD.js?v=af67acb5:9375:21)
+    at beginWork (chunk-NW7DE7LD.js?v=af67acb5:10358:22)
+    at beginWork$1 (chunk-NW7DE7LD.js?v=af67acb5:14188:22)
+    at performUnitOfWork (chunk-NW7DE7LD.js?v=af67acb5:13664:20)
+    at workLoopSync (chunk-NW7DE7LD.js?v=af67acb5:13604:13)
+    at renderRootSync (chunk-NW7DE7LD.js?v=af67acb5:13583:15)
+    at recoverFromConcurrentError (chunk-NW7DE7LD.js?v=af67acb5:13173:28)
+useKeyboardControls @ @react-three_drei.js?v=af67acb5:8981
+Player @ Player.tsx:26
+renderWithHooks @ chunk-NW7DE7LD.js?v=af67acb5:5892
+mountIndeterminateComponent @ chunk-NW7DE7LD.js?v=af67acb5:9375
+beginWork @ chunk-NW7DE7LD.js?v=af67acb5:10358
+beginWork$1 @ chunk-NW7DE7LD.js?v=af67acb5:14188
+performUnitOfWork @ chunk-NW7DE7LD.js?v=af67acb5:13664
+workLoopSync @ chunk-NW7DE7LD.js?v=af67acb5:13604
+renderRootSync @ chunk-NW7DE7LD.js?v=af67acb5:13583
+recoverFromConcurrentError @ chunk-NW7DE7LD.js?v=af67acb5:13173
+performConcurrentWorkOnRoot @ chunk-NW7DE7LD.js?v=af67acb5:13121
+workLoop @ chunk-NW7DE7LD.js?v=af67acb5:274
+flushWork @ chunk-NW7DE7LD.js?v=af67acb5:253
+performWorkUntilDeadline @ chunk-NW7DE7LD.js?v=af67acb5:461Understand this error
+hook.js:608 The above error occurred in the <ForwardRef(Canvas)> component:
+
+    at Canvas (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NW7DE7LD.js?v=af67acb5:17774:3)
+    at FiberProvider (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-NW7DE7LD.js?v=af67acb5:17708:21)
+    at CanvasWrapper
+    at div
+    at AppContent (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/src/App.tsx?v=CJpHJDjwoRw0sDhax-hsa:37:25)
+    at QueryClientProvider (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-IXYRNHN4.js?v=af67acb5:2960:3)
+    at ThirdwebProviderCore (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/thirdweb_react.js?v=af67acb5:14571:51)
+    at ThirdwebProvider (https://f3c0da53-3918-4d29-aedf-0c108a4c7030-00-1t5br8hz8zk7z.sisko.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/thirdweb_react.js?v=af67acb5:14618:139)
+    at App
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+overrideMethod @ hook.js:608
+console.error @ chunk-NW7DE7LD.js?v=af67acb5:17705
+logCapturedError @ chunk-OYNE357H.js?v=af67acb5:14032
+update.callback @ chunk-OYNE357H.js?v=af67acb5:14052
+callCallback @ chunk-OYNE357H.js?v=af67acb5:11248
+commitUpdateQueue @ chunk-OYNE357H.js?v=af67acb5:11265
+commitLayoutEffectOnFiber @ chunk-OYNE357H.js?v=af67acb5:17093
+commitLayoutMountEffects_complete @ chunk-OYNE357H.js?v=af67acb5:17980
+commitLayoutEffects_begin @ chunk-OYNE357H.js?v=af67acb5:17969
+commitLayoutEffects @ chunk-OYNE357H.js?v=af67acb5:17920
+commitRootImpl @ chunk-OYNE357H.js?v=af67acb5:19353
+commitRoot @ chunk-OYNE357H.js?v=af67acb5:19277
+finishConcurrentRender @ chunk-OYNE357H.js?v=af67acb5:18760
+performConcurrentWorkOnRoot @ chunk-OYNE357H.js?v=af67acb5:18718
+workLoop @ chunk-OYNE357H.js?v=af67acb5:197
+flushWork @ chunk-OYNE357H.js?v=af67acb5:176
+performWorkUntilDeadline @ chunk-OYNE357H.js?v=af67acb5:384Understand this error
+chunk-OYNE357H.js?v=af67acb5:19413 Uncaught TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))
+    at useKeyboardControls (@react-three_drei.js?v=af67acb5:8981:30)
+    at Player (Player.tsx:26:33)
+    at renderWithHooks (chunk-NW7DE7LD.js?v=af67acb5:5892:26)
+    at mountIndeterminateComponent (chunk-NW7DE7LD.js?v=af67acb5:9375:21)
+    at beginWork (chunk-NW7DE7LD.js?v=af67acb5:10358:22)
+    at beginWork$1 (chunk-NW7DE7LD.js?v=af67acb5:14188:22)
+    at performUnitOfWork (chunk-NW7DE7LD.js?v=af67acb5:13664:20)
+    at workLoopSync (chunk-NW7DE7LD.js?v=af67acb5:13604:13)
+    at renderRootSync (chunk-NW7DE7LD.js?v=af67acb5:13583:15)
+    at recoverFromConcurrentError (chunk-NW7DE7LD.js?v=af67acb5:13173:28)

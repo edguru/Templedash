@@ -1,4 +1,5 @@
 import { Canvas } from "@react-three/fiber";
+import { KeyboardControls } from "@react-three/drei";
 import { Suspense, useEffect, useState } from "react";
 // Removed KeyboardControls - using direct event handlers
 import { ThirdwebProvider } from 'thirdweb/react';
@@ -29,7 +30,14 @@ import WalletConnectScreen from "./components/ui/WalletConnectScreen";
 
 // Thirdweb v5 config is handled in thirdweb.ts
 
-// Using direct keyboard event handlers instead of KeyboardControls
+// Define keyboard controls for game
+enum Controls {
+  left = 'left',
+  right = 'right',
+  jump = 'jump',
+  start = 'start',
+  restart = 'restart'
+}
 
 // Inner App component that uses Thirdweb hooks
 function AppContent() {
@@ -98,35 +106,45 @@ function AppContent() {
 
             {gamePhase === 'playing' && (
               <>
-                <Canvas
-                  camera={{
-                    position: [0, 4, 8],
-                    fov: 60,
-                    near: 0.1,
-                    far: 1000
-                  }}
-                  gl={{
-                    antialias: true,
-                    powerPreference: "high-performance",
-                    precision: "mediump",
-                    alpha: false,
-                    stencil: false,
-                    depth: true
-                  }}
-                  shadows
-                  dpr={Math.min(window.devicePixelRatio, 2)}
-                  performance={{ min: 0.5 }}
-                  style={{ 
-                    background: 'linear-gradient(to bottom, #87CEEB 0%, #98D8E8 30%, #F0E68C 70%, #90EE90 100%)'
-                  }}
-                  frameloop="demand"
+                <KeyboardControls
+                  map={[
+                    { name: Controls.left, keys: ['ArrowLeft', 'KeyA'] },
+                    { name: Controls.right, keys: ['ArrowRight', 'KeyD'] },
+                    { name: Controls.jump, keys: ['Space', 'ArrowUp', 'KeyW'] },
+                    { name: Controls.start, keys: ['Enter'] },
+                    { name: Controls.restart, keys: ['KeyR'] },
+                  ]}
                 >
-                  <color attach="background" args={["#87CEEB"]} />
-                  
-                  <Suspense fallback={null}>
-                    <GameScene />
-                  </Suspense>
-                </Canvas>
+                  <Canvas
+                    camera={{
+                      position: [0, 4, 8],
+                      fov: 60,
+                      near: 0.1,
+                      far: 1000
+                    }}
+                    gl={{
+                      antialias: true,
+                      powerPreference: "high-performance",
+                      precision: "mediump",
+                      alpha: false,
+                      stencil: false,
+                      depth: true
+                    }}
+                    shadows
+                    dpr={Math.min(window.devicePixelRatio, 2)}
+                    performance={{ min: 0.5 }}
+                    style={{ 
+                      background: 'linear-gradient(to bottom, #87CEEB 0%, #98D8E8 30%, #F0E68C 70%, #90EE90 100%)'
+                    }}
+                    frameloop="demand"
+                  >
+                    <color attach="background" args={["#87CEEB"]} />
+                    
+                    <Suspense fallback={null}>
+                      <GameScene />
+                    </Suspense>
+                  </Canvas>
+                </KeyboardControls>
                 
                 <GameUI />
               </>

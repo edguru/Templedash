@@ -6,7 +6,7 @@ import { useRewards } from "../../lib/stores/useRewards";
 
 export default function StartScreen() {
   const account = useActiveAccount();
-  const disconnect = useDisconnect();
+  const { disconnect } = useDisconnect();
   const { startGame, setGamePhase } = useGameState();
   const { hasCharacterNFT, ownedCharacters } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
@@ -28,11 +28,13 @@ export default function StartScreen() {
     setGamePhase('mysteryBox');
   };
 
+  const handleOpenTutorial = () => {
+    setGamePhase('tutorial');
+  };
+
   const handleDisconnect = async () => {
     try {
-      if (account?.wallet) {
-        disconnect.disconnect(account.wallet);
-      }
+      disconnect();
     } catch (error) {
       console.log('Disconnect error:', error);
     }
@@ -127,6 +129,13 @@ export default function StartScreen() {
             className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition-all duration-200 hover:scale-105 shadow-lg"
           >
             👤 Profile
+          </button>
+          
+          <button
+            onClick={handleOpenTutorial}
+            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            📚 Tutorial & Guide
           </button>
         </div>
 

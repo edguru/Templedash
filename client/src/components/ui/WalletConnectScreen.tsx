@@ -5,6 +5,7 @@ import { client, baseCampTestnet } from "../../lib/thirdweb";
 import { ethereum } from "thirdweb/chains";
 import { useEffect } from "react";
 import { useGameState } from "../../lib/stores/useGameState";
+import { useOnboarding } from "../../hooks/useOnboarding";
 
 // Email and wallet-based authentication only
 const wallets = [
@@ -23,14 +24,21 @@ const wallets = [
 export default function WalletConnectScreen() {
   const account = useActiveAccount();
   const { setGamePhase } = useGameState();
+  const { hasSeenOnboarding, setHasSeenOnboarding } = useOnboarding();
 
-  // Auto-redirect if already connected
+  // Auto-redirect based on onboarding status
   useEffect(() => {
     if (account) {
-      console.log('User already connected, redirecting to game');
-      setGamePhase('start');
+      console.log('User connected, checking onboarding status');
+      if (!hasSeenOnboarding) {
+        console.log('New user - directing to onboarding');
+        setGamePhase('onboarding');
+      } else {
+        console.log('Returning user - directing to game');
+        setGamePhase('start');
+      }
     }
-  }, [account, setGamePhase]);
+  }, [account, setGamePhase, hasSeenOnboarding]);
 
   return (
     <div className="absolute inset-0 bg-gradient-to-br from-purple-600 via-blue-600 to-green-500 flex items-center justify-center p-4">

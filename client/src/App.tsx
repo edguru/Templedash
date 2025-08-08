@@ -18,6 +18,8 @@ import ChatScreen from "./components/ui/ChatScreen";
 import CharacterPreview from "./components/ui/CharacterPreview";
 import UserProfileScreen from "./components/ui/UserProfileScreen";
 import CharacterSelector from "./components/ui/CharacterSelector";
+import OnboardingScreen from "./components/ui/OnboardingScreen";
+import TutorialScreen from "./components/ui/TutorialScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -89,6 +91,10 @@ function AppContent() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <>
+            {gamePhase === 'onboarding' && <OnboardingScreen />}
+            
+            {gamePhase === 'tutorial' && <TutorialScreen />}
+            
             {gamePhase === 'start' && <StartScreen />}
             
             {gamePhase === 'mint' && <MintScreen />}

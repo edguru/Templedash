@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -32,6 +34,13 @@ canvas {
 /* Game UI Styles */
 .game-button {
   @apply bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95;
+}
+
+/* Pixel Font for Tutorial */
+.pixel-font {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.75em;
+  line-height: 1.6;
 }
 
 .game-button:disabled {

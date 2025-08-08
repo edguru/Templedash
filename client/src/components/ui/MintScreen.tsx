@@ -100,7 +100,8 @@ export default function MintScreen() {
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-start justify-center p-4 pt-8 overflow-y-auto">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto text-center shadow-2xl mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-3">Choose Your Character</h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-3">Mint Character NFT</h1>
+        <p className="text-gray-600 mb-4">Each NFT is a unique character. You can mint multiple characters!</p>
         
         {/* Character Selection */}
         <div className="grid grid-cols-3 gap-3 mb-4">
@@ -133,10 +134,10 @@ export default function MintScreen() {
         <div className="bg-blue-50 p-3 rounded-lg mb-4">
           <h3 className="font-semibold text-blue-800 mb-2 text-sm">Character NFT Benefits:</h3>
           <ul className="text-xs text-blue-700 space-y-1">
-            <li>✨ Unlock full 3D character model</li>
+            <li>✨ Each NFT = One unique character</li>
             <li>🎮 Enhanced gameplay experience</li>
-            <li>💎 Own your character forever</li>
-            <li>🎁 Access to special rewards</li>
+            <li>💎 Own your characters forever</li>
+            <li>🎁 Mint multiple for variety</li>
           </ul>
         </div>
 

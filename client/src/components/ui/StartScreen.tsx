@@ -6,7 +6,7 @@ import { useRewards } from "../../lib/stores/useRewards";
 
 export default function StartScreen() {
   const account = useActiveAccount();
-  const { mutate: disconnect } = useDisconnect();
+  const disconnect = useDisconnect();
   const { startGame, setGamePhase } = useGameState();
   const { hasCharacterNFT, ownedCharacters } = useNFT();
   const { totalCoins, completedRuns, canOpenMysteryBox } = useRewards();
@@ -30,7 +30,9 @@ export default function StartScreen() {
 
   const handleDisconnect = async () => {
     try {
-      disconnect();
+      if (account?.wallet) {
+        disconnect.disconnect(account.wallet);
+      }
     } catch (error) {
       console.log('Disconnect error:', error);
     }

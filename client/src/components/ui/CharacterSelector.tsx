@@ -38,7 +38,7 @@ export default function CharacterSelector() {
       <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-center justify-center p-4">
         <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-auto text-center shadow-2xl">
           <h1 className="text-2xl font-bold text-gray-800 mb-4">No Characters Owned</h1>
-          <p className="text-gray-600 mb-6">You don't own any character NFTs yet. Mint your first character to unlock the full game experience!</p>
+          <p className="text-gray-600 mb-6">You don't own any character NFTs yet. Each NFT is a unique character!</p>
           
           <div className="space-y-3">
             <button
@@ -64,7 +64,7 @@ export default function CharacterSelector() {
     <div className="absolute inset-0 bg-gradient-to-b from-purple-600 to-blue-600 flex items-start justify-center p-4 pt-8 overflow-y-auto">
       <div className="bg-white rounded-lg p-6 max-w-md w-full mx-auto text-center shadow-2xl mb-8">
         <h1 className="text-2xl font-bold text-gray-800 mb-3">Select Your Character</h1>
-        <p className="text-gray-600 mb-4">Choose which character to play with</p>
+        <p className="text-gray-600 mb-4">Choose which character NFT to play with</p>
         
         {/* Character Grid */}
         <div className="grid grid-cols-2 gap-3 mb-6">

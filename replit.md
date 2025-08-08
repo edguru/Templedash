@@ -9,10 +9,12 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - **NFT Minting**: Requires 0.001 CAMP for mint fee
   - **Block Explorer**: https://basecamp.cloud.blockscout.com
 - **NFT Contract**: Confirmed deployed at 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500 (proxy contract with TokenERC721 implementation)
-- **Critical Fix: NFT Character Keyboard Controls**: Added KeyboardControls provider wrapper to game Canvas
-  - Fixed "object null is not iterable" error when playing with minted NFT characters
-  - Player component now properly receives keyboard control context from @react-three/drei
-  - Both shadow and NFT characters now have full keyboard functionality
+- **Multiple Character System**: Complete character selection and ownership system
+  - Each NFT represents one unique character (Ninja Warrior, Space Ranger, Crystal Mage)
+  - Users can mint multiple NFTs to own multiple characters
+  - Character selector screen for players with multiple owned characters
+  - Smart game flow: no characters → mint, one character → start directly, multiple → show selector
+  - Fixed keyboard controls for all character types with proper NFT character rendering
 - **Database Fix**: Resolved SQL GROUP BY error in user stats endpoint
 - **Deferred Reward System**: Mystery box tokens save recipient addresses for later claiming instead of immediate distribution
   - Standard reward: $0.001 worth of PUPPETS tokens
@@ -44,7 +46,7 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 - **Component-based 3D Scene**: Modular game objects with DaytimeSkybox, LOD Manager, ShadowCharacter
 - **Game Loop**: Frame-based updates using React Three Fiber's useFrame hook
 - **Physics System**: Custom collision detection and player movement mechanics
-- **Character System**: Automatic replacement from shadow to NFT character after minting
+- **Character System**: Each NFT represents one unique character - users can mint multiple NFTs to own multiple characters
 - **Performance Optimization**: LOD scaling, lazy loading, and Canvas optimizations for mobile/desktop
 - **Audio Management**: Sound effects and background music with mute controls
 - **Progressive Difficulty**: Game speed increases over time for added challenge
@@ -73,7 +75,7 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 - **Phase Management**: Game states (start, playing, gameOver, mint, mysteryBox)
 - **Player Progress**: Position tracking, movement controls, and collision detection
 - **Reward System**: Coin collection, mystery box mechanics, and token rewards
-- **NFT Integration**: Character unlocks and gameplay modifications based on ownership
+- **NFT Integration**: Each NFT = one character, users can mint multiple characters for variety and collection
 
 # External Dependencies
 

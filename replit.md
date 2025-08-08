@@ -15,10 +15,21 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - Character selector screen for players with multiple owned characters
   - Smart game flow: no characters → mint, one character → start directly, multiple → show selector
   - Fixed keyboard controls for all character types with proper NFT character rendering
+- **Character Collection System**: Added dedicated "Mint More Characters" page
+  - Users can mint up to 3 total characters (one of each type)
+  - Progress tracking showing collection completion (X/3 characters)
+  - Prevention of duplicate character minting
+  - Collection completion celebration screen
 - **Database Fix**: Resolved SQL GROUP BY error in user stats endpoint
 - **Deferred Reward System**: Mystery box tokens save recipient addresses for later claiming instead of immediate distribution
   - Standard reward: $0.001 worth of PUPPETS tokens
   - Jackpot reward: $10 PUPPETS (1 in 5000 chance)
+  - Added airdrop notification in mystery box explaining deferred token distribution
+- **Comprehensive Onboarding System**: Complete new user experience
+  - Social media follow requirements (X and Telegram)
+  - 8-step pixel-style interactive tutorial covering all game features
+  - Smart flow detection for new vs returning users
+  - Tutorial access button on main menu for returning players
 - **Environment Configuration**: Organized all environment variables for easy Base Camp deployment
 - **X (Twitter) Integration**: Automatic draft post sharing functionality tagging @PuppetsAI
 - **Simplified Wallet Flow**: Direct wallet connection without additional authentication layers

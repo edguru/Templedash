@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial";
+export type GamePhase = "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial" | "mintMore";
 
 interface GameState {
   gamePhase: GamePhase;

@@ -137,6 +137,13 @@ export default function StartScreen() {
           >
             📚 Tutorial & Guide
           </button>
+          
+          <button
+            onClick={() => setGamePhase('mintMore')}
+            className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+          >
+            🎨 Mint More Characters
+          </button>
         </div>
 
         <div className="mt-4 text-xs text-gray-500">

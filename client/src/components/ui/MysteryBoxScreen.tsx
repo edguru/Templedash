@@ -196,6 +196,15 @@ export default function MysteryBoxScreen() {
                   🎉 JACKPOT! 🎉
                 </div>
               )}
+              
+              {/* Airdrop notification */}
+              <div className="bg-blue-50 p-3 rounded-lg mt-4">
+                <h4 className="text-blue-800 font-semibold text-sm mb-1">📦 Token Airdrop Notice</h4>
+                <p className="text-blue-700 text-xs">
+                  Your {reward.amount} {reward.currency} tokens have been recorded and will be airdropped to your wallet address later. 
+                  Keep an eye on your wallet for the incoming tokens!
+                </p>
+              </div>
             </div>
 
             {/* Continue buttons */}

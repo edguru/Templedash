@@ -20,6 +20,7 @@ import UserProfileScreen from "./components/ui/UserProfileScreen";
 import CharacterSelector from "./components/ui/CharacterSelector";
 import OnboardingScreen from "./components/ui/OnboardingScreen";
 import TutorialScreen from "./components/ui/TutorialScreen";
+import MintMoreScreen from "./components/ui/MintMoreScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -110,6 +111,8 @@ function AppContent() {
             {gamePhase === 'chat' && <ChatScreen />}
             
             {gamePhase === 'profile' && <UserProfileScreen />}
+            
+            {gamePhase === 'mintMore' && <MintMoreScreen />}
             
             {gamePhase === 'gameOver' && <GameOverScreen />}
 

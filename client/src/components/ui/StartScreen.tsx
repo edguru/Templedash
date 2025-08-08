@@ -13,15 +13,8 @@ export default function StartScreen() {
 
 
   const handleStartGame = () => {
-    if (!hasCharacterNFT || ownedCharacters.length === 0) {
-      setGamePhase('mint');
-    } else if (ownedCharacters.length === 1) {
-      // If only one character, start game directly
-      startGame();
-    } else {
-      // Multiple characters, show selection
-      setGamePhase('characterSelect');
-    }
+    // Always show character selection popup (includes shadow + owned NFTs)
+    setGamePhase('characterSelectPopup');
   };
 
   const handleOpenMysteryBox = () => {

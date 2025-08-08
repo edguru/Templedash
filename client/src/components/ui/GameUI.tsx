@@ -11,6 +11,9 @@ export default function GameUI() {
   const { isMuted, toggleMute } = useAudio();
   const isMobile = useIsMobile();
 
+  // Debug distance tracking
+  console.log('GameUI render - distance:', distance, 'score:', score);
+
   return (
     <div className="absolute inset-0 pointer-events-none">
       {/* Top HUD */}

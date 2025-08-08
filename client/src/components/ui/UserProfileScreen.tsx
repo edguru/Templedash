@@ -69,6 +69,18 @@ export default function UserProfileScreen() {
     }
   }, [account?.address]);
 
+  // Add refresh function for when user returns to profile
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && account?.address) {
+        fetchUserData();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [account?.address]);
+
   const fetchUserData = async () => {
     if (!account?.address) return;
 
@@ -323,7 +335,16 @@ export default function UserProfileScreen() {
 
               {/* NFT Collection */}
               <div className="bg-white rounded-2xl p-6 shadow-2xl">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">NFT Collection</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">NFT Collection</h2>
+                  <button
+                    onClick={fetchUserData}
+                    className="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+                    disabled={loading}
+                  >
+                    {loading ? "Refreshing..." : "Refresh"}
+                  </button>
+                </div>
                 {nftOwned.length === 0 ? (
                   <p className="text-gray-500 text-center py-8">No NFTs minted yet. Visit the mint screen to create your character!</p>
                 ) : (

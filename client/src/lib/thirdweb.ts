@@ -1,11 +1,11 @@
 import { createThirdwebClient, defineChain, getContract } from "thirdweb";
 
-// Environment variables for Base Camp testnet (keeping original for contract compatibility)
+// Environment variables for Base Camp network (updated with correct blockscout URL)
 export const CHAIN_CONFIG = {
   CHAIN_ID: Number(import.meta.env.VITE_CHAIN_ID) || 123420001114,
   RPC_URL: import.meta.env.VITE_RPC_URL || "https://rpc.camp-network-testnet.gelato.digital",
-  BLOCK_EXPLORER_URL: import.meta.env.VITE_BLOCK_EXPLORER_URL || "https://explorer.camp-network-testnet.gelato.digital",
-  NETWORK_NAME: import.meta.env.VITE_NETWORK_NAME || "Base Camp Testnet",
+  BLOCK_EXPLORER_URL: import.meta.env.VITE_BLOCK_EXPLORER_URL || "https://basecamp.cloud.blockscout.com",
+  NETWORK_NAME: import.meta.env.VITE_NETWORK_NAME || "Base Camp",
 };
 
 export const NFT_CONTRACT_ADDRESS = import.meta.env.VITE_NFT_CONTRACT_ADDRESS || "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500";
@@ -20,7 +20,7 @@ export const client = createThirdwebClient({
   clientId: THIRDWEB_CLIENT_ID || "demo-client-id"
 });
 
-// Define Base Camp testnet using defineChain method  
+// Define Base Camp network using defineChain method  
 export const baseCampTestnet = defineChain({
   id: CHAIN_CONFIG.CHAIN_ID,
   name: CHAIN_CONFIG.NETWORK_NAME,
@@ -31,7 +31,7 @@ export const baseCampTestnet = defineChain({
   },
   rpc: CHAIN_CONFIG.RPC_URL,
   blockExplorers: [{
-    name: "Base Camp Explorer",
+    name: "Base Camp Explorer", 
     url: CHAIN_CONFIG.BLOCK_EXPLORER_URL
   }],
   testnet: true

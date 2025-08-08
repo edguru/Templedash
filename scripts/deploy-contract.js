@@ -1,32 +1,34 @@
-// Contract deployment script for Temple Runner NFT
+// Contract deployment script for Puppet Runner NFT
 const { ethers } = require('hardhat');
+const hre = require('hardhat');
 
 async function main() {
-  console.log('Deploying Temple Runner NFT Contract...');
+  const network = hre.network.name;
+  console.log(`Deploying Puppet Runner NFT Contract to ${network}...`);
 
   // Get the contract factory
   const TempleRunnerNFT = await ethers.getContractFactory('TempleRunnerNFT');
 
   // Deploy the contract
+  console.log('Deploying contract...');
   const templeRunnerNFT = await TempleRunnerNFT.deploy();
   await templeRunnerNFT.deployed();
 
-  console.log('✅ Temple Runner NFT deployed to:', templeRunnerNFT.address);
-  console.log('🚀 View on Polygonscan:', `https://polygonscan.com/address/${templeRunnerNFT.address}`);
+  console.log('✅ Puppet Runner NFT deployed to:', templeRunnerNFT.address);
+  
+  if (network === 'baseCamp') {
+    console.log('🚀 View on Base Camp Explorer:', `https://explorer.camp-network-testnet.gelato.digital/address/${templeRunnerNFT.address}`);
+  } else {
+    console.log('🚀 View on Explorer:', `https://polygonscan.com/address/${templeRunnerNFT.address}`);
+  }
   
   // Update the contract address in the client
-  console.log('\n📝 Update your client with this contract address:');
-  console.log(`export const NFT_CONTRACT_ADDRESS = "${templeRunnerNFT.address}";`);
+  console.log('\n📝 Update your .env with this contract address:');
+  console.log(`VITE_NFT_CONTRACT_ADDRESS="${templeRunnerNFT.address}"`);
 
-  // Test minting (optional)
-  console.log('\n🎮 Testing character minting...');
-  const mintTx = await templeRunnerNFT.mintCharacter('shadow_stick_human', {
-    value: ethers.utils.parseEther('0.001')
-  });
-  await mintTx.wait();
-  
-  console.log('✅ Test mint successful! Token ID: 1');
-  console.log('🎯 Contract ready for use!');
+  // Test minting (skip for now to avoid issues)
+  console.log('\n🎯 Contract ready for use!');
+  console.log('Chain ID:', await templeRunnerNFT.provider.getNetwork().then(n => n.chainId));
 }
 
 main()

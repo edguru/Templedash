@@ -30,16 +30,31 @@ export const useNFTService = () => {
     setIsProcessing(true);
     try {
       const contract = getNFTContract();
+      
+      // Log contract details for debugging
+      console.log('Contract details:', {
+        address: contract.address,
+        chain: contract.chain.id,
+        chainName: contract.chain.name
+      });
+      
       const transaction = prepareContractCall({
         contract,
         method: "function mintCharacter(string memory characterType) payable",
         params: [characterType],
-        value: BigInt("1000000000000000"), // 0.001 ETH in wei
+        value: BigInt("1000000000000000"), // 0.001 CAMP in wei (10^15)
+        gas: BigInt("200000"), // Set reasonable gas limit
+      });
+
+      console.log('Prepared transaction:', {
+        value: transaction.value?.toString(),
+        params: transaction.params
       });
 
       return new Promise((resolve, reject) => {
         sendTx(transaction, {
           onSuccess: (result) => {
+            console.log('Mint transaction successful:', result);
             setIsProcessing(false);
             resolve({
               success: true,
@@ -48,12 +63,14 @@ export const useNFTService = () => {
             });
           },
           onError: (error) => {
+            console.error('Mint transaction failed:', error);
             setIsProcessing(false);
             reject(error);
           },
         });
       });
     } catch (error) {
+      console.error('Error preparing mint transaction:', error);
       setIsProcessing(false);
       throw error;
     }

@@ -19,6 +19,11 @@ module.exports = {
     mumbai: {
       url: process.env.MUMBAI_RPC_URL || "https://rpc-mumbai.maticvigil.com/",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+    },
+    baseCamp: {
+      url: "https://rpc.camp-network-testnet.gelato.digital",
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
+      chainId: 123420001114,
     }
   },
   etherscan: {

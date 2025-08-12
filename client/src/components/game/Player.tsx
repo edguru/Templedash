@@ -167,37 +167,49 @@ export default function Player() {
     
     console.log('Player: Attempting to load character model:', modelPath);
 
-    // Direct GLB loading without complex wrapper
+    // Direct GLB loading with proper error handling
+    let gltf = null;
+    let loadError = null;
+    
     try {
-      const { scene } = useGLTF(modelPath);
-      
-      useEffect(() => {
-        if (scene) {
-          console.log('✅ Character model loaded successfully!', scene);
-          scene.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-            }
-          });
-        }
-      }, [scene]);
-
-      if (scene) {
-        return (
-          <group ref={groupRef} castShadow receiveShadow>
-            <group ref={meshRef}>
-              <primitive 
-                object={scene.clone()}
-                scale={[2.5, 2.5, 2.5]}
-                rotation={[0, Math.PI, 0]}
-              />
-            </group>
-          </group>
-        );
-      }
+      gltf = useGLTF(modelPath);
+      console.log('🔍 GLTF result:', gltf, 'Scene:', gltf?.scene);
     } catch (error) {
-      console.error('❌ Failed to load character model:', error);
+      console.error('❌ useGLTF failed for path:', modelPath, 'Error:', error);
+      loadError = error;
+    }
+
+    useEffect(() => {
+      if (gltf?.scene) {
+        console.log('✅ Character GLB loaded successfully!', gltf.scene);
+        gltf.scene.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+            console.log('🎨 Configured mesh:', child.name || 'unnamed');
+          }
+        });
+      } else {
+        console.log('❌ No scene found in GLTF or GLTF is null');
+      }
+    }, [gltf]);
+
+    // If we have a valid scene, render it
+    if (gltf?.scene && !loadError) {
+      console.log('🎮 Rendering GLB character model');
+      return (
+        <group ref={groupRef} castShadow receiveShadow>
+          <group ref={meshRef}>
+            <primitive 
+              object={gltf.scene.clone()}
+              scale={[2.5, 2.5, 2.5]}
+              rotation={[0, Math.PI, 0]}
+              castShadow
+              receiveShadow
+            />
+          </group>
+        </group>
+      );
     }
     
     // Enhanced fallback character (always dark for shadow character)

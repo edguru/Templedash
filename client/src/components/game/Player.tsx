@@ -159,43 +159,129 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // High-quality character model rendering with GLB support
+  // Simple and direct character model loading
   const CharacterModel = () => {
-    // Determine which character model to load
-    const getCharacterModelPath = () => {
-      if (!hasCharacterNFT) {
-        return '/assets/characters/shadow_character.glb';
-      }
+    const modelPath = !hasCharacterNFT 
+      ? '/assets/characters/shadow_character.glb'
+      : '/assets/characters/character_red.glb'; // Default to red for now
+    
+    console.log('Player: Attempting to load character model:', modelPath);
+
+    // Direct GLB loading without complex wrapper
+    try {
+      const { scene } = useGLTF(modelPath);
       
-      // Map character types to model files
-      const characterModels = {
-        'ninja_warrior': '/assets/characters/character_red.glb',
-        'space_ranger': '/assets/characters/character_blue.glb',  
-        'crystal_mage': '/assets/characters/character_green.glb',
-        'shadow': '/assets/characters/shadow_character.glb'
-      };
-      return characterModels[currentCharacterType] || '/assets/characters/shadow_character.glb';
-    };
+      useEffect(() => {
+        if (scene) {
+          console.log('✅ Character model loaded successfully!', scene);
+          scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+            }
+          });
+        }
+      }, [scene]);
 
-    const modelPath = getCharacterModelPath();
-    console.log('Player: Loading character model:', modelPath, 'hasNFT:', hasCharacterNFT, 'type:', currentCharacterType);
-
+      if (scene) {
+        return (
+          <group ref={groupRef} castShadow receiveShadow>
+            <group ref={meshRef}>
+              <primitive 
+                object={scene.clone()}
+                scale={[2.5, 2.5, 2.5]}
+                rotation={[0, Math.PI, 0]}
+              />
+            </group>
+          </group>
+        );
+      }
+    } catch (error) {
+      console.error('❌ Failed to load character model:', error);
+    }
+    
+    // Enhanced fallback character (always dark for shadow character)
+    console.log('🔄 Using enhanced fallback character');
     return (
-      <Suspense fallback={
-        <FallbackCharacter 
-          hasCharacterNFT={hasCharacterNFT}
-          getCharacterColor={getCharacterColor}
-          groupRef={groupRef}
-          meshRef={meshRef}
-        />
-      }>
-        <CharacterLoader 
-          modelPath={modelPath}
-          hasCharacterNFT={hasCharacterNFT}
-          groupRef={groupRef}
-          meshRef={meshRef}
-        />
-      </Suspense>
+      <group ref={groupRef} castShadow receiveShadow>
+        <group ref={meshRef}>
+          {/* Head - larger and more detailed */}
+          <mesh position={[0, 1.7, 0]} castShadow receiveShadow>
+            <sphereGeometry args={[0.18, 16, 12]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.4}
+              roughness={0.6}
+              emissive="#111111"
+              emissiveIntensity={0.1}
+            />
+          </mesh>
+          
+          {/* Body - athletic runner build */}
+          <mesh position={[0, 1, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.12, 0.16, 0.9, 16]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.3}
+              roughness={0.7}
+              emissive="#111111"
+              emissiveIntensity={0.05}
+            />
+          </mesh>
+          
+          {/* Left Arm */}
+          <mesh position={[-0.28, 1.2, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.05, 0.05, 0.7, 12]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.3}
+              roughness={0.7}
+            />
+          </mesh>
+          
+          {/* Right Arm */}
+          <mesh position={[0.28, 1.2, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.05, 0.05, 0.7, 12]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.3}
+              roughness={0.7}
+            />
+          </mesh>
+          
+          {/* Left Leg */}
+          <mesh position={[-0.14, 0.3, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.3}
+              roughness={0.7}
+            />
+          </mesh>
+          
+          {/* Right Leg */}
+          <mesh position={[0.14, 0.3, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
+            <meshStandardMaterial 
+              color="#0f0f0f"
+              transparent={true}
+              opacity={0.95}
+              metalness={0.3}
+              roughness={0.7}
+            />
+          </mesh>
+        </group>
+      </group>
     );
   };
 

@@ -10,55 +10,78 @@ interface CharacterLoaderProps {
 }
 
 export default function CharacterLoader({ modelPath, hasCharacterNFT, groupRef, meshRef }: CharacterLoaderProps) {
-  const [loadError, setLoadError] = useState(false);
-  
   console.log('CharacterLoader: Attempting to load model:', modelPath);
   
+  // Try to load the GLB model with error handling
+  let gltf;
   try {
-    const { scene } = useGLTF(modelPath);
-    
-    useEffect(() => {
-      if (scene) {
-        console.log('CharacterLoader: Model loaded successfully:', scene);
-        
-        // Enable shadows and enhance materials
-        scene.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
+    gltf = useGLTF(modelPath);
+    console.log('CharacterLoader: useGLTF result:', gltf);
+  } catch (error) {
+    console.error('CharacterLoader: useGLTF failed:', error);
+    return (
+      <FallbackCharacter 
+        hasCharacterNFT={hasCharacterNFT}
+        getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#1a1a1a"}
+        groupRef={groupRef}
+        meshRef={meshRef}
+      />
+    );
+  }
+  
+  if (!gltf || !gltf.scene) {
+    console.log('CharacterLoader: No scene found in GLTF, using fallback');
+    return (
+      <FallbackCharacter 
+        hasCharacterNFT={hasCharacterNFT}
+        getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#1a1a1a"}
+        groupRef={groupRef}
+        meshRef={meshRef}
+      />
+    );
+  }
+  
+  const { scene } = gltf;
+  
+  useEffect(() => {
+    if (scene) {
+      console.log('CharacterLoader: Model loaded successfully, setting up shadows:', scene);
+      
+      // Enable shadows and enhance materials
+      scene.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.castShadow = true;
+          child.receiveShadow = true;
+          
+          if (child.material) {
+            child.material.needsUpdate = true;
             
-            if (child.material) {
-              child.material.needsUpdate = true;
-              
-              // Add subtle emissive glow for NFT characters
-              if (hasCharacterNFT && 'emissive' in child.material) {
-                (child.material as THREE.MeshStandardMaterial).emissive.setHex(0x222222);
-                (child.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.15;
-              }
+            // Add subtle emissive glow for NFT characters
+            if (hasCharacterNFT && 'emissive' in child.material) {
+              (child.material as THREE.MeshStandardMaterial).emissive.setHex(0x222222);
+              (child.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.15;
             }
           }
-        });
-      }
-    }, [scene, hasCharacterNFT]);
-    
-    return (
-      <group ref={groupRef} castShadow receiveShadow>
-        <group ref={meshRef}>
-          <primitive 
-            object={scene.clone()}
-            scale={[2.5, 2.5, 2.5]}
-            rotation={[0, Math.PI, 0]}
-            castShadow
-            receiveShadow
-          />
-        </group>
+        }
+      });
+    }
+  }, [scene, hasCharacterNFT]);
+  
+  console.log('CharacterLoader: Rendering GLB model with scene:', scene);
+  
+  return (
+    <group ref={groupRef} castShadow receiveShadow>
+      <group ref={meshRef}>
+        <primitive 
+          object={scene.clone()}
+          scale={[2.5, 2.5, 2.5]}
+          rotation={[0, Math.PI, 0]}
+          castShadow
+          receiveShadow
+        />
       </group>
-    );
-  } catch (error) {
-    console.error('CharacterLoader: Failed to load GLB model:', error);
-    setLoadError(true);
-    return null;
-  }
+    </group>
+  );
 }
 
 // Enhanced fallback character component

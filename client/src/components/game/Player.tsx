@@ -3,11 +3,20 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
+// Preload all character models
+useGLTF.preload('/assets/characters/shadow_character.glb');
+useGLTF.preload('/assets/characters/character_red.glb');
+useGLTF.preload('/assets/characters/character_blue.glb');
+useGLTF.preload('/assets/characters/character_green.glb');
+
 // Import stores
 import { usePlayer } from "../../lib/stores/usePlayer";
 import { useNFT } from "../../lib/stores/useNFT";
 import { useAudio } from "../../lib/stores/useAudio";
 import { useTouchControls } from "../../hooks/use-touch-controls";
+
+// Import character loader
+import CharacterLoader, { FallbackCharacter } from "./CharacterLoader";
 
 enum Controls {
   left = 'left',
@@ -152,8 +161,6 @@ export default function Player() {
 
   // High-quality character model rendering with GLB support
   const CharacterModel = () => {
-    const [modelLoaded, setModelLoaded] = useState(false);
-    
     // Determine which character model to load
     const getCharacterModelPath = () => {
       if (!hasCharacterNFT) {
@@ -170,121 +177,24 @@ export default function Player() {
       return characterModels[currentCharacterType] || '/assets/characters/shadow_character.glb';
     };
 
-    const CharacterGLB = () => {
-      try {
-        const { scene } = useGLTF(getCharacterModelPath());
-        
-        useEffect(() => {
-          if (scene) {
-            setModelLoaded(true);
-            // Enable shadows on all meshes in the model
-            scene.traverse((child) => {
-              if (child instanceof THREE.Mesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-                // Enhance material properties for better quality
-                if (child.material) {
-                  child.material.needsUpdate = true;
-                  // Add subtle emissive glow if it's an NFT character
-                  if (hasCharacterNFT && 'emissive' in child.material) {
-                    (child.material as THREE.MeshStandardMaterial).emissive.setHex(0x111111);
-                    (child.material as THREE.MeshStandardMaterial).emissiveIntensity = 0.1;
-                  }
-                }
-              }
-            });
-          }
-        }, [scene]);
-
-        return (
-          <group ref={groupRef} castShadow receiveShadow>
-            <group ref={meshRef}>
-              <primitive 
-                object={scene.clone()}
-                scale={[2.5, 2.5, 2.5]} // Scale up for better visibility
-                rotation={[0, Math.PI, 0]} // Face forward
-                castShadow
-                receiveShadow
-              />
-            </group>
-          </group>
-        );
-      } catch (error) {
-        console.log('GLB model failed to load, using fallback');
-        return null;
-      }
-    };
-
-    // Enhanced fallback for when GLB models don't load
-    const FallbackCharacter = () => (
-      <group ref={groupRef} castShadow receiveShadow>
-        <group ref={meshRef}>
-          {/* Head */}
-          <mesh position={[0, 1.7, 0]} castShadow receiveShadow>
-            <sphereGeometry args={[0.15, 12, 8]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? getCharacterColor() : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
-          
-          {/* Body */}
-          <mesh position={[0, 1, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.08, 0.12, 0.8, 12]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-              metalness={0.2}
-              roughness={0.8}
-            />
-          </mesh>
-          
-          {/* Arms */}
-          <mesh position={[-0.25, 1.2, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.04, 0.04, 0.6, 8]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-            />
-          </mesh>
-          <mesh position={[0.25, 1.2, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.04, 0.04, 0.6, 8]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-            />
-          </mesh>
-          
-          {/* Legs */}
-          <mesh position={[-0.12, 0.3, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.05, 0.05, 0.7, 8]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-            />
-          </mesh>
-          <mesh position={[0.12, 0.3, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.05, 0.05, 0.7, 8]} />
-            <meshStandardMaterial 
-              color={hasCharacterNFT ? "#4A90E2" : "#2a2a2a"} 
-              transparent={!hasCharacterNFT}
-              opacity={hasCharacterNFT ? 1 : 0.8}
-            />
-          </mesh>
-        </group>
-      </group>
-    );
+    const modelPath = getCharacterModelPath();
+    console.log('Player: Loading character model:', modelPath, 'hasNFT:', hasCharacterNFT, 'type:', currentCharacterType);
 
     return (
-      <Suspense fallback={<FallbackCharacter />}>
-        <CharacterGLB />
+      <Suspense fallback={
+        <FallbackCharacter 
+          hasCharacterNFT={hasCharacterNFT}
+          getCharacterColor={getCharacterColor}
+          groupRef={groupRef}
+          meshRef={meshRef}
+        />
+      }>
+        <CharacterLoader 
+          modelPath={modelPath}
+          hasCharacterNFT={hasCharacterNFT}
+          groupRef={groupRef}
+          meshRef={meshRef}
+        />
       </Suspense>
     );
   };

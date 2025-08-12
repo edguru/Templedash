@@ -10,10 +10,10 @@ This folder contains all 3D models and assets for the Temple Runner game.
 - **Animations**: Idle, Running, Jumping (if supported)
 
 #### Character Files:
-- `shadow_character.glb` - Dark silhouette character (locked state)
-- `character_red.glb` - Red colored human character (NFT unlock)
-- `character_blue.glb` - Blue colored human character (NFT unlock)
-- `character_green.glb` - Green colored human character (NFT unlock)
+- `shadow_character.glb` - High-quality dark silhouette character (locked state) - **REGENERATED WITH TRIPO API**
+- `character_red.glb` - High-quality red athletic runner character (NFT unlock) - **REGENERATED WITH TRIPO API**
+- `character_blue.glb` - High-quality blue athletic runner character (NFT unlock) - **REGENERATED WITH TRIPO API**
+- `character_green.glb` - High-quality green athletic runner character (NFT unlock) - **REGENERATED WITH TRIPO API**
 
 ### Environment Assets
 - **Format**: GLB
@@ -34,7 +34,15 @@ This folder contains all 3D models and assets for the Temple Runner game.
 - `gem.glb` - Special gem collectible
 
 ## Usage Notes
-1. All assets should be optimized for mobile performance
-2. Textures should be compressed and under 512x512 resolution
-3. Polygon count should be kept under 1000 triangles per asset
-4. Assets will be scaled automatically in the game (2.5x multiplier)
+1. All assets are optimized for mobile performance
+2. Character models now use high-quality GLB files generated with Tripo API
+3. Enhanced shadows and visual effects for better graphics quality
+4. Adaptive quality settings based on device type (mobile vs desktop)
+5. Assets will be scaled automatically in the game (2.5x multiplier)
+
+## Recent Improvements (Aug 12, 2025)
+- ✅ All character assets regenerated with Tripo API for higher quality
+- ✅ Enhanced graphics settings with better shadows and lighting
+- ✅ Mobile-optimized performance with adaptive quality
+- ✅ Improved material properties and visual effects
+- ✅ Better shadow mapping and tone mapping

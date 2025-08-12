@@ -20,16 +20,25 @@ export default function Lighting() {
     }
     
     if (shadowLightRef.current) {
-      // Enable shadow casting
+      // Enable shadow casting with adaptive quality
       shadowLightRef.current.castShadow = true;
-      shadowLightRef.current.shadow.mapSize.width = 2048;
-      shadowLightRef.current.shadow.mapSize.height = 2048;
+      
+      // Adaptive shadow quality based on device performance
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const shadowMapSize = isMobile ? 1024 : 2048; // Lower resolution on mobile
+      
+      shadowLightRef.current.shadow.mapSize.width = shadowMapSize;
+      shadowLightRef.current.shadow.mapSize.height = shadowMapSize;
       shadowLightRef.current.shadow.camera.near = 0.5;
       shadowLightRef.current.shadow.camera.far = 50;
       shadowLightRef.current.shadow.camera.left = -20;
       shadowLightRef.current.shadow.camera.right = 20;
       shadowLightRef.current.shadow.camera.top = 20;
       shadowLightRef.current.shadow.camera.bottom = -20;
+      
+      // Improved shadow bias for better quality
+      shadowLightRef.current.shadow.bias = -0.0001;
+      shadowLightRef.current.shadow.normalBias = 0.02;
     }
   });
 
@@ -38,20 +47,22 @@ export default function Lighting() {
       {/* Enhanced ambient light with warm tone */}
       <ambientLight intensity={0.4} color="#f0e6d2" />
       
-      {/* Main sun light with shadows */}
+      {/* Main sun light with enhanced shadows */}
       <directionalLight
         ref={shadowLightRef}
         position={[12, 20, 18]}
-        intensity={1.2}
+        intensity={1.3} // Slightly increased for better contrast
         color="#fff8dc"
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={window.innerWidth < 768 ? 1024 : 2048}
+        shadow-mapSize-height={window.innerWidth < 768 ? 1024 : 2048}
         shadow-camera-far={50}
         shadow-camera-left={-20}
         shadow-camera-right={20}
         shadow-camera-top={20}
         shadow-camera-bottom={-20}
+        shadow-bias={-0.0001}
+        shadow-normalBias={0.02}
       />
       
       {/* Dynamic main directional light */}

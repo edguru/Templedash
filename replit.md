@@ -2,7 +2,7 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-01-08)
+## Recent Changes (2025-01-12)
 - **Authentication Simplification**: Removed JWT/complex auth layers - now uses only Thirdweb wallet connection
 - **Base Camp Testnet Integration**: Fully configured for Camp Network's Base Camp testnet (chain ID: 123420001114)
   - **Currency**: Uses CAMP as native gas currency
@@ -35,6 +35,20 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 - **Simplified Wallet Flow**: Direct wallet connection without additional authentication layers
 - **3-Lane System**: Maintained classic Temple Run 3-lane discrete movement system
 - **Performance Optimization**: Mobile-optimized 3D rendering with LOD management
+- **High-Quality Character Assets**: All character assets regenerated using Tripo API for superior quality
+  - Enhanced shadow_character.glb with athletic silhouette design
+  - Improved character_red.glb with detailed red athletic runner
+  - Enhanced character_blue.glb with detailed blue athletic runner  
+  - Upgraded character_green.glb with detailed green athletic runner
+- **Graphics Quality Improvements**: Enhanced visual fidelity while maintaining mobile performance
+  - Upgraded renderer precision from mediump to highp
+  - Enhanced shadow mapping with PCF soft shadows
+  - Adaptive shadow quality (1024px mobile, 2048px desktop)
+  - Improved tone mapping with ACES Filmic for better HDR colors
+  - Gamma correction and proper color space handling
+  - Enhanced lighting with better material properties
+  - Atmospheric fog effects (desktop only for performance)
+  - Mobile-optimized visual effects system
 
 # User Preferences
 

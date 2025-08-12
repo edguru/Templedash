@@ -15,6 +15,7 @@ import CoinCluster from "./CoinCluster";
 import ShadowCharacter from "./ShadowCharacter";
 import LODManager from "./LODManager";
 import CoinAnimation from "./CoinAnimation";
+import VisualEffects from "./VisualEffects";
 
 
 // Import game logic
@@ -268,6 +269,7 @@ export default function GameScene() {
 
   return (
     <>
+      <VisualEffects />
       <SimpleEnvironment />
       <Lighting />
       

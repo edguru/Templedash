@@ -140,18 +140,24 @@ function AppContent() {
                     gl={{
                       antialias: true,
                       powerPreference: "high-performance",
-                      precision: "mediump",
+                      precision: "highp", // Upgraded from mediump for better quality
                       alpha: false,
                       stencil: false,
-                      depth: true
+                      depth: true,
+                      logarithmicDepthBuffer: true, // Better depth precision
+                      preserveDrawingBuffer: false
                     }}
                     shadows
-                    dpr={Math.min(window.devicePixelRatio, 2)}
-                    performance={{ min: 0.5 }}
+                    dpr={[1, Math.min(window.devicePixelRatio, 2)]} // Range for adaptive quality
+                    performance={{ 
+                      min: 0.5,
+                      max: 1,
+                      debounce: 200
+                    }}
                     style={{ 
                       background: 'linear-gradient(to bottom, #87CEEB 0%, #98D8E8 30%, #F0E68C 70%, #90EE90 100%)'
                     }}
-                    frameloop="demand"
+                    frameloop="always" // Changed from demand for smoother animations
                   >
                     <color attach="background" args={["#87CEEB"]} />
                     

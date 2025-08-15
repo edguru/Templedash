@@ -181,37 +181,68 @@ export default function Player() {
     );
   };
 
-  // Separate GLB loader component
+  // Separate GLB loader component with texture error handling
   const GLBCharacterLoader = ({ modelPath }: { modelPath: string }) => {
-    const gltf = useGLTF(modelPath);
-    
-    console.log('✅ GLB loaded successfully:', modelPath, gltf.scene);
-    
-    useEffect(() => {
-      if (gltf.scene) {
-        gltf.scene.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            console.log('🎨 Setup mesh:', child.name || 'unnamed');
-          }
-        });
-      }
-    }, [gltf.scene]);
+    try {
+      const gltf = useGLTF(modelPath);
+      
+      console.log('✅ GLB loaded successfully:', modelPath, gltf.scene);
+      
+      useEffect(() => {
+        if (gltf.scene) {
+          gltf.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              
+              // Fix texture loading issues by using simple materials
+              if (child.material) {
+                const material = child.material as THREE.MeshStandardMaterial;
+                // Remove problematic textures and use solid colors
+                material.map = null;
+                material.normalMap = null;
+                material.roughnessMap = null;
+                material.metalnessMap = null;
+                material.needsUpdate = true;
+                
+                // Set appropriate colors based on character type
+                if (hasCharacterNFT) {
+                  material.color.setHex(0x8B4513); // Brown/athletic color
+                } else {
+                  material.color.setHex(0x1a1a1a); // Dark shadow color
+                }
+              }
+              
+              console.log('🎨 Setup mesh:', child.name || 'unnamed');
+            }
+          });
+        }
+      }, [gltf.scene]);
 
-    return (
-      <group ref={groupRef} castShadow receiveShadow>
-        <group ref={meshRef}>
-          <primitive 
-            object={gltf.scene.clone()}
-            scale={[2.5, 2.5, 2.5]}
-            rotation={[0, Math.PI, 0]}
-            castShadow
-            receiveShadow
-          />
+      return (
+        <group ref={groupRef} castShadow receiveShadow>
+          <group ref={meshRef}>
+            <primitive 
+              object={gltf.scene.clone()}
+              scale={[2.5, 2.5, 2.5]}
+              rotation={[0, Math.PI, 0]}
+              castShadow
+              receiveShadow
+            />
+          </group>
         </group>
-      </group>
-    );
+      );
+    } catch (error) {
+      console.error('GLB loading failed, using fallback:', error);
+      return (
+        <FallbackCharacter 
+          hasCharacterNFT={hasCharacterNFT}
+          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
+          groupRef={groupRef}
+          meshRef={meshRef}
+        />
+      );
+    }
   };
 
   // Main component render

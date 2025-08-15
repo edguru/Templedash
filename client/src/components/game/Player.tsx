@@ -159,143 +159,61 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // Simple and direct character model loading
+  // High-quality GLB character loading with Suspense
   const CharacterModel = () => {
     const modelPath = !hasCharacterNFT 
       ? '/assets/characters/shadow_character.glb'
-      : '/assets/characters/character_red.glb'; // Default to red for now
+      : '/assets/characters/character_red.glb';
     
-    console.log('Player: Attempting to load character model:', modelPath);
+    console.log('🎯 Loading character model:', modelPath, 'hasNFT:', hasCharacterNFT);
 
-    // Direct GLB loading with proper error handling
-    let gltf = null;
-    let loadError = null;
+    return (
+      <Suspense fallback={
+        <FallbackCharacter 
+          hasCharacterNFT={hasCharacterNFT}
+          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
+          groupRef={groupRef}
+          meshRef={meshRef}
+        />
+      }>
+        <GLBCharacterLoader modelPath={modelPath} />
+      </Suspense>
+    );
+  };
+
+  // Separate GLB loader component
+  const GLBCharacterLoader = ({ modelPath }: { modelPath: string }) => {
+    const gltf = useGLTF(modelPath);
     
-    try {
-      gltf = useGLTF(modelPath);
-      console.log('🔍 GLTF result:', gltf, 'Scene:', gltf?.scene);
-    } catch (error) {
-      console.error('❌ useGLTF failed for path:', modelPath, 'Error:', error);
-      loadError = error;
-    }
-
+    console.log('✅ GLB loaded successfully:', modelPath, gltf.scene);
+    
     useEffect(() => {
-      if (gltf?.scene) {
-        console.log('✅ Character GLB loaded successfully!', gltf.scene);
+      if (gltf.scene) {
         gltf.scene.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.castShadow = true;
             child.receiveShadow = true;
-            console.log('🎨 Configured mesh:', child.name || 'unnamed');
+            console.log('🎨 Setup mesh:', child.name || 'unnamed');
           }
         });
-      } else {
-        console.log('❌ No scene found in GLTF or GLTF is null');
       }
-    }, [gltf]);
+    }, [gltf.scene]);
 
-    // If we have a valid scene, render it
-    if (gltf?.scene && !loadError) {
-      console.log('🎮 Rendering GLB character model');
-      return (
-        <group ref={groupRef} castShadow receiveShadow>
-          <group ref={meshRef}>
-            <primitive 
-              object={gltf.scene.clone()}
-              scale={[2.5, 2.5, 2.5]}
-              rotation={[0, Math.PI, 0]}
-              castShadow
-              receiveShadow
-            />
-          </group>
-        </group>
-      );
-    }
-    
-    // Enhanced fallback character (always dark for shadow character)
-    console.log('🔄 Using enhanced fallback character');
     return (
       <group ref={groupRef} castShadow receiveShadow>
         <group ref={meshRef}>
-          {/* Head - larger and more detailed */}
-          <mesh position={[0, 1.7, 0]} castShadow receiveShadow>
-            <sphereGeometry args={[0.18, 16, 12]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.4}
-              roughness={0.6}
-              emissive="#111111"
-              emissiveIntensity={0.1}
-            />
-          </mesh>
-          
-          {/* Body - athletic runner build */}
-          <mesh position={[0, 1, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.12, 0.16, 0.9, 16]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.3}
-              roughness={0.7}
-              emissive="#111111"
-              emissiveIntensity={0.05}
-            />
-          </mesh>
-          
-          {/* Left Arm */}
-          <mesh position={[-0.28, 1.2, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.05, 0.05, 0.7, 12]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
-          
-          {/* Right Arm */}
-          <mesh position={[0.28, 1.2, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.05, 0.05, 0.7, 12]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
-          
-          {/* Left Leg */}
-          <mesh position={[-0.14, 0.3, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
-          
-          {/* Right Leg */}
-          <mesh position={[0.14, 0.3, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.8, 12]} />
-            <meshStandardMaterial 
-              color="#0f0f0f"
-              transparent={true}
-              opacity={0.95}
-              metalness={0.3}
-              roughness={0.7}
-            />
-          </mesh>
+          <primitive 
+            object={gltf.scene.clone()}
+            scale={[2.5, 2.5, 2.5]}
+            rotation={[0, Math.PI, 0]}
+            castShadow
+            receiveShadow
+          />
         </group>
       </group>
     );
   };
 
+  // Main component render
   return <CharacterModel />;
 }

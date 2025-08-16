@@ -1,7 +1,8 @@
-import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle, Suspense } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useTexture, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+import { GLTF } from "three-stdlib";
 
 interface ObstacleProps {
   gameSpeed: number;
@@ -14,12 +15,28 @@ interface ObstacleData {
   scale: [number, number, number];
 }
 
+// Preload all obstacle models
+useGLTF.preload('/assets/obstacles/enhanced_crate.glb');
+useGLTF.preload('/assets/obstacles/enhanced_rock.glb');
+useGLTF.preload('/assets/obstacles/enhanced_tree.glb');
+
 const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) => {
   const groupRef = useRef<THREE.Group>(null);
   
   useImperativeHandle(ref, () => groupRef.current!);
   
   const woodTexture = useTexture("/textures/wood.jpg");
+  
+  // Load high-quality GLB models
+  const { scene: crateModel } = useGLTF('/assets/obstacles/enhanced_crate.glb') as GLTF & {
+    scene: THREE.Group
+  };
+  const { scene: rockModel } = useGLTF('/assets/obstacles/enhanced_rock.glb') as GLTF & {
+    scene: THREE.Group
+  };
+  const { scene: treeModel } = useGLTF('/assets/obstacles/enhanced_tree.glb') as GLTF & {
+    scene: THREE.Group
+  };
   
   // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
@@ -82,51 +99,89 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
   return (
     <group ref={groupRef}>
       {obstacles.map((obstacle) => (
-        <mesh
+        <group
           key={obstacle.id}
           position={obstacle.position}
           scale={obstacle.scale}
-          castShadow
-          receiveShadow
           userData={{ type: 'obstacle', obstacleType: obstacle.type }}
         >
-          {obstacle.type === 'crate' ? (
-            <>
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial 
-                map={woodTexture}
-                color="#8B4513"
-                roughness={0.85}
-                metalness={0.0}
-                envMapIntensity={0.2}
-                aoMapIntensity={1.0}
+          <Suspense fallback={
+            <mesh castShadow receiveShadow>
+              {obstacle.type === 'crate' ? (
+                <>
+                  <boxGeometry args={[1, 1, 1]} />
+                  <meshStandardMaterial color="#8B4513" />
+                </>
+              ) : obstacle.type === 'rock' ? (
+                <>
+                  <sphereGeometry args={[0.5, 8, 8]} />
+                  <meshStandardMaterial color="#555555" />
+                </>
+              ) : (
+                <>
+                  <cylinderGeometry args={[0.3, 0.5, 2, 8]} />
+                  <meshStandardMaterial color="#654321" />
+                </>
+              )}
+            </mesh>
+          }>
+            {obstacle.type === 'crate' && crateModel ? (
+              <primitive 
+                object={crateModel.clone()} 
+                castShadow 
+                receiveShadow 
+                scale={[2.5, 2.5, 2.5]}
               />
-            </>
-          ) : obstacle.type === 'rock' ? (
-            <>
-              <sphereGeometry args={[0.5, 16, 16]} />
-              <meshStandardMaterial 
-                color="#555555"
-                roughness={0.95}
-                metalness={0.1}
-                envMapIntensity={0.15}
-                aoMapIntensity={0.9}
+            ) : obstacle.type === 'rock' && rockModel ? (
+              <primitive 
+                object={rockModel.clone()} 
+                castShadow 
+                receiveShadow 
+                scale={[2.5, 2.5, 2.5]}
               />
-            </>
-          ) : (
-            // Tree - tall cylinder with enhanced PBR materials
-            <>
-              <cylinderGeometry args={[0.3, 0.5, 2, 16]} />
-              <meshStandardMaterial 
-                color="#654321"
-                roughness={0.8}
-                metalness={0.0}
-                envMapIntensity={0.3}
-                aoMapIntensity={0.8}
+            ) : obstacle.type === 'tree' && treeModel ? (
+              <primitive 
+                object={treeModel.clone()} 
+                castShadow 
+                receiveShadow 
+                scale={[2.5, 2.5, 2.5]}
               />
-            </>
-          )}
-        </mesh>
+            ) : (
+              // Fallback to geometric shapes if models fail to load
+              <mesh castShadow receiveShadow>
+                {obstacle.type === 'crate' ? (
+                  <>
+                    <boxGeometry args={[1, 1, 1]} />
+                    <meshStandardMaterial 
+                      map={woodTexture}
+                      color="#8B4513"
+                      roughness={0.85}
+                      metalness={0.0}
+                    />
+                  </>
+                ) : obstacle.type === 'rock' ? (
+                  <>
+                    <sphereGeometry args={[0.5, 16, 16]} />
+                    <meshStandardMaterial 
+                      color="#555555"
+                      roughness={0.95}
+                      metalness={0.1}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <cylinderGeometry args={[0.3, 0.5, 2, 16]} />
+                    <meshStandardMaterial 
+                      color="#654321"
+                      roughness={0.8}
+                      metalness={0.0}
+                    />
+                  </>
+                )}
+              </mesh>
+            )}
+          </Suspense>
+        </group>
       ))}
     </group>
   );

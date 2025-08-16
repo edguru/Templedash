@@ -159,30 +159,34 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // High-quality GLB character loading with Suspense
+  // Enhanced character loading with proper fallback system
   const CharacterModel = () => {
     const modelPath = !hasCharacterNFT 
       ? '/assets/characters/shadow_character.glb'
+      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/character_red.glb'
+      : currentCharacterType === 'space_ranger' ? '/assets/characters/character_blue.glb'
+      : currentCharacterType === 'crystal_mage' ? '/assets/characters/character_green.glb'
       : '/assets/characters/character_red.glb';
     
-    console.log('🎯 Loading character model:', modelPath, 'hasNFT:', hasCharacterNFT);
+    console.log('🎯 Loading character model:', modelPath, 'type:', currentCharacterType, 'hasNFT:', hasCharacterNFT);
 
     return (
       <Suspense fallback={
-        <FallbackCharacter 
+        <EnhancedFallbackCharacter 
           hasCharacterNFT={hasCharacterNFT}
-          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
+          characterType={currentCharacterType}
+          getCharacterColor={getCharacterColor}
           groupRef={groupRef}
           meshRef={meshRef}
         />
       }>
-        <GLBCharacterLoader modelPath={modelPath} />
+        <OptimizedGLBLoader modelPath={modelPath} characterType={currentCharacterType} />
       </Suspense>
     );
   };
 
-  // Separate GLB loader component with texture error handling
-  const GLBCharacterLoader = ({ modelPath }: { modelPath: string }) => {
+  // Optimized GLB loader with enhanced error handling
+  const OptimizedGLBLoader = ({ modelPath, characterType }: { modelPath: string, characterType: string }) => {
     try {
       const gltf = useGLTF(modelPath);
       
@@ -194,30 +198,39 @@ export default function Player() {
             if (child instanceof THREE.Mesh) {
               child.castShadow = true;
               child.receiveShadow = true;
+              child.frustumCulled = true; // Enable frustum culling for performance
               
-              // Fix texture loading issues by using simple materials
+              // Enhanced material properties
               if (child.material) {
                 const material = child.material as THREE.MeshStandardMaterial;
-                // Remove problematic textures and use solid colors
+                
+                // Remove problematic textures for mobile compatibility
                 material.map = null;
                 material.normalMap = null;
                 material.roughnessMap = null;
                 material.metalnessMap = null;
-                material.needsUpdate = true;
                 
-                // Set appropriate colors based on character type
-                if (hasCharacterNFT) {
-                  material.color.setHex(0x8B4513); // Brown/athletic color
-                } else {
-                  material.color.setHex(0x1a1a1a); // Dark shadow color
-                }
+                // Enhanced material properties based on character type
+                const characterColors = {
+                  'ninja_warrior': 0xdc2626, // Red
+                  'space_ranger': 0x2563eb,  // Blue
+                  'crystal_mage': 0x7c3aed,  // Purple
+                  'shadow': 0x1a1a1a        // Dark
+                };
+                
+                material.color.setHex(characterColors[characterType as keyof typeof characterColors] || characterColors.shadow);
+                material.metalness = hasCharacterNFT ? 0.3 : 0.1;
+                material.roughness = hasCharacterNFT ? 0.6 : 0.8;
+                material.emissive.setHex(hasCharacterNFT ? 0x222222 : 0x111111);
+                material.emissiveIntensity = hasCharacterNFT ? 0.15 : 0.05;
+                material.needsUpdate = true;
               }
               
-              console.log('🎨 Setup mesh:', child.name || 'unnamed');
+              console.log('🎨 Enhanced mesh setup:', child.name || 'unnamed');
             }
           });
         }
-      }, [gltf.scene]);
+      }, [gltf.scene, characterType, hasCharacterNFT]);
 
       return (
         <group ref={groupRef} castShadow receiveShadow>
@@ -233,16 +246,108 @@ export default function Player() {
         </group>
       );
     } catch (error) {
-      console.error('GLB loading failed, using fallback:', error);
+      console.error('GLB loading failed, using enhanced fallback:', error);
       return (
-        <FallbackCharacter 
+        <EnhancedFallbackCharacter 
           hasCharacterNFT={hasCharacterNFT}
-          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
+          characterType={characterType}
+          getCharacterColor={getCharacterColor}
           groupRef={groupRef}
           meshRef={meshRef}
         />
       );
     }
+  };
+
+  // Enhanced fallback character with better geometry and materials
+  const EnhancedFallbackCharacter = ({ hasCharacterNFT, characterType, getCharacterColor, groupRef, meshRef }: any) => {
+    const characterColor = getCharacterColor();
+    
+    return (
+      <group ref={groupRef} castShadow receiveShadow>
+        <group ref={meshRef}>
+          {/* Enhanced Head - more detailed sphere */}
+          <mesh position={[0, 1.75, 0]} castShadow receiveShadow>
+            <sphereGeometry args={[0.2, 20, 16]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              transparent={true}
+              opacity={0.95}
+              metalness={hasCharacterNFT ? 0.4 : 0.2}
+              roughness={hasCharacterNFT ? 0.5 : 0.7}
+              emissive={characterColor}
+              emissiveIntensity={hasCharacterNFT ? 0.1 : 0.05}
+            />
+          </mesh>
+          
+          {/* Enhanced Body - athletic build */}
+          <mesh position={[0, 1.0, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.15, 0.18, 1.0, 20]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              transparent={true}
+              opacity={0.95}
+              metalness={hasCharacterNFT ? 0.3 : 0.1}
+              roughness={hasCharacterNFT ? 0.6 : 0.8}
+              emissive={characterColor}
+              emissiveIntensity={hasCharacterNFT ? 0.08 : 0.03}
+            />
+          </mesh>
+          
+          {/* Enhanced Arms with better proportions */}
+          <mesh position={[-0.32, 1.25, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.06, 0.06, 0.75, 16]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              metalness={hasCharacterNFT ? 0.3 : 0.1}
+              roughness={hasCharacterNFT ? 0.6 : 0.8}
+            />
+          </mesh>
+          
+          <mesh position={[0.32, 1.25, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.06, 0.06, 0.75, 16]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              metalness={hasCharacterNFT ? 0.3 : 0.1}
+              roughness={hasCharacterNFT ? 0.6 : 0.8}
+            />
+          </mesh>
+          
+          {/* Enhanced Legs with athletic proportions */}
+          <mesh position={[-0.15, 0.35, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.07, 0.07, 0.85, 16]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              metalness={hasCharacterNFT ? 0.3 : 0.1}
+              roughness={hasCharacterNFT ? 0.6 : 0.8}
+            />
+          </mesh>
+          
+          <mesh position={[0.15, 0.35, 0]} castShadow receiveShadow>
+            <cylinderGeometry args={[0.07, 0.07, 0.85, 16]} />
+            <meshStandardMaterial 
+              color={characterColor}
+              metalness={hasCharacterNFT ? 0.3 : 0.1}
+              roughness={hasCharacterNFT ? 0.6 : 0.8}
+            />
+          </mesh>
+          
+          {/* Character-specific details for NFT characters */}
+          {hasCharacterNFT && (
+            <mesh position={[0, 1.9, 0]} castShadow receiveShadow>
+              <sphereGeometry args={[0.05, 12, 8]} />
+              <meshStandardMaterial 
+                color={characterColor}
+                emissive={characterColor}
+                emissiveIntensity={0.3}
+                transparent={true}
+                opacity={0.8}
+              />
+            </mesh>
+          )}
+        </group>
+      </group>
+    );
   };
 
   // Main component render

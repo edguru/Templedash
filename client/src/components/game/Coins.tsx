@@ -37,22 +37,32 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
     return coinArray;
   }, []);
 
-  // Animate coins
+  // Enhanced coin animation with better visual feedback
   useFrame((state) => {
     if (groupRef.current) {
       groupRef.current.children.forEach((child, index) => {
         // Move toward player
         child.position.z += gameSpeed;
         
-        // Rotate coin
-        child.rotation.y += 0.05;
-        child.rotation.x = Math.sin(state.clock.elapsedTime * 2 + index) * 0.1;
+        // Enhanced rotation with smooth spinning
+        child.rotation.y += 0.08; // Faster spin for better visibility
+        child.rotation.x = Math.sin(state.clock.elapsedTime * 2.5 + index) * 0.15;
+        
+        // Add subtle floating animation
+        const baseY = 1.5;
+        const floatOffset = Math.sin(state.clock.elapsedTime * 3 + index * 0.5) * 0.1;
+        child.position.y = baseY + floatOffset;
+        
+        // Enhanced scaling for collection feedback
+        const scaleAnimation = 1 + Math.sin(state.clock.elapsedTime * 4 + index) * 0.05;
+        child.scale.setScalar(scaleAnimation);
         
         // Reset coin position when it passes the player
         if (child.position.z > 15) {
           child.position.z = -240 - (index * 12);
           const lanes = [-2.67, 0, 2.67];
           child.position.x = lanes[Math.floor(Math.random() * lanes.length)];
+          child.scale.setScalar(1); // Reset scale
         }
       });
     }
@@ -67,11 +77,15 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
           rotation={[0, coin.rotation, 0]}
           userData={{ type: 'coin' }}
         >
-          <cylinderGeometry args={[0.3, 0.3, 0.1, 8]} />
+          <cylinderGeometry args={[0.35, 0.35, 0.12, 16]} />
           <meshStandardMaterial 
             color="#FFD700"
-            metalness={0.8}
-            roughness={0.2}
+            metalness={0.9}
+            roughness={0.1}
+            emissive="#FFD700"
+            emissiveIntensity={0.15}
+            transparent={true}
+            opacity={0.95}
           />
         </mesh>
       ))}

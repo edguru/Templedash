@@ -96,23 +96,29 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
                 map={woodTexture}
                 color="#8B4513"
                 roughness={0.8}
+                metalness={0.1}
+                normalScale={new THREE.Vector2(0.3, 0.3)}
               />
             </>
           ) : obstacle.type === 'rock' ? (
             <>
-              <sphereGeometry args={[0.5, 8, 8]} />
+              <sphereGeometry args={[0.5, 12, 10]} />
               <meshStandardMaterial 
-                color="#666666"
+                color="#696969"
                 roughness={0.9}
+                metalness={0.05}
+                bumpScale={0.02}
               />
             </>
           ) : (
-            // Tree - tall cylinder that can't be jumped over
+            // Enhanced Tree with better geometry and materials
             <>
-              <cylinderGeometry args={[0.3, 0.5, 2, 8]} />
+              <cylinderGeometry args={[0.3, 0.5, 2.5, 12]} />
               <meshStandardMaterial 
                 color="#654321"
                 roughness={0.9}
+                metalness={0.0}
+                bumpScale={0.05}
               />
             </>
           )}

@@ -16,6 +16,7 @@ import ShadowCharacter from "./ShadowCharacter";
 import LODManager from "./LODManager";
 import CoinAnimation from "./CoinAnimation";
 import VisualEffects from "./VisualEffects";
+import ParticleEffects from "./ParticleEffects";
 
 
 // Import game logic
@@ -272,6 +273,9 @@ export default function GameScene() {
       <VisualEffects />
       <SimpleEnvironment />
       <Lighting />
+      
+      {/* Enhanced particle effects for better visual feedback */}
+      <ParticleEffects gameSpeed={gameSpeed.current} playerPosition={position} />
       
       {/* Use Shadow Character as default, Player component if NFT owned */}
       {hasCharacterNFT ? (

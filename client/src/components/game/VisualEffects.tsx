@@ -6,29 +6,70 @@ export default function VisualEffects() {
   const { gl, scene, camera } = useThree();
 
   useEffect(() => {
-    // Enable shadow map for better quality shadows
+    // Detect device capabilities for adaptive quality
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isHighEnd = !isMobile || (window.devicePixelRatio > 2 && window.screen.width > 1080);
+    
+    // Enhanced shadow system with adaptive quality
     gl.shadowMap.enabled = true;
-    gl.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows for better quality
+    gl.shadowMap.type = isHighEnd ? THREE.PCFSoftShadowMap : THREE.PCFShadowMap;
+    gl.shadowMap.autoUpdate = true;
     
-    // Enable tone mapping for better HDR color reproduction
+    // Adaptive shadow map size based on device
+    const shadowMapSize = isMobile ? 1024 : isHighEnd ? 2048 : 1536;
+    
+    // Enhanced tone mapping with adaptive exposure
     gl.toneMapping = THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure = 1.0;
+    gl.toneMappingExposure = isHighEnd ? 1.2 : 1.0;
     
-    // Enable gamma correction for accurate color display
+    // Enhanced color space and gamma correction
     gl.outputColorSpace = THREE.SRGBColorSpace;
     
-    // Enable fog for atmospheric depth on mobile-friendly settings
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (!isMobile) {
-      // Only add fog on desktop for performance
+    // Performance optimizations
+    gl.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 2 : 3));
+    
+    // Enhanced atmospheric effects
+    if (isHighEnd) {
+      // High-end devices get enhanced fog with color variation
+      const skyColor = new THREE.Color(0x87CEEB);
+      const horizonColor = new THREE.Color(0xFFF8DC);
+      scene.fog = new THREE.FogExp2(skyColor.getHex(), 0.008);
+    } else if (!isMobile) {
+      // Desktop gets basic fog
       scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
     }
     
+    // Enhanced lighting quality
+    if (scene.children.length > 0) {
+      scene.traverse((child) => {
+        if (child instanceof THREE.DirectionalLight) {
+          child.shadow.mapSize.width = shadowMapSize;
+          child.shadow.mapSize.height = shadowMapSize;
+          child.shadow.camera.near = 0.1;
+          child.shadow.camera.far = 100;
+          child.shadow.bias = -0.0005;
+          child.shadow.normalBias = 0.02;
+        }
+      });
+    }
+    
+    // Memory management for mobile devices
+    if (isMobile) {
+      // Reduce texture size and enable compression
+      THREE.Cache.enabled = true;
+    }
+    
+    console.log('🎨 Visual effects optimized for:', isMobile ? 'Mobile' : 'Desktop', 
+                'Quality:', isHighEnd ? 'High' : 'Standard');
+    
     return () => {
-      // Cleanup
+      // Enhanced cleanup
       scene.fog = null;
+      if (isMobile) {
+        THREE.Cache.clear();
+      }
     };
-  }, [gl, scene]);
+  }, [gl, scene, camera]);
 
   return null;
 }

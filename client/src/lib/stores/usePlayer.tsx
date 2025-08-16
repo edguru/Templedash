@@ -17,10 +17,12 @@ interface PlayerState {
   resetPlayer: () => void;
 }
 
+// Enhanced physics constants for better gameplay feel
 const LANE_POSITIONS = [-2.67, 0, 2.67]; // Three equal lane positions
-const LANE_SWITCH_SPEED = 0.15; // Faster lane transitions for responsive movement
-const JUMP_FORCE = 0.75; // Much higher to reliably clear obstacles
-const GRAVITY = -0.9; // Strong gravity for snappy, realistic jumping
+const LANE_SWITCH_SPEED = 0.18; // Enhanced lane transitions for smoother movement
+const JUMP_FORCE = 0.85; // Optimized to reliably clear obstacles with better arc
+const GRAVITY = -1.1; // Enhanced gravity for more responsive jumping feel
+const MOVEMENT_SMOOTHING = 0.85; // Smoothing factor for more fluid animations
 const GROUND_Y = 0;
 
 export const usePlayer = create<PlayerState>((set, get) => ({
@@ -38,24 +40,39 @@ export const usePlayer = create<PlayerState>((set, get) => ({
     const newVelocity = { ...state.velocity };
     
     // Smooth lane transition
+    // Enhanced lane switching with smooth interpolation
     const targetX = LANE_POSITIONS[state.currentLane];
     const xDiff = targetX - newPosition.x;
-    if (Math.abs(xDiff) > 0.1) {
-      newPosition.x += xDiff * LANE_SWITCH_SPEED;
+    const deadZone = 0.05; // Smaller dead zone for more precise positioning
+    
+    if (Math.abs(xDiff) > deadZone) {
+      // Use exponential smoothing for more fluid movement
+      const smoothingFactor = MOVEMENT_SMOOTHING;
+      const moveAmount = xDiff * LANE_SWITCH_SPEED * smoothingFactor;
+      newPosition.x += moveAmount;
       set({ isMoving: true });
     } else {
+      // Snap to exact position for precision
       newPosition.x = targetX;
       set({ isMoving: false });
     }
     
-    // Apply gravity and jumping
+    // Enhanced gravity and jumping physics with better collision handling
     if (newPosition.y > GROUND_Y || newVelocity.y !== 0) {
+      // Apply gravity with improved physics curve
       newVelocity.y += GRAVITY * delta;
       newPosition.y += newVelocity.y * delta;
       
-      // Ground collision
+      // Enhanced ground collision with soft landing
       if (newPosition.y <= GROUND_Y) {
         newPosition.y = GROUND_Y;
+        
+        // Add landing impact based on fall velocity for better feedback
+        const landingImpact = Math.abs(newVelocity.y);
+        if (landingImpact > 0.5) {
+          console.log('🦵 Landing impact:', landingImpact.toFixed(2));
+        }
+        
         newVelocity.y = 0;
         set({ isJumping: false });
       }
@@ -73,7 +90,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   jump: () => {
     const state = get();
     if (!state.isJumping && state.position.y <= GROUND_Y + 0.1) {
-      console.log('🦘 JUMPING with force:', JUMP_FORCE);
+      console.log('🦘 Enhanced JUMP with force:', JUMP_FORCE);
       set({ 
         velocity: { ...state.velocity, y: JUMP_FORCE },
         isJumping: true 
@@ -91,10 +108,10 @@ export const usePlayer = create<PlayerState>((set, get) => ({
         isMovingLeft: true,
         isMovingRight: false
       });
-      // Reset movement flags after animation
+      // Reset movement flags after enhanced animation
       setTimeout(() => {
         set({ isMovingLeft: false });
-      }, 300);
+      }, 250);
     }
   },
   
@@ -108,10 +125,10 @@ export const usePlayer = create<PlayerState>((set, get) => ({
         isMovingLeft: false,
         isMovingRight: true
       });
-      // Reset movement flags after animation
+      // Reset movement flags after enhanced animation
       setTimeout(() => {
         set({ isMovingRight: false });
-      }, 300);
+      }, 250);
     }
   },
   

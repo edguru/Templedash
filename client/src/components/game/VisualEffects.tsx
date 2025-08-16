@@ -53,22 +53,34 @@ export default function VisualEffects() {
       });
     }
     
-    // Memory management for mobile devices
+    // Enhanced memory management and performance optimization
     if (isMobile) {
       // Reduce texture size and enable compression
       THREE.Cache.enabled = true;
+      
+      // Optimize renderer for mobile performance
+      gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     }
+    
+    // Reduce shadow map updates frequency for performance
+    gl.shadowMap.autoUpdate = false;
+    
+    // Enable manual shadow map updates only when needed
+    const updateShadows = () => {
+      gl.shadowMap.needsUpdate = true;
+    };
+    
+    // Update shadows less frequently
+    const shadowUpdateInterval = setInterval(updateShadows, isMobile ? 100 : 50);
+    
+    return () => {
+      clearInterval(shadowUpdateInterval);
+    };
     
     console.log('🎨 Visual effects optimized for:', isMobile ? 'Mobile' : 'Desktop', 
                 'Quality:', isHighEnd ? 'High' : 'Standard');
     
-    return () => {
-      // Enhanced cleanup
-      scene.fog = null;
-      if (isMobile) {
-        THREE.Cache.clear();
-      }
-    };
+    // Combined cleanup moved to above return statement
   }, [gl, scene, camera]);
 
   return null;

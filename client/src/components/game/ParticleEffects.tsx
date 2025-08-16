@@ -11,9 +11,10 @@ export default function ParticleEffects({ gameSpeed, playerPosition }: ParticleE
   const dustParticlesRef = useRef<THREE.Points>(null);
   const sparkleParticlesRef = useRef<THREE.Points>(null);
   
-  // Enhanced dust particles for running effect
+  // Optimized dust particles for running effect with reduced count
   const dustParticles = useMemo(() => {
-    const count = 150;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const count = isMobile ? 50 : 100; // Reduce particle count on mobile
     const positions = new Float32Array(count * 3);
     const velocities = new Float32Array(count * 3);
     const sizes = new Float32Array(count);
@@ -38,9 +39,10 @@ export default function ParticleEffects({ gameSpeed, playerPosition }: ParticleE
     return { positions, velocities, sizes, count };
   }, []);
   
-  // Enhanced sparkle particles for magical effects
+  // Optimized sparkle particles for magical effects with mobile consideration
   const sparkleParticles = useMemo(() => {
-    const count = 80;
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const count = isMobile ? 30 : 60; // Significantly reduce on mobile
     const positions = new Float32Array(count * 3);
     const colors = new Float32Array(count * 3);
     const sizes = new Float32Array(count);

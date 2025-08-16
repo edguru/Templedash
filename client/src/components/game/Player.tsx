@@ -3,7 +3,11 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// Preload all character models
+// Preload all enhanced character models with PBR materials
+useGLTF.preload('/assets/characters/enhanced_shadow_character.glb');
+useGLTF.preload('/assets/characters/enhanced_character_red.glb');
+useGLTF.preload('/assets/characters/enhanced_character_blue.glb');
+// Keep fallback models for compatibility
 useGLTF.preload('/assets/characters/shadow_character.glb');
 useGLTF.preload('/assets/characters/character_red.glb');
 useGLTF.preload('/assets/characters/character_blue.glb');
@@ -17,6 +21,7 @@ import { useTouchControls } from "../../hooks/use-touch-controls";
 
 // Import character loader
 import CharacterLoader, { FallbackCharacter } from "./CharacterLoader";
+import OptimizedCharacterLoader from "./OptimizedCharacterLoader";
 
 enum Controls {
   left = 'left',
@@ -159,14 +164,14 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // Enhanced character loading with proper fallback system
+  // Enhanced character loading with high-quality PBR models
   const CharacterModel = () => {
     const modelPath = !hasCharacterNFT 
-      ? '/assets/characters/shadow_character.glb'
-      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/character_red.glb'
-      : currentCharacterType === 'space_ranger' ? '/assets/characters/character_blue.glb'
-      : currentCharacterType === 'crystal_mage' ? '/assets/characters/character_green.glb'
-      : '/assets/characters/character_red.glb';
+      ? '/assets/characters/enhanced_shadow_character.glb'
+      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/enhanced_character_red.glb'
+      : currentCharacterType === 'space_ranger' ? '/assets/characters/enhanced_character_blue.glb'
+      : currentCharacterType === 'crystal_mage' ? '/assets/characters/enhanced_character_red.glb'
+      : '/assets/characters/enhanced_character_red.glb';
     
     console.log('🎯 Loading character model:', modelPath, 'type:', currentCharacterType, 'hasNFT:', hasCharacterNFT);
 
@@ -180,53 +185,68 @@ export default function Player() {
           meshRef={meshRef}
         />
       }>
-        <OptimizedGLBLoader modelPath={modelPath} characterType={currentCharacterType} />
+        <OptimizedCharacterLoader 
+          modelPath={modelPath} 
+          characterType={currentCharacterType}
+          hasCharacterNFT={hasCharacterNFT}
+          groupRef={groupRef}
+          meshRef={meshRef}
+        />
       </Suspense>
     );
   };
 
-  // Optimized GLB loader with enhanced error handling
+  // High-performance GLB loader with PBR material support
   const OptimizedGLBLoader = ({ modelPath, characterType }: { modelPath: string, characterType: string }) => {
     try {
       const gltf = useGLTF(modelPath);
       
-      console.log('✅ GLB loaded successfully:', modelPath, gltf.scene);
+      console.log('✅ High-quality GLB loaded successfully:', modelPath, gltf.scene);
       
       useEffect(() => {
         if (gltf.scene) {
-          gltf.scene.traverse((child) => {
+          // Clone the scene to avoid reference issues
+          const clonedScene = gltf.scene.clone();
+          
+          clonedScene.traverse((child) => {
             if (child instanceof THREE.Mesh) {
               child.castShadow = true;
               child.receiveShadow = true;
-              child.frustumCulled = true; // Enable frustum culling for performance
+              child.frustumCulled = true;
               
-              // Enhanced material properties
+              // Preserve original PBR materials from Tripo
               if (child.material) {
                 const material = child.material as THREE.MeshStandardMaterial;
                 
-                // Remove problematic textures for mobile compatibility
-                material.map = null;
-                material.normalMap = null;
-                material.roughnessMap = null;
-                material.metalnessMap = null;
+                // Keep original textures for high quality but optimize for performance
+                if (material.map) {
+                  material.map.generateMipmaps = true;
+                  material.map.minFilter = THREE.LinearMipmapLinearFilter;
+                  material.map.magFilter = THREE.LinearFilter;
+                }
                 
-                // Enhanced material properties based on character type
-                const characterColors = {
-                  'ninja_warrior': 0xdc2626, // Red
-                  'space_ranger': 0x2563eb,  // Blue
-                  'crystal_mage': 0x7c3aed,  // Purple
-                  'shadow': 0x1a1a1a        // Dark
+                // Enhance metallic and roughness properties for better PBR
+                if (!material.metalnessMap) {
+                  material.metalness = hasCharacterNFT ? 0.4 : 0.2;
+                }
+                if (!material.roughnessMap) {
+                  material.roughness = hasCharacterNFT ? 0.5 : 0.7;
+                }
+                
+                // Add subtle emissive glow for character distinction
+                const characterEmissive = {
+                  'ninja_warrior': 0x220000, // Red glow
+                  'space_ranger': 0x000022,  // Blue glow
+                  'crystal_mage': 0x220022,  // Purple glow
+                  'shadow': 0x111111         // Neutral glow
                 };
                 
-                material.color.setHex(characterColors[characterType as keyof typeof characterColors] || characterColors.shadow);
-                material.metalness = hasCharacterNFT ? 0.3 : 0.1;
-                material.roughness = hasCharacterNFT ? 0.6 : 0.8;
-                material.emissive.setHex(hasCharacterNFT ? 0x222222 : 0x111111);
-                material.emissiveIntensity = hasCharacterNFT ? 0.15 : 0.05;
+                material.emissive.setHex(characterEmissive[characterType as keyof typeof characterEmissive] || characterEmissive.shadow);
+                material.emissiveIntensity = hasCharacterNFT ? 0.1 : 0.05;
                 material.needsUpdate = true;
               }
               
-              console.log('🎨 Enhanced mesh setup:', child.name || 'unnamed');
+              console.log('🎨 PBR mesh optimized:', child.name || 'unnamed');
             }
           });
         }

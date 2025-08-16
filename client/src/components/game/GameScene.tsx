@@ -17,6 +17,7 @@ import LODManager from "./LODManager";
 import CoinAnimation from "./CoinAnimation";
 import VisualEffects from "./VisualEffects";
 import ParticleEffects from "./ParticleEffects";
+import PerformanceManager from "./PerformanceManager";
 
 
 // Import game logic
@@ -271,6 +272,7 @@ export default function GameScene() {
   return (
     <>
       <VisualEffects />
+      <PerformanceManager gameSpeed={gameSpeed.current} />
       <SimpleEnvironment />
       <Lighting />
       

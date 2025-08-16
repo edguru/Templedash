@@ -66,6 +66,13 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - Memory management with automatic garbage collection and texture cleanup
   - Mobile-optimized rendering with pixel ratio limiting and optimized shadow maps
   - Context loss prevention and GPU optimization for mobile devices
+- **Ultra High-Quality PBR Asset System**: Complete game asset overhaul with photorealistic materials (2025-08-16)
+  - Enhanced obstacle assets with industrial PBR materials (barrier, roadblock, cone)
+  - High-quality metallic coin with golden PBR finish and proper reflections
+  - Detailed treasure chest mystery box with wood and metal PBR materials
+  - All assets feature proper metallic/roughness mapping for realistic lighting
+  - Optimized GLB loading with material enhancement and mobile compatibility
+  - Comprehensive model preloading for improved performance
 
 # User Preferences
 

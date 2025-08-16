@@ -1,6 +1,10 @@
-import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle, Suspense } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useGLTF } from "@react-three/drei";
 import * as THREE from "three";
+
+// Preload enhanced coin model
+useGLTF.preload('/assets/coins/enhanced_coin.glb');
 
 interface CoinProps {
   gameSpeed: number;
@@ -16,6 +20,61 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
   const groupRef = useRef<THREE.Group>(null);
   
   useImperativeHandle(ref, () => groupRef.current!);
+  
+  // Enhanced Coin Model Component
+  const EnhancedCoinModel = () => {
+    try {
+      const gltf = useGLTF('/assets/coins/enhanced_coin.glb');
+      
+      // Optimize the coin model for performance
+      if (gltf.scene) {
+        gltf.scene.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            child.castShadow = true;
+            child.receiveShadow = false; // Coins don't need to receive shadows
+            
+            if (child.material) {
+              const material = child.material as THREE.MeshStandardMaterial;
+              
+              // Enhance golden metallic properties
+              if (!material.metalnessMap) material.metalness = 0.9; // Very metallic
+              if (!material.roughnessMap) material.roughness = 0.1; // Very smooth/shiny
+              
+              // Golden color enhancement
+              material.color.setHex(0xFFD700); // Pure gold color
+              material.emissive.setHex(0x332200); // Subtle warm glow
+              material.emissiveIntensity = 0.1;
+              
+              material.needsUpdate = true;
+            }
+          }
+        });
+      }
+      
+      return (
+        <primitive 
+          object={gltf.scene.clone()}
+          scale={[0.3, 0.3, 0.3]}
+          castShadow
+        />
+      );
+    } catch (error) {
+      console.error('Error loading coin model:', error);
+      // Fallback to enhanced basic geometry
+      return (
+        <mesh castShadow>
+          <cylinderGeometry args={[0.3, 0.3, 0.05, 16]} />
+          <meshStandardMaterial 
+            color="#FFD700"
+            metalness={0.9}
+            roughness={0.1}
+            emissive="#332200"
+            emissiveIntensity={0.1}
+          />
+        </mesh>
+      );
+    }
+  };
   
   // Generate coins
   const coins = useMemo<CoinData[]>(() => {
@@ -77,16 +136,14 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
           rotation={[0, coin.rotation, 0]}
           userData={{ type: 'coin' }}
         >
-          <cylinderGeometry args={[0.35, 0.35, 0.12, 16]} />
-          <meshStandardMaterial 
-            color="#FFD700"
-            metalness={0.9}
-            roughness={0.1}
-            emissive="#FFD700"
-            emissiveIntensity={0.15}
-            transparent={true}
-            opacity={0.95}
-          />
+          <Suspense fallback={
+            <mesh castShadow>
+              <cylinderGeometry args={[0.35, 0.35, 0.12, 16]} />
+              <meshStandardMaterial color="#FFD700" metalness={0.9} roughness={0.1} />
+            </mesh>
+          }>
+            <EnhancedCoinModel />
+          </Suspense>
         </mesh>
       ))}
     </group>

@@ -6,27 +6,33 @@ export default function VisualEffects() {
   const { gl, scene, camera } = useThree();
 
   useEffect(() => {
-    // Enable shadow map for better quality shadows
+    // Enhanced shadow mapping for PBR materials
     gl.shadowMap.enabled = true;
-    gl.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows for better quality
+    gl.shadowMap.type = THREE.PCFSoftShadowMap;
+    gl.shadowMap.autoUpdate = true;
     
-    // Enable tone mapping for better HDR color reproduction
+    // Enhanced tone mapping for realistic PBR rendering
     gl.toneMapping = THREE.ACESFilmicToneMapping;
-    gl.toneMappingExposure = 1.0;
+    gl.toneMappingExposure = 1.2; // Slightly increased for better contrast
     
-    // Enable gamma correction for accurate color display
+    // Color space management for accurate PBR colors
     gl.outputColorSpace = THREE.SRGBColorSpace;
     
-    // Enable fog for atmospheric depth on mobile-friendly settings
+    // Enhanced renderer settings for PBR quality
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Enhanced visual quality settings
     if (!isMobile) {
-      // Only add fog on desktop for performance
-      scene.fog = new THREE.Fog(0x87CEEB, 50, 200);
+      // Desktop enhancements
+      scene.fog = new THREE.Fog(0x87CEEB, 60, 250);
     }
     
+    // Enhanced environment settings for PBR
+    scene.environment = null; // Will be set by lighting if needed
+    
     return () => {
-      // Cleanup
       scene.fog = null;
+      scene.environment = null;
     };
   }, [gl, scene]);
 

@@ -87,6 +87,7 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
           position={obstacle.position}
           scale={obstacle.scale}
           castShadow
+          receiveShadow
           userData={{ type: 'obstacle', obstacleType: obstacle.type }}
         >
           {obstacle.type === 'crate' ? (
@@ -95,24 +96,33 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
               <meshStandardMaterial 
                 map={woodTexture}
                 color="#8B4513"
-                roughness={0.8}
+                roughness={0.85}
+                metalness={0.0}
+                envMapIntensity={0.2}
+                aoMapIntensity={1.0}
               />
             </>
           ) : obstacle.type === 'rock' ? (
             <>
-              <sphereGeometry args={[0.5, 8, 8]} />
+              <sphereGeometry args={[0.5, 16, 16]} />
               <meshStandardMaterial 
-                color="#666666"
-                roughness={0.9}
+                color="#555555"
+                roughness={0.95}
+                metalness={0.1}
+                envMapIntensity={0.15}
+                aoMapIntensity={0.9}
               />
             </>
           ) : (
-            // Tree - tall cylinder that can't be jumped over
+            // Tree - tall cylinder with enhanced PBR materials
             <>
-              <cylinderGeometry args={[0.3, 0.5, 2, 8]} />
+              <cylinderGeometry args={[0.3, 0.5, 2, 16]} />
               <meshStandardMaterial 
                 color="#654321"
-                roughness={0.9}
+                roughness={0.8}
+                metalness={0.0}
+                envMapIntensity={0.3}
+                aoMapIntensity={0.8}
               />
             </>
           )}

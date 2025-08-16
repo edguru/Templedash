@@ -3,10 +3,7 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// Preload animated character models
-useGLTF.preload('/assets/characters/animated_runner.glb');
-useGLTF.preload('/assets/characters/jumping_runner.glb');
-// Keep fallback models for compatibility
+// Preload all character models
 useGLTF.preload('/assets/characters/shadow_character.glb');
 useGLTF.preload('/assets/characters/character_red.glb');
 useGLTF.preload('/assets/characters/character_blue.glb');
@@ -20,143 +17,6 @@ import { useTouchControls } from "../../hooks/use-touch-controls";
 
 // Import character loader
 import CharacterLoader, { FallbackCharacter } from "./CharacterLoader";
-import OptimizedCharacterLoader from "./OptimizedCharacterLoader";
-
-// Mobile-optimized character loader with fallback system
-const MobileOptimizedCharacterLoader = ({ 
-  modelPath, 
-  fallbackPath, 
-  characterType, 
-  hasCharacterNFT, 
-  isJumping,
-  groupRef, 
-  meshRef 
-}: { 
-  modelPath: string;
-  fallbackPath: string;
-  characterType: string; 
-  hasCharacterNFT: boolean;
-  isJumping: boolean;
-  groupRef: React.RefObject<THREE.Group>; 
-  meshRef: React.RefObject<THREE.Group>; 
-}) => {
-  const [modelError, setModelError] = useState(false);
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  
-  // Try to load primary model, fallback on error
-  const finalModelPath = modelError ? fallbackPath : modelPath;
-  
-  const LoaderComponent = () => {
-    try {
-      const gltf = useGLTF(finalModelPath);
-      
-      console.log('✅ Character loaded:', finalModelPath);
-      
-      useEffect(() => {
-        if (gltf.scene) {
-          gltf.scene.traverse((child) => {
-            if (child instanceof THREE.Mesh) {
-              child.castShadow = true;
-              child.receiveShadow = true;
-              child.frustumCulled = true;
-              
-              if (child.material) {
-                const material = child.material as THREE.MeshStandardMaterial;
-                
-                // Mobile optimization - reduce texture quality
-                if (isMobile && material.map) {
-                  material.map.generateMipmaps = true;
-                  material.map.minFilter = THREE.LinearFilter;
-                  material.map.magFilter = THREE.LinearFilter;
-                }
-                
-                // Character coloring based on type
-                const characterColors = {
-                  'ninja_warrior': 0xdc2626,
-                  'space_ranger': 0x2563eb,
-                  'crystal_mage': 0x7c3aed,
-                  'shadow': 0x333333
-                };
-                
-                if (!hasCharacterNFT) {
-                  material.color.setHex(characterColors.shadow);
-                  material.metalness = 0.1;
-                  material.roughness = 0.8;
-                } else {
-                  material.color.setHex(characterColors[characterType as keyof typeof characterColors] || characterColors.shadow);
-                  material.metalness = isMobile ? 0.3 : 0.5;
-                  material.roughness = isMobile ? 0.7 : 0.5;
-                }
-                
-                material.emissive.setHex(hasCharacterNFT ? 0x111111 : 0x000000);
-                material.emissiveIntensity = hasCharacterNFT ? 0.1 : 0;
-                material.needsUpdate = true;
-              }
-            }
-          });
-        }
-      }, [gltf.scene]);
-      
-      return (
-        <group ref={groupRef} position={[0, 0, 0]}>
-          <group ref={meshRef}>
-            <primitive 
-              object={gltf.scene.clone()}
-              scale={isMobile ? [1.5, 1.5, 1.5] : [1.8, 1.8, 1.8]}
-              rotation={[0, Math.PI, 0]}
-              position={[0, isJumping ? 0.5 : 0.1, 0]}
-              castShadow
-              receiveShadow
-            />
-          </group>
-        </group>
-      );
-    } catch (error) {
-      console.error('Character loading error:', error);
-      setModelError(true);
-      
-      // Enhanced fallback character
-      return (
-        <group ref={groupRef} position={[0, 0, 0]}>
-          <group ref={meshRef}>
-            <mesh castShadow receiveShadow>
-              <capsuleGeometry args={[0.5, 1.5, 4, 8]} />
-              <meshStandardMaterial 
-                color={hasCharacterNFT ? "#4A90E2" : "#666666"}
-                metalness={0.3}
-                roughness={0.7}
-              />
-            </mesh>
-            {/* Head */}
-            <mesh position={[0, 1.2, 0]} castShadow>
-              <sphereGeometry args={[0.3, 8, 6]} />
-              <meshStandardMaterial 
-                color={hasCharacterNFT ? "#4A90E2" : "#666666"}
-                metalness={0.3}
-                roughness={0.7}
-              />
-            </mesh>
-          </group>
-        </group>
-      );
-    }
-  };
-  
-  return (
-    <Suspense fallback={
-      <group ref={groupRef}>
-        <group ref={meshRef}>
-          <mesh castShadow>
-            <capsuleGeometry args={[0.5, 1.5, 4, 8]} />
-            <meshStandardMaterial color="#888888" />
-          </mesh>
-        </group>
-      </group>
-    }>
-      <LoaderComponent />
-    </Suspense>
-  );
-};
 
 enum Controls {
   left = 'left',
@@ -299,100 +159,65 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // Enhanced character loading with animation support
+  // High-quality GLB character loading with Suspense
   const CharacterModel = () => {
-    // Use animated models based on character state
-    const modelPath = isJumping 
-      ? '/assets/characters/jumping_runner.glb'
-      : '/assets/characters/animated_runner.glb';
-    
-    const fallbackPath = !hasCharacterNFT 
+    const modelPath = !hasCharacterNFT 
       ? '/assets/characters/shadow_character.glb'
-      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/character_red.glb'
-      : currentCharacterType === 'space_ranger' ? '/assets/characters/character_blue.glb'
-      : currentCharacterType === 'crystal_mage' ? '/assets/characters/character_green.glb'
       : '/assets/characters/character_red.glb';
     
-    console.log('🎯 Loading character model:', modelPath, 'type:', currentCharacterType, 'hasNFT:', hasCharacterNFT);
+    console.log('🎯 Loading character model:', modelPath, 'hasNFT:', hasCharacterNFT);
 
     return (
       <Suspense fallback={
-        <EnhancedFallbackCharacter 
+        <FallbackCharacter 
           hasCharacterNFT={hasCharacterNFT}
-          characterType={currentCharacterType}
-          getCharacterColor={getCharacterColor}
+          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
           groupRef={groupRef}
           meshRef={meshRef}
         />
       }>
-        <MobileOptimizedCharacterLoader 
-          modelPath={modelPath} 
-          fallbackPath={fallbackPath}
-          characterType={currentCharacterType}
-          hasCharacterNFT={hasCharacterNFT}
-          isJumping={isJumping}
-          groupRef={groupRef}
-          meshRef={meshRef}
-        />
+        <GLBCharacterLoader modelPath={modelPath} />
       </Suspense>
     );
   };
 
-  // High-performance GLB loader with PBR material support
-  const OptimizedGLBLoader = ({ modelPath, characterType }: { modelPath: string, characterType: string }) => {
+  // Separate GLB loader component with texture error handling
+  const GLBCharacterLoader = ({ modelPath }: { modelPath: string }) => {
     try {
       const gltf = useGLTF(modelPath);
       
-      console.log('✅ High-quality GLB loaded successfully:', modelPath, gltf.scene);
+      console.log('✅ GLB loaded successfully:', modelPath, gltf.scene);
       
       useEffect(() => {
         if (gltf.scene) {
-          // Clone the scene to avoid reference issues
-          const clonedScene = gltf.scene.clone();
-          
-          clonedScene.traverse((child) => {
+          gltf.scene.traverse((child) => {
             if (child instanceof THREE.Mesh) {
               child.castShadow = true;
               child.receiveShadow = true;
-              child.frustumCulled = true;
               
-              // Preserve original PBR materials from Tripo
+              // Fix texture loading issues by using simple materials
               if (child.material) {
                 const material = child.material as THREE.MeshStandardMaterial;
-                
-                // Keep original textures for high quality but optimize for performance
-                if (material.map) {
-                  material.map.generateMipmaps = true;
-                  material.map.minFilter = THREE.LinearMipmapLinearFilter;
-                  material.map.magFilter = THREE.LinearFilter;
-                }
-                
-                // Enhance metallic and roughness properties for better PBR
-                if (!material.metalnessMap) {
-                  material.metalness = hasCharacterNFT ? 0.4 : 0.2;
-                }
-                if (!material.roughnessMap) {
-                  material.roughness = hasCharacterNFT ? 0.5 : 0.7;
-                }
-                
-                // Add subtle emissive glow for character distinction
-                const characterEmissive = {
-                  'ninja_warrior': 0x220000, // Red glow
-                  'space_ranger': 0x000022,  // Blue glow
-                  'crystal_mage': 0x220022,  // Purple glow
-                  'shadow': 0x111111         // Neutral glow
-                };
-                
-                material.emissive.setHex(characterEmissive[characterType as keyof typeof characterEmissive] || characterEmissive.shadow);
-                material.emissiveIntensity = hasCharacterNFT ? 0.1 : 0.05;
+                // Remove problematic textures and use solid colors
+                material.map = null;
+                material.normalMap = null;
+                material.roughnessMap = null;
+                material.metalnessMap = null;
                 material.needsUpdate = true;
+                
+                // Set appropriate colors based on character type
+                if (hasCharacterNFT) {
+                  material.color.setHex(0x8B4513); // Brown/athletic color
+                } else {
+                  material.color.setHex(0x1a1a1a); // Dark shadow color
+                }
               }
               
-              console.log('🎨 PBR mesh optimized:', child.name || 'unnamed');
+              console.log('🎨 Setup mesh:', child.name || 'unnamed');
             }
           });
         }
-      }, [gltf.scene, characterType, hasCharacterNFT]);
+      }, [gltf.scene]);
 
       return (
         <group ref={groupRef} castShadow receiveShadow>
@@ -408,108 +233,16 @@ export default function Player() {
         </group>
       );
     } catch (error) {
-      console.error('GLB loading failed, using enhanced fallback:', error);
+      console.error('GLB loading failed, using fallback:', error);
       return (
-        <EnhancedFallbackCharacter 
+        <FallbackCharacter 
           hasCharacterNFT={hasCharacterNFT}
-          characterType={characterType}
-          getCharacterColor={getCharacterColor}
+          getCharacterColor={() => hasCharacterNFT ? "#dc2626" : "#0f0f0f"}
           groupRef={groupRef}
           meshRef={meshRef}
         />
       );
     }
-  };
-
-  // Enhanced fallback character with better geometry and materials
-  const EnhancedFallbackCharacter = ({ hasCharacterNFT, characterType, getCharacterColor, groupRef, meshRef }: any) => {
-    const characterColor = getCharacterColor();
-    
-    return (
-      <group ref={groupRef} castShadow receiveShadow>
-        <group ref={meshRef}>
-          {/* Enhanced Head - more detailed sphere */}
-          <mesh position={[0, 1.75, 0]} castShadow receiveShadow>
-            <sphereGeometry args={[0.2, 20, 16]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              transparent={true}
-              opacity={0.95}
-              metalness={hasCharacterNFT ? 0.4 : 0.2}
-              roughness={hasCharacterNFT ? 0.5 : 0.7}
-              emissive={characterColor}
-              emissiveIntensity={hasCharacterNFT ? 0.1 : 0.05}
-            />
-          </mesh>
-          
-          {/* Enhanced Body - athletic build */}
-          <mesh position={[0, 1.0, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.15, 0.18, 1.0, 20]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              transparent={true}
-              opacity={0.95}
-              metalness={hasCharacterNFT ? 0.3 : 0.1}
-              roughness={hasCharacterNFT ? 0.6 : 0.8}
-              emissive={characterColor}
-              emissiveIntensity={hasCharacterNFT ? 0.08 : 0.03}
-            />
-          </mesh>
-          
-          {/* Enhanced Arms with better proportions */}
-          <mesh position={[-0.32, 1.25, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.75, 16]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              metalness={hasCharacterNFT ? 0.3 : 0.1}
-              roughness={hasCharacterNFT ? 0.6 : 0.8}
-            />
-          </mesh>
-          
-          <mesh position={[0.32, 1.25, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.06, 0.06, 0.75, 16]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              metalness={hasCharacterNFT ? 0.3 : 0.1}
-              roughness={hasCharacterNFT ? 0.6 : 0.8}
-            />
-          </mesh>
-          
-          {/* Enhanced Legs with athletic proportions */}
-          <mesh position={[-0.15, 0.35, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.07, 0.07, 0.85, 16]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              metalness={hasCharacterNFT ? 0.3 : 0.1}
-              roughness={hasCharacterNFT ? 0.6 : 0.8}
-            />
-          </mesh>
-          
-          <mesh position={[0.15, 0.35, 0]} castShadow receiveShadow>
-            <cylinderGeometry args={[0.07, 0.07, 0.85, 16]} />
-            <meshStandardMaterial 
-              color={characterColor}
-              metalness={hasCharacterNFT ? 0.3 : 0.1}
-              roughness={hasCharacterNFT ? 0.6 : 0.8}
-            />
-          </mesh>
-          
-          {/* Character-specific details for NFT characters */}
-          {hasCharacterNFT && (
-            <mesh position={[0, 1.9, 0]} castShadow receiveShadow>
-              <sphereGeometry args={[0.05, 12, 8]} />
-              <meshStandardMaterial 
-                color={characterColor}
-                emissive={characterColor}
-                emissiveIntensity={0.3}
-                transparent={true}
-                opacity={0.8}
-              />
-            </mesh>
-          )}
-        </group>
-      </group>
-    );
   };
 
   // Main component render

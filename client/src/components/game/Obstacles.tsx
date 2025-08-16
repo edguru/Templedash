@@ -1,12 +1,7 @@
-import { useMemo, useRef, forwardRef, useImperativeHandle, Suspense } from "react";
+import { useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useTexture, useGLTF } from "@react-three/drei";
+import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
-
-// Preload enhanced obstacle models with PBR materials
-useGLTF.preload('/assets/obstacles/enhanced_barrier.glb');
-useGLTF.preload('/assets/obstacles/enhanced_roadblock.glb');
-useGLTF.preload('/assets/obstacles/enhanced_cone.glb');
 
 interface ObstacleProps {
   gameSpeed: number;
@@ -15,7 +10,7 @@ interface ObstacleProps {
 interface ObstacleData {
   id: number;
   position: [number, number, number];
-  type: 'barrier' | 'roadblock' | 'cone';
+  type: 'crate' | 'rock' | 'tree';
   scale: [number, number, number];
 }
 
@@ -24,88 +19,7 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
   
   useImperativeHandle(ref, () => groupRef.current!);
   
-  // Enhanced Obstacle Model Loader Component
-  const EnhancedObstacleModel = ({ obstacleType }: { obstacleType: 'barrier' | 'roadblock' | 'cone' }) => {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    const modelPath = obstacleType === 'barrier' 
-      ? '/assets/obstacles/enhanced_barrier.glb'
-      : obstacleType === 'roadblock' 
-      ? '/assets/obstacles/enhanced_roadblock.glb'
-      : '/assets/obstacles/enhanced_cone.glb';
-    
-    try {
-      const gltf = useGLTF(modelPath);
-      
-      console.log('✅ Enhanced obstacle loaded:', modelPath);
-      
-      // Optimize the loaded model for performance
-      if (gltf.scene) {
-        gltf.scene.traverse((child) => {
-          if (child instanceof THREE.Mesh) {
-            child.castShadow = true;
-            child.receiveShadow = true;
-            child.frustumCulled = true;
-            
-            // Preserve and enhance PBR materials from Tripo
-            if (child.material) {
-              const material = child.material as THREE.MeshStandardMaterial;
-              
-              // Optimize textures for performance while preserving quality
-              if (material.map) {
-                material.map.generateMipmaps = true;
-                material.map.minFilter = THREE.LinearMipmapLinearFilter;
-                material.map.magFilter = THREE.LinearFilter;
-              }
-              
-              // Enhance metallic properties based on obstacle type
-              if (obstacleType === 'barrier') {
-                if (!material.metalnessMap) material.metalness = 0.8; // Very metallic barrier
-                if (!material.roughnessMap) material.roughness = 0.3; // Smooth metal
-              } else if (obstacleType === 'roadblock') {
-                if (!material.metalnessMap) material.metalness = 0.1; // Concrete
-                if (!material.roughnessMap) material.roughness = 0.9; // Rough concrete
-              } else {
-                if (!material.metalnessMap) material.metalness = 0.6; // Reflective cone
-                if (!material.roughnessMap) material.roughness = 0.4; // Semi-glossy
-              }
-              
-              material.needsUpdate = true;
-            }
-          }
-        });
-      }
-      
-      return (
-        <Suspense fallback={
-          <mesh castShadow>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color="#666666" metalness={0.5} roughness={0.5} />
-          </mesh>
-        }>
-          <primitive 
-            object={gltf.scene.clone()}
-            scale={isMobile ? [0.8, 0.8, 0.8] : [1.0, 1.0, 1.0]}
-            position={[0, -0.2, 0]}
-            castShadow
-            receiveShadow
-          />
-        </Suspense>
-      );
-    } catch (error) {
-      console.error('Error loading obstacle model:', modelPath, error);
-      // Fallback to basic geometry
-      return (
-        <mesh castShadow>
-          <boxGeometry args={[1, 1, 1]} />
-          <meshStandardMaterial 
-            color={obstacleType === 'barrier' ? '#666666' : obstacleType === 'roadblock' ? '#888888' : '#FF6600'}
-            metalness={obstacleType === 'barrier' ? 0.8 : 0.1}
-            roughness={obstacleType === 'barrier' ? 0.3 : 0.7}
-          />
-        </mesh>
-      );
-    }
-  };
+  const woodTexture = useTexture("/textures/wood.jpg");
   
   // Generate obstacles with proper terrain positioning
   const obstacles = useMemo<ObstacleData[]>(() => {
@@ -117,22 +31,22 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
       const z = -15 - (i * 8); // Closer spacing for more challenge
       const laneIndex = i % 3; // Cycle through all lanes
       const x = lanes[laneIndex]; // Snap to lanes
-      const types: ('barrier' | 'roadblock' | 'cone')[] = ['barrier', 'roadblock', 'cone'];
-      const type = types[Math.floor(Math.random() * types.length)];
+      const type: 'crate' | 'rock' = Math.random() > 0.6 ? 'crate' : 'rock';
       
-      // Temple Run style positioning - terrain is at -0.5
-      const obstacleHeight = type === 'barrier' ? 0.8 : type === 'roadblock' ? 0.5 : 0.3;
-      const yPosition = -0.5 + obstacleHeight; // Position directly on terrain surface
+      // Calculate proper Y position based on obstacle type and terrain
+      // Rocks and crates should be jumpable with improved jump mechanics
+      const obstacleHeight = type === 'crate' ? 0.6 : 0.5; // Slightly higher for challenge
+      const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({
         id: i,
         position: [x, yPosition, z],
         type,
-        scale: type === 'barrier' ? [0.8, 1.2, 0.6] : type === 'roadblock' ? [1.0, 0.6, 0.8] : [0.6, 0.8, 0.6]
+        scale: type === 'crate' ? [0.8, 0.8, 0.8] : [0.6, 0.6, 0.6] // Rocks smaller for jumping
       });
     }
     
-    // Add some larger barriers that block lanes (non-jumpable)
+    // Add some trees that block lanes (non-jumpable)
     for (let i = 0; i < 10; i++) {
       const z = -40 - (i * 25);
       const laneIndex = Math.floor(Math.random() * lanes.length);
@@ -141,8 +55,8 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
       obstacleArray.push({
         id: 100 + i,
         position: [x, 1.5, z],
-        type: 'barrier',
-        scale: [1.5, 2.0, 1.0] // Large barriers that can't be jumped over
+        type: 'tree',
+        scale: [0.8, 2.5, 0.8] // Tall trees that can't be jumped over
       });
     }
     
@@ -175,7 +89,33 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
           castShadow
           userData={{ type: 'obstacle', obstacleType: obstacle.type }}
         >
-          <EnhancedObstacleModel obstacleType={obstacle.type} />
+          {obstacle.type === 'crate' ? (
+            <>
+              <boxGeometry args={[1, 1, 1]} />
+              <meshStandardMaterial 
+                map={woodTexture}
+                color="#8B4513"
+                roughness={0.8}
+              />
+            </>
+          ) : obstacle.type === 'rock' ? (
+            <>
+              <sphereGeometry args={[0.5, 8, 8]} />
+              <meshStandardMaterial 
+                color="#666666"
+                roughness={0.9}
+              />
+            </>
+          ) : (
+            // Tree - tall cylinder that can't be jumped over
+            <>
+              <cylinderGeometry args={[0.3, 0.5, 2, 8]} />
+              <meshStandardMaterial 
+                color="#654321"
+                roughness={0.9}
+              />
+            </>
+          )}
         </mesh>
       ))}
     </group>

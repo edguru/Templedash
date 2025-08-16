@@ -16,9 +16,6 @@ import ShadowCharacter from "./ShadowCharacter";
 import LODManager from "./LODManager";
 import CoinAnimation from "./CoinAnimation";
 import VisualEffects from "./VisualEffects";
-import ParticleEffects from "./ParticleEffects";
-import PerformanceManager from "./PerformanceManager";
-import MobileOptimizer from "./MobileOptimizer";
 
 
 // Import game logic
@@ -177,11 +174,11 @@ export default function GameScene() {
       !box.collected && box.spawnDistance > newDistance - 100
     ));
     
-    // Temple Run style camera positioning
-    const cameraHeight = isJumping ? 4 : 3; // Lower camera for better perspective
-    const cameraDistance = isJumping ? 7 : 5; // Closer camera for Temple Run feel
-    state.camera.position.set(position.x * 0.15, cameraHeight, position.z + cameraDistance);
-    state.camera.lookAt(position.x, position.y + 0.5, position.z - 1);
+    // Dynamic camera positioning - adjust during jumps
+    const cameraHeight = isJumping ? 6 : 5; // Higher camera when jumping
+    const cameraDistance = isJumping ? 10 : 8; // Further back when jumping
+    state.camera.position.set(position.x * 0.1, cameraHeight, position.z + cameraDistance);
+    state.camera.lookAt(position.x, position.y + 1, position.z - 2);
   });
 
   // Handle coin cluster collection
@@ -272,14 +269,9 @@ export default function GameScene() {
 
   return (
     <>
-      <MobileOptimizer />
       <VisualEffects />
-      <PerformanceManager gameSpeed={gameSpeed.current} />
       <SimpleEnvironment />
       <Lighting />
-      
-      {/* Enhanced particle effects for better visual feedback */}
-      <ParticleEffects gameSpeed={gameSpeed.current} playerPosition={position} />
       
       {/* Use Shadow Character as default, Player component if NFT owned */}
       {hasCharacterNFT ? (

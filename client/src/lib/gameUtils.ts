@@ -59,15 +59,15 @@ export function checkCollisions(
 export function updateGameSpeed(elapsedTime: number): number {
   const baseSpeed = 0.04; // Increased from 0.02 to 0.04 (2x faster)
   const speedIncrease = Math.floor(elapsedTime / 15) * 0.008; // Gradual increase every 15 seconds
-  return Math.min(baseSpeed + speedIncrease, 0.12); // Cap at 0.12 (2x faster)
+  return Math.min(baseSpeed + speedIncrease, 0.20); // Cap at Temple Run speed
 }
 
 // Game constants with 2x speed increase
 export const GAME_CONSTANTS = {
-  INITIAL_SPEED: 0.04, // 2x faster base speed
-  MAX_SPEED: 0.12, // 2x faster max speed
-  SPEED_INCREASE_RATE: 0.002, // How much speed increases per distance unit
-  SPEED_INCREASE_INTERVAL: 100, // Distance interval for speed increases
+  INITIAL_SPEED: 0.08, // Temple Run style faster base speed
+  MAX_SPEED: 0.20, // Temple Run style higher max speed
+  SPEED_INCREASE_RATE: 0.004, // Faster speed progression
+  SPEED_INCREASE_INTERVAL: 80, // More frequent speed increases
 };
 
 // Random position generation

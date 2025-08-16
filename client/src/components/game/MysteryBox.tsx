@@ -12,7 +12,9 @@ interface MysteryBoxProps {
   onCollect: () => void;
 }
 
-export default function MysteryBox({ position, onCollect }: MysteryBoxProps) {
+export default function MysteryBox({ position: [x, y, z], onCollect }: MysteryBoxProps) {
+  // Fix position to be on terrain surface (terrain at -0.5)
+  const adjustedPosition: [number, number, number] = [x, 0.0, z]; // Place directly on terrain
   const meshRef = useRef<Mesh>(null);
   const [collected, setCollected] = useState(false);
   
@@ -80,8 +82,8 @@ export default function MysteryBox({ position, onCollect }: MysteryBoxProps) {
 
   useFrame((state) => {
     if (meshRef.current && !collected) {
-      // Floating animation
-      meshRef.current.position.y = position[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
+      // Floating animation on terrain
+      meshRef.current.position.y = adjustedPosition[1] + Math.sin(state.clock.elapsedTime * 2) * 0.1;
       // Gentle rotation
       meshRef.current.rotation.y += 0.01;
       
@@ -103,9 +105,9 @@ export default function MysteryBox({ position, onCollect }: MysteryBoxProps) {
   return (
     <mesh
       ref={meshRef}
-      position={position}
+      position={adjustedPosition}
       onClick={handleClick}
-      scale={1}
+      scale={0.8}
       castShadow
       receiveShadow
     >

@@ -102,9 +102,9 @@ const MobileOptimizedCharacterLoader = ({
           <group ref={meshRef}>
             <primitive 
               object={gltf.scene.clone()}
-              scale={isMobile ? [2.0, 2.0, 2.0] : [2.5, 2.5, 2.5]}
+              scale={isMobile ? [1.5, 1.5, 1.5] : [1.8, 1.8, 1.8]}
               rotation={[0, Math.PI, 0]}
-              position={[0, isJumping ? 0.3 : 0, 0]}
+              position={[0, isJumping ? 0.5 : 0.1, 0]}
               castShadow
               receiveShadow
             />

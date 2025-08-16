@@ -177,11 +177,11 @@ export default function GameScene() {
       !box.collected && box.spawnDistance > newDistance - 100
     ));
     
-    // Dynamic camera positioning - adjust during jumps
-    const cameraHeight = isJumping ? 6 : 5; // Higher camera when jumping
-    const cameraDistance = isJumping ? 10 : 8; // Further back when jumping
-    state.camera.position.set(position.x * 0.1, cameraHeight, position.z + cameraDistance);
-    state.camera.lookAt(position.x, position.y + 1, position.z - 2);
+    // Temple Run style camera positioning
+    const cameraHeight = isJumping ? 4 : 3; // Lower camera for better perspective
+    const cameraDistance = isJumping ? 7 : 5; // Closer camera for Temple Run feel
+    state.camera.position.set(position.x * 0.15, cameraHeight, position.z + cameraDistance);
+    state.camera.lookAt(position.x, position.y + 0.5, position.z - 1);
   });
 
   // Handle coin cluster collection

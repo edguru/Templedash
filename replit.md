@@ -86,6 +86,13 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - Shadow system optimization with BasicShadowMap for mobile
   - Particle system culling on low-end devices
   - Adaptive pixel ratio and precision settings
+- **Temple Run Style Adjustments**: Complete gameplay mechanics overhaul (2025-08-16)
+  - Fixed all floating objects to properly align with terrain surface (terrain at -0.5)
+  - Adjusted character, obstacle, and coin dimensions for Temple Run proportions
+  - Optimized camera positioning for closer Temple Run perspective
+  - Increased game speed progression (0.08 initial, 0.20 max, faster acceleration)
+  - Improved object spacing and positioning for challenging Temple Run gameplay
+  - Enhanced character scaling and jump heights for better game feel
 
 # User Preferences
 

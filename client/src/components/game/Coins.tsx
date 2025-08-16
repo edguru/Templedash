@@ -81,14 +81,14 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
     const coinArray: CoinData[] = [];
     
     for (let i = 0; i < 30; i++) {
-      const z = -20 - (i * 12); // Space coins 12 units apart  
+      const z = -20 - (i * 8); // Temple Run style spacing
       const lanes = [-2.67, 0, 2.67]; // Use lane positions
       const x = lanes[Math.floor(Math.random() * lanes.length)];
       const rotation = Math.random() * Math.PI * 2;
       
       coinArray.push({
         id: i,
-        position: [x, 1.5, z],
+        position: [x, 0.5, z], // Position above terrain (-0.5 + 1.0)
         rotation
       });
     }
@@ -107,18 +107,18 @@ const Coins = forwardRef<THREE.Group, CoinProps>(({ gameSpeed }, ref) => {
         child.rotation.y += 0.08; // Faster spin for better visibility
         child.rotation.x = Math.sin(state.clock.elapsedTime * 2.5 + index) * 0.15;
         
-        // Add subtle floating animation
-        const baseY = 1.5;
-        const floatOffset = Math.sin(state.clock.elapsedTime * 3 + index * 0.5) * 0.1;
+        // Temple Run style floating animation
+        const baseY = 0.5; // Above terrain
+        const floatOffset = Math.sin(state.clock.elapsedTime * 3 + index * 0.5) * 0.2;
         child.position.y = baseY + floatOffset;
         
         // Enhanced scaling for collection feedback
         const scaleAnimation = 1 + Math.sin(state.clock.elapsedTime * 4 + index) * 0.05;
         child.scale.setScalar(scaleAnimation);
         
-        // Reset coin position when it passes the player
+        // Reset coin position when it passes the player - Temple Run style
         if (child.position.z > 15) {
-          child.position.z = -240 - (index * 12);
+          child.position.z = -200 - (index * 8);
           const lanes = [-2.67, 0, 2.67];
           child.position.x = lanes[Math.floor(Math.random() * lanes.length)];
           child.scale.setScalar(1); // Reset scale

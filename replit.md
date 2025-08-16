@@ -73,6 +73,19 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - All assets feature proper metallic/roughness mapping for realistic lighting
   - Optimized GLB loading with material enhancement and mobile compatibility
   - Comprehensive model preloading for improved performance
+- **Advanced Character Animation System**: Animated character models with state-based switching (2025-08-16)
+  - Running animation character model with dynamic athletic pose
+  - Jumping animation character model for mid-air transitions
+  - State-based model switching (running vs jumping animations)
+  - Mobile-optimized character loading with fallback system
+  - Enhanced character positioning and scaling for different device types
+- **Mobile Performance Optimization**: Comprehensive mobile-specific optimizations (2025-08-16)
+  - MobileOptimizer component with aggressive performance scaling
+  - Geometry complexity reduction for mobile devices (reduced polygon counts)
+  - Material simplification with texture map removal on mobile
+  - Shadow system optimization with BasicShadowMap for mobile
+  - Particle system culling on low-end devices
+  - Adaptive pixel ratio and precision settings
 
 # User Preferences
 

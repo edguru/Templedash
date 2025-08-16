@@ -26,6 +26,7 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
   
   // Enhanced Obstacle Model Loader Component
   const EnhancedObstacleModel = ({ obstacleType }: { obstacleType: 'barrier' | 'roadblock' | 'cone' }) => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const modelPath = obstacleType === 'barrier' 
       ? '/assets/obstacles/enhanced_barrier.glb'
       : obstacleType === 'roadblock' 
@@ -83,6 +84,8 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
         }>
           <primitive 
             object={gltf.scene.clone()}
+            scale={isMobile ? [0.8, 0.8, 0.8] : [1.0, 1.0, 1.0]}
+            position={[0, -0.2, 0]}
             castShadow
             receiveShadow
           />
@@ -117,15 +120,15 @@ const Obstacles = forwardRef<THREE.Group, ObstacleProps>(({ gameSpeed }, ref) =>
       const types: ('barrier' | 'roadblock' | 'cone')[] = ['barrier', 'roadblock', 'cone'];
       const type = types[Math.floor(Math.random() * types.length)];
       
-      // Calculate proper Y position based on obstacle type and terrain
-      const obstacleHeight = type === 'barrier' ? 0.8 : type === 'roadblock' ? 0.6 : 0.4;
+      // Fixed positioning for proper terrain alignment
+      const obstacleHeight = type === 'barrier' ? 1.0 : type === 'roadblock' ? 0.8 : 0.6;
       const yPosition = terrainY + obstacleHeight;
       
       obstacleArray.push({
         id: i,
         position: [x, yPosition, z],
         type,
-        scale: type === 'barrier' ? [1.2, 1.0, 0.8] : type === 'roadblock' ? [1.0, 0.8, 1.0] : [0.8, 0.8, 0.8]
+        scale: type === 'barrier' ? [1.0, 1.2, 0.8] : type === 'roadblock' ? [1.2, 0.8, 1.0] : [0.8, 1.0, 0.8]
       });
     }
     

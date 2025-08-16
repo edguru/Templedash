@@ -18,6 +18,7 @@ import CoinAnimation from "./CoinAnimation";
 import VisualEffects from "./VisualEffects";
 import ParticleEffects from "./ParticleEffects";
 import PerformanceManager from "./PerformanceManager";
+import MobileOptimizer from "./MobileOptimizer";
 
 
 // Import game logic
@@ -271,6 +272,7 @@ export default function GameScene() {
 
   return (
     <>
+      <MobileOptimizer />
       <VisualEffects />
       <PerformanceManager gameSpeed={gameSpeed.current} />
       <SimpleEnvironment />

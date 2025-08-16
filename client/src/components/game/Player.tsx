@@ -3,10 +3,9 @@ import { useFrame } from "@react-three/fiber";
 import { useKeyboardControls, useGLTF } from "@react-three/drei";
 import * as THREE from "three";
 
-// Preload all enhanced character models with PBR materials
-useGLTF.preload('/assets/characters/enhanced_shadow_character.glb');
-useGLTF.preload('/assets/characters/enhanced_character_red.glb');
-useGLTF.preload('/assets/characters/enhanced_character_blue.glb');
+// Preload animated character models
+useGLTF.preload('/assets/characters/animated_runner.glb');
+useGLTF.preload('/assets/characters/jumping_runner.glb');
 // Keep fallback models for compatibility
 useGLTF.preload('/assets/characters/shadow_character.glb');
 useGLTF.preload('/assets/characters/character_red.glb');
@@ -22,6 +21,142 @@ import { useTouchControls } from "../../hooks/use-touch-controls";
 // Import character loader
 import CharacterLoader, { FallbackCharacter } from "./CharacterLoader";
 import OptimizedCharacterLoader from "./OptimizedCharacterLoader";
+
+// Mobile-optimized character loader with fallback system
+const MobileOptimizedCharacterLoader = ({ 
+  modelPath, 
+  fallbackPath, 
+  characterType, 
+  hasCharacterNFT, 
+  isJumping,
+  groupRef, 
+  meshRef 
+}: { 
+  modelPath: string;
+  fallbackPath: string;
+  characterType: string; 
+  hasCharacterNFT: boolean;
+  isJumping: boolean;
+  groupRef: React.RefObject<THREE.Group>; 
+  meshRef: React.RefObject<THREE.Group>; 
+}) => {
+  const [modelError, setModelError] = useState(false);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Try to load primary model, fallback on error
+  const finalModelPath = modelError ? fallbackPath : modelPath;
+  
+  const LoaderComponent = () => {
+    try {
+      const gltf = useGLTF(finalModelPath);
+      
+      console.log('✅ Character loaded:', finalModelPath);
+      
+      useEffect(() => {
+        if (gltf.scene) {
+          gltf.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.frustumCulled = true;
+              
+              if (child.material) {
+                const material = child.material as THREE.MeshStandardMaterial;
+                
+                // Mobile optimization - reduce texture quality
+                if (isMobile && material.map) {
+                  material.map.generateMipmaps = true;
+                  material.map.minFilter = THREE.LinearFilter;
+                  material.map.magFilter = THREE.LinearFilter;
+                }
+                
+                // Character coloring based on type
+                const characterColors = {
+                  'ninja_warrior': 0xdc2626,
+                  'space_ranger': 0x2563eb,
+                  'crystal_mage': 0x7c3aed,
+                  'shadow': 0x333333
+                };
+                
+                if (!hasCharacterNFT) {
+                  material.color.setHex(characterColors.shadow);
+                  material.metalness = 0.1;
+                  material.roughness = 0.8;
+                } else {
+                  material.color.setHex(characterColors[characterType as keyof typeof characterColors] || characterColors.shadow);
+                  material.metalness = isMobile ? 0.3 : 0.5;
+                  material.roughness = isMobile ? 0.7 : 0.5;
+                }
+                
+                material.emissive.setHex(hasCharacterNFT ? 0x111111 : 0x000000);
+                material.emissiveIntensity = hasCharacterNFT ? 0.1 : 0;
+                material.needsUpdate = true;
+              }
+            }
+          });
+        }
+      }, [gltf.scene]);
+      
+      return (
+        <group ref={groupRef} position={[0, 0, 0]}>
+          <group ref={meshRef}>
+            <primitive 
+              object={gltf.scene.clone()}
+              scale={isMobile ? [2.0, 2.0, 2.0] : [2.5, 2.5, 2.5]}
+              rotation={[0, Math.PI, 0]}
+              position={[0, isJumping ? 0.3 : 0, 0]}
+              castShadow
+              receiveShadow
+            />
+          </group>
+        </group>
+      );
+    } catch (error) {
+      console.error('Character loading error:', error);
+      setModelError(true);
+      
+      // Enhanced fallback character
+      return (
+        <group ref={groupRef} position={[0, 0, 0]}>
+          <group ref={meshRef}>
+            <mesh castShadow receiveShadow>
+              <capsuleGeometry args={[0.5, 1.5, 4, 8]} />
+              <meshStandardMaterial 
+                color={hasCharacterNFT ? "#4A90E2" : "#666666"}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
+            {/* Head */}
+            <mesh position={[0, 1.2, 0]} castShadow>
+              <sphereGeometry args={[0.3, 8, 6]} />
+              <meshStandardMaterial 
+                color={hasCharacterNFT ? "#4A90E2" : "#666666"}
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
+          </group>
+        </group>
+      );
+    }
+  };
+  
+  return (
+    <Suspense fallback={
+      <group ref={groupRef}>
+        <group ref={meshRef}>
+          <mesh castShadow>
+            <capsuleGeometry args={[0.5, 1.5, 4, 8]} />
+            <meshStandardMaterial color="#888888" />
+          </mesh>
+        </group>
+      </group>
+    }>
+      <LoaderComponent />
+    </Suspense>
+  );
+};
 
 enum Controls {
   left = 'left',
@@ -164,14 +299,19 @@ export default function Player() {
     return characterColors[currentCharacterType] || characterColors['shadow'];
   };
 
-  // Enhanced character loading with high-quality PBR models
+  // Enhanced character loading with animation support
   const CharacterModel = () => {
-    const modelPath = !hasCharacterNFT 
-      ? '/assets/characters/enhanced_shadow_character.glb'
-      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/enhanced_character_red.glb'
-      : currentCharacterType === 'space_ranger' ? '/assets/characters/enhanced_character_blue.glb'
-      : currentCharacterType === 'crystal_mage' ? '/assets/characters/enhanced_character_red.glb'
-      : '/assets/characters/enhanced_character_red.glb';
+    // Use animated models based on character state
+    const modelPath = isJumping 
+      ? '/assets/characters/jumping_runner.glb'
+      : '/assets/characters/animated_runner.glb';
+    
+    const fallbackPath = !hasCharacterNFT 
+      ? '/assets/characters/shadow_character.glb'
+      : currentCharacterType === 'ninja_warrior' ? '/assets/characters/character_red.glb'
+      : currentCharacterType === 'space_ranger' ? '/assets/characters/character_blue.glb'
+      : currentCharacterType === 'crystal_mage' ? '/assets/characters/character_green.glb'
+      : '/assets/characters/character_red.glb';
     
     console.log('🎯 Loading character model:', modelPath, 'type:', currentCharacterType, 'hasNFT:', hasCharacterNFT);
 
@@ -185,10 +325,12 @@ export default function Player() {
           meshRef={meshRef}
         />
       }>
-        <OptimizedCharacterLoader 
+        <MobileOptimizedCharacterLoader 
           modelPath={modelPath} 
+          fallbackPath={fallbackPath}
           characterType={currentCharacterType}
           hasCharacterNFT={hasCharacterNFT}
+          isJumping={isJumping}
           groupRef={groupRef}
           meshRef={meshRef}
         />

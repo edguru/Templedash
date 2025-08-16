@@ -43,6 +43,12 @@ export default function PerformanceManager({ gameSpeed }: PerformanceManagerProp
         if (child instanceof THREE.Points) {
           child.visible = false;
         }
+        // Hide complex GLB models and use simple geometry
+        if (child.userData?.type === 'obstacle' && child.children.length > 1) {
+          child.children.forEach((subChild, index) => {
+            if (index > 0) subChild.visible = false; // Hide complex geometry
+          });
+        }
       });
       
       // Lower texture quality

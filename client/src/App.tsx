@@ -10,7 +10,7 @@ import "@fontsource/inter";
 // Import game components
 import GameScene from "./components/game/GameScene";
 import GameUI from "./components/ui/GameUI";
-import HomePage from "./components/ui/HomePage";
+import MainApp from "./components/ui/MainApp";
 import StartScreen from "./components/ui/StartScreen";
 import GameOverScreen from "./components/ui/GameOverScreen";
 import MintScreen from "./components/ui/MintScreen";
@@ -82,8 +82,8 @@ function AppContent() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
         <div className="text-center p-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Temple Runner</h1>
-          <p className="text-xl text-purple-200 mb-8">NFT-Powered Infinite Runner on Base Camp</p>
+          <h1 className="text-4xl font-bold text-white mb-4">Puppets AI</h1>
+          <p className="text-xl text-purple-200 mb-8">Effortless Automation for Web3</p>
           <WalletConnectScreen />
         </div>
       </div>
@@ -94,6 +94,8 @@ function AppContent() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <>
+            {gamePhase === 'main' && <MainApp />}
+            
             {gamePhase === 'onboarding' && <OnboardingScreen />}
             
             {gamePhase === 'tutorial' && <TutorialScreen />}

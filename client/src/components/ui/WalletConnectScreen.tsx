@@ -35,7 +35,7 @@ export default function WalletConnectScreen() {
         setGamePhase('onboarding');
       } else {
         console.log('Returning user - directing to game');
-        setGamePhase('start');
+        setGamePhase('main');
       }
     }
   }, [account, setGamePhase, hasSeenOnboarding]);

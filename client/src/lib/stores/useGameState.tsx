@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "home" | "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial" | "mintMore" | "characterSelectPopup";
+export type GamePhase = "main" | "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial" | "mintMore" | "characterSelectPopup";
 
 interface GameState {
   gamePhase: GamePhase;
@@ -21,7 +21,7 @@ interface GameState {
 
 export const useGameState = create<GameState>()(
   subscribeWithSelector((set, get) => ({
-    gamePhase: "start",
+    gamePhase: "main",
     score: 0,
     distance: 0,
     isGameActive: false,

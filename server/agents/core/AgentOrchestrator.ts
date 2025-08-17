@@ -51,57 +51,49 @@ export class AgentOrchestrator {
 
       console.log(`Processing user message from ${userId}: ${message.substring(0, 100)}...`);
 
-      // Send to companion handler first
-      await this.messageBroker.publish('user_message', userMessage);
-
-      // Get prompt analysis
-      const promptMessage: AgentMessage = {
-        type: 'analyze_prompt',
-        id: uuidv4(),
-        timestamp: new Date().toISOString(),
-        senderId: 'orchestrator',
-        targetId: 'prompt-engineer',
-        payload: {
-          message,
-          context: userMessage.payload.context
-        }
-      };
-
-      const promptEngineer = this.registry.getAgent('prompt-engineer');
-      const analysis = await promptEngineer?.handleMessage(promptMessage);
-
-      if (analysis && analysis.payload.intent !== 'conversation') {
-        // Create task if actionable intent detected
-        const taskMessage: AgentMessage = {
-          type: 'task_assignment',
-          id: uuidv4(),
-          timestamp: new Date().toISOString(),
-          senderId: 'orchestrator',
-          targetId: 'task-orchestrator',
-          payload: {
-            taskId: uuidv4(),
-            userId,
-            category: analysis.payload.category,
-            parameters: analysis.payload.parameters,
-            priority: analysis.payload.priority || 'medium',
-            estimatedDuration: analysis.payload.estimatedDuration || '5m'
+      // Send to companion handler and wait for response
+      return new Promise((resolve) => {
+        let responseReceived = false;
+        
+        // Listen for companion response
+        const cleanup = this.messageBroker.subscribe('companion_response', (companionMessage: AgentMessage) => {
+          console.log('[AgentOrchestrator] Received companion response:', {
+            userId: companionMessage.payload.userId,
+            targetUserId: userId,
+            requiresAction: companionMessage.payload.requiresAction,
+            taskId: companionMessage.payload.taskId,
+            response: companionMessage.payload.response?.substring(0, 100)
+          });
+          
+          if (companionMessage.payload.userId === userId && !responseReceived) {
+            responseReceived = true;
+            cleanup(); // Clean up the subscription
+            
+            resolve({
+              success: true,
+              taskCreated: companionMessage.payload.requiresAction || false,
+              taskId: companionMessage.payload.taskId || null,
+              response: companionMessage.payload.response
+            });
           }
-        };
-
-        await this.messageBroker.publish('task_assignment', taskMessage);
-        return {
-          success: true,
-          taskCreated: true,
-          taskId: taskMessage.payload.taskId,
-          response: `I'll help you ${analysis.payload.intent}. Creating task now...`
-        };
-      }
-
-      return {
-        success: true,
-        taskCreated: false,
-        response: 'How can I assist you today?'
-      };
+        });
+        
+        // Set timeout to prevent hanging
+        setTimeout(() => {
+          if (!responseReceived) {
+            responseReceived = true;
+            cleanup();
+            resolve({
+              success: true,
+              taskCreated: false,
+              response: 'How can I assist you today?'
+            });
+          }
+        }, 5000); // 5 second timeout
+        
+        // Send message to companion handler
+        this.messageBroker.publish('user_message', userMessage);
+      });
 
     } catch (error) {
       console.error('Error processing user message:', error);

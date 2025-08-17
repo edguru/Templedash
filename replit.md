@@ -2,22 +2,23 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-17 - AUTHENTICATION FIX + SESSION KEY AUTOMATION)
-- **Authentication System Fixed**: Resolved all 401 authorization errors for companion chat system
-  - **Removed JWT Requirements**: Agent endpoints now work without token-based authentication
-  - **Wallet-Based Auth**: Simplified authentication using wallet addresses directly
-  - **UUID Import Fixed**: Resolved ES module compatibility issues causing 500 errors
-  - **TypeScript Errors Resolved**: Fixed type definition conflicts in server routes
-- **Automatic Session Key Creation**: Enhanced user onboarding with seamless session management
-  - **Existing User Detection**: System automatically detects existing users on wallet connection
-  - **Session Key Generation**: Creates missing session keys automatically for returning users
-  - **KMS Integration**: Secure storage of session keys using AWS KMS encryption
-  - **Onboarding Bypass**: Smart flow that skips onboarding for users who already completed it
-- **Companion Chat System Operational**: Multi-agent CrewAI system now fully functional
-  - **14-Agent Architecture**: All agents initialized and ready for task execution
-  - **Chain of Thought Injection**: Dynamic reasoning capabilities active
-  - **Goat MCP Integration**: Base Camp network blockchain operations ready
-  - **Task Management**: Creation and tracking of blockchain automation tasks
+## Recent Changes (2025-08-17 - COMPANION CHAT SYSTEM FULLY OPERATIONAL)
+- **Blockchain Task Routing Fixed**: Companion now properly routes blockchain requests to Goat MCP
+  - **Task-Specific Responses**: Users receive contextual responses ("Let me check your CAMP token balance...") instead of generic ones
+  - **Intent Recognition Working**: CompanionHandler correctly identifies check_status, deploy_contract, transfer_tokens intents
+  - **Task Creation Pipeline**: Blockchain requests automatically create tasks with proper categories and priorities
+  - **AgentOrchestrator Fixed**: Now properly captures companion responses instead of timing out with generic messages
+  - **Message Broker Enhanced**: Added cleanup function support for proper subscriber management
+- **Multi-Agent Task Execution Operational**: Complete CrewAI system routing requests through task pipeline
+  - **CompanionHandler → TaskOrchestrator → Goat MCP**: Full blockchain operation pipeline working
+  - **Task State Management**: Tasks progress through NEW → ANALYZING → RUNNING states correctly
+  - **Priority System**: High priority for transfers/deployments, medium for balance checks
+  - **Parameter Extraction**: System extracts token types, amounts, addresses from user messages
+- **Previous Features Maintained**:
+  - **Authentication System Fixed**: Resolved all 401 authorization errors for companion chat system
+  - **Automatic Session Key Creation**: Enhanced user onboarding with seamless session management
+  - **AWS KMS Secret Management**: Enterprise-grade secure storage system with production credentials
+  - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
 - **Previous Features Maintained**:
   - **AWS KMS Secret Management**: Enterprise-grade secure storage system with production credentials
   - **OpenAI GPT-4o Integration**: Advanced reasoning when API key provided, graceful fallback without key

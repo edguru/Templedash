@@ -34,14 +34,21 @@ export class MessageBroker extends EventEmitter {
     }
   }
 
-  subscribe(eventType: string, handler: (message: AgentMessage) => Promise<void>): void {
-    this.on(eventType, async (message: AgentMessage) => {
+  subscribe(eventType: string, handler: (message: AgentMessage) => Promise<void>): () => void {
+    const listener = async (message: AgentMessage) => {
       try {
         await handler(message);
       } catch (error) {
         console.error(`Error in message handler for ${eventType}:`, error);
       }
-    });
+    };
+
+    this.on(eventType, listener);
+    
+    // Return cleanup function
+    return () => {
+      this.removeListener(eventType, listener);
+    };
   }
 
   subscribeToTarget(eventType: string, targetId: string, handler: (message: AgentMessage) => Promise<void>): void {

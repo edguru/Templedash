@@ -59,8 +59,17 @@ export class CompanionHandler extends BaseAgent {
     // Analyze message intent
     const intent = await this.analyzeIntent(payload.message);
     
+    // Check if this requires task creation for blockchain operations
+    const requiresTask = this.shouldCreateTask(intent);
+    let taskId: string | null = null;
+    
+    if (requiresTask) {
+      // Create task for blockchain operations
+      taskId = await this.createBlockchainTask(userId, intent, payload.message, context);
+    }
+    
     // Generate contextual response
-    const response = await this.generateResponse(payload.message, context, intent);
+    const response = await this.generateResponse(payload.message, context, intent, taskId);
     
     // Store conversation in memory
     await this.profileMemory.addConversationMessage(userId, {
@@ -87,9 +96,18 @@ export class CompanionHandler extends BaseAgent {
         conversationId: userMessage.conversationId,
         response,
         intent,
-        requiresAction: intent !== 'conversation'
+        taskId,
+        requiresAction: requiresTask
       }
     };
+
+    console.log('[CompanionHandler] Sending response:', {
+      userId,
+      intent,
+      taskId,
+      requiresAction: requiresTask,
+      responsePreview: response?.substring(0, 100)
+    });
 
     await this.sendMessage(responseMessage);
     return responseMessage;
@@ -133,29 +151,154 @@ export class CompanionHandler extends BaseAgent {
     return 'conversation';
   }
 
-  private async generateResponse(message: string, context: ConversationContext, intent: string): Promise<string> {
+  private shouldCreateTask(intent: string): boolean {
+    // These intents require blockchain operations via Goat MCP
+    const blockchainIntents = [
+      'deploy_contract',
+      'mint_nft', 
+      'transfer_tokens',
+      'check_status',
+      'bridge_tokens',
+      'stake_tokens'
+    ];
+    
+    return blockchainIntents.includes(intent);
+  }
+
+  private async createBlockchainTask(userId: string, intent: string, message: string, context: ConversationContext): Promise<string> {
+    const taskId = uuidv4();
+    
+    // Create task assignment message
+    const taskMessage: AgentMessage = {
+      type: 'task_assignment',
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: 'orchestrator',
+      payload: {
+        taskId,
+        userId,
+        category: this.mapIntentToCategory(intent),
+        parameters: this.extractTaskParameters(message, intent),
+        priority: this.determinePriority(intent),
+        originalMessage: message,
+        conversationContext: context
+      }
+    };
+
+    // Send task for orchestration
+    await this.sendMessage(taskMessage);
+    
+    this.logActivity('Created blockchain task', { 
+      taskId, 
+      userId, 
+      intent, 
+      category: this.mapIntentToCategory(intent) 
+    });
+    
+    return taskId;
+  }
+
+  private mapIntentToCategory(intent: string): string {
+    const categoryMap: Record<string, string> = {
+      'deploy_contract': 'contract_deployment',
+      'mint_nft': 'nft_operations', 
+      'transfer_tokens': 'token_transfer',
+      'check_status': 'account_query',
+      'bridge_tokens': 'cross_chain',
+      'stake_tokens': 'defi_operations'
+    };
+    
+    return categoryMap[intent] || 'general';
+  }
+
+  private extractTaskParameters(message: string, intent: string): Record<string, any> {
+    const lowerMessage = message.toLowerCase();
+    const params: Record<string, any> = {};
+    
+    switch (intent) {
+      case 'check_status':
+        // Extract what to check
+        if (lowerMessage.includes('balance')) {
+          params.queryType = 'balance';
+          
+          // Extract token type
+          if (lowerMessage.includes('camp')) params.tokenType = 'CAMP';
+          else if (lowerMessage.includes('eth')) params.tokenType = 'ETH';
+          else if (lowerMessage.includes('usdc')) params.tokenType = 'USDC';
+          else params.tokenType = 'native'; // Default to native token (CAMP)
+        } else if (lowerMessage.includes('portfolio')) {
+          params.queryType = 'portfolio';
+        } else {
+          params.queryType = 'general_status';
+        }
+        break;
+        
+      case 'transfer_tokens':
+        // Extract amount and recipient
+        const amountMatch = lowerMessage.match(/(\d+(?:\.\d+)?)/);
+        if (amountMatch) params.amount = amountMatch[1];
+        
+        const addressMatch = message.match(/0x[a-fA-F0-9]{40}/);
+        if (addressMatch) params.recipient = addressMatch[0];
+        break;
+        
+      case 'deploy_contract':
+        // Extract contract details
+        if (lowerMessage.includes('erc20')) params.contractType = 'ERC20';
+        else if (lowerMessage.includes('erc721')) params.contractType = 'ERC721';
+        else params.contractType = 'custom';
+        break;
+        
+      case 'mint_nft':
+        // Extract minting details
+        const quantityMatch = lowerMessage.match(/(\d+)\s*nft/);
+        if (quantityMatch) params.quantity = parseInt(quantityMatch[1]);
+        else params.quantity = 1;
+        break;
+    }
+    
+    return params;
+  }
+
+  private determinePriority(intent: string): 'low' | 'medium' | 'high' {
+    const highPriority = ['transfer_tokens', 'deploy_contract'];
+    const mediumPriority = ['mint_nft', 'check_status'];
+    
+    if (highPriority.includes(intent)) return 'high';
+    if (mediumPriority.includes(intent)) return 'medium';
+    return 'low';
+  }
+
+  private async generateResponse(message: string, context: ConversationContext, intent: string, taskId?: string | null): Promise<string> {
     const personality = context.companionPersonality;
     
     // Generate personality-based responses
     switch (intent) {
       case 'deploy_contract':
-        return this.getPersonalityResponse(personality, 'deploy', 
-          "I'll help you deploy a smart contract! Let me analyze your requirements and set everything up.");
+        return taskId 
+          ? "I'll help you deploy a smart contract! Creating task now..."
+          : this.getPersonalityResponse(personality, 'deploy', "I'll help you deploy a smart contract! Let me analyze your requirements and set everything up.");
         
       case 'mint_nft':
-        return this.getPersonalityResponse(personality, 'mint',
-          "Let's mint some NFTs! I can handle the entire process for you.");
+        return taskId 
+          ? "Let's mint some NFTs! Setting up the minting process..."
+          : this.getPersonalityResponse(personality, 'mint', "Let's mint some NFTs! I can handle the entire process for you.");
         
       case 'transfer_tokens':
-        return this.getPersonalityResponse(personality, 'transfer',
-          "I'll help you transfer tokens safely and efficiently.");
+        return taskId 
+          ? "I'll help you transfer tokens safely. Preparing the transaction..."
+          : this.getPersonalityResponse(personality, 'transfer', "I'll help you transfer tokens safely and efficiently.");
         
       case 'check_status':
-        return await this.generateStatusResponse(context);
+        return taskId 
+          ? "Let me check your CAMP token balance and account status..."
+          : await this.generateStatusResponse(context);
         
       case 'task_management':
-        return this.getPersonalityResponse(personality, 'task',
-          "Let me help you manage your tasks and automation workflows.");
+        return taskId 
+          ? "Creating a new task for your automation workflow..."
+          : this.getPersonalityResponse(personality, 'task', "Let me help you manage your tasks and automation workflows.");
         
       default:
         return this.getPersonalityResponse(personality, 'conversation',
@@ -215,7 +358,8 @@ export class CompanionHandler extends BaseAgent {
   }
 
   private async notifyTaskCompletion(message: AgentMessage): Promise<void> {
-    const { taskId, userId, payload } = message;
+    const { payload } = message;
+    const { taskId, userId } = payload;
     
     const notificationMessage: AgentMessage = {
       type: 'task_notification',

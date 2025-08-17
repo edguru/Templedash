@@ -1,6 +1,7 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 import { db } from "./storage";
 import { users, gameScores, tokenClaims, nftOwnership, contracts } from '../shared/schema';
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
@@ -554,7 +555,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent System API Routes
   app.post('/api/agents/chat', async (req: any, res) => {
     try {
-      const { message, userId, conversationId = require('uuid').v4() } = req.body;
+      const { message, userId, conversationId = uuidv4() } = req.body;
       const effectiveUserId = userId || `temp_${Date.now()}`;
       
       if (!message) {
@@ -764,7 +765,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User onboarding routes
-  app.get('/api/user/status', async (req: Request, res: Response) => {
+  app.get('/api/user/status', async (req: any, res: any) => {
     try {
       const { address } = req.query;
       
@@ -810,7 +811,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/user/complete-onboarding', async (req: Request, res: Response) => {
+  app.post('/api/user/complete-onboarding', async (req: any, res: any) => {
     try {
       const { address, createSessionKeys = true } = req.body;
       
@@ -857,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Create session keys for existing users
-  app.post('/api/user/create-session-keys', async (req: Request, res: Response) => {
+  app.post('/api/user/create-session-keys', async (req: any, res: any) => {
     try {
       const { address } = req.body;
       

@@ -41,12 +41,21 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthComplete }) => {
   ]);
 
   const [isNewUser, setIsNewUser] = useState(false);
+  const [shouldCompleteAuth, setShouldCompleteAuth] = useState(false);
 
   useEffect(() => {
     if (account?.address) {
       checkUserStatus(account.address);
     }
   }, [account]);
+
+  // Separate effect to handle auth completion to avoid state updates during render
+  useEffect(() => {
+    if (shouldCompleteAuth) {
+      onAuthComplete();
+      setShouldCompleteAuth(false);
+    }
+  }, [shouldCompleteAuth, onAuthComplete]);
 
   const checkUserStatus = async (address: string) => {
     try {
@@ -76,11 +85,11 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthComplete }) => {
           console.error('Error creating session keys:', sessionError);
         }
         
-        // Complete onboarding regardless of session key creation
-        onAuthComplete();
+        // Set flag to complete onboarding in next render cycle
+        setShouldCompleteAuth(true);
       } else {
-        // Existing user with session keys, complete onboarding
-        onAuthComplete();
+        // Existing user with session keys, set flag to complete onboarding
+        setShouldCompleteAuth(true);
       }
     } catch (error) {
       console.error('Error checking user status:', error);
@@ -120,7 +129,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthComplete }) => {
             address: account.address
           })
         });
-        onAuthComplete();
+        setShouldCompleteAuth(true);
       } catch (error) {
         console.error('Error completing onboarding:', error);
         // Complete anyway on error

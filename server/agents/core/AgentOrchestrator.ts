@@ -25,6 +25,12 @@ export class AgentOrchestrator {
       await companion?.handleMessage(message);
     });
 
+    // Route task analysis to task orchestrator
+    this.messageBroker.subscribe('analyze_task', async (message: AgentMessage) => {
+      const orchestrator = this.registry.getAgent('task-orchestrator');
+      await orchestrator?.handleMessage(message);
+    });
+
     // Route status updates to task tracker
     this.messageBroker.subscribe('status_update', async (message: AgentMessage) => {
       const tracker = this.registry.getAgent('task-tracker');
@@ -58,22 +64,39 @@ export class AgentOrchestrator {
         // Listen for companion response
         const cleanup = this.messageBroker.subscribe('companion_response', (companionMessage: AgentMessage) => {
           console.log('[AgentOrchestrator] Received companion response:', {
-            userId: companionMessage.payload.userId,
-            targetUserId: userId,
-            requiresAction: companionMessage.payload.requiresAction,
-            taskId: companionMessage.payload.taskId,
-            response: companionMessage.payload.response?.substring(0, 100)
+            taskRouted: companionMessage.payload.taskRouted,
+            message: companionMessage.payload.message?.substring(0, 100)
           });
           
-          if (companionMessage.payload.userId === userId && !responseReceived) {
+          if (!responseReceived) {
             responseReceived = true;
-            cleanup(); // Clean up the subscription
+            cleanup();
             
             resolve({
               success: true,
-              taskCreated: companionMessage.payload.requiresAction || false,
+              taskCreated: companionMessage.payload.taskRouted || false,
               taskId: companionMessage.payload.taskId || null,
-              response: companionMessage.payload.response
+              response: companionMessage.payload.message
+            });
+          }
+        });
+        
+        // Also listen for task results if a task was routed
+        const taskCleanup = this.messageBroker.subscribe('task_result', (taskMessage: AgentMessage) => {
+          console.log('[AgentOrchestrator] Received task result:', {
+            result: taskMessage.payload.result?.substring(0, 100)
+          });
+          
+          if (!responseReceived) {
+            responseReceived = true;
+            cleanup();
+            taskCleanup();
+            
+            resolve({
+              success: true,
+              taskCreated: true,
+              taskId: taskMessage.payload.taskId || null,
+              response: taskMessage.payload.result
             });
           }
         });
@@ -83,13 +106,14 @@ export class AgentOrchestrator {
           if (!responseReceived) {
             responseReceived = true;
             cleanup();
+            taskCleanup();
             resolve({
               success: true,
               taskCreated: false,
               response: 'How can I assist you today?'
             });
           }
-        }, 5000); // 5 second timeout
+        }, 10000); // 10 second timeout for blockchain operations
         
         // Send message to companion handler
         this.messageBroker.publish('user_message', userMessage);

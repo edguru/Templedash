@@ -58,21 +58,25 @@ export type TaskState =
 export interface Task {
   id: string;
   userId: string;
-  category: string;
-  title: string;
+  category?: string;
+  type?: string;
+  title?: string;
   description: string;
-  parameters: Record<string, any>;
-  state: TaskState;
+  parameters?: Record<string, any>;
+  state?: TaskState;
+  status?: string;
   priority: 'low' | 'medium' | 'high';
-  createdAt: Date;
-  updatedAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
+  steps?: any[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  startedAt?: Date | string;
+  completedAt?: Date | string;
   estimatedDuration?: string;
   result?: any;
   error?: string;
-  retryCount: number;
-  maxRetries: number;
+  retryCount?: number;
+  maxRetries?: number;
+  metadata?: Record<string, any>;
 }
 
 export interface UserProfile {

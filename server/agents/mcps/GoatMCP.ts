@@ -95,6 +95,11 @@ export class GoatMCP extends BaseAgent {
     this.messageBroker.subscribe('create_session_signer', async (message: AgentMessage) => {
       await this.createSessionSigner(message);
     });
+
+    // Subscribe to balance check requests
+    this.messageBroker.subscribe('check_balance', async (message: AgentMessage) => {
+      await this.handleMessage(message);
+    });
   }
 
   getCapabilities(): string[] {
@@ -114,11 +119,16 @@ export class GoatMCP extends BaseAgent {
     try {
       this.logActivity('Handling blockchain task', { 
         type: message.type, 
-        category: message.payload.category 
+        category: message.payload.category,
+        taskType: message.payload.type 
       });
 
       if (message.type === 'execute_task') {
         return await this.executeBlockchainTask(message);
+      }
+
+      if (message.type === 'check_balance') {
+        return await this.checkBalance(message);
       }
 
       if (message.type === 'create_session_signer') {
@@ -197,9 +207,85 @@ export class GoatMCP extends BaseAgent {
       'contract_deployment',
       'nft_operations', 
       'token_operations',
-      'defi_operations'
+      'defi_operations',
+      'balance_check',
+      'token_info'
     ];
     return handledCategories.includes(category);
+  }
+
+  async checkBalance(message: AgentMessage): Promise<AgentMessage> {
+    try {
+      const { walletAddress, taskId, userId } = message.payload;
+      const address = walletAddress || userId;
+      
+      this.logActivity('Checking CAMP token balance', { address, taskId });
+
+      // Get native CAMP balance
+      const balance = await this.publicClient.getBalance({
+        address: address as `0x${string}`
+      });
+
+      // Convert from wei to CAMP tokens (18 decimals)
+      const balanceInCAMP = Number(balance) / Math.pow(10, 18);
+
+      const result = `Your CAMP token balance is: ${balanceInCAMP.toFixed(4)} CAMP`;
+      
+      this.logActivity('Balance check completed', { address, balance: balanceInCAMP });
+
+      // Notify task completion
+      const completionMessage: AgentMessage = {
+        type: 'task_step_complete',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: 'task-orchestrator',
+        payload: {
+          taskId,
+          success: true,
+          result,
+          step: 'balance_check_complete'
+        }
+      };
+
+      await this.sendMessage(completionMessage);
+
+      return {
+        type: 'balance_check_complete',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: message.senderId,
+        payload: {
+          success: true,
+          balance: balanceInCAMP,
+          result,
+          address
+        }
+      };
+
+    } catch (error) {
+      console.error('[GoatMCP] Error checking balance:', error);
+      
+      // Notify task failure
+      const failureMessage: AgentMessage = {
+        type: 'task_step_complete',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: 'task-orchestrator',
+        payload: {
+          taskId: message.payload.taskId,
+          success: false,
+          error: `Failed to check balance: ${error}`,
+          step: 'balance_check_failed'
+        }
+      };
+
+      await this.sendMessage(failureMessage);
+      
+      return this.createErrorResponse(message, `Failed to check balance: ${error}`);
+    }
   }
 
   private async executeBlockchainTask(message: AgentMessage): Promise<AgentMessage> {

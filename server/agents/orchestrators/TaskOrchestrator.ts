@@ -1,7 +1,7 @@
 // Task Orchestrator Agent - Organizes tasks, prioritizes, and assigns them to MCPs
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
-import { AgentMessage, Task, TaskState } from '../types/AgentTypes';
+import { AgentMessage, Task } from '../types/AgentTypes';
 import { TaskTracker } from '../trackers/TaskTracker';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -72,6 +72,56 @@ export class TaskOrchestrator extends BaseAgent {
   async handleMessage(message: AgentMessage): Promise<AgentMessage | null> {
     try {
       this.logActivity('Handling message', { type: message.type });
+
+      // Handle task analysis from companion handler
+      if (message.type === 'analyze_task') {
+        const userMessage = message.payload.message;
+        const userId = message.payload.userId;
+        
+        // Create a task based on the user intent
+        const task: Task = {
+          id: uuidv4(),
+          userId: userId,
+          type: this.determineTaskType(userMessage),
+          status: 'PENDING',
+          priority: this.determinePriority(userMessage),
+          description: userMessage,
+          steps: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          metadata: {
+            originalMessage: userMessage,
+            companionContext: message.payload.context
+          }
+        };
+
+        this.logActivity('Creating task from user message', { 
+          taskId: task.id, 
+          type: task.type, 
+          priority: task.priority 
+        });
+
+        // Add to appropriate queue
+        this.addTaskToQueue(task);
+        
+        // Immediately process if it's a simple query like balance check
+        if (task.type === 'balance_check' || task.type === 'token_info') {
+          await this.processTask(task);
+        }
+        
+        return {
+          type: 'task_created',
+          id: uuidv4(),
+          timestamp: new Date().toISOString(),
+          senderId: this.agentId,
+          targetId: message.senderId,
+          payload: {
+            taskId: task.id,
+            taskType: task.type,
+            message: 'Task created and processing...'
+          }
+        };
+      }
 
       if (message.type === 'task_assignment') {
         return await this.processTaskAssignment(message);
@@ -241,11 +291,17 @@ export class TaskOrchestrator extends BaseAgent {
     try {
       this.logActivity('Executing task', { taskId: task.id, category: task.category });
 
-      // Determine which MCP agent to use
-      const mcpAgent = this.getMCPForCategory(task.category);
+      // Determine which MCP agent to use based on task type
+      const mcpAgent = this.getMCPForCategory(task.type || task.category);
       
-      // Create execution message with appropriate type for Nebula MCP
-      const messageType = mcpAgent === 'nebula-mcp' ? 'execute_nebula_task' : 'execute_task';
+      // Create execution message with appropriate type for different MCPs
+      let messageType = 'execute_task';
+      if (mcpAgent === 'nebula-mcp') {
+        messageType = 'execute_nebula_task';
+      } else if (mcpAgent === 'goat-mcp' && (task.type === 'balance_check' || task.type === 'token_info')) {
+        messageType = 'check_balance'; // Use specific balance check message type
+      }
+      
       const executionMessage: AgentMessage = {
         type: messageType,
         id: uuidv4(),
@@ -254,9 +310,12 @@ export class TaskOrchestrator extends BaseAgent {
         targetId: mcpAgent,
         payload: {
           taskId: task.id,
+          type: task.type || task.category,
           category: task.category,
           parameters: task.parameters,
-          userId: task.userId
+          userId: task.userId,
+          description: task.description,
+          walletAddress: task.userId // Pass userId as wallet address for balance checks
         }
       };
 
@@ -339,7 +398,22 @@ export class TaskOrchestrator extends BaseAgent {
       }
     };
 
+    // Also broadcast task result for the orchestrator to pick up
+    const resultMessage: AgentMessage = {
+      type: 'task_result',
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: 'broadcast',
+      payload: {
+        taskId: task.id,
+        result: typeof result === 'string' ? result : JSON.stringify(result),
+        success: true
+      }
+    };
+
     await this.sendMessage(notificationMessage);
+    await this.sendMessage(resultMessage);
   }
 
   private async notifyTaskFailure(task: Task, error: Error): Promise<void> {
@@ -366,6 +440,8 @@ export class TaskOrchestrator extends BaseAgent {
       'contract_deployment': 'goat-mcp',
       'token_transfer': 'goat-mcp',
       'account_query': 'goat-mcp',
+      'balance_check': 'goat-mcp', // Route balance checks to Goat MCP
+      'token_info': 'goat-mcp',    // Route token info to Goat MCP
       'cross_chain': 'goat-mcp',
       'defi_operations': 'goat-mcp',
       
@@ -444,6 +520,84 @@ export class TaskOrchestrator extends BaseAgent {
       low: this.taskQueue.low.length,
       active: this.activeTasks.size
     };
+  }
+
+  private async processTask(task: Task): Promise<void> {
+    // Add to active tasks for tracking
+    this.activeTasks.set(task.id, task);
+    
+    try {
+      // Update status to running
+      task.status = 'RUNNING';
+      task.updatedAt = new Date().toISOString();
+      
+      this.logActivity('Processing immediate task', { 
+        taskId: task.id, 
+        type: task.type,
+        description: task.description 
+      });
+
+      // Execute the task through normal flow
+      await this.executeTask(task);
+      
+    } catch (error) {
+      console.error(`[TaskOrchestrator] Error processing immediate task ${task.id}:`, error);
+      await this.handleTaskError(task, error as Error);
+    }
+  }
+
+  private determineTaskType(message: string): string {
+    const lowerMessage = message.toLowerCase();
+    
+    // Balance and token queries
+    if (lowerMessage.includes('balance') || lowerMessage.includes('how much')) {
+      return 'balance_check';
+    }
+    if (lowerMessage.includes('token') && (lowerMessage.includes('info') || lowerMessage.includes('price'))) {
+      return 'token_info';
+    }
+    
+    // NFT operations
+    if (lowerMessage.includes('mint') && lowerMessage.includes('nft')) {
+      return 'nft_mint';
+    }
+    
+    // Transfer operations
+    if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) {
+      return 'token_transfer';
+    }
+    
+    // Contract operations
+    if (lowerMessage.includes('deploy') && lowerMessage.includes('contract')) {
+      return 'contract_deploy';
+    }
+    
+    return 'general_query';
+  }
+
+  private determinePriority(message: string): 'high' | 'medium' | 'low' {
+    const lowerMessage = message.toLowerCase();
+    
+    // High priority: Balance checks, urgent queries
+    if (lowerMessage.includes('balance') || lowerMessage.includes('urgent')) {
+      return 'high';
+    }
+    
+    // Medium priority: NFT operations, transfers
+    if (lowerMessage.includes('nft') || lowerMessage.includes('transfer')) {
+      return 'medium';
+    }
+    
+    return 'low';
+  }
+
+  private addTaskToQueue(task: Task) {
+    this.taskQueue[task.priority].push(task);
+    this.logActivity('Added task to queue', { 
+      taskId: task.id, 
+      priority: task.priority,
+      queueSize: this.taskQueue[task.priority].length 
+    });
   }
 
   private createErrorResponse(originalMessage: AgentMessage, error: string): AgentMessage {

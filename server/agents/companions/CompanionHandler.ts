@@ -50,6 +50,70 @@ export class CompanionHandler extends BaseAgent {
     try {
       this.logActivity('Processing companion message', { type: message.type });
 
+      // Handle user messages by checking if they're task-based
+      if (message.type === 'user_message') {
+        const userMessage = message.payload.message;
+        
+        // Check if this is a task-based message that should be routed to task orchestrator
+        if (this.isTaskMessage(userMessage)) {
+          this.logActivity('Routing task message to orchestrator', { message: userMessage });
+          
+          // Create task routing message
+          const taskMessage: AgentMessage = {
+            type: 'analyze_task',
+            id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            senderId: this.agentId,
+            targetId: 'task-orchestrator',
+            payload: {
+              message: userMessage,
+              userId: message.payload.userId,
+              context: {
+                hasCompanion: !!this.companionTraits,
+                companionName: this.companionTraits?.name,
+                personalityGreeting: this.getPersonalizedGreeting()
+              }
+            }
+          };
+          
+          await this.sendMessage(taskMessage);
+          
+          // Return personalized acknowledgment
+          const personalizedGreeting = this.companionTraits ? 
+            this.getPersonalizedGreeting() : 
+            "I'll help you with that task.";
+          
+          return {
+            type: 'companion_response',
+            id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            senderId: this.agentId,
+            targetId: message.senderId,
+            payload: {
+              message: `${personalizedGreeting} Let me check that for you...`,
+              taskRouted: true,
+              companionName: this.companionTraits?.name
+            }
+          };
+        } else {
+          // Handle as regular companion chat
+          const personalizedResponse = this.personalizeResponse(userMessage, this.companionTraits);
+          
+          return {
+            type: 'companion_response',
+            id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            senderId: this.agentId,
+            targetId: message.senderId,
+            payload: {
+              message: personalizedResponse,
+              taskRouted: false,
+              companionName: this.companionTraits?.name
+            }
+          };
+        }
+      }
+
       if (message.type === 'personalize_response') {
         const personalizedResponse = this.personalizeResponse(
           message.payload.userInput, 

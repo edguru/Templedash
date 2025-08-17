@@ -57,7 +57,7 @@ export class AgentSystem {
   private initializeAgents() {
     // Register core agents
     const profileMemory = new ProfileMemory(this.messageBroker);
-    const companionHandler = new CompanionHandler(this.messageBroker, profileMemory);
+    const companionHandler = new CompanionHandler(this.messageBroker);
     const promptEngineer = new PromptEngineer(this.messageBroker);
     const taskAnalyzer = new TaskAnalyzer(this.messageBroker);
     const taskTracker = new TaskTracker(this.messageBroker);

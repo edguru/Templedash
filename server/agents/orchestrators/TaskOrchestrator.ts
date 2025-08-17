@@ -82,6 +82,8 @@ export class TaskOrchestrator extends BaseAgent {
         const userMessage = message.payload.message;
         const userId = message.payload.userId;
         
+        console.log('[TaskOrchestrator] Processing analyze_task:', { userMessage, userId, fullPayload: message.payload });
+        
         // Create a task based on the user intent
         const task: Task = {
           id: uuidv4(),
@@ -98,6 +100,8 @@ export class TaskOrchestrator extends BaseAgent {
             companionContext: message.payload.context
           }
         };
+        
+        console.log('[TaskOrchestrator] Task created:', { taskId: task.id, userId: task.userId, taskType: task.type });
 
         this.logActivity('Creating task from user message', { 
           taskId: task.id, 
@@ -324,7 +328,7 @@ export class TaskOrchestrator extends BaseAgent {
           parameters: task.parameters,
           userId: task.userId,
           description: task.description,
-          walletAddress: task.userId // Pass userId as wallet address for balance checks
+          walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined // Only pass if it's a wallet address
         }
       };
 

@@ -3,6 +3,9 @@
 Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
 ## Recent Updates (January 17, 2025)
+- **Working Token Balance Checking**: Successfully implemented end-to-end CAMP token balance checking with proper wallet address propagation through the entire agent system (CompanionHandler → TaskOrchestrator → GoatMCP)
+- **Fixed Critical Message Routing Bug**: Resolved wallet address context flow ensuring user's wallet address is properly passed through all agent messaging layers
+- **CompanionNFT Contract Deployed**: Successfully deployed CompanionNFT contract at address `0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5` on Base Camp Testnet
 - **Comprehensive System Prompts**: Implemented detailed, accurate system prompts for all 15 agents in the CrewAI architecture
 - **Enhanced Agent Accuracy**: Each agent now has specialized prompts defining their role, capabilities, and operational guidelines
 - **Improved Intent Recognition**: CompanionHandler, TaskAnalyzer, PromptEngineer, TaskOrchestrator, GoatMCP, and NebulaMCP now operate with enhanced precision

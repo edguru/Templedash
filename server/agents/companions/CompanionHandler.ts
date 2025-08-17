@@ -73,7 +73,7 @@ export class CompanionHandler extends BaseAgent {
             targetId: this.isMultiTaskMessage(userMessage) ? 'prompt-engineer' : 'task-orchestrator',
             payload: {
               message: userMessage,
-              userId: message.payload.userId,
+              userId: message.payload.userId || message.userId, // Get userId from payload or message root
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,

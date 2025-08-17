@@ -555,8 +555,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Agent System API Routes
   app.post('/api/agents/chat', async (req: any, res) => {
     try {
-      const { message, userId, conversationId = uuidv4() } = req.body;
-      const effectiveUserId = userId || `temp_${Date.now()}`;
+      const { message, userId, walletAddress, conversationId = uuidv4() } = req.body;
+      const effectiveUserId = walletAddress || userId || `temp_${Date.now()}`;
       
       if (!message) {
         return res.status(400).json({ error: 'Missing message' });
@@ -599,6 +599,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Agent tasks error:', error);
       res.status(500).json({ error: 'Failed to get tasks' });
+    }
+  });
+
+  // Direct balance check endpoint as a workaround
+  app.get('/api/balance/:walletAddress', async (req: any, res) => {
+    try {
+      const { walletAddress } = req.params;
+      
+      if (!walletAddress || !walletAddress.startsWith('0x') || walletAddress.length !== 42) {
+        return res.status(400).json({ error: 'Invalid wallet address' });
+      }
+
+      // Direct RPC call to Base Camp testnet
+      const rpcResponse = await fetch('https://rpc.camp-network-testnet.gelato.digital', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          method: 'eth_getBalance',
+          params: [walletAddress, 'latest'],
+          id: 1
+        })
+      });
+      
+      const data = await rpcResponse.json();
+      
+      if (data.error) {
+        return res.status(500).json({ error: `RPC Error: ${data.error.message}` });
+      }
+      
+      const balanceHex = data.result;
+      const balanceWei = BigInt(balanceHex);
+      const balanceInCAMP = Number(balanceWei) / Math.pow(10, 18);
+      
+      res.json({
+        success: true,
+        walletAddress,
+        balance: balanceInCAMP,
+        balanceWei: balanceWei.toString(),
+        currency: 'CAMP',
+        network: 'Base Camp Testnet'
+      });
+      
+    } catch (error) {
+      console.error('Balance check error:', error);
+      res.status(500).json({ error: 'Failed to check balance' });
     }
   });
 

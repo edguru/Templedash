@@ -48,6 +48,7 @@ export class AgentOrchestrator {
         conversationId,
         payload: {
           message,
+          userId, // Include userId in payload so it gets passed to companion handler
           context: {
             conversationId,
             timestamp: new Date().toISOString()

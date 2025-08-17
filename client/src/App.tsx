@@ -23,10 +23,14 @@ import OnboardingScreen from "./components/ui/OnboardingScreen";
 import TutorialScreen from "./components/ui/TutorialScreen";
 import MintMoreScreen from "./components/ui/MintMoreScreen";
 import CharacterSelectPopup from "./components/ui/CharacterSelectPopup";
+import CompanionCreationScreen from "./components/ui/CompanionCreationScreen";
+import CompanionManagementScreen from "./components/ui/CompanionManagementScreen";
+import CompanionPromptScreen from "./components/ui/CompanionPromptScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
 import { useAudio } from "./lib/stores/useAudio";
+import { useCompanion } from "./lib/stores/useCompanion";
 // Removed useAuth - using only Thirdweb wallet connection
 
 // Import screens
@@ -47,7 +51,8 @@ enum Controls {
 
 // Inner App component that uses Thirdweb hooks
 function AppContent() {
-  const { gamePhase } = useGameState();
+  const { gamePhase, setGamePhase } = useGameState();
+  const { companion, setCompanion, hasCompanionNFT } = useCompanion();
   const account = useActiveAccount();
   const [showCanvas, setShowCanvas] = useState(false);
 
@@ -79,6 +84,35 @@ function AppContent() {
 
   // Authentication state
   const [authComplete, setAuthComplete] = useState(false);
+  const [companionChecked, setCompanionChecked] = useState(false);
+
+  // Check for companion after auth
+  useEffect(() => {
+    const checkCompanion = async () => {
+      if (account?.address && authComplete && !companionChecked) {
+        try {
+          const { companionService } = await import('./lib/companionService');
+          const hasCompanion = await companionService.hasCompanion(account.address);
+          
+          if (hasCompanion) {
+            const companionData = await companionService.getCompanionByOwner(account.address);
+            if (companionData) {
+              setCompanion(companionData.traits);
+            }
+          } else if (gamePhase === 'main') {
+            // Show companion prompt for new users
+            setGamePhase('companionPrompt');
+          }
+        } catch (error) {
+          console.error('Error checking companion:', error);
+        } finally {
+          setCompanionChecked(true);
+        }
+      }
+    };
+
+    checkCompanion();
+  }, [account?.address, authComplete, companionChecked, gamePhase, setGamePhase, setCompanion]);
 
   // Show auth screen if no wallet connected or auth not complete
   if (!account || !authComplete) {
@@ -118,6 +152,51 @@ function AppContent() {
             {gamePhase === 'mintMore' && <MintMoreScreen />}
             
             {gamePhase === 'characterSelectPopup' && <CharacterSelectPopup />}
+            
+            {gamePhase === 'companionCreation' && (
+              <CompanionCreationScreen
+                onCompanionCreated={async (traits) => {
+                  try {
+                    const { companionService } = await import('./lib/companionService');
+                    if (account) {
+                      await companionService.mintCompanion(account, traits);
+                      setCompanion(traits);
+                      setGamePhase('main');
+                    }
+                  } catch (error) {
+                    console.error('Error creating companion:', error);
+                    alert('Failed to create companion. Please try again.');
+                  }
+                }}
+                onBack={() => setGamePhase('main')}
+              />
+            )}
+            
+            {gamePhase === 'companionManagement' && companion && (
+              <CompanionManagementScreen
+                companion={companion}
+                onCompanionUpdated={async (traits) => {
+                  try {
+                    const { companionService } = await import('./lib/companionService');
+                    if (account && companion?.tokenId) {
+                      await companionService.updateCompanionTraits(account, companion.tokenId, traits);
+                      setCompanion(traits);
+                    }
+                  } catch (error) {
+                    console.error('Error updating companion:', error);
+                    throw error;
+                  }
+                }}
+                onBack={() => setGamePhase('main')}
+              />
+            )}
+            
+            {gamePhase === 'companionPrompt' && (
+              <CompanionPromptScreen
+                onCreateCompanion={() => setGamePhase('companionCreation')}
+                onSkip={() => setGamePhase('main')}
+              />
+            )}
             
             {gamePhase === 'gameOver' && <GameOverScreen />}
 

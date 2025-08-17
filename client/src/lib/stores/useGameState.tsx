@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
-export type GamePhase = "main" | "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial" | "mintMore" | "characterSelectPopup";
+export type GamePhase = "main" | "start" | "playing" | "gameOver" | "mint" | "characterPreview" | "characterSelect" | "mysteryBox" | "leaderboard" | "chat" | "profile" | "onboarding" | "tutorial" | "mintMore" | "characterSelectPopup" | "companionCreation" | "companionManagement" | "companionPrompt";
 
 interface GameState {
   gamePhase: GamePhase;

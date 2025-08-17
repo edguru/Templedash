@@ -15,8 +15,11 @@ import {
   Clock,
   Lock,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  Heart
 } from 'lucide-react';
+import { useGameState } from '../../lib/stores/useGameState';
+import { useCompanion } from '../../lib/stores/useCompanion';
 import { sessionManager } from '../../lib/sessionSigners';
 
 interface UserSecret {
@@ -39,6 +42,8 @@ interface SessionKey {
 
 export default function AccountScreen() {
   const account = useActiveAccount();
+  const { setGamePhase } = useGameState();
+  const { companion, hasCompanionNFT } = useCompanion();
   const [activeTab, setActiveTab] = useState<'profile' | 'secrets' | 'sessions'>('profile');
   const [secrets, setSecrets] = useState<UserSecret[]>([]);
   const [sessionKeys, setSessionKeys] = useState<SessionKey[]>([]);
@@ -253,6 +258,51 @@ export default function AccountScreen() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <h2 className="text-lg font-semibold mb-4">AI Companion</h2>
+              {companion ? (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">{companion.name}</h3>
+                      <p className="text-gray-600 capitalize">
+                        {companion.age} years • {companion.role} • {companion.personalityType}
+                      </p>
+                      {companion.tokenId && (
+                        <p className="text-sm text-purple-600">
+                          Soulbound Token #{companion.tokenId}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setGamePhase('companionManagement')}
+                      className="flex items-center space-x-2 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Manage Companion</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Heart className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-600 mb-4">No AI companion created yet</p>
+                  <button
+                    onClick={() => setGamePhase('companionCreation')}
+                    className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all mx-auto"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Create Companion</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="bg-white rounded-lg p-6 shadow-sm">

@@ -1,187 +1,80 @@
 # Overview
 
-Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
-
-## Recent Changes (2025-08-17 - NEBULA MCP INTEGRATION COMPLETE)
-- **Thirdweb Nebula MCP Fully Integrated**: Advanced blockchain operations via Nebula SDK now operational
-  - **15-Agent System**: Added Nebula MCP as 15th agent with full CAMP network support
-  - **Advanced Intent Recognition**: mint_nft, list_marketplace, gasless_transaction, nebula_deploy intents working
-  - **Intelligent Task Routing**: TaskOrchestrator routes Nebula tasks to Nebula MCP, basic operations to Goat MCP
-  - **Context-Aware Responses**: "Setting up a gasless transaction via Nebula's sponsorship system..." etc.
-  - **NFT Operations**: Complete NFT minting and marketplace listing capabilities
-  - **Gasless Transactions**: Transaction sponsorship for zero-fee operations on CAMP network
-- **Dual MCP Architecture Operational**: Smart routing between Goat MCP and Nebula MCP
-  - **Goat MCP**: Balance checks, basic transfers, standard contract deployments
-  - **Nebula MCP**: NFT minting, marketplace operations, gasless transactions, advanced deployments
-  - **Priority Management**: High priority for deployments, medium for NFT operations and gasless transactions
-  - **Task State Management**: Both MCPs integrated with task completion pipeline
-- **Previous Features Maintained**:
-  - **Blockchain Task Routing**: Companion properly routes requests to appropriate MCP agents
-  - **Task-Specific Responses**: Users receive contextual responses instead of generic ones
-  - **Multi-Agent Pipeline**: CompanionHandler → TaskOrchestrator → MCP execution working perfectly
-- **Previous Features Maintained**:
-  - **Authentication System Fixed**: Resolved all 401 authorization errors for companion chat system
-  - **Automatic Session Key Creation**: Enhanced user onboarding with seamless session management
-  - **AWS KMS Secret Management**: Enterprise-grade secure storage system with production credentials
-  - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
-- **Previous Features Maintained**:
-  - **AWS KMS Secret Management**: Enterprise-grade secure storage system with production credentials
-  - **OpenAI GPT-4o Integration**: Advanced reasoning when API key provided, graceful fallback without key
-  - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
-  - **Thirdweb Integration**: Seamless wallet connection with automatic session creation
-
-## Previous Changes (2025-08-17 - APP REDESIGN)
-- **Major Architecture Pivot**: Repositioned from game-first to companion-first application
-  - **Primary Focus**: Chat companion and Web3 task automation as main features
-  - **Secondary Focus**: Puppet Runner moved to mini-games section as entertainment feature
-  - **Current Display**: Application shows Companion Chat system by design (not the 3D game)
-- **New MainApp Component**: Complete app redesign with dedicated tabs for Chat, Tasks, Mini Games, and Account
-- **TasksScreen**: Full Web3 task management system with automation workflows, priority levels, and category organization
-- **MiniGamesScreen**: Gaming hub featuring Puppet Runner with stats, ratings, and rewards tracking
-- **AccountScreen**: Comprehensive wallet management, game statistics, achievements, and settings
-- **Streamlined Login**: Simplified wallet connection page inspired by wireframe, minimal text and clean design
-- **Navigation Structure**: Mobile-first responsive design with bottom navigation and desktop sidebar
-- **App Flow**: Wallet connection → Main companion interface (default: Chat tab) → Mini games accessible via tab
-
-## Previous Changes (2025-08-13 - CHECKPOINT)
-- **Authentication Simplification**: Removed JWT/complex auth layers - now uses only Thirdweb wallet connection
-- **Base Camp Testnet Integration**: Fully configured for Camp Network's Base Camp testnet (chain ID: 123420001114)
-  - **Currency**: Uses CAMP as native gas currency
-  - **NFT Minting**: Requires 0.001 CAMP for mint fee
-  - **Block Explorer**: https://basecamp.cloud.blockscout.com
-- **NFT Contract**: Confirmed deployed at 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500 (proxy contract with TokenERC721 implementation)
-- **Multiple Character System**: Complete character selection and ownership system
-  - Each NFT represents one unique character (Ninja Warrior, Space Ranger, Crystal Mage)
-  - Users can mint multiple NFTs to own multiple characters
-  - Character selector screen for players with multiple owned characters
-  - Smart game flow: no characters → mint, one character → start directly, multiple → show selector
-  - Fixed keyboard controls for all character types with proper NFT character rendering
-- **Character Collection System**: Added dedicated "Mint More Characters" page
-  - Users can mint up to 3 total characters (one of each type)
-  - Progress tracking showing collection completion (X/3 characters)
-  - Prevention of duplicate character minting
-  - Collection completion celebration screen
-- **Database Fix**: Resolved SQL GROUP BY error in user stats endpoint
-- **Deferred Reward System**: Mystery box tokens save recipient addresses for later claiming instead of immediate distribution
-  - Standard reward: $0.001 worth of PUPPETS tokens
-  - Jackpot reward: $10 PUPPETS (1 in 5000 chance)
-  - Added airdrop notification in mystery box explaining deferred token distribution
-- **Comprehensive Onboarding System**: Complete new user experience
-  - Social media follow requirements (X and Telegram)
-  - 8-step pixel-style interactive tutorial covering all game features
-  - Smart flow detection for new vs returning users
-  - Tutorial access button on main menu for returning players
-- **Environment Configuration**: Organized all environment variables for easy Base Camp deployment
-- **X (Twitter) Integration**: Automatic draft post sharing functionality tagging @PuppetsAI
-- **Simplified Wallet Flow**: Direct wallet connection without additional authentication layers
-- **3-Lane System**: Maintained classic Temple Run 3-lane discrete movement system
-- **Performance Optimization**: Mobile-optimized 3D rendering with LOD management
-- **High-Quality Character Assets**: All character assets regenerated using Tripo API for superior quality
-  - Enhanced shadow_character.glb with athletic silhouette design (1.7MB)
-  - Improved character_red.glb with detailed red athletic runner (1.8MB)
-  - Enhanced character_blue.glb with detailed blue athletic runner (1.8MB)
-  - Upgraded character_green.glb with detailed green athletic runner (1.8MB)
-- **Graphics Quality Improvements**: Enhanced visual fidelity while maintaining mobile performance
-  - Upgraded renderer precision from mediump to highp
-  - Enhanced shadow mapping with PCF soft shadows
-  - Adaptive shadow quality (1024px mobile, 2048px desktop)
-  - Improved tone mapping with ACES Filmic for better HDR colors
-  - Gamma correction and proper color space handling
-  - Enhanced lighting with better material properties
-  - Atmospheric fog effects (desktop only for performance)
-  - Mobile-optimized visual effects system
-- **Character Loading System**: Implemented advanced GLB character loading with Suspense
-  - Fixed GLB texture loading issues with proper error handling
-  - Enhanced fallback character with athletic silhouette and advanced materials
-  - Proper shadow casting and receiving for all character models
-  - Texture-less rendering to avoid mobile compatibility issues
-- **Database Environment Variables**: Complete database configuration added to .env
-  - DATABASE_URL with full PostgreSQL connection string
-  - Individual PostgreSQL variables (PGHOST, PGDATABASE, PGUSER, PGPASSWORD, PGPORT)
-  - Updated .env.example with proper database configuration template
+Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
 # User Preferences
 
 - **AI System**: Single CrewAI-powered multi-agent system with chain of thought injection (not multiple competing systems)
 - **Chain of Thought**: Use Manus AI-style dynamic reasoning injection into working memory during execution
 - **App Focus**: Companion chat and task automation as primary features, Puppet Runner as mini-game
+- **Companion System**: Personalized AI companions with customizable traits minted as soulbound tokens
 - **Design Style**: Clean, minimal interface inspired by wireframe - avoid excessive text
 - **Communication**: Simple, everyday language
-- **Authentication**: Email and wallet-based auth only via Thirdweb (no social login options)  
+- **Authentication**: Email and wallet-based auth only via Thirdweb (no social login options)
 - **Reward system**: Save token recipients for later claiming rather than immediate distribution
 - **Network**: Base Camp testnet by Camp Network for all blockchain operations
 
 # System Architecture
 
 ## Frontend Architecture
-- **React with TypeScript**: Main UI framework using functional components and hooks
-- **Three.js with React Three Fiber**: 3D graphics engine optimized for mobile performance
-- **Zustand**: State management for game state, player progress, audio controls, authentication, and NFT ownership
-- **Tailwind CSS with Radix UI**: Styling system with pre-built accessible components
-- **Vite**: Build tool and development server with hot module replacement
-- **Mobile Optimization**: Reduced shadow quality, lower polygon models, simplified lighting for mobile devices
+- **React with TypeScript**: Main UI framework using functional components and hooks.
+- **Three.js with React Three Fiber**: 3D graphics engine optimized for mobile performance, used for the Puppet Runner mini-game.
+- **Zustand**: State management for application state, including companion traits, authentication, and NFT ownership.
+- **Tailwind CSS with Radix UI**: Styling system for a clean, minimal interface with accessible components.
+- **Vite**: Build tool and development server.
+- **Mobile Optimization**: Implemented with reduced shadow quality, lower polygon models, and simplified lighting for mobile devices.
 
-## Game Engine Structure
-- **Component-based 3D Scene**: Modular game objects with DaytimeSkybox, LOD Manager, ShadowCharacter
-- **Game Loop**: Frame-based updates using React Three Fiber's useFrame hook
-- **Physics System**: Custom collision detection and player movement mechanics
-- **Character System**: Each NFT represents one unique character - users can mint multiple NFTs to own multiple characters
-- **Performance Optimization**: LOD scaling, lazy loading, and Canvas optimizations for mobile/desktop
-- **Audio Management**: Sound effects and background music with mute controls
-- **Progressive Difficulty**: Game speed increases over time for added challenge
+## Application Structure
+- **Companion-First Design**: Primary focus is the Companion Chat system, with dedicated tabs for Chat, Tasks, Mini Games, and Account.
+- **Comprehensive Companion Creation System**: UI for designing companion personality, relationship type, and traits (name, age, role, gender, flirtiness, intelligence, humor, loyalty, empathy).
+- **Enhanced Companion Handler Agent**: A 15-agent system that includes personalized companion interactions, with personality-based responses and relationship-aware greetings.
+- **User Flow Integration**: Seamless companion creation workflow for new and existing users, including soulbound token minting for companions.
+- **Web3 Task Management**: TasksScreen for Web3 automation workflows, priority levels, and category organization.
+- **Gaming Hub**: MiniGamesScreen featuring Puppet Runner with stats, ratings, and rewards tracking.
+- **Account Management**: AccountScreen for wallet management, game statistics, achievements, and settings.
+- **Streamlined Login**: Simplified wallet connection page.
 
 ## Backend Architecture
-- **Express.js**: RESTful API server with JWT authentication and comprehensive error handling
-- **PostgreSQL with Drizzle ORM**: Type-safe database operations with proper schema management
-- **JWT Authentication**: Wallet-based authentication system for secure user sessions
-- **Comprehensive API**: Game scores, leaderboards, token claims, NFT ownership tracking
-- **Real Token Rewards**: Mystery box system with $0.01-$10+ crypto rewards based on performance
-
-## Database Schema
-- **Drizzle ORM**: Type-safe database operations with PostgreSQL dialect
-- **User Management**: Basic user table with username/password authentication
-- **Migration System**: Database schema versioning in ./migrations directory
+- **Express.js**: RESTful API server.
+- **PostgreSQL with Drizzle ORM**: Type-safe database operations with schema management.
+- **Authentication**: Wallet-based authentication system for secure user sessions, primarily via Thirdweb.
+- **Comprehensive API**: Supports game scores, leaderboards, token claims, and NFT ownership tracking.
+- **Real Token Rewards**: Mystery box system for deferred crypto rewards based on performance.
 
 ## Web3 Integration
-- **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks - all authentication goes through Thirdweb
-- **Base Camp Testnet**: Camp Network testnet (chain ID: 123420001114) for low-cost testing
-- **Smart Contract**: NFT contract at 0x00005A2F0e8F4303F719A9f45F25cA578F4AA500
-- **Mystery Box System**: One-time claimable rewards with Puppets AI tokens
-- **Authentication Methods**: Email (via inApp wallet) and external wallets (MetaMask, Coinbase, Rainbow, Rabby, Zerion) - all through Thirdweb
-- **Social Integration**: X (Twitter) sharing with automatic draft posts
-
-## Game State Management
-- **Phase Management**: Game states (start, playing, gameOver, mint, mysteryBox)
-- **Player Progress**: Position tracking, movement controls, and collision detection
-- **Reward System**: Coin collection, mystery box mechanics, and token rewards
-- **NFT Integration**: Each NFT = one character, users can mint multiple characters for variety and collection
+- **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks for all authentication and Web3 operations.
+- **Base Camp Testnet**: Configured for Camp Network's Base Camp testnet (chain ID: 123420001114) using CAMP as native gas currency.
+- **Smart Contracts**: Includes an NFT contract for characters and a Soulbound Token contract for AI companions.
+- **Wallet Connection**: Supports email (via in-app wallet) and external wallets (MetaMask, Coinbase, Rainbow, Rabby, Zerion) through Thirdweb.
+- **Multiple Character System**: Each NFT represents a unique character; users can mint multiple.
+- **Character Collection System**: Dedicated "Mint More Characters" page with progress tracking and prevention of duplicate minting.
 
 # External Dependencies
 
 ## Frontend Libraries
-- **@react-three/fiber**: React renderer for Three.js
-- **@react-three/drei**: Useful helpers and abstractions for React Three Fiber
-- **@react-three/postprocessing**: Post-processing effects for enhanced visuals
-- **@tanstack/react-query**: Server state management and caching
+- **@react-three/fiber**: React renderer for Three.js.
+- **@react-three/drei**: Helpers and abstractions for React Three Fiber.
+- **@react-three/postprocessing**: Post-processing effects.
+- **@tanstack/react-query**: Server state management and caching.
 
 ## Web3 & Blockchain
-- **@thirdweb-dev/react**: Web3 React hooks and components
-- **Polygon Network**: Layer 2 blockchain for low-cost transactions
-- **MetaMask/WalletConnect**: Wallet connection protocols
+- **@thirdweb-dev/react**: Web3 React hooks and components.
+- **Polygon Network**: Layer 2 blockchain (mentioned in original, but Base Camp testnet is primary network).
+- **MetaMask/WalletConnect**: Wallet connection protocols.
 
 ## Database & ORM
-- **@neondatabase/serverless**: Serverless PostgreSQL database
-- **drizzle-orm**: Type-safe ORM with PostgreSQL support
-- **drizzle-kit**: Migration and schema management tools
+- **@neondatabase/serverless**: Serverless PostgreSQL database.
+- **drizzle-orm**: Type-safe ORM with PostgreSQL support.
+- **drizzle-kit**: Migration and schema management tools.
 
 ## UI Components
-- **@radix-ui/***: Comprehensive set of accessible React components
-- **tailwindcss**: Utility-first CSS framework
-- **class-variance-authority**: Type-safe component variants
-- **lucide-react**: Icon library
+- **@radix-ui/***: Accessible React components.
+- **tailwindcss**: Utility-first CSS framework.
+- **class-variance-authority**: Type-safe component variants.
+- **lucide-react**: Icon library.
 
 ## Development Tools
-- **vite**: Fast build tool and development server
-- **typescript**: Static type checking
-- **tsx**: TypeScript execution environment
-- **esbuild**: Fast JavaScript bundler for production builds
+- **vite**: Fast build tool and development server.
+- **typescript**: Static type checking.
+- **tsx**: TypeScript execution environment.
+- **esbuild**: Fast JavaScript bundler.

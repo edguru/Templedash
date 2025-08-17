@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract CompanionSoulboundToken is ERC721, Ownable, ReentrancyGuard {
+contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -36,7 +36,7 @@ contract CompanionSoulboundToken is ERC721, Ownable, ReentrancyGuard {
     event TraitsUpdated(uint256 indexed tokenId, address indexed owner);
     event CompanionActivated(uint256 indexed tokenId, address indexed owner);
 
-    constructor() ERC721("Companion Soulbound Token", "CST") {}
+    constructor() ERC721("Companion NFT", "COMP") {}
 
     modifier onlyTokenOwner(uint256 tokenId) {
         require(ownerOf(tokenId) == msg.sender, "Not the token owner");
@@ -133,47 +133,21 @@ contract CompanionSoulboundToken is ERC721, Ownable, ReentrancyGuard {
         return ownerToCompanion[owner] != 0 && isActive[ownerToCompanion[owner]];
     }
 
-    // Soulbound: Override transfer functions to make tokens non-transferable
+    // Override transfer to update ownership mapping
     function _beforeTokenTransfer(
         address from,
         address to,
         uint256 tokenId
     ) internal override {
-        require(from == address(0), "Soulbound: Transfer not allowed");
         super._beforeTokenTransfer(from, to, tokenId);
-    }
-
-    function approve(address to, uint256 tokenId) public override {
-        revert("Soulbound: Approval not allowed");
-    }
-
-    function setApprovalForAll(address operator, bool approved) public override {
-        revert("Soulbound: Approval not allowed");
-    }
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override {
-        revert("Soulbound: Transfer not allowed");
-    }
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) public override {
-        revert("Soulbound: Transfer not allowed");
-    }
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory _data
-    ) public override {
-        revert("Soulbound: Transfer not allowed");
+        
+        // Update ownership mapping on transfer
+        if (from != address(0)) {
+            ownerToCompanion[from] = 0; // Remove from previous owner
+        }
+        if (to != address(0)) {
+            ownerToCompanion[to] = tokenId; // Assign to new owner
+        }
     }
 
     // Owner functions

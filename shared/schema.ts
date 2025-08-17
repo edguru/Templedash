@@ -45,6 +45,28 @@ export const nftOwnership = pgTable("nft_ownership", {
   transactionHash: text("transaction_hash").notNull(),
 });
 
+export const companions = pgTable("companions", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull().unique(), // One companion per user
+  tokenId: text("token_id").notNull(),
+  contractAddress: text("contract_address").notNull(),
+  name: text("name").notNull(),
+  age: integer("age").notNull(),
+  role: text("role").notNull(), // partner, friend, pet
+  gender: text("gender").notNull(), // male, female, non-binary
+  flirtiness: integer("flirtiness").notNull(), // 0-100
+  intelligence: integer("intelligence").notNull(), // 0-100
+  humor: integer("humor").notNull(), // 0-100
+  loyalty: integer("loyalty").notNull(), // 0-100
+  empathy: integer("empathy").notNull(), // 0-100
+  personalityType: text("personality_type").notNull(), // helpful, casual, professional
+  appearance: text("appearance"), // description or IPFS hash
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  transactionHash: text("transaction_hash"),
+});
+
 export const contracts = pgTable("contracts", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
@@ -82,8 +104,28 @@ export const insertNftOwnershipSchema = createInsertSchema(nftOwnership).pick({
   transactionHash: true,
 });
 
+export const insertCompanionSchema = createInsertSchema(companions).pick({
+  userId: true,
+  tokenId: true,
+  contractAddress: true,
+  name: true,
+  age: true,
+  role: true,
+  gender: true,
+  flirtiness: true,
+  intelligence: true,
+  humor: true,
+  loyalty: true,
+  empathy: true,
+  personalityType: true,
+  appearance: true,
+  transactionHash: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GameScore = typeof gameScores.$inferSelect;
 export type TokenClaim = typeof tokenClaims.$inferSelect;
 export type NftOwnership = typeof nftOwnership.$inferSelect;
+export type Companion = typeof companions.$inferSelect;
+export type InsertCompanion = z.infer<typeof insertCompanionSchema>;

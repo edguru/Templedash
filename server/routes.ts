@@ -3,9 +3,9 @@ import { createServer, type Server } from "http";
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "./storage";
-import { users, gameScores, tokenClaims, nftOwnership, contracts } from '../shared/schema';
+import { users, gameScores, tokenClaims, nftOwnership, contracts, companions } from '../shared/schema';
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
-import { eq, desc, sum, count, and } from 'drizzle-orm';
+import { eq, desc, sum, count, and, sql } from 'drizzle-orm';
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
@@ -566,9 +566,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({
         success: true,
-        response: response.response,
-        taskCreated: response.taskCreated,
-        taskId: response.taskId,
+        response: (response as any).response,
+        taskCreated: (response as any).taskCreated,
+        taskId: (response as any).taskId,
         conversationId
       });
     } catch (error) {
@@ -687,11 +687,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         secretId
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('[API] Secret storage error:', error);
       res.status(500).json({ 
         error: 'Failed to store secret',
-        details: error.message 
+        details: error?.message || 'Unknown error'
       });
     }
   });
@@ -712,11 +712,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         value: secretValue
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('[API] Secret retrieval error:', error);
       res.status(500).json({ 
         error: 'Failed to retrieve secret',
-        details: error.message 
+        details: error?.message || 'Unknown error'
       });
     }
   });
@@ -733,11 +733,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         secrets
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('[API] Secrets list error:', error);
       res.status(500).json({ 
         error: 'Failed to list secrets',
-        details: error.message 
+        details: error?.message || 'Unknown error'
       });
     }
   });
@@ -755,11 +755,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: 'Secret deleted successfully'
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('[API] Secret deletion error:', error);
       res.status(500).json({ 
         error: 'Failed to delete secret',
-        details: error.message 
+        details: error?.message || 'Unknown error'
       });
     }
   });
@@ -886,6 +886,148 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: 'Failed to create session keys',
         details: error.message 
       });
+    }
+  });
+
+  // Companion management endpoints
+  
+  // Check if user has a companion
+  app.get('/api/user/:walletAddress/companion', async (req, res) => {
+    try {
+      const walletAddress = req.params.walletAddress;
+      
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const companion = await db.select().from(companions).where(eq(companions.userId, user[0].id)).limit(1);
+      
+      if (companion.length === 0) {
+        return res.json({ hasCompanion: false, companion: null });
+      }
+
+      res.json({ hasCompanion: true, companion: companion[0] });
+    } catch (error) {
+      console.error('Error checking companion:', error);
+      res.status(500).json({ error: 'Failed to check companion status' });
+    }
+  });
+
+  // Create companion (only if user doesn't have one)
+  app.post('/api/user/:walletAddress/companion', async (req, res) => {
+    try {
+      const walletAddress = req.params.walletAddress;
+      const {
+        tokenId,
+        contractAddress,
+        name,
+        age,
+        role,
+        gender,
+        flirtiness,
+        intelligence,
+        humor,
+        loyalty,
+        empathy,
+        personalityType,
+        appearance,
+        transactionHash
+      } = req.body;
+
+      // Validate required fields
+      if (!tokenId || !contractAddress || !name || !role || !gender || !personalityType) {
+        return res.status(400).json({ error: 'Missing required companion fields' });
+      }
+
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Check if user already has a companion
+      const existingCompanion = await db.select().from(companions).where(eq(companions.userId, user[0].id)).limit(1);
+      if (existingCompanion.length > 0) {
+        return res.status(409).json({ error: 'User already has a companion. Only one companion per user is allowed.' });
+      }
+
+      // Create the companion
+      const newCompanion = await db.insert(companions).values({
+        userId: user[0].id,
+        tokenId,
+        contractAddress,
+        name,
+        age,
+        role,
+        gender,
+        flirtiness,
+        intelligence,
+        humor,
+        loyalty,
+        empathy,
+        personalityType,
+        appearance,
+        transactionHash
+      }).returning();
+
+      res.json({ success: true, companion: newCompanion[0] });
+    } catch (error) {
+      console.error('Error creating companion:', error);
+      res.status(500).json({ error: 'Failed to create companion' });
+    }
+  });
+
+  // Update companion traits
+  app.put('/api/user/:walletAddress/companion', async (req, res) => {
+    try {
+      const walletAddress = req.params.walletAddress;
+      const {
+        name,
+        age,
+        role,
+        gender,
+        flirtiness,
+        intelligence,
+        humor,
+        loyalty,
+        empathy,
+        personalityType,
+        appearance
+      } = req.body;
+
+      const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
+      if (user.length === 0) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const companion = await db.select().from(companions).where(eq(companions.userId, user[0].id)).limit(1);
+      if (companion.length === 0) {
+        return res.status(404).json({ error: 'No companion found for user' });
+      }
+
+      // Update companion traits
+      const updatedCompanion = await db.update(companions)
+        .set({
+          name,
+          age,
+          role,
+          gender,
+          flirtiness,
+          intelligence,
+          humor,
+          loyalty,
+          empathy,
+          personalityType,
+          appearance,
+          updatedAt: new Date()
+        })
+        .where(eq(companions.userId, user[0].id))
+        .returning();
+
+      res.json({ success: true, companion: updatedCompanion[0] });
+    } catch (error) {
+      console.error('Error updating companion:', error);
+      res.status(500).json({ error: 'Failed to update companion' });
     }
   });
 

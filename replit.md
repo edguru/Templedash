@@ -14,7 +14,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **AI System**: Single CrewAI-powered multi-agent system with chain of thought injection (not multiple competing systems)
 - **Chain of Thought**: Use Manus AI-style dynamic reasoning injection into working memory during execution
 - **App Focus**: Companion chat and task automation as primary features, Puppet Runner as mini-game
-- **Companion System**: Personalized AI companions with customizable traits minted as soulbound tokens
+- **Companion System**: Personalized AI companions with customizable traits minted as NFTs (one per user)
 - **Design Style**: Clean, minimal interface inspired by wireframe - avoid excessive text
 - **Communication**: Simple, everyday language
 - **Authentication**: Email and wallet-based auth only via Thirdweb (no social login options)
@@ -36,7 +36,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Companion-First Design**: Primary focus is the Companion Chat system, with dedicated tabs for Chat, Tasks, Mini Games, and Account.
 - **Comprehensive Companion Creation System**: UI for designing companion personality, relationship type, and traits (name, age, role, gender, flirtiness, intelligence, humor, loyalty, empathy).
 - **Enhanced Companion Handler Agent**: A 15-agent system that includes personalized companion interactions, with personality-based responses and relationship-aware greetings.
-- **User Flow Integration**: Seamless companion creation workflow for new and existing users, including soulbound token minting for companions.
+- **User Flow Integration**: Seamless companion creation workflow for new and existing users, including NFT minting for companions (one per user only).
 - **Web3 Task Management**: TasksScreen for Web3 automation workflows, priority levels, and category organization.
 - **Gaming Hub**: MiniGamesScreen featuring Puppet Runner with stats, ratings, and rewards tracking.
 - **Account Management**: AccountScreen for wallet management, game statistics, achievements, and settings.
@@ -53,7 +53,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 ## Web3 Integration
 - **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks for all authentication and Web3 operations.
 - **Base Camp Testnet**: Configured for Camp Network's Base Camp testnet (chain ID: 123420001114) using CAMP as native gas currency.
-- **Smart Contracts**: Includes an NFT contract for characters and a Soulbound Token contract for AI companions.
+- **Smart Contracts**: Includes an NFT contract for characters and a Companion NFT contract for AI companions (one per user).
 - **Wallet Connection**: Supports email (via in-app wallet) and external wallets (MetaMask, Coinbase, Rainbow, Rabby, Zerion) through Thirdweb.
 - **Multiple Character System**: Each NFT represents a unique character; users can mint multiple.
 - **Character Collection System**: Dedicated "Mint More Characters" page with progress tracking and prevention of duplicate minting.

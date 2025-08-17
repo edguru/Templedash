@@ -142,6 +142,7 @@ export class NebulaMCP extends BaseAgent {
           taskId: payload.taskId,
           userId: payload.userId,
           result,
+          success: true, // Add explicit success flag
           status: 'completed'
         }
       };
@@ -162,6 +163,7 @@ export class NebulaMCP extends BaseAgent {
           taskId: payload.taskId,
           userId: payload.userId,
           error: error instanceof Error ? error.message : 'Unknown error',
+          success: false, // Add explicit success flag
           status: 'failed'
         }
       };

@@ -61,19 +61,17 @@ export class CompanionHandler extends BaseAgent {
             isMultiTask: this.isMultiTaskMessage(userMessage)
           });
           
-          // Determine if multi-task analysis is needed
-          const messageType = this.isMultiTaskMessage(userMessage) ? 'analyze_multi_task' : 'analyze_task';
-          
-          // Create task routing message
+          // For now, route ALL tasks directly to TaskOrchestrator to avoid complexity
+          // The TaskOrchestrator can handle both simple and complex tasks
           const taskMessage: AgentMessage = {
-            type: messageType,
+            type: 'analyze_task',
             id: uuidv4(),
             timestamp: new Date().toISOString(),
             senderId: this.agentId,
-            targetId: this.isMultiTaskMessage(userMessage) ? 'prompt-engineer' : 'task-orchestrator',
+            targetId: 'task-orchestrator',
             payload: {
               message: userMessage,
-              userId: message.payload.userId || message.userId, // Get userId from payload or message root
+              userId: message.payload.userId || message.payload.walletAddress || message.userId,
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,
@@ -84,10 +82,19 @@ export class CompanionHandler extends BaseAgent {
           
           await this.sendMessage(taskMessage);
           
-          // Return personalized acknowledgment
+          // Return personalized acknowledgment based on task type
           const personalizedGreeting = this.companionTraits ? 
             this.getPersonalizedGreeting() : 
-            "I'll help you with that task.";
+            "I'll help you with that.";
+          
+          let taskDescription = "handle your request";
+          if (userMessage.toLowerCase().includes('mint')) {
+            taskDescription = "mint that NFT for you";
+          } else if (userMessage.toLowerCase().includes('balance')) {
+            taskDescription = "check your balance";
+          } else if (userMessage.toLowerCase().includes('transfer') || userMessage.toLowerCase().includes('send')) {
+            taskDescription = "process that transfer";
+          }
           
           return {
             type: 'companion_response',
@@ -96,7 +103,7 @@ export class CompanionHandler extends BaseAgent {
             senderId: this.agentId,
             targetId: message.senderId,
             payload: {
-              message: `${personalizedGreeting} Let me check that for you...`,
+              message: `${personalizedGreeting} Let me ${taskDescription}...`,
               taskRouted: true,
               companionName: this.companionTraits?.name
             }
@@ -170,14 +177,56 @@ export class CompanionHandler extends BaseAgent {
   }
 
   private isTaskMessage(content: string): boolean {
+    const lowerContent = content.toLowerCase();
+    
+    // High-confidence task patterns - these clearly indicate blockchain operations
+    const taskPatterns = [
+      /\b(check|show|get|what.{0,15}is)\s+.{0,20}balance\b/i,
+      /\bmint\s+.{0,30}(nft|token|companion|character|random)\b/i,
+      /\b(send|transfer)\s+.{0,20}(token|nft|camp|eth)\b/i,
+      /\b(deploy|create)\s+.{0,20}(contract|nft|token)\b/i,
+      /\bhow\s+much\s+.{0,20}(do\s+i\s+have|is\s+my|camp|token)\b/i,
+      /\b(buy|sell|trade)\s+.{0,20}(nft|token|crypto)\b/i,
+      /\bswap\s+.{0,20}(token|for|to)\b/i
+    ];
+    
+    // Check high-confidence patterns first
+    if (taskPatterns.some(pattern => pattern.test(lowerContent))) {
+      this.logActivity('Task detected via pattern matching', { content });
+      return true;
+    }
+    
+    // Task keywords - broader but less specific
     const taskKeywords = [
       'deploy', 'mint', 'transfer', 'swap', 'balance', 'transaction', 
       'contract', 'nft', 'token', 'blockchain', 'wallet', 'crypto',
-      'gasless', 'sponsor', 'marketplace', 'list', 'buy', 'sell'
+      'gasless', 'sponsor', 'marketplace', 'list', 'buy', 'sell',
+      'check', 'send', 'create', 'approve', 'bridge', 'stake'
     ];
     
-    const lowerContent = content.toLowerCase();
-    return taskKeywords.some(keyword => lowerContent.includes(keyword));
+    // Action words that when combined with task keywords indicate tasks
+    const actionWords = [
+      'i want to', 'i need to', 'help me', 'can you', 'please',
+      'how do i', 'how to', 'let me', 'show me'
+    ];
+    
+    const hasTaskKeyword = taskKeywords.some(keyword => lowerContent.includes(keyword));
+    const hasActionWord = actionWords.some(action => lowerContent.includes(action));
+    
+    // If it has task keywords and action words, it's likely a task
+    if (hasTaskKeyword && hasActionWord) {
+      this.logActivity('Task detected via keyword + action combination', { content });
+      return true;
+    }
+    
+    // Simple keyword detection as fallback
+    if (hasTaskKeyword) {
+      this.logActivity('Task detected via keyword matching', { content });
+      return true;
+    }
+    
+    this.logActivity('Non-task message detected - routing to companion chat', { content });
+    return false;
   }
 
   private isMultiTaskMessage(content: string): boolean {

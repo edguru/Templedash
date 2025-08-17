@@ -85,10 +85,12 @@ export class TaskOrchestrator extends BaseAgent {
         console.log('[TaskOrchestrator] Processing analyze_task:', { userMessage, userId, fullPayload: message.payload });
         
         // Create a task based on the user intent
+        const taskType = this.determineTaskType(userMessage);
         const task: Task = {
           id: uuidv4(),
           userId: userId,
-          type: this.determineTaskType(userMessage),
+          type: taskType,
+          category: taskType, // Set category to match type for MCP routing
           status: 'PENDING',
           priority: this.determinePriority(userMessage),
           description: userMessage,
@@ -324,7 +326,7 @@ export class TaskOrchestrator extends BaseAgent {
         payload: {
           taskId: task.id,
           type: task.type || task.category,
-          category: task.category,
+          category: task.category || task.type, // Ensure category is always set
           parameters: task.parameters,
           userId: task.userId,
           description: task.description,
@@ -350,7 +352,10 @@ export class TaskOrchestrator extends BaseAgent {
       return;
     }
 
-    if (success) {
+    // For nebula_task_complete, success is implicitly true
+    const isSuccess = success === true || (message.type === 'nebula_task_complete' && success !== false);
+    
+    if (isSuccess) {
       // Task completed successfully
       task.state = 'COMPLETED';
       task.completedAt = new Date();
@@ -362,7 +367,7 @@ export class TaskOrchestrator extends BaseAgent {
       // Notify completion
       await this.notifyTaskCompletion(task, result);
       
-      this.logActivity('Task completed', { taskId, result });
+      this.logActivity('Task completed successfully', { taskId, result });
     } else {
       // Task failed
       await this.handleTaskError(task, new Error(error || 'Task execution failed'));
@@ -684,7 +689,7 @@ export class TaskOrchestrator extends BaseAgent {
     }
     
     // NFT operations
-    if (lowerMessage.includes('mint') && lowerMessage.includes('nft')) {
+    if (lowerMessage.includes('mint') && (lowerMessage.includes('nft') || lowerMessage.includes('random') || lowerMessage.includes('character') || lowerMessage.includes('companion'))) {
       return 'nft_mint';
     }
     

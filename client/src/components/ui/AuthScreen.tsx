@@ -181,6 +181,16 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthComplete }) => {
               </div>
             </div>
           )}
+
+          {/* Development bypass - Skip onboarding */}
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <button
+              onClick={() => markOnboardingComplete()}
+              className="w-full text-sm text-gray-500 hover:text-gray-700 py-2"
+            >
+              Skip onboarding (for testing)
+            </button>
+          </div>
         </div>
       </div>
     );

@@ -35,9 +35,19 @@ export default function StartScreen() {
 
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-blue-400 to-green-400 flex items-start justify-center p-4 pt-8 overflow-y-auto">
-      <div className="game-card start-screen-card bg-white/90 rounded-lg max-w-sm w-full mx-auto text-center shadow-2xl p-6 min-h-fit mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-3">Puppet Runner</h1>
-        <p className="text-gray-600 mb-4 text-sm">by Puppets AI</p>
+      <div className="game-card start-screen-card bg-white/90 rounded-lg max-w-md w-full mx-auto text-center shadow-2xl p-6 min-h-fit mb-8">
+        {/* Hero Image */}
+        <div className="mb-6 -mx-6 -mt-6">
+          <img 
+            src="/images/hero-image.png" 
+            alt="Puppet Runner - NFT Infinite Runner Game"
+            className="w-full h-48 object-cover rounded-t-lg"
+          />
+        </div>
+        
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">Puppet Runner</h1>
+        <p className="text-gray-600 mb-1 text-sm">by Puppets AI</p>
+        <p className="text-gray-500 mb-6 text-xs">Effortless Automation for Web3</p>
         
         {/* Wallet connection */}
         <div className="mb-6">
@@ -78,15 +88,27 @@ export default function StartScreen() {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="mb-6 flex bg-gray-100 rounded-xl p-1">
-          <button className="flex-1 bg-white shadow-sm rounded-lg py-2 px-4 text-sm font-medium text-green-600 border border-green-200">
-            Game
+        <div className="mb-6 flex bg-gray-100 rounded-xl p-1 text-xs">
+          <button className="flex-1 bg-white shadow-sm rounded-lg py-2 px-2 font-medium text-green-600 border border-green-200">
+            🎮 Game
           </button>
           <button 
             onClick={() => setGamePhase('chat')}
-            className="flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-purple-600 transition-colors"
+            className="flex-1 py-2 px-2 font-medium text-gray-500 hover:text-purple-600 transition-colors"
           >
-            Chat Companion
+            💬 Chat
+          </button>
+          <button 
+            onClick={() => setGamePhase('leaderboard')}
+            className="flex-1 py-2 px-2 font-medium text-gray-500 hover:text-blue-600 transition-colors"
+          >
+            🏆 Mini Games
+          </button>
+          <button 
+            onClick={() => setGamePhase('profile')}
+            className="flex-1 py-2 px-2 font-medium text-gray-500 hover:text-indigo-600 transition-colors"
+          >
+            👤 Account
           </button>
         </div>
 

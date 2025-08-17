@@ -21,7 +21,7 @@ interface GameState {
 
 export const useGameState = create<GameState>()(
   subscribeWithSelector((set, get) => ({
-    gamePhase: "home",
+    gamePhase: "start",
     score: 0,
     distance: 0,
     isGameActive: false,

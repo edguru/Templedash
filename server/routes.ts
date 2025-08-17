@@ -718,7 +718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User onboarding routes
-  app.get('/api/user/status', async (req: Request, res: Response) => {
+  app.get('/api/user/status', async (req: express.Request, res: express.Response) => {
     try {
       const { address } = req.query;
       
@@ -741,13 +741,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           createdAt: user.createdAt
         } : null
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error checking user status:', error);
       res.status(500).json({ error: 'Failed to check user status' });
     }
   });
 
-  app.post('/api/user/complete-onboarding', async (req: Request, res: Response) => {
+  app.post('/api/user/complete-onboarding', async (req: express.Request, res: express.Response) => {
     try {
       const { address } = req.body;
       
@@ -772,7 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({ success: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error completing onboarding:', error);
       res.status(500).json({ error: 'Failed to complete onboarding' });
     }

@@ -86,11 +86,7 @@ export default function ChatScreen() {
     if (!account?.address) return;
     
     try {
-      const response = await fetch('/api/agents/tasks', {
-        headers: {
-          'Authorization': `wallet_${account.address}`
-        }
-      });
+      const response = await fetch(`/api/agents/tasks?userId=${account.address}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -120,8 +116,7 @@ export default function ChatScreen() {
       const response = await fetch('/api/agents/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `wallet_${account.address}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           message: userMessage.content,

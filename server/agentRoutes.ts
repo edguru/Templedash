@@ -20,11 +20,14 @@ router.post('/chat', async (req, res) => {
   try {
     const { message, userId, conversationId = uuidv4() } = req.body;
     
-    if (!message || !userId) {
-      return res.status(400).json({ error: 'Missing message or userId' });
+    if (!message) {
+      return res.status(400).json({ error: 'Missing message' });
     }
 
-    const response = await agentSystem.processUserMessage(userId, message, conversationId);
+    // Use userId or generate a temporary one based on session
+    const effectiveUserId = userId || `temp_${Date.now()}`;
+
+    const response = await agentSystem.processUserMessage(effectiveUserId, message, conversationId);
     
     res.json({
       success: true,
@@ -52,11 +55,12 @@ router.get('/profile/:userId', async (req, res) => {
   }
 });
 
-// Get user tasks
-router.get('/tasks/:userId', async (req, res) => {
+// Get user tasks - Remove auth requirement  
+router.get('/tasks', async (req, res) => {
   try {
-    const { userId } = req.params;
-    const tasks = await agentSystem.getAllActiveTasks(userId);
+    const { userId } = req.query;
+    const effectiveUserId = userId || `temp_${Date.now()}`;
+    const tasks = await agentSystem.getAllActiveTasks(effectiveUserId);
     
     res.json({ tasks });
   } catch (error) {

@@ -552,16 +552,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   console.log('Agent system initialized');
 
   // Agent System API Routes
-  app.post('/api/agents/chat', authenticateToken, async (req: any, res) => {
+  app.post('/api/agents/chat', async (req: any, res) => {
     try {
-      const { message, conversationId = require('uuid').v4() } = req.body;
-      const userId = req.currentUser.userId.toString();
+      const { message, userId, conversationId = require('uuid').v4() } = req.body;
+      const effectiveUserId = userId || `temp_${Date.now()}`;
       
       if (!message) {
         return res.status(400).json({ error: 'Missing message' });
       }
 
-      const response = await agentSystem.processUserMessage(userId, message, conversationId);
+      const response = await agentSystem.processUserMessage(effectiveUserId, message, conversationId);
       
       res.json({
         success: true,
@@ -588,10 +588,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/agents/tasks', authenticateToken, async (req: any, res) => {
+  app.get('/api/agents/tasks', async (req: any, res) => {
     try {
-      const userId = req.currentUser.userId.toString();
-      const tasks = await agentSystem.getAllActiveTasks(userId);
+      const { userId } = req.query;
+      const effectiveUserId = userId || `temp_${Date.now()}`;
+      const tasks = await agentSystem.getAllActiveTasks(effectiveUserId);
       
       res.json({ tasks });
     } catch (error) {

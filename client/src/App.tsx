@@ -86,6 +86,21 @@ function AppContent() {
   const [authComplete, setAuthComplete] = useState(false);
   const [companionChecked, setCompanionChecked] = useState(false);
 
+  // Manage body class for game mode to control overflow
+  useEffect(() => {
+    const body = document.body;
+    if (gamePhase === 'playing') {
+      body.classList.add('game-mode');
+    } else {
+      body.classList.remove('game-mode');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      body.classList.remove('game-mode');
+    };
+  }, [gamePhase]);
+
   // Check for companion after auth
   useEffect(() => {
     const checkCompanion = async () => {
@@ -124,7 +139,7 @@ function AppContent() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
         {showCanvas && (
           <>
             {gamePhase === 'main' && <MainApp />}

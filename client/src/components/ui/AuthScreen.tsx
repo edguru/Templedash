@@ -55,8 +55,31 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ onAuthComplete }) => {
       
       if (data.isNewUser) {
         setIsNewUser(true);
+      } else if (data.needsSessionKeys) {
+        // Existing user but needs session keys
+        console.log('Existing user needs session keys, creating...');
+        try {
+          const sessionResponse = await fetch('/api/user/create-session-keys', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ address })
+          });
+          
+          if (sessionResponse.ok) {
+            console.log('Session keys created for existing user');
+          } else {
+            console.warn('Failed to create session keys, continuing...');
+          }
+        } catch (sessionError) {
+          console.error('Error creating session keys:', sessionError);
+        }
+        
+        // Complete onboarding regardless of session key creation
+        onAuthComplete();
       } else {
-        // Existing user, complete onboarding
+        // Existing user with session keys, complete onboarding
         onAuthComplete();
       }
     } catch (error) {

@@ -14,17 +14,21 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 - **Working Memory Management**: Sliding window context with strategic thought injection capabilities
 - **OpenAI GPT-4o Integration**: Advanced reasoning when API key provided, graceful fallback without key
 - **Goat MCP Base Camp Integration**: Full blockchain automation capabilities
-  - **Session Signer System**: Automated 24-hour session keys for transaction signing
+  - **Session Signer System**: Automated 24-hour session keys for transaction signing with automatic creation
   - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
   - **Thirdweb Integration**: Seamless wallet connection with automatic session creation
   - **Backend API**: Session management endpoints for secure blockchain operations
-- **AWS KMS Secret Management**: Enterprise-grade secure storage system
+  - **Automatic Key Management**: Existing users get session keys created automatically on login
+- **AWS KMS Secret Management**: Enterprise-grade secure storage system with production credentials
   - **KMS Encryption**: AWS Key Management Service for encrypting user secrets and session keys
   - **Account Management**: Complete user profile interface for managing API keys and sessions
   - **Fallback Encryption**: Local encryption when AWS credentials not available
   - **Secret Storage**: Secure storage for OpenAI, GitHub, and other MCP agent credentials
   - **Permission-Based Access**: Granular control over secret access and session permissions
-- **Enhanced User Experience**: Updated login, chat, account, and home interfaces with full security showcase
+- **Enhanced Authentication Flow**: Improved user login system with session key management
+  - **Session Key Detection**: Automatic detection and creation of missing session keys for existing users
+  - **Onboarding Bypass**: Development testing bypass option for streamlined access
+  - **Smart User Flow**: Existing users → session key check → automatic creation if needed → main app
 
 ## Previous Changes (2025-08-17 - APP REDESIGN)
 - **Major Architecture Pivot**: Repositioned from game-first to companion-first application

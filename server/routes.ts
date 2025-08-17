@@ -615,6 +615,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // AWS KMS Secret Management API
   const { kmsManager } = await import('./kms');
   
+  // Session key creation helper function
+  async function createUserSessionKeys(userId: string, walletAddress: string) {
+    const crypto = await import('crypto');
+    
+    // Generate a new private key for session signing
+    const sessionPrivateKey = crypto.randomBytes(32).toString('hex');
+    const sessionWalletAddress = walletAddress; // Use the same address for simplicity
+    
+    // Store session keys securely in KMS
+    await kmsManager.storeUserSecret(
+      userId,
+      'goat_session_private_key',
+      `0x${sessionPrivateKey}`,
+      'session_key',
+      'Goat MCP session signer private key for automated blockchain operations'
+    );
+    
+    await kmsManager.storeUserSecret(
+      userId,
+      'goat_session_address',
+      sessionWalletAddress,
+      'session_key',
+      'Goat MCP session signer wallet address'
+    );
+    
+    // Set expiry (24 hours from now)
+    const expiryDate = new Date();
+    expiryDate.setHours(expiryDate.getHours() + 24);
+    
+    await kmsManager.storeUserSecret(
+      userId,
+      'goat_session_expires_at',
+      expiryDate.toISOString(),
+      'session_metadata',
+      'Session key expiry timestamp'
+    );
+    
+    console.log(`✅ Created session keys for user ${userId}, expires: ${expiryDate.toISOString()}`);
+    return {
+      privateKey: `0x${sessionPrivateKey}`,
+      address: sessionWalletAddress,
+      expiresAt: expiryDate
+    };
+  }
+  
   // Store user secret with KMS encryption
   app.post('/api/user/secrets', async (req, res) => {
     try {
@@ -718,7 +763,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User onboarding routes
-  app.get('/api/user/status', async (req: express.Request, res: express.Response) => {
+  app.get('/api/user/status', async (req: Request, res: Response) => {
     try {
       const { address } = req.query;
       
@@ -731,9 +776,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const isNewUser = !user || !user.onboardingCompleted;
+      let hasSessionKeys = false;
+      let needsSessionKeys = false;
+
+      // For existing users, check if session keys exist
+      if (user && user.onboardingCompleted) {
+        try {
+          // Check if session keys exist in KMS
+          const sessionKeySecret = await kmsManager.getUserSecret(user.id.toString(), 'goat_session_private_key');
+          hasSessionKeys = !!sessionKeySecret;
+          needsSessionKeys = !hasSessionKeys;
+        } catch (error) {
+          // Session keys don't exist
+          needsSessionKeys = true;
+        }
+      }
 
       res.json({ 
         isNewUser,
+        hasSessionKeys,
+        needsSessionKeys,
         user: user ? {
           id: user.id,
           walletAddress: user.walletAddress,
@@ -747,14 +809,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/user/complete-onboarding', async (req: express.Request, res: express.Response) => {
+  app.post('/api/user/complete-onboarding', async (req: Request, res: Response) => {
     try {
-      const { address } = req.body;
+      const { address, createSessionKeys = true } = req.body;
       
       if (!address) {
         return res.status(400).json({ error: 'Wallet address required' });
       }
 
+      let userId: string;
+      
       const existingUser = await db.query.users.findFirst({
         where: eq(users.walletAddress, address)
       });
@@ -763,18 +827,63 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await db.update(users)
           .set({ onboardingCompleted: true })
           .where(eq(users.id, existingUser.id));
+        userId = existingUser.id.toString();
       } else {
-        await db.insert(users).values({
+        const newUser = await db.insert(users).values({
           walletAddress: address,
           onboardingCompleted: true,
           createdAt: new Date()
-        });
+        }).returning();
+        userId = newUser[0].id.toString();
       }
 
-      res.json({ success: true });
+      // Create session keys for blockchain operations if requested
+      if (createSessionKeys) {
+        try {
+          await createUserSessionKeys(userId, address);
+          console.log(`✅ Session keys created for user ${userId}`);
+        } catch (sessionError) {
+          console.error('Error creating session keys:', sessionError);
+          // Don't fail onboarding if session key creation fails
+        }
+      }
+
+      res.json({ success: true, userId });
     } catch (error: any) {
       console.error('Error completing onboarding:', error);
       res.status(500).json({ error: 'Failed to complete onboarding' });
+    }
+  });
+
+  // Create session keys for existing users
+  app.post('/api/user/create-session-keys', async (req: Request, res: Response) => {
+    try {
+      const { address } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ error: 'Wallet address required' });
+      }
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.walletAddress, address)
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      await createUserSessionKeys(user.id.toString(), address);
+      
+      res.json({ 
+        success: true,
+        message: 'Session keys created successfully'
+      });
+    } catch (error: any) {
+      console.error('Error creating session keys:', error);
+      res.status(500).json({ 
+        error: 'Failed to create session keys',
+        details: error.message 
+      });
     }
   });
 

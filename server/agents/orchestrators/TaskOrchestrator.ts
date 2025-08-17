@@ -2,6 +2,7 @@
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage, Task } from '../types/AgentTypes';
+import { SystemPrompts } from '../prompts/SystemPrompts';
 import { TaskTracker } from '../trackers/TaskTracker';
 import { v4 as uuidv4 } from 'uuid';
 

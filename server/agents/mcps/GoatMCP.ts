@@ -2,6 +2,7 @@
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage, MCPError } from '../types/AgentTypes';
+import { SystemPrompts } from '../prompts/SystemPrompts';
 import { v4 as uuidv4 } from 'uuid';
 // Goat SDK imports - using correct export names
 import { getOnChainTools } from '@goat-sdk/core';

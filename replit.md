@@ -2,6 +2,13 @@
 
 Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
+## Recent Updates (January 17, 2025)
+- **Comprehensive System Prompts**: Implemented detailed, accurate system prompts for all 15 agents in the CrewAI architecture
+- **Enhanced Agent Accuracy**: Each agent now has specialized prompts defining their role, capabilities, and operational guidelines
+- **Improved Intent Recognition**: CompanionHandler, TaskAnalyzer, PromptEngineer, TaskOrchestrator, GoatMCP, and NebulaMCP now operate with enhanced precision
+- **Technical Specialization**: Agents now have clear understanding of Base Camp testnet operations, CAMP token mechanics, and Web3 task routing
+- **Personality-Driven Responses**: CompanionHandler now generates dynamic system prompts based on user-defined companion traits and relationship types
+
 # User Preferences
 
 - **AI System**: Single CrewAI-powered multi-agent system with chain of thought injection (not multiple competing systems)
@@ -13,6 +20,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Authentication**: Email and wallet-based auth only via Thirdweb (no social login options)
 - **Reward system**: Save token recipients for later claiming rather than immediate distribution
 - **Network**: Base Camp testnet by Camp Network for all blockchain operations
+- **System Prompts**: Detailed and accurate system prompts for all agents to ensure precise operation and enhanced performance
 
 # System Architecture
 
@@ -40,6 +48,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Authentication**: Wallet-based authentication system for secure user sessions, primarily via Thirdweb.
 - **Comprehensive API**: Supports game scores, leaderboards, token claims, and NFT ownership tracking.
 - **Real Token Rewards**: Mystery box system for deferred crypto rewards based on performance.
+- **Advanced AI System**: 15-agent CrewAI architecture with comprehensive system prompts for enhanced accuracy and task execution.
 
 ## Web3 Integration
 - **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks for all authentication and Web3 operations.

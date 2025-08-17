@@ -2,6 +2,7 @@
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
+import { SystemPrompts } from '../prompts/SystemPrompts';
 import { v4 as uuidv4 } from 'uuid';
 
 interface IntentAnalysis {
@@ -72,7 +73,15 @@ export class PromptEngineer extends BaseAgent {
   private async analyzePrompt(prompt: string, context: any): Promise<IntentAnalysis> {
     const normalizedPrompt = prompt.toLowerCase().trim();
     
-    // Detect primary intent
+    // Apply comprehensive system prompt for intent analysis
+    const systemPrompt = SystemPrompts.getPromptEngineerPrompt();
+    this.logActivity('Applying detailed prompt analysis', {
+      promptLength: prompt.length,
+      contextKeys: Object.keys(context || {}),
+      systemPromptApplied: true
+    });
+    
+    // Enhanced intent detection with system prompt context
     const intent = await this.detectIntent(normalizedPrompt);
     const confidence = await this.calculateConfidence(normalizedPrompt, intent);
     

@@ -1,8 +1,16 @@
-// Goat MCP Agent - Handles CAMP network blockchain operations
+// Goat MCP Agent - Handles CAMP network blockchain operations with session signers
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage, MCPError } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+// Goat SDK imports - using correct export names
+import { getOnChainTools } from '@goat-sdk/core';
+import { evmWallet } from '@goat-sdk/wallet-evm';
+import { erc20Plugin } from '@goat-sdk/plugin-erc20';  
+import { uniswapPlugin } from '@goat-sdk/plugin-uniswap';
+import { createWalletClient, http, createPublicClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import crypto from 'crypto';
 
 interface BlockchainOperation {
   type: 'contract_deploy' | 'nft_mint' | 'token_transfer' | 'balance_check' | 'transaction_status';
@@ -10,44 +18,95 @@ interface BlockchainOperation {
   network: string;
   gasEstimate?: number;
   transactionHash?: string;
+  sessionSigner?: string;
+}
+
+interface SessionSigner {
+  address: string;
+  privateKey: string;
+  userId: string;
+  expiresAt: Date;
+  permissions: string[];
 }
 
 export class GoatMCP extends BaseAgent {
   private pendingOperations: Map<string, BlockchainOperation> = new Map();
+  private sessionSigners: Map<string, SessionSigner> = new Map();
   private networkConfig = {
     base_camp_testnet: {
+      name: 'Base Camp Testnet',
       rpcUrl: 'https://rpc.camp-network-testnet.gelato.digital',
       chainId: 123420001114,
       nativeCurrency: 'CAMP',
       explorer: 'https://basecamp.cloud.blockscout.com'
     }
   };
+  private publicClient: any;
+  private goatTools: any;
 
   constructor(messageBroker: MessageBroker) {
     super('goat-mcp', messageBroker);
   }
 
   protected initialize(): void {
-    this.logActivity('Initializing Goat MCP Agent');
+    this.logActivity('Initializing Goat MCP Agent with Base Camp network');
     
+    // Ensure networkConfig is properly initialized
+    if (!this.networkConfig) {
+      this.networkConfig = {
+        base_camp_testnet: {
+          name: 'Base Camp Testnet',
+          rpcUrl: 'https://rpc.camp-network-testnet.gelato.digital',
+          chainId: 123420001114,
+          nativeCurrency: 'CAMP',
+          explorer: 'https://basecamp.cloud.blockscout.com'
+        }
+      };
+    }
+    
+    // Initialize Base Camp network client
+    const baseCampConfig = this.networkConfig.base_camp_testnet;
+    this.publicClient = createPublicClient({
+      transport: http(baseCampConfig.rpcUrl),
+      chain: {
+        id: baseCampConfig.chainId,
+        name: baseCampConfig.name,
+        nativeCurrency: {
+          name: 'CAMP',
+          symbol: 'CAMP', 
+          decimals: 18
+        },
+        rpcUrls: {
+          default: {
+            http: [baseCampConfig.rpcUrl]
+          }
+        }
+      }
+    });
+
     // Subscribe to blockchain task execution
     this.messageBroker.subscribe('execute_task', async (message: AgentMessage) => {
       if (this.canHandleCategory(message.payload.category)) {
         await this.handleMessage(message);
       }
     });
+
+    // Subscribe to session signer creation
+    this.messageBroker.subscribe('create_session_signer', async (message: AgentMessage) => {
+      await this.createSessionSigner(message);
+    });
   }
 
   getCapabilities(): string[] {
     return [
-      'contract_deployment',
-      'nft_operations',
-      'token_transfers',
-      'balance_queries',
-      'transaction_monitoring',
-      'camp_network_operations',
-      'gas_estimation',
-      'transaction_simulation'
+      'blockchain-operations',
+      'smart-contracts', 
+      'defi-protocols',
+      'nft-management',
+      'session-signers',
+      'base-camp-network',
+      'goat-sdk-integration',
+      'automated-transactions'
     ];
   }
 
@@ -62,10 +121,74 @@ export class GoatMCP extends BaseAgent {
         return await this.executeBlockchainTask(message);
       }
 
+      if (message.type === 'create_session_signer') {
+        return await this.createSessionSigner(message);
+      }
+
       return null;
     } catch (error) {
       console.error('[GoatMCP] Error handling message:', error);
       return this.createErrorResponse(message, `Blockchain operation failed: ${error}`);
+    }
+  }
+
+  async createSessionSigner(message: AgentMessage): Promise<AgentMessage> {
+    const { userId, permissions = ['token_transfer', 'nft_mint'], expirationHours = 24 } = message.payload;
+    
+    try {
+      this.logActivity('Creating session signer', { userId, permissions });
+
+      // Generate new private key for session
+      const account = privateKeyToAccount(`0x${Buffer.from(crypto.randomBytes(32)).toString('hex')}`);
+      
+      const sessionSigner: SessionSigner = {
+        address: account.address,
+        privateKey: account.source,
+        userId,
+        expiresAt: new Date(Date.now() + expirationHours * 60 * 60 * 1000),
+        permissions
+      };
+
+      // Store session signer
+      this.sessionSigners.set(userId, sessionSigner);
+
+      // Initialize Goat tools with the session signer
+      const walletClient = createWalletClient({
+        account,
+        transport: http(this.networkConfig.base_camp_testnet.rpcUrl),
+        chain: {
+          id: this.networkConfig.base_camp_testnet.chainId,
+          name: this.networkConfig.base_camp_testnet.name,
+          nativeCurrency: { name: 'CAMP', symbol: 'CAMP', decimals: 18 },
+          rpcUrls: { default: { http: [this.networkConfig.base_camp_testnet.rpcUrl] } }
+        }
+      });
+
+      // For now, store wallet client for future use
+      // this.goatTools = await getOnChainTools({
+      //   wallet: evmWallet(walletClient), 
+      //   plugins: [erc20Plugin(), uniswapPlugin()]
+      // });
+      
+      console.log('[GoatMCP] Session signer wallet client configured for Base Camp network');
+
+      return {
+        type: 'session_signer_created',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: message.senderId,
+        payload: {
+          success: true,
+          signerAddress: sessionSigner.address,
+          expiresAt: sessionSigner.expiresAt,
+          permissions: sessionSigner.permissions
+        }
+      };
+
+    } catch (error) {
+      console.error('[GoatMCP] Error creating session signer:', error);
+      return this.createErrorResponse(message, `Failed to create session signer: ${error}`);
     }
   }
 

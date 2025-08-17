@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
+import { sessionManager } from '../../lib/sessionSigners';
 
 interface ChatMessage {
   id: string;
@@ -29,6 +30,7 @@ export default function ChatScreen() {
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTasks, setActiveTasks] = useState<ActiveTask[]>([]);
+  const [hasSessionKey, setHasSessionKey] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const account = useActiveAccount();
@@ -44,8 +46,41 @@ export default function ChatScreen() {
   useEffect(() => {
     if (account?.address) {
       fetchActiveTasks();
+      checkSessionKey();
     }
   }, [account]);
+
+  const checkSessionKey = () => {
+    if (!account?.address) return;
+    const hasSession = sessionManager.hasValidSession(account.address);
+    setHasSessionKey(hasSession);
+    
+    if (!hasSession) {
+      createSessionKey();
+    }
+  };
+
+  const createSessionKey = async () => {
+    if (!account?.address) return;
+    
+    try {
+      console.log('[ChatScreen] Creating session key for automated transactions');
+      const sessionData = await sessionManager.createSessionKey(account.address);
+      await sessionManager.registerSessionWithBackend(account.address);
+      setHasSessionKey(true);
+      
+      // Add system message about session setup
+      const sessionMessage: ChatMessage = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `🔐 Session key created for automated transactions. I can now execute blockchain operations on your behalf for the next 24 hours. Session expires at ${sessionData.expiresAt.toLocaleTimeString()}.`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, sessionMessage]);
+    } catch (error) {
+      console.error('[ChatScreen] Error creating session key:', error);
+    }
+  };
 
   const fetchActiveTasks = async () => {
     if (!account?.address) return;

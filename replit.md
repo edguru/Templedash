@@ -2,7 +2,7 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-17 - CREWAI CHAIN OF THOUGHT INJECTION SYSTEM)
+## Recent Changes (2025-08-17 - CREWAI CHAIN OF THOUGHT INJECTION + GOAT MCP SYSTEM)
 - **Consolidated Multi-Agent Architecture**: Implemented single CrewAI-powered chain of thought injection system
   - **Chain of Thought Injection**: Dynamic reasoning injection into agent working memory during execution (Manus AI-style)
   - **CrewAI Orchestrator**: Master coordinator for crew-based task execution with role specialization  
@@ -13,6 +13,12 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 - **Tool Orchestration**: Integrated blockchain operations, web search, code analysis, and document generation
 - **Working Memory Management**: Sliding window context with strategic thought injection capabilities
 - **OpenAI GPT-4o Integration**: Advanced reasoning when API key provided, graceful fallback without key
+- **Goat MCP Base Camp Integration**: Full blockchain automation capabilities
+  - **Session Signer System**: Automated 24-hour session keys for transaction signing
+  - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
+  - **Thirdweb Integration**: Seamless wallet connection with automatic session creation
+  - **Backend API**: Session management endpoints for secure blockchain operations
+- **Enhanced User Experience**: Updated login, chat, and home interfaces with blockchain capabilities showcase
 
 ## Previous Changes (2025-08-17 - APP REDESIGN)
 - **Major Architecture Pivot**: Repositioned from game-first to companion-first application

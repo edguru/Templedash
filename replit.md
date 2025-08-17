@@ -2,7 +2,19 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-13 - CHECKPOINT)
+## Recent Changes (2025-08-17 - APP REDESIGN)
+- **Major Architecture Pivot**: Repositioned from game-first to companion-first application
+  - **Primary Focus**: Chat companion and Web3 task automation as main features
+  - **Secondary Focus**: Puppet Runner moved to mini-games section as entertainment feature
+- **New MainApp Component**: Complete app redesign with dedicated tabs for Chat, Tasks, Mini Games, and Account
+- **TasksScreen**: Full Web3 task management system with automation workflows, priority levels, and category organization
+- **MiniGamesScreen**: Gaming hub featuring Puppet Runner with stats, ratings, and rewards tracking
+- **AccountScreen**: Comprehensive wallet management, game statistics, achievements, and settings
+- **Streamlined Login**: Simplified wallet connection page inspired by wireframe, minimal text and clean design
+- **Navigation Structure**: Mobile-first responsive design with bottom navigation and desktop sidebar
+- **App Flow**: Wallet connection → Main companion interface (default: Chat tab) → Mini games accessible via tab
+
+## Previous Changes (2025-08-13 - CHECKPOINT)
 - **Authentication Simplification**: Removed JWT/complex auth layers - now uses only Thirdweb wallet connection
 - **Base Camp Testnet Integration**: Fully configured for Camp Network's Base Camp testnet (chain ID: 123420001114)
   - **Currency**: Uses CAMP as native gas currency
@@ -61,10 +73,12 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 
 # User Preferences
 
-- Preferred communication style: Simple, everyday language
-- Authentication: Email and wallet-based auth only via Thirdweb (no social login options like Google, Apple, Facebook, phone)  
-- Reward system: Save token recipients for later claiming rather than immediate distribution
-- Network: Base Camp testnet by Camp Network for all blockchain operations
+- **App Focus**: Companion chat and task automation as primary features, Puppet Runner as mini-game
+- **Design Style**: Clean, minimal interface inspired by wireframe - avoid excessive text
+- **Communication**: Simple, everyday language
+- **Authentication**: Email and wallet-based auth only via Thirdweb (no social login options)  
+- **Reward system**: Save token recipients for later claiming rather than immediate distribution
+- **Network**: Base Camp testnet by Camp Network for all blockchain operations
 
 # System Architecture
 

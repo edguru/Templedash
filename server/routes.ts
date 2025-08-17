@@ -717,6 +717,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User onboarding routes
+  app.get('/api/user/status', async (req: Request, res: Response) => {
+    try {
+      const { address } = req.query;
+      
+      if (!address) {
+        return res.status(400).json({ error: 'Wallet address required' });
+      }
+
+      const user = await db.query.users.findFirst({
+        where: eq(users.walletAddress, address as string)
+      });
+
+      const isNewUser = !user || !user.onboardingCompleted;
+
+      res.json({ 
+        isNewUser,
+        user: user ? {
+          id: user.id,
+          walletAddress: user.walletAddress,
+          onboardingCompleted: user.onboardingCompleted,
+          createdAt: user.createdAt
+        } : null
+      });
+    } catch (error) {
+      console.error('Error checking user status:', error);
+      res.status(500).json({ error: 'Failed to check user status' });
+    }
+  });
+
+  app.post('/api/user/complete-onboarding', async (req: Request, res: Response) => {
+    try {
+      const { address } = req.body;
+      
+      if (!address) {
+        return res.status(400).json({ error: 'Wallet address required' });
+      }
+
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.walletAddress, address)
+      });
+
+      if (existingUser) {
+        await db.update(users)
+          .set({ onboardingCompleted: true })
+          .where(eq(users.id, existingUser.id));
+      } else {
+        await db.insert(users).values({
+          walletAddress: address,
+          onboardingCompleted: true,
+          createdAt: new Date()
+        });
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      res.status(500).json({ error: 'Failed to complete onboarding' });
+    }
+  });
+
   console.log('🔐 Registered KMS secret management routes');
 
   const httpServer = createServer(app);

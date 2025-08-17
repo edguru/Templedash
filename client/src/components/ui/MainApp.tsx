@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import { useActiveAccount } from 'thirdweb/react';
 import { MessageCircle, Zap, Gamepad2, User, Menu, X } from 'lucide-react';
 import ChatScreen from './ChatScreen';
-import TasksScreen from './TasksScreen';
 import MiniGamesScreen from './MiniGamesScreen';
 import AccountScreen from './AccountScreen';
 
-type TabType = 'chat' | 'tasks' | 'minigames' | 'account';
+type TabType = 'chat' | 'minigames' | 'account';
 
 const MainApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('chat');
@@ -16,7 +15,6 @@ const MainApp: React.FC = () => {
 
   const tabs = [
     { id: 'chat' as TabType, name: 'Chat', icon: MessageCircle, color: 'text-purple-600' },
-    { id: 'tasks' as TabType, name: 'Tasks', icon: Zap, color: 'text-blue-600' },
     { id: 'minigames' as TabType, name: 'Mini Games', icon: Gamepad2, color: 'text-green-600' },
     { id: 'account' as TabType, name: 'Account', icon: User, color: 'text-indigo-600' },
   ];
@@ -25,8 +23,6 @@ const MainApp: React.FC = () => {
     switch (activeTab) {
       case 'chat':
         return <ChatScreen />;
-      case 'tasks':
-        return <TasksScreen />;
       case 'minigames':
         return <MiniGamesScreen />;
       case 'account':

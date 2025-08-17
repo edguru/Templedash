@@ -31,7 +31,7 @@ import { useAudio } from "./lib/stores/useAudio";
 
 // Import screens
 import LeaderboardScreen from "./components/ui/LeaderboardScreen";
-import WalletConnectScreen from "./components/ui/WalletConnectScreen";
+import AuthScreen from "./components/ui/AuthScreen";
 
 
 // Thirdweb v5 config is handled in thirdweb.ts
@@ -77,15 +77,14 @@ function AppContent() {
     };
   }, [gamePhase]);
 
-  // Show wallet connection screen if no wallet connected
-  if (!account) {
+  // Authentication state
+  const [authComplete, setAuthComplete] = useState(false);
+
+  // Show auth screen if no wallet connected or auth not complete
+  if (!account || !authComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
-        <div className="text-center p-8">
-          <h1 className="text-4xl font-bold text-white mb-4">Puppets AI</h1>
-          <p className="text-xl text-purple-200 mb-8">Effortless Web3 Automation</p>
-          <WalletConnectScreen />
-        </div>
+      <div className="w-full h-screen">
+        <AuthScreen onAuthComplete={() => setAuthComplete(true)} />
       </div>
     );
   }

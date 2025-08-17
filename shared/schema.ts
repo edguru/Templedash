@@ -7,6 +7,7 @@ export const users = pgTable("users", {
   walletAddress: text("wallet_address").notNull().unique(),
   username: text("username"),
   createdAt: timestamp("created_at").defaultNow(),
+  onboardingCompleted: boolean("onboarding_completed").default(false).notNull(),
   totalTokensEarned: decimal("total_tokens_earned", { precision: 10, scale: 4 }).default("0"),
   totalTokensClaimed: decimal("total_tokens_claimed", { precision: 10, scale: 4 }).default("0"),
   hasOpenedMysteryBox: boolean("has_opened_mystery_box").default(false),

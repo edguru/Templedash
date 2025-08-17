@@ -434,7 +434,7 @@ export class TaskTracker extends BaseAgent {
     const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
     let cleaned = 0;
 
-    for (const [taskId, task] of this.tasks.entries()) {
+    for (const [taskId, task] of Array.from(this.tasks.entries())) {
       if (task.completedAt && task.completedAt < cutoffTime) {
         this.taskHistory.push({ ...task });
         this.tasks.delete(taskId);

@@ -17,8 +17,8 @@ interface IntentAnalysis {
 }
 
 export class PromptEngineer extends BaseAgent {
-  private intentPatterns: Map<string, RegExp[]>;
-  private parameterExtractors: Map<string, (text: string) => Record<string, any>>;
+  private intentPatterns: Map<string, RegExp[]> = new Map();
+  private parameterExtractors: Map<string, (text: string) => Record<string, any>> = new Map();
 
   constructor(messageBroker: MessageBroker) {
     super('prompt-engineer', messageBroker);
@@ -110,7 +110,13 @@ export class PromptEngineer extends BaseAgent {
     let highestScore = 0;
     let detectedIntent = 'conversation';
 
-    for (const [intent, patterns] of this.intentPatterns.entries()) {
+    // Ensure intentPatterns is initialized
+    if (!this.intentPatterns || this.intentPatterns.size === 0) {
+      this.setupIntentPatterns();
+    }
+
+    // Use Array.from to handle iterator compatibility
+    for (const [intent, patterns] of Array.from(this.intentPatterns.entries())) {
       for (const pattern of patterns) {
         const match = pattern.test(prompt);
         if (match) {

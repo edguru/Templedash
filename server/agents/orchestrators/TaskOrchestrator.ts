@@ -12,9 +12,9 @@ interface TaskQueue {
 }
 
 export class TaskOrchestrator extends BaseAgent {
-  private taskQueue: TaskQueue;
-  private activeTasks: Map<string, Task>;
-  private mcpAgents: Map<string, string>;
+  private taskQueue: TaskQueue = { high: [], medium: [], low: [] };
+  private activeTasks: Map<string, Task> = new Map();
+  private mcpAgents: Map<string, string> = new Map();
 
   constructor(messageBroker: MessageBroker, private taskTracker: TaskTracker) {
     super('task-orchestrator', messageBroker);
@@ -23,6 +23,7 @@ export class TaskOrchestrator extends BaseAgent {
   protected initialize(): void {
     this.logActivity('Initializing Task Orchestrator');
     
+    // Reset to ensure clean state
     this.taskQueue = { high: [], medium: [], low: [] };
     this.activeTasks = new Map();
     this.mcpAgents = new Map();
@@ -134,6 +135,23 @@ export class TaskOrchestrator extends BaseAgent {
   }
 
   private queueTask(task: Task): void {
+    // Ensure taskQueue is properly initialized
+    if (!this.taskQueue) {
+      this.taskQueue = { high: [], medium: [], low: [] };
+    }
+    
+    // Validate priority is a valid key
+    const validPriorities = ['high', 'medium', 'low'] as const;
+    if (!validPriorities.includes(task.priority as any)) {
+      console.warn(`[TaskOrchestrator] Invalid priority: ${task.priority}, defaulting to medium`);
+      task.priority = 'medium';
+    }
+    
+    // Ensure the priority queue exists
+    if (!this.taskQueue[task.priority]) {
+      this.taskQueue[task.priority] = [];
+    }
+    
     this.taskQueue[task.priority].push(task);
     this.logActivity('Task queued', { taskId: task.id, priority: task.priority });
   }

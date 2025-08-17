@@ -12,7 +12,7 @@ const AccountScreen: React.FC = () => {
   const { totalCoins, completedRuns } = useRewards();
 
   const handleDisconnect = () => {
-    disconnect({});
+    disconnect();
   };
 
   const stats = [

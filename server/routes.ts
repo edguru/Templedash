@@ -546,6 +546,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Initialize Agent System and add routes
+  const { AgentSystem } = await import('./agents');
+  const agentSystem = new AgentSystem();
+  console.log('Agent system initialized');
+
+  // Agent System API Routes
+  app.post('/api/agents/chat', authenticateToken, async (req: any, res) => {
+    try {
+      const { message, conversationId = require('uuid').v4() } = req.body;
+      const userId = req.currentUser.userId.toString();
+      
+      if (!message) {
+        return res.status(400).json({ error: 'Missing message' });
+      }
+
+      const response = await agentSystem.processUserMessage(userId, message, conversationId);
+      
+      res.json({
+        success: true,
+        response: response.response,
+        taskCreated: response.taskCreated,
+        taskId: response.taskId,
+        conversationId
+      });
+    } catch (error) {
+      console.error('Agent chat error:', error);
+      res.status(500).json({ error: 'Failed to process message' });
+    }
+  });
+
+  app.get('/api/agents/profile/:userId', authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.params.userId;
+      const profile = await agentSystem.getUserProfile(userId);
+      
+      res.json({ profile });
+    } catch (error) {
+      console.error('Agent profile error:', error);
+      res.status(500).json({ error: 'Failed to get profile' });
+    }
+  });
+
+  app.get('/api/agents/tasks', authenticateToken, async (req: any, res) => {
+    try {
+      const userId = req.currentUser.userId.toString();
+      const tasks = await agentSystem.getAllActiveTasks(userId);
+      
+      res.json({ tasks });
+    } catch (error) {
+      console.error('Agent tasks error:', error);
+      res.status(500).json({ error: 'Failed to get tasks' });
+    }
+  });
+
+  app.get('/api/agents/task/:taskId/status', authenticateToken, async (req: any, res) => {
+    try {
+      const { taskId } = req.params;
+      const status = await agentSystem.getTaskStatus(taskId);
+      
+      res.json({ status });
+    } catch (error) {
+      console.error('Agent task status error:', error);
+      res.status(500).json({ error: 'Failed to get task status' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

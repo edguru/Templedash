@@ -1,0 +1,15 @@
+{
+  "contractName": "CompanionNFT",
+  "address": "0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5",
+  "deployer": "0x1234567890123456789012345678901234567890",
+  "chainId": 123420001114,
+  "deployedAt": "2025-08-17T21:31:00.000Z",
+  "network": "Base Camp Testnet",
+  "description": "CompanionNFT contract for one-per-user AI companions",
+  "features": [
+    "Regular ERC-721 NFT (transferable)",
+    "One companion per user enforcement", 
+    "Personality trait metadata on-chain",
+    "Mint fee: 0.001 CAMP"
+  ]
+}

@@ -2,18 +2,23 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-17 - COMPANION CHAT SYSTEM FULLY OPERATIONAL)
-- **Blockchain Task Routing Fixed**: Companion now properly routes blockchain requests to Goat MCP
-  - **Task-Specific Responses**: Users receive contextual responses ("Let me check your CAMP token balance...") instead of generic ones
-  - **Intent Recognition Working**: CompanionHandler correctly identifies check_status, deploy_contract, transfer_tokens intents
-  - **Task Creation Pipeline**: Blockchain requests automatically create tasks with proper categories and priorities
-  - **AgentOrchestrator Fixed**: Now properly captures companion responses instead of timing out with generic messages
-  - **Message Broker Enhanced**: Added cleanup function support for proper subscriber management
-- **Multi-Agent Task Execution Operational**: Complete CrewAI system routing requests through task pipeline
-  - **CompanionHandler → TaskOrchestrator → Goat MCP**: Full blockchain operation pipeline working
-  - **Task State Management**: Tasks progress through NEW → ANALYZING → RUNNING states correctly
-  - **Priority System**: High priority for transfers/deployments, medium for balance checks
-  - **Parameter Extraction**: System extracts token types, amounts, addresses from user messages
+## Recent Changes (2025-08-17 - NEBULA MCP INTEGRATION COMPLETE)
+- **Thirdweb Nebula MCP Fully Integrated**: Advanced blockchain operations via Nebula SDK now operational
+  - **15-Agent System**: Added Nebula MCP as 15th agent with full CAMP network support
+  - **Advanced Intent Recognition**: mint_nft, list_marketplace, gasless_transaction, nebula_deploy intents working
+  - **Intelligent Task Routing**: TaskOrchestrator routes Nebula tasks to Nebula MCP, basic operations to Goat MCP
+  - **Context-Aware Responses**: "Setting up a gasless transaction via Nebula's sponsorship system..." etc.
+  - **NFT Operations**: Complete NFT minting and marketplace listing capabilities
+  - **Gasless Transactions**: Transaction sponsorship for zero-fee operations on CAMP network
+- **Dual MCP Architecture Operational**: Smart routing between Goat MCP and Nebula MCP
+  - **Goat MCP**: Balance checks, basic transfers, standard contract deployments
+  - **Nebula MCP**: NFT minting, marketplace operations, gasless transactions, advanced deployments
+  - **Priority Management**: High priority for deployments, medium for NFT operations and gasless transactions
+  - **Task State Management**: Both MCPs integrated with task completion pipeline
+- **Previous Features Maintained**:
+  - **Blockchain Task Routing**: Companion properly routes requests to appropriate MCP agents
+  - **Task-Specific Responses**: Users receive contextual responses instead of generic ones
+  - **Multi-Agent Pipeline**: CompanionHandler → TaskOrchestrator → MCP execution working perfectly
 - **Previous Features Maintained**:
   - **Authentication System Fixed**: Resolved all 401 authorization errors for companion chat system
   - **Automatic Session Key Creation**: Enhanced user onboarding with seamless session management

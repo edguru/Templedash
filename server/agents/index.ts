@@ -14,6 +14,7 @@ import { UserExperience } from './interface/UserExperience';
 import { GoatMCP } from './mcps/GoatMCP';
 import { CodeGenMCP } from './mcps/CodeGenMCP';
 import { DocumentWriterMCP } from './mcps/DocumentWriterMCP';
+import { NebulaMCP } from './mcps/NebulaMCP';
 import { ResearchMCP } from './mcps/ResearchMCP';
 import { SchedulerMCP } from './mcps/SchedulerMCP';
 import { CrewAIOrchestrator } from './crewai/CrewAIOrchestrator';
@@ -31,7 +32,7 @@ export class AgentSystem {
   constructor() {
     this.messageBroker = new MessageBroker();
     this.registry = new AgentRegistry();
-    this.cotEngine = new ChainOfThoughtEngine(this.messageBroker);
+    this.cotEngine = new ChainOfThoughtEngine();
     
     // Create a default crew agent for ReAct
     const defaultCrewAgent = {
@@ -40,7 +41,10 @@ export class AgentSystem {
       goal: 'Execute complex tasks using ReAct pattern with chain of thought injection',
       backstory: 'I am an AI agent specialized in reasoning and acting iteratively to solve complex problems.',
       capabilities: ['reasoning', 'analysis', 'tool_usage', 'chain_of_thought'],
-      reasoningStyle: 'react' as const
+      reasoningStyle: 'react' as const,
+      tools: [],
+      verbose: true,
+      allowDelegation: false
     };
     
     this.reactAgent = new ReActAgent('react-agent', this.messageBroker, defaultCrewAgent, this.cotEngine);
@@ -64,6 +68,7 @@ export class AgentSystem {
     const goatMCP = new GoatMCP(this.messageBroker);
     const codeGenMCP = new CodeGenMCP(this.messageBroker);
     const documentWriterMCP = new DocumentWriterMCP(this.messageBroker);
+    const nebulaMCP = new NebulaMCP(this.messageBroker);
     const researchMCP = new ResearchMCP(this.messageBroker);
     const schedulerMCP = new SchedulerMCP(this.messageBroker);
 
@@ -80,6 +85,7 @@ export class AgentSystem {
     this.registry.register('goat-mcp', goatMCP);
     this.registry.register('codegen-mcp', codeGenMCP);
     this.registry.register('docwriter-mcp', documentWriterMCP);
+    this.registry.register('nebula-mcp', nebulaMCP);
     this.registry.register('research-mcp', researchMCP);
     this.registry.register('scheduler-mcp', schedulerMCP);
     

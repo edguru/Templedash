@@ -132,11 +132,23 @@ export class CompanionHandler extends BaseAgent {
     // Simple intent classification - could be enhanced with ML
     const lowerMessage = message.toLowerCase();
     
+    // Nebula-specific intents
+    if (lowerMessage.includes('mint') && lowerMessage.includes('nft')) {
+      return 'mint_nft';
+    }
+    if (lowerMessage.includes('marketplace') || lowerMessage.includes('list') && lowerMessage.includes('nft')) {
+      return 'list_marketplace';
+    }
+    if (lowerMessage.includes('gasless') || lowerMessage.includes('sponsor') || lowerMessage.includes('free transaction')) {
+      return 'gasless_transaction';
+    }
+    if (lowerMessage.includes('nebula') && (lowerMessage.includes('deploy') || lowerMessage.includes('contract'))) {
+      return 'nebula_deploy';
+    }
+    
+    // Standard blockchain intents
     if (lowerMessage.includes('deploy') || lowerMessage.includes('contract')) {
       return 'deploy_contract';
-    }
-    if (lowerMessage.includes('mint') || lowerMessage.includes('nft')) {
-      return 'mint_nft';
     }
     if (lowerMessage.includes('send') || lowerMessage.includes('transfer')) {
       return 'transfer_tokens';
@@ -152,14 +164,17 @@ export class CompanionHandler extends BaseAgent {
   }
 
   private shouldCreateTask(intent: string): boolean {
-    // These intents require blockchain operations via Goat MCP
+    // These intents require blockchain operations via Goat MCP or Nebula MCP
     const blockchainIntents = [
       'deploy_contract',
       'mint_nft', 
       'transfer_tokens',
       'check_status',
       'bridge_tokens',
-      'stake_tokens'
+      'stake_tokens',
+      'list_marketplace',
+      'gasless_transaction',
+      'nebula_deploy'
     ];
     
     return blockchainIntents.includes(intent);
@@ -202,11 +217,14 @@ export class CompanionHandler extends BaseAgent {
   private mapIntentToCategory(intent: string): string {
     const categoryMap: Record<string, string> = {
       'deploy_contract': 'contract_deployment',
-      'mint_nft': 'nft_operations', 
+      'mint_nft': 'nft_mint', 
       'transfer_tokens': 'token_transfer',
       'check_status': 'account_query',
       'bridge_tokens': 'cross_chain',
-      'stake_tokens': 'defi_operations'
+      'stake_tokens': 'defi_operations',
+      'list_marketplace': 'marketplace_list',
+      'gasless_transaction': 'gasless_tx',
+      'nebula_deploy': 'token_deploy'
     };
     
     return categoryMap[intent] || 'general';
@@ -262,8 +280,8 @@ export class CompanionHandler extends BaseAgent {
   }
 
   private determinePriority(intent: string): 'low' | 'medium' | 'high' {
-    const highPriority = ['transfer_tokens', 'deploy_contract'];
-    const mediumPriority = ['mint_nft', 'check_status'];
+    const highPriority = ['transfer_tokens', 'deploy_contract', 'nebula_deploy'];
+    const mediumPriority = ['mint_nft', 'check_status', 'list_marketplace', 'gasless_transaction'];
     
     if (highPriority.includes(intent)) return 'high';
     if (mediumPriority.includes(intent)) return 'medium';
@@ -294,6 +312,21 @@ export class CompanionHandler extends BaseAgent {
         return taskId 
           ? "Let me check your CAMP token balance and account status..."
           : await this.generateStatusResponse(context);
+
+      case 'list_marketplace':
+        return taskId 
+          ? "I'll list your NFT on the marketplace using Nebula's advanced features..."
+          : this.getPersonalityResponse(personality, 'marketplace', "I can list your NFT on the marketplace with optimal pricing.");
+
+      case 'gasless_transaction':
+        return taskId 
+          ? "Setting up a gasless transaction via Nebula's sponsorship system..."
+          : this.getPersonalityResponse(personality, 'gasless', "I'll handle that transaction with gas sponsorship - no fees for you!");
+
+      case 'nebula_deploy':
+        return taskId 
+          ? "Deploying your contract using Nebula's advanced SDK and tooling..."
+          : this.getPersonalityResponse(personality, 'nebula', "I'll deploy that contract with Nebula's optimized infrastructure.");
         
       case 'task_management':
         return taskId 

@@ -38,6 +38,20 @@ export class TaskOrchestrator extends BaseAgent {
       await this.handleStepCompletion(message);
     });
 
+    // Subscribe to Nebula task completion updates
+    this.messageBroker.subscribe('nebula_task_complete', async (message: AgentMessage) => {
+      await this.handleStepCompletion(message);
+    });
+
+    // Subscribe to Nebula task error updates
+    this.messageBroker.subscribe('nebula_task_error', async (message: AgentMessage) => {
+      const { taskId, error } = message.payload;
+      const task = this.activeTasks.get(taskId);
+      if (task) {
+        await this.handleTaskError(task, new Error(error));
+      }
+    });
+
     // Initialize MCP agent mappings
     this.initializeMCPMappings();
 
@@ -230,9 +244,10 @@ export class TaskOrchestrator extends BaseAgent {
       // Determine which MCP agent to use
       const mcpAgent = this.getMCPForCategory(task.category);
       
-      // Create execution message
+      // Create execution message with appropriate type for Nebula MCP
+      const messageType = mcpAgent === 'nebula-mcp' ? 'execute_nebula_task' : 'execute_task';
       const executionMessage: AgentMessage = {
-        type: 'execute_task',
+        type: messageType,
         id: uuidv4(),
         timestamp: new Date().toISOString(),
         senderId: this.agentId,
@@ -347,10 +362,20 @@ export class TaskOrchestrator extends BaseAgent {
 
   private getMCPForCategory(category: string): string {
     const categoryMap: Record<string, string> = {
+      // Goat MCP - Basic blockchain operations
       'contract_deployment': 'goat-mcp',
-      'nft_operations': 'goat-mcp',
-      'token_operations': 'goat-mcp',
+      'token_transfer': 'goat-mcp',
+      'account_query': 'goat-mcp',
+      'cross_chain': 'goat-mcp',
       'defi_operations': 'goat-mcp',
+      
+      // Nebula MCP - Advanced Thirdweb operations
+      'nft_mint': 'nebula-mcp',
+      'marketplace_list': 'nebula-mcp',
+      'gasless_tx': 'nebula-mcp',
+      'token_deploy': 'nebula-mcp',
+      
+      // Other MCP agents
       'information': 'research-mcp',
       'automation': 'scheduler-mcp',
       'documentation': 'docwriter-mcp',

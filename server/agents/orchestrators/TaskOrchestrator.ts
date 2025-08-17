@@ -12,9 +12,9 @@ interface TaskQueue {
 }
 
 export class TaskOrchestrator extends BaseAgent {
-  private taskQueue: TaskQueue = { high: [], medium: [], low: [] };
-  private activeTasks: Map<string, Task> = new Map();
-  private mcpAgents: Map<string, string> = new Map();
+  private taskQueue: TaskQueue;
+  private activeTasks: Map<string, Task>;
+  private mcpAgents: Map<string, string>;
 
   constructor(messageBroker: MessageBroker, private taskTracker: TaskTracker) {
     super('task-orchestrator', messageBroker);
@@ -22,6 +22,10 @@ export class TaskOrchestrator extends BaseAgent {
 
   protected initialize(): void {
     this.logActivity('Initializing Task Orchestrator');
+    
+    this.taskQueue = { high: [], medium: [], low: [] };
+    this.activeTasks = new Map();
+    this.mcpAgents = new Map();
     
     // Subscribe to task assignments
     this.messageBroker.subscribe('task_assignment', async (message: AgentMessage) => {

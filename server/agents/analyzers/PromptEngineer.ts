@@ -17,8 +17,8 @@ interface IntentAnalysis {
 }
 
 export class PromptEngineer extends BaseAgent {
-  private intentPatterns: Map<string, RegExp[]> = new Map();
-  private parameterExtractors: Map<string, (text: string) => Record<string, any>> = new Map();
+  private intentPatterns: Map<string, RegExp[]>;
+  private parameterExtractors: Map<string, (text: string) => Record<string, any>>;
 
   constructor(messageBroker: MessageBroker) {
     super('prompt-engineer', messageBroker);
@@ -26,6 +26,8 @@ export class PromptEngineer extends BaseAgent {
 
   protected initialize(): void {
     this.logActivity('Initializing Prompt Engineer');
+    this.intentPatterns = new Map();
+    this.parameterExtractors = new Map();
     this.setupIntentPatterns();
     this.setupParameterExtractors();
   }

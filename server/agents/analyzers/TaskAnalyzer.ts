@@ -27,8 +27,8 @@ interface TaskStep {
 }
 
 export class TaskAnalyzer extends BaseAgent {
-  private networkStatus: Map<string, boolean> = new Map();
-  private gasEstimates: Map<string, number> = new Map();
+  private networkStatus: Map<string, boolean>;
+  private gasEstimates: Map<string, number>;
 
   constructor(messageBroker: MessageBroker) {
     super('task-analyzer', messageBroker);
@@ -36,6 +36,9 @@ export class TaskAnalyzer extends BaseAgent {
 
   protected initialize(): void {
     this.logActivity('Initializing Task Analyzer');
+    
+    this.networkStatus = new Map();
+    this.gasEstimates = new Map();
     
     // Subscribe to task analysis requests
     this.messageBroker.subscribe('analyze_task', async (message: AgentMessage) => {

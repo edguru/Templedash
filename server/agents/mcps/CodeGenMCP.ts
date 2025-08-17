@@ -12,7 +12,7 @@ interface CodeTemplate {
 }
 
 export class CodeGenMCP extends BaseAgent {
-  private templates: Map<string, CodeTemplate> = new Map();
+  private templates: Map<string, CodeTemplate>;
 
   constructor(messageBroker: MessageBroker) {
     super('codegen-mcp', messageBroker);
@@ -20,6 +20,7 @@ export class CodeGenMCP extends BaseAgent {
 
   protected initialize(): void {
     this.logActivity('Initializing Code Generation MCP');
+    this.templates = new Map();
     this.loadContractTemplates();
     
     // Subscribe to code generation requests

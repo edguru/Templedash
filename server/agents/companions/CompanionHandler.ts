@@ -315,18 +315,18 @@ export class CompanionHandler extends BaseAgent {
 
       case 'list_marketplace':
         return taskId 
-          ? "I'll list your NFT on the marketplace using Nebula's advanced features..."
+          ? "I'll list your NFT on the marketplace with advanced optimization features..."
           : this.getPersonalityResponse(personality, 'marketplace', "I can list your NFT on the marketplace with optimal pricing.");
 
       case 'gasless_transaction':
         return taskId 
-          ? "Setting up a gasless transaction via Nebula's sponsorship system..."
+          ? "Setting up a gasless transaction with sponsored fees..."
           : this.getPersonalityResponse(personality, 'gasless', "I'll handle that transaction with gas sponsorship - no fees for you!");
 
       case 'nebula_deploy':
         return taskId 
-          ? "Deploying your contract using Nebula's advanced SDK and tooling..."
-          : this.getPersonalityResponse(personality, 'nebula', "I'll deploy that contract with Nebula's optimized infrastructure.");
+          ? "Deploying your contract using advanced SDK tooling..."
+          : this.getPersonalityResponse(personality, 'nebula', "I'll deploy that contract with optimized infrastructure.");
         
       case 'task_management':
         return taskId 
@@ -345,18 +345,27 @@ export class CompanionHandler extends BaseAgent {
         deploy: ["I'll help you deploy that contract right away!", "Let me get that deployment started for you."],
         mint: ["I can mint those NFTs for you!", "Let's get those NFTs created."],
         transfer: ["I'll handle that transfer securely.", "Let me process that transfer for you."],
+        marketplace: ["I'll list your NFT on the marketplace!", "Let me get that listed for you."],
+        gasless: ["I'll handle that gasless transaction!", "No fees - let me take care of it."],
+        nebula: ["I'll deploy using advanced tooling!", "Let me handle the optimized deployment."],
         conversation: ["How can I help you today?", "What would you like me to do?"]
       },
       casual: {
         deploy: ["Sure thing! Let's deploy that contract.", "Got it - deploying now!"],
         mint: ["No problem! Minting those NFTs now.", "Easy - let me mint those for you."],
         transfer: ["You got it - sending those tokens.", "Sure, transferring now."],
+        marketplace: ["No worries! Listing it now.", "Easy - getting that listed."],
+        gasless: ["Sweet! Zero fees coming up.", "Nice - gasless transaction it is."],
+        nebula: ["Awesome! Advanced deployment mode.", "Cool - optimized setup coming up."],
         conversation: ["Hey! What's up?", "What can I do for you?"]
       },
       professional: {
         deploy: ["I will initiate the contract deployment process.", "Commencing smart contract deployment."],
         mint: ["Processing NFT minting request.", "Initiating NFT creation workflow."],
         transfer: ["Executing token transfer operation.", "Processing transfer request."],
+        marketplace: ["Initiating marketplace listing process.", "Processing NFT listing request."],
+        gasless: ["Executing sponsored transaction protocol.", "Initiating gasless transaction sequence."],
+        nebula: ["Deploying with advanced SDK infrastructure.", "Utilizing optimized deployment protocol."],
         conversation: ["How may I assist you?", "What service can I provide?"]
       }
     };

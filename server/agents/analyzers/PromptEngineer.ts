@@ -17,6 +17,35 @@ interface IntentAnalysis {
   suggestions: string[];
 }
 
+interface MultiTaskAnalysis {
+  tasks: TaskIntent[];
+  executionOrder: 'sequential' | 'parallel' | 'mixed';
+  dependencies: TaskDependency[];
+  totalEstimatedDuration: string;
+  overallPriority: 'low' | 'medium' | 'high';
+  requiresApproval: boolean;
+  clarificationNeeded: boolean;
+}
+
+interface TaskIntent {
+  id: string;
+  intent: string;
+  confidence: number;
+  category: string;
+  parameters: Record<string, any>;
+  priority: 'low' | 'medium' | 'high';
+  estimatedDuration: string;
+  requiredPermissions: string[];
+  canExecuteInParallel: boolean;
+  textSegment: string;
+}
+
+interface TaskDependency {
+  taskId: string;
+  dependsOn: string[];
+  reason: string;
+}
+
 export class PromptEngineer extends BaseAgent {
   private intentPatterns: Map<string, RegExp[]> = new Map();
   private parameterExtractors: Map<string, (text: string) => Record<string, any>> = new Map();
@@ -39,7 +68,10 @@ export class PromptEngineer extends BaseAgent {
       'parameter_extraction',
       'prompt_optimization',
       'task_classification',
-      'ambiguity_detection'
+      'ambiguity_detection',
+      'multi_task_analysis',
+      'dependency_detection',
+      'parallel_execution_planning'
     ];
   }
 
@@ -57,6 +89,22 @@ export class PromptEngineer extends BaseAgent {
           senderId: this.agentId,
           targetId: message.senderId,
           payload: analysis
+        };
+
+        await this.sendMessage(responseMessage);
+        return responseMessage;
+      }
+
+      if (message.type === 'analyze_multi_task') {
+        const multiTaskAnalysis = await this.analyzeMultiTask(message.payload.message, message.payload.context);
+        
+        const responseMessage: AgentMessage = {
+          type: 'multi_task_analysis',
+          id: uuidv4(),
+          timestamp: new Date().toISOString(),
+          senderId: this.agentId,
+          targetId: message.senderId,
+          payload: multiTaskAnalysis
         };
 
         await this.sendMessage(responseMessage);

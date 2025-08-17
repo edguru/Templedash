@@ -66,7 +66,10 @@ export class TaskOrchestrator extends BaseAgent {
       'priority_management', 
       'mcp_coordination',
       'workflow_execution',
-      'resource_allocation'
+      'resource_allocation',
+      'multi_task_coordination',
+      'parallel_execution',
+      'dependency_management'
     ];
   }
 
@@ -122,6 +125,11 @@ export class TaskOrchestrator extends BaseAgent {
             message: 'Task created and processing...'
           }
         };
+      }
+
+      // Handle multi-task analysis results from PromptEngineer
+      if (message.type === 'multi_task_analysis') {
+        return await this.processMultiTaskAnalysis(message);
       }
 
       if (message.type === 'task_assignment') {
@@ -433,6 +441,119 @@ export class TaskOrchestrator extends BaseAgent {
     };
 
     await this.sendMessage(notificationMessage);
+  }
+
+  private async processMultiTaskAnalysis(message: AgentMessage): Promise<AgentMessage> {
+    const { tasks, executionOrder, dependencies, totalEstimatedDuration, overallPriority } = message.payload;
+    const userId = message.payload.context?.userId || 'unknown';
+    
+    this.logActivity('Processing multi-task analysis', {
+      taskCount: tasks.length,
+      executionOrder,
+      dependencyCount: dependencies.length,
+      overallPriority
+    });
+
+    // Create individual Task objects for each intent
+    const createdTasks: Task[] = [];
+    for (const taskIntent of tasks) {
+      const task: Task = {
+        id: uuidv4(),
+        userId: userId,
+        type: taskIntent.category,
+        status: 'PENDING',
+        priority: taskIntent.priority,
+        description: taskIntent.textSegment,
+        steps: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        metadata: {
+          originalMessage: taskIntent.textSegment,
+          multiTaskGroup: message.id,
+          canExecuteInParallel: taskIntent.canExecuteInParallel,
+          dependencies: dependencies.filter(dep => dep.taskId === taskIntent.id)
+        }
+      };
+      
+      createdTasks.push(task);
+      this.addTaskToQueue(task);
+    }
+
+    // Execute based on strategy
+    if (executionOrder === 'parallel') {
+      // Execute all tasks in parallel
+      this.logActivity('Executing tasks in parallel', { taskCount: createdTasks.length });
+      const parallelPromises = createdTasks.map(task => this.processTask(task));
+      await Promise.allSettled(parallelPromises);
+    } else if (executionOrder === 'sequential') {
+      // Execute tasks one by one
+      this.logActivity('Executing tasks sequentially', { taskCount: createdTasks.length });
+      for (const task of createdTasks) {
+        await this.processTask(task);
+      }
+    } else {
+      // Mixed execution: respect dependencies
+      this.logActivity('Executing tasks with dependency management', { taskCount: createdTasks.length });
+      await this.executeWithDependencies(createdTasks, dependencies);
+    }
+
+    return {
+      type: 'multi_task_processing_started',
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: message.senderId,
+      payload: {
+        taskIds: createdTasks.map(t => t.id),
+        executionOrder,
+        totalEstimatedDuration,
+        message: `Started processing ${createdTasks.length} tasks with ${executionOrder} execution...`
+      }
+    };
+  }
+
+  private async executeWithDependencies(tasks: Task[], dependencies: any[]): Promise<void> {
+    const completed = new Set<string>();
+    const inProgress = new Set<string>();
+    
+    while (completed.size < tasks.length) {
+      // Find tasks that can be executed (no pending dependencies)
+      const executable = tasks.filter(task => {
+        if (completed.has(task.id) || inProgress.has(task.id)) return false;
+        
+        const taskDeps = dependencies.filter(dep => dep.taskId === task.id);
+        return taskDeps.every(dep => 
+          dep.dependsOn.every((depId: string) => completed.has(depId))
+        );
+      });
+
+      if (executable.length === 0) {
+        // No executable tasks - circular dependency or error
+        this.logActivity('No executable tasks found - possible circular dependency', {
+          remaining: tasks.length - completed.size,
+          inProgress: inProgress.size
+        });
+        break;
+      }
+
+      // Execute all available tasks (some may run in parallel)
+      const promises = executable.map(async (task) => {
+        inProgress.add(task.id);
+        try {
+          await this.processTask(task);
+          completed.add(task.id);
+          inProgress.delete(task.id);
+        } catch (error) {
+          inProgress.delete(task.id);
+          this.logActivity('Task failed during dependency execution', {
+            taskId: task.id,
+            error: error
+          });
+        }
+      });
+
+      await Promise.allSettled(promises);
+    }
   }
 
   private getMCPForCategory(category: string): string {

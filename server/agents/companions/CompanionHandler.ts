@@ -56,15 +56,21 @@ export class CompanionHandler extends BaseAgent {
         
         // Check if this is a task-based message that should be routed to task orchestrator
         if (this.isTaskMessage(userMessage)) {
-          this.logActivity('Routing task message to orchestrator', { message: userMessage });
+          this.logActivity('Routing task message to orchestrator', { 
+            message: userMessage,
+            isMultiTask: this.isMultiTaskMessage(userMessage)
+          });
+          
+          // Determine if multi-task analysis is needed
+          const messageType = this.isMultiTaskMessage(userMessage) ? 'analyze_multi_task' : 'analyze_task';
           
           // Create task routing message
           const taskMessage: AgentMessage = {
-            type: 'analyze_task',
+            type: messageType,
             id: uuidv4(),
             timestamp: new Date().toISOString(),
             senderId: this.agentId,
-            targetId: 'task-orchestrator',
+            targetId: this.isMultiTaskMessage(userMessage) ? 'prompt-engineer' : 'task-orchestrator',
             payload: {
               message: userMessage,
               userId: message.payload.userId,
@@ -172,6 +178,21 @@ export class CompanionHandler extends BaseAgent {
     
     const lowerContent = content.toLowerCase();
     return taskKeywords.some(keyword => lowerContent.includes(keyword));
+  }
+
+  private isMultiTaskMessage(content: string): boolean {
+    // Detect multiple tasks by looking for conjunctions and multiple task keywords
+    const conjunctions = ['and', 'then', 'also', 'after', 'next', 'first', 'second'];
+    const taskKeywords = [
+      'deploy', 'mint', 'transfer', 'swap', 'balance', 'transaction', 
+      'contract', 'nft', 'token', 'send', 'check', 'buy', 'sell'
+    ];
+    
+    const lowerContent = content.toLowerCase();
+    const hasConjunctions = conjunctions.some(conj => lowerContent.includes(conj));
+    const taskKeywordCount = taskKeywords.filter(keyword => lowerContent.includes(keyword)).length;
+    
+    return hasConjunctions && taskKeywordCount >= 2;
   }
 
   private createErrorResponse(originalMessage: AgentMessage, errorText: string): AgentMessage {

@@ -2,7 +2,7 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-17 - CREWAI CHAIN OF THOUGHT INJECTION + GOAT MCP SYSTEM)
+## Recent Changes (2025-08-17 - CREWAI + GOAT MCP + AWS KMS SYSTEM)
 - **Consolidated Multi-Agent Architecture**: Implemented single CrewAI-powered chain of thought injection system
   - **Chain of Thought Injection**: Dynamic reasoning injection into agent working memory during execution (Manus AI-style)
   - **CrewAI Orchestrator**: Master coordinator for crew-based task execution with role specialization  
@@ -18,12 +18,19 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
   - **Base Camp Network**: Configured for Chain ID 123420001114 with CAMP token support
   - **Thirdweb Integration**: Seamless wallet connection with automatic session creation
   - **Backend API**: Session management endpoints for secure blockchain operations
-- **Enhanced User Experience**: Updated login, chat, and home interfaces with blockchain capabilities showcase
+- **AWS KMS Secret Management**: Enterprise-grade secure storage system
+  - **KMS Encryption**: AWS Key Management Service for encrypting user secrets and session keys
+  - **Account Management**: Complete user profile interface for managing API keys and sessions
+  - **Fallback Encryption**: Local encryption when AWS credentials not available
+  - **Secret Storage**: Secure storage for OpenAI, GitHub, and other MCP agent credentials
+  - **Permission-Based Access**: Granular control over secret access and session permissions
+- **Enhanced User Experience**: Updated login, chat, account, and home interfaces with full security showcase
 
 ## Previous Changes (2025-08-17 - APP REDESIGN)
 - **Major Architecture Pivot**: Repositioned from game-first to companion-first application
   - **Primary Focus**: Chat companion and Web3 task automation as main features
   - **Secondary Focus**: Puppet Runner moved to mini-games section as entertainment feature
+  - **Current Display**: Application shows Companion Chat system by design (not the 3D game)
 - **New MainApp Component**: Complete app redesign with dedicated tabs for Chat, Tasks, Mini Games, and Account
 - **TasksScreen**: Full Web3 task management system with automation workflows, priority levels, and category organization
 - **MiniGamesScreen**: Gaming hub featuring Puppet Runner with stats, ratings, and rewards tracking

@@ -11,6 +11,8 @@
     "db:push": "drizzle-kit push"
   },
   "dependencies": {
+    "@aws-sdk/client-kms": "^3.864.0",
+    "@aws-sdk/client-secrets-manager": "^3.864.0",
     "@fontsource/inter": "^5.2.5",
     "@goat-sdk/core": "^0.5.0",
     "@goat-sdk/plugin-erc20": "^0.2.14",

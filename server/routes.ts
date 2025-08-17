@@ -612,6 +612,113 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // AWS KMS Secret Management API
+  const { kmsManager } = await import('./kms');
+  
+  // Store user secret with KMS encryption
+  app.post('/api/user/secrets', async (req, res) => {
+    try {
+      const { userId, secretName, secretValue, secretType, description } = req.body;
+
+      if (!userId || !secretName || !secretValue) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+      }
+
+      console.log(`[API] Storing encrypted secret for user ${userId}:`, secretName);
+
+      const secretId = await kmsManager.storeUserSecret(
+        userId,
+        secretName,
+        secretValue,
+        secretType || 'api_key',
+        description || ''
+      );
+
+      res.json({
+        success: true,
+        message: 'Secret stored securely with KMS encryption',
+        secretId
+      });
+
+    } catch (error) {
+      console.error('[API] Secret storage error:', error);
+      res.status(500).json({ 
+        error: 'Failed to store secret',
+        details: error.message 
+      });
+    }
+  });
+
+  // Retrieve user secret
+  app.get('/api/user/:userId/secrets/:secretName', async (req, res) => {
+    try {
+      const { userId, secretName } = req.params;
+
+      const secretValue = await kmsManager.getUserSecret(userId, secretName);
+      
+      if (!secretValue) {
+        return res.status(404).json({ error: 'Secret not found' });
+      }
+
+      res.json({
+        success: true,
+        value: secretValue
+      });
+
+    } catch (error) {
+      console.error('[API] Secret retrieval error:', error);
+      res.status(500).json({ 
+        error: 'Failed to retrieve secret',
+        details: error.message 
+      });
+    }
+  });
+
+  // List user secrets (metadata only)
+  app.get('/api/user/:userId/secrets', async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      const secrets = await kmsManager.listUserSecrets(userId);
+      
+      res.json({
+        success: true,
+        secrets
+      });
+
+    } catch (error) {
+      console.error('[API] Secrets list error:', error);
+      res.status(500).json({ 
+        error: 'Failed to list secrets',
+        details: error.message 
+      });
+    }
+  });
+
+  // Delete user secret
+  app.delete('/api/user/secrets/:secretId', async (req, res) => {
+    try {
+      const { secretId } = req.params;
+      const userId = req.body.userId; // Should come from authenticated user
+
+      await kmsManager.deleteUserSecret(userId, secretId);
+      
+      res.json({
+        success: true,
+        message: 'Secret deleted successfully'
+      });
+
+    } catch (error) {
+      console.error('[API] Secret deletion error:', error);
+      res.status(500).json({ 
+        error: 'Failed to delete secret',
+        details: error.message 
+      });
+    }
+  });
+
+  console.log('🔐 Registered KMS secret management routes');
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -27,7 +27,7 @@ export interface ToolCall {
 }
 
 export class ReActAgent extends BaseAgent {
-  private openai: OpenAI;
+  private openai: OpenAI | null = null;
   private cotEngine: ChainOfThoughtEngine;
   private crewAgent: CrewAIAgent;
   private availableTools: Map<string, ToolCall> = new Map();
@@ -43,9 +43,12 @@ export class ReActAgent extends BaseAgent {
     super(agentId, messageBroker);
     this.crewAgent = crewAgent;
     this.cotEngine = cotEngine;
-    this.openai = new OpenAI({ 
-      apiKey: process.env.OPENAI_API_KEY 
-    });
+    // Only initialize OpenAI if API key is available
+    if (process.env.OPENAI_API_KEY) {
+      this.openai = new OpenAI({ 
+        apiKey: process.env.OPENAI_API_KEY 
+      });
+    }
     
     this.currentState = {
       observation: '',
@@ -62,10 +65,14 @@ export class ReActAgent extends BaseAgent {
     this.initializeTools();
   }
 
+  getCapabilities(): string[] {
+    return ['react-reasoning', 'iterative-thinking', 'tool-usage', 'strategic-analysis'];
+  }
+
   protected initialize(): void {
     this.logActivity('Initializing ReAct Agent', { 
-      role: this.crewAgent.role,
-      reasoningStyle: this.crewAgent.reasoningStyle 
+      role: this.crewAgent?.role || 'Default Agent',
+      reasoningStyle: this.crewAgent?.reasoningStyle || 'react'
     });
   }
 

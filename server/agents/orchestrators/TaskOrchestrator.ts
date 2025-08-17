@@ -174,21 +174,31 @@ export class TaskOrchestrator extends BaseAgent {
   }
 
   private getNextTask(): Task | null {
+    // Ensure taskQueue is initialized
+    if (!this.taskQueue) {
+      return null;
+    }
+    
     // Prioritize: high > medium > low
-    if (this.taskQueue.high.length > 0) {
+    if (this.taskQueue.high && this.taskQueue.high.length > 0) {
       return this.taskQueue.high[0];
     }
-    if (this.taskQueue.medium.length > 0) {
+    if (this.taskQueue.medium && this.taskQueue.medium.length > 0) {
       return this.taskQueue.medium[0];
     }
-    if (this.taskQueue.low.length > 0) {
+    if (this.taskQueue.low && this.taskQueue.low.length > 0) {
       return this.taskQueue.low[0];
     }
     return null;
   }
 
   private removeFromQueue(task: Task): void {
-    const queue = this.taskQueue[task.priority];
+    if (!this.taskQueue) return;
+    
+    const priority = task.priority as keyof TaskQueue;
+    const queue = this.taskQueue[priority];
+    if (!queue) return;
+    
     const index = queue.findIndex(t => t.id === task.id);
     if (index >= 0) {
       queue.splice(index, 1);

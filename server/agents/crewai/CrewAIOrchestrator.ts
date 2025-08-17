@@ -48,13 +48,28 @@ export interface CrewConfiguration {
 }
 
 export class CrewAIOrchestrator extends BaseAgent {
-  private crews: Map<string, CrewConfiguration> = new Map();
-  private activeReasoningChains: Map<string, ChainOfThoughtStep[]> = new Map();
-  private agentRoles: Map<string, CrewAIAgent> = new Map();
-  private taskDependencies: Map<string, string[]> = new Map();
+  private crews: Map<string, CrewConfiguration>;
+  private activeReasoningChains: Map<string, ChainOfThoughtStep[]>;
+  private agentRoles: Map<string, CrewAIAgent>;
+  private taskDependencies: Map<string, string[]>;
+
+  constructor(messageBroker: MessageBroker) {
+    super('crewai-orchestrator', messageBroker);
+  }
+
+  getCapabilities(): string[] {
+    return ['crew-coordination', 'task-orchestration', 'chain-of-thought', 'multi-agent-reasoning'];
+  }
 
   protected initialize(): void {
     this.logActivity('Initializing CrewAI Orchestrator');
+    
+    // Initialize all Maps
+    this.crews = new Map();
+    this.activeReasoningChains = new Map();
+    this.agentRoles = new Map();
+    this.taskDependencies = new Map();
+    
     this.initializeDefaultCrew();
   }
 

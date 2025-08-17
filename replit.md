@@ -2,7 +2,19 @@
 
 Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with React, Three.js, and Thirdweb wallet integration. Players run through a 3D environment collecting coins, avoiding obstacles, and can mint NFT characters that affect gameplay. The application combines gaming mechanics with blockchain functionality, allowing players to earn rewards and unlock content through NFT ownership.
 
-## Recent Changes (2025-08-17 - APP REDESIGN)
+## Recent Changes (2025-08-17 - CREWAI CHAIN OF THOUGHT INJECTION SYSTEM)
+- **Consolidated Multi-Agent Architecture**: Implemented single CrewAI-powered chain of thought injection system
+  - **Chain of Thought Injection**: Dynamic reasoning injection into agent working memory during execution (Manus AI-style)
+  - **CrewAI Orchestrator**: Master coordinator for crew-based task execution with role specialization  
+  - **ReAct Agent**: Individual agent with iterative reasoning capabilities (Reasoning → Acting → Observation)
+  - **Chain of Thought Engine**: Multiple reasoning patterns (ReAct, Strategic, Analytical, Validation)
+- **Event Stream Processing**: Chronological task logging and context management like Manus AI
+- **Dynamic Planning Updates**: Real-time plan adaptation with reasoning injection at decision points
+- **Tool Orchestration**: Integrated blockchain operations, web search, code analysis, and document generation
+- **Working Memory Management**: Sliding window context with strategic thought injection capabilities
+- **OpenAI GPT-4o Integration**: Advanced reasoning when API key provided, graceful fallback without key
+
+## Previous Changes (2025-08-17 - APP REDESIGN)
 - **Major Architecture Pivot**: Repositioned from game-first to companion-first application
   - **Primary Focus**: Chat companion and Web3 task automation as main features
   - **Secondary Focus**: Puppet Runner moved to mini-games section as entertainment feature
@@ -73,6 +85,8 @@ Puppet Runner is an NFT-powered infinite runner game built by Puppets AI with Re
 
 # User Preferences
 
+- **AI System**: Single CrewAI-powered multi-agent system with chain of thought injection (not multiple competing systems)
+- **Chain of Thought**: Use Manus AI-style dynamic reasoning injection into working memory during execution
 - **App Focus**: Companion chat and task automation as primary features, Puppet Runner as mini-game
 - **Design Style**: Clean, minimal interface inspired by wireframe - avoid excessive text
 - **Communication**: Simple, everyday language

@@ -10,6 +10,7 @@ import "@fontsource/inter";
 // Import game components
 import GameScene from "./components/game/GameScene";
 import GameUI from "./components/ui/GameUI";
+import HomePage from "./components/ui/HomePage";
 import StartScreen from "./components/ui/StartScreen";
 import GameOverScreen from "./components/ui/GameOverScreen";
 import MintScreen from "./components/ui/MintScreen";
@@ -93,6 +94,8 @@ function AppContent() {
     <div style={{ width: '100vw', height: '100vh', position: 'relative', overflow: 'hidden' }}>
         {showCanvas && (
           <>
+            {gamePhase === 'home' && <HomePage />}
+            
             {gamePhase === 'onboarding' && <OnboardingScreen />}
             
             {gamePhase === 'tutorial' && <TutorialScreen />}

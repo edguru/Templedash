@@ -1,9 +1,12 @@
-// Task Orchestrator Agent - Organizes tasks, prioritizes, and assigns them to MCPs
+// Enhanced Task Orchestrator Agent - Intelligent task delegation with Agent2Agent protocol inspiration
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage, Task } from '../types/AgentTypes';
 import { SystemPrompts } from '../prompts/SystemPrompts';
 import { TaskTracker } from '../trackers/TaskTracker';
+import { CapabilityRegistry, AgentCapabilityMatch, TaskRequirement } from '../core/CapabilityRegistry';
+import { CollaborativePlanner, CollaborationPlan } from '../core/CollaborativePlanner';
+import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 interface TaskQueue {
@@ -16,9 +19,16 @@ export class TaskOrchestrator extends BaseAgent {
   private taskQueue: TaskQueue = { high: [], medium: [], low: [] };
   private activeTasks: Map<string, Task> = new Map();
   private mcpAgents: Map<string, string> = new Map();
+  private capabilityRegistry: CapabilityRegistry;
+  private collaborativePlanner: CollaborativePlanner;
+  private chainOfThought: ChainOfThoughtEngine;
+  private activePlans: Map<string, CollaborationPlan> = new Map();
 
   constructor(messageBroker: MessageBroker, private taskTracker: TaskTracker) {
     super('task-orchestrator', messageBroker);
+    this.capabilityRegistry = new CapabilityRegistry();
+    this.collaborativePlanner = new CollaborativePlanner(this.capabilityRegistry);
+    this.chainOfThought = new ChainOfThoughtEngine();
   }
 
   protected initialize(): void {
@@ -304,43 +314,241 @@ export class TaskOrchestrator extends BaseAgent {
 
   private async executeTask(task: Task): Promise<void> {
     try {
-      this.logActivity('Executing task', { taskId: task.id, category: task.category });
+      this.logActivity('Executing task with intelligent delegation', { taskId: task.id, category: task.category });
 
-      // Determine which MCP agent to use based on task type
-      const mcpAgent = this.getMCPForCategory(task.type || task.category);
+      // Check if this is a complex task requiring collaboration
+      const isComplex = await this.isComplexTask(task);
       
-      // Create execution message with appropriate type for different MCPs
-      let messageType = 'execute_task';
-      if (mcpAgent === 'nebula-mcp') {
-        messageType = 'execute_nebula_task';
-      } else if (mcpAgent === 'goat-mcp' && (task.type === 'balance_check' || task.type === 'token_info')) {
-        messageType = 'check_balance'; // Use specific balance check message type
+      if (isComplex) {
+        await this.executeCollaborativeTask(task);
+      } else {
+        await this.executeSingleAgentTask(task);
       }
-      
-      const executionMessage: AgentMessage = {
-        type: messageType,
-        id: uuidv4(),
-        timestamp: new Date().toISOString(),
-        senderId: this.agentId,
-        targetId: mcpAgent,
-        payload: {
-          taskId: task.id,
-          type: task.type || task.category,
-          category: task.category || task.type, // Ensure category is always set
-          parameters: task.parameters,
-          userId: task.userId,
-          description: task.description,
-          walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined // Only pass if it's a wallet address
-        }
-      };
-
-      // Send to appropriate MCP agent
-      await this.sendMessage(executionMessage);
 
     } catch (error) {
       console.error(`[TaskOrchestrator] Error executing task ${task.id}:`, error);
       await this.handleTaskError(task, error as Error);
     }
+  }
+
+  // Execute tasks requiring multiple agents with collaboration
+  private async executeCollaborativeTask(task: Task): Promise<void> {
+    console.log(`[TaskOrchestrator] Executing collaborative task ${task.id}`);
+
+    // Create collaboration plan
+    const plan = await this.collaborativePlanner.createCollaborationPlan(task, {
+      originalMessage: task.description,
+      userId: task.userId,
+      priority: task.priority
+    });
+
+    this.activePlans.set(task.id!, plan);
+
+    // Execute plan steps
+    await this.executePlanSteps(plan);
+  }
+
+  // Execute simple tasks with single agent using capability-based selection
+  private async executeSingleAgentTask(task: Task): Promise<void> {
+    console.log(`[TaskOrchestrator] Executing single-agent task ${task.id} with capability matching`);
+
+    // Create task requirements
+    const requirements: TaskRequirement = {
+      taskType: task.type || 'general',
+      priority: task.priority,
+      securityLevel: this.determineSecurityLevel(task),
+      maxLatency: this.determineMaxLatency(task.priority),
+      requiredCapabilities: this.mapTaskTypeToCapabilities(task.type || 'general'),
+      context: {
+        originalMessage: task.description,
+        userId: task.userId
+      }
+    };
+
+    // Find best agent using capability registry
+    const candidateAgents = this.capabilityRegistry.findBestAgentsForTask(requirements);
+    
+    if (candidateAgents.length === 0) {
+      throw new Error(`No capable agents found for task type: ${task.type}`);
+    }
+
+    // Conduct agent negotiation for optimal assignment
+    const negotiatedAgents = await this.collaborativePlanner.negotiateAgentAssignment(candidateAgents, [requirements]);
+    const selectedAgent = negotiatedAgents[0];
+
+    // Generate chain of thought for task execution
+    const reasoning = await this.generateExecutionChainOfThought(task, selectedAgent);
+    
+    console.log(`[TaskOrchestrator] Selected agent ${selectedAgent.agentId} for task ${task.id}`, {
+      reasoning: selectedAgent.reasoning,
+      score: selectedAgent.score,
+      chainOfThought: reasoning
+    });
+
+    // Create and send execution message
+    await this.sendTaskToAgent(task, selectedAgent);
+
+    // Update agent metrics
+    this.updateAgentLoad(selectedAgent.agentId, selectedAgent.capability.capabilityName, true);
+  }
+
+  private async executePlanSteps(plan: CollaborationPlan): Promise<void> {
+    console.log(`[TaskOrchestrator] Executing collaboration plan ${plan.planId} with ${plan.executionSteps.length} steps`);
+
+    // Execute parallel steps first
+    const parallelSteps = plan.executionSteps.filter(step => step.parallel);
+    const sequentialSteps = plan.executionSteps.filter(step => !step.parallel);
+
+    // Execute parallel steps simultaneously
+    if (parallelSteps.length > 0) {
+      const parallelPromises = parallelSteps.map(step => this.executeStep(step, plan));
+      await Promise.all(parallelPromises);
+    }
+
+    // Execute sequential steps in order
+    for (const step of sequentialSteps) {
+      await this.executeStep(step, plan);
+    }
+  }
+
+  private async executeStep(step: any, plan: CollaborationPlan): Promise<void> {
+    console.log(`[TaskOrchestrator] Executing step ${step.stepId} with agent ${step.agentId}`);
+
+    const executionMessage: AgentMessage = {
+      type: this.getMessageTypeForCapability(step.capability),
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: step.agentId,
+      payload: {
+        ...step.inputs,
+        stepId: step.stepId,
+        planId: plan.planId,
+        capability: step.capability
+      }
+    };
+
+    await this.sendMessage(executionMessage);
+  }
+
+  private async sendTaskToAgent(task: Task, selectedAgent: AgentCapabilityMatch): Promise<void> {
+    const messageType = this.getMessageTypeForAgent(selectedAgent.agentId, selectedAgent.capability.capabilityName);
+    
+    const executionMessage: AgentMessage = {
+      type: messageType,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: selectedAgent.agentId,
+      payload: {
+        taskId: task.id,
+        type: task.type || task.category,
+        category: task.category || task.type,
+        parameters: task.parameters,
+        userId: task.userId,
+        description: task.description,
+        walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined,
+        capability: selectedAgent.capability.capabilityName,
+        reasoning: selectedAgent.reasoning
+      }
+    };
+
+    await this.sendMessage(executionMessage);
+  }
+
+  // Enhanced chain of thought generation for task execution
+  private async generateExecutionChainOfThought(task: Task, selectedAgent: AgentCapabilityMatch): Promise<string[]> {
+    const reasoning: string[] = [];
+
+    reasoning.push(`Task Analysis: ${task.description}`);
+    reasoning.push(`Task Type: ${task.type}, Priority: ${task.priority}`);
+    reasoning.push(`Selected Agent: ${selectedAgent.agentId} (score: ${selectedAgent.score.toFixed(2)})`);
+    reasoning.push(`Agent Reasoning: ${selectedAgent.reasoning}`);
+    reasoning.push(`Capability: ${selectedAgent.capability.capabilityName}`);
+    reasoning.push(`Expected Latency: ${selectedAgent.capability.estimatedLatency}ms`);
+    reasoning.push(`Success Rate: ${(selectedAgent.capability.successRate * 100).toFixed(1)}%`);
+    
+    // Add security considerations
+    if (selectedAgent.capability.securityLevel === 'high') {
+      reasoning.push('Security Note: High-security operation - ensuring proper validation');
+    }
+
+    // Add dependency analysis
+    if (selectedAgent.capability.dependencies.length > 0) {
+      reasoning.push(`Dependencies: ${selectedAgent.capability.dependencies.join(', ')}`);
+    }
+
+    return reasoning;
+  }
+
+  // Helper methods for intelligent delegation
+  private async isComplexTask(task: Task): Promise<boolean> {
+    const complexTaskTypes = ['contract_deployment', 'multi_token_transfer', 'batch_mint'];
+    const hasMultipleSteps = task.description?.includes('and') || task.description?.includes('then');
+    return complexTaskTypes.includes(task.type || '') || hasMultipleSteps || false;
+  }
+
+  private determineSecurityLevel(task: Task): 'low' | 'medium' | 'high' {
+    const taskType = task.type?.toLowerCase();
+    if (taskType?.includes('transfer') || taskType?.includes('deploy') || taskType?.includes('mint')) {
+      return 'high';
+    }
+    if (taskType?.includes('balance') || taskType?.includes('check')) {
+      return 'medium';
+    }
+    return 'low';
+  }
+
+  private determineMaxLatency(priority: string): number {
+    switch (priority) {
+      case 'high': return 5000;
+      case 'medium': return 15000;
+      case 'low': return 30000;
+      default: return 15000;
+    }
+  }
+
+  private mapTaskTypeToCapabilities(taskType: string): string[] {
+    const mapping: Record<string, string[]> = {
+      'nft_mint': ['nft_mint'],
+      'balance_check': ['balance_check'],
+      'token_transfer': ['token_transfer'],
+      'contract_deployment': ['contract_deployment'],
+      'conversation': ['conversation'],
+      'task_detection': ['task_detection']
+    };
+    return mapping[taskType] || ['conversation'];
+  }
+
+  private getMessageTypeForAgent(agentId: string, capability: string): string {
+    // Map agent and capability to appropriate message type
+    if (agentId === 'nebula-mcp') {
+      return 'execute_nebula_task';
+    } else if (agentId === 'goat-mcp') {
+      if (capability === 'balance_check') return 'check_balance';
+      if (capability === 'token_transfer') return 'transfer_token';
+      return 'execute_task';
+    }
+    return 'execute_task';
+  }
+
+  private getMessageTypeForCapability(capability: string): string {
+    const mapping: Record<string, string> = {
+      'nft_mint': 'execute_nebula_task',
+      'balance_check': 'check_balance',
+      'token_transfer': 'transfer_token',
+      'contract_deployment': 'deploy_contract',
+      'conversation': 'handle_conversation',
+      'task_detection': 'detect_task'
+    };
+    return mapping[capability] || 'execute_task';
+  }
+
+  private updateAgentLoad(agentId: string, capability: string, increased: boolean): void {
+    const loadDelta = increased ? 0.1 : -0.1;
+    // Update capability registry with new load information
+    // This would be expanded to track real agent performance metrics
+    console.log(`[TaskOrchestrator] Updated load for ${agentId}:${capability} by ${loadDelta}`);
   }
 
   private async handleStepCompletion(message: AgentMessage): Promise<void> {
@@ -375,10 +583,10 @@ export class TaskOrchestrator extends BaseAgent {
   }
 
   private async handleTaskError(task: Task, error: Error): Promise<void> {
-    task.retryCount++;
+    task.retryCount = (task.retryCount || 0) + 1;
     task.error = error.message;
 
-    if (task.retryCount < task.maxRetries) {
+    if (task.retryCount < (task.maxRetries || 3)) {
       // Retry task
       task.state = 'QUEUED';
       this.queueTask(task);

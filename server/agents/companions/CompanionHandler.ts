@@ -1,6 +1,8 @@
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
+import { CapabilityRegistry, TaskRequirement } from '../core/CapabilityRegistry';
+import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface CompanionTraits {
@@ -20,11 +22,35 @@ export interface CompanionTraits {
   lastModified?: string;
 }
 
+export interface ConversationContext {
+  userId: string;
+  conversationHistory: ConversationTurn[];
+  currentMood: string;
+  taskHistory: string[];
+  lastInteraction: Date;
+  relationshipLevel: number;
+  preferredTopics: string[];
+  recentTaskSuccesses: number;
+}
+
+export interface ConversationTurn {
+  message: string;
+  isUser: boolean;
+  timestamp: Date;
+  taskDetected?: boolean;
+  emotion?: string;
+}
+
 export class CompanionHandler extends BaseAgent {
   private companionTraits: CompanionTraits | null = null;
+  private capabilityRegistry: CapabilityRegistry;
+  private chainOfThought: ChainOfThoughtEngine;
+  private conversationContext: Map<string, ConversationContext> = new Map();
   
   constructor(messageBroker: MessageBroker) {
     super('companion-handler', messageBroker);
+    this.capabilityRegistry = new CapabilityRegistry();
+    this.chainOfThought = new ChainOfThoughtEngine();
   }
 
   protected initialize(): void {
@@ -37,7 +63,10 @@ export class CompanionHandler extends BaseAgent {
       'response_customization',
       'task_routing',
       'emotional_context',
-      'relationship_awareness'
+      'relationship_awareness',
+      'intelligent_task_detection',
+      'peer_collaboration',
+      'chain_of_thought_reasoning'
     ];
   }
 
@@ -54,11 +83,15 @@ export class CompanionHandler extends BaseAgent {
       if (message.type === 'user_message') {
         const userMessage = message.payload.message;
         
-        // Check if this is a task-based message that should be routed to task orchestrator
-        if (this.isTaskMessage(userMessage)) {
+        // Enhanced intelligent task detection with peer collaboration
+        const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, message.payload.userId);
+        
+        if (taskAnalysis.isTask) {
           this.logActivity('Routing task message to orchestrator', { 
             message: userMessage,
-            isMultiTask: this.isMultiTaskMessage(userMessage)
+            confidence: taskAnalysis.confidence,
+            taskType: taskAnalysis.detectedTaskType,
+            reasoning: taskAnalysis.reasoning
           });
           
           // For now, route ALL tasks directly to TaskOrchestrator to avoid complexity
@@ -349,5 +382,168 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
   // Public method for getting companion info
   getCompanionInfo(): CompanionTraits | null {
     return this.companionTraits;
+  }
+
+  // Enhanced intelligent task detection with chain of thought reasoning
+  private async analyzeMessageWithChainOfThought(message: string, userId: string): Promise<{
+    isTask: boolean;
+    confidence: number;
+    detectedTaskType: string;
+    reasoning: string[];
+  }> {
+    // Generate chain of thought for message analysis
+    const reasoning: string[] = [];
+    
+    reasoning.push(`Analyzing message: "${message}"`);
+    reasoning.push(`User ID: ${userId}`);
+    
+    const lowerMessage = message.toLowerCase();
+    
+    // Pattern-based analysis
+    const taskPatterns: Record<string, RegExp[]> = {
+      'nft_mint': [
+        /\bmint\s+.{0,30}(nft|token|companion|character|random)\b/i,
+        /\bcreate\s+.{0,20}(nft|character|companion)\b/i
+      ],
+      'balance_check': [
+        /\b(check|show|get|what.{0,15}is)\s+.{0,20}balance\b/i,
+        /\bhow\s+much\s+.{0,20}(do\s+i\s+have|is\s+my|camp|token)\b/i
+      ],
+      'token_transfer': [
+        /\b(send|transfer)\s+.{0,20}(token|nft|camp|eth)\b/i
+      ],
+      'contract_deployment': [
+        /\b(deploy|create)\s+.{0,20}(contract|nft|token)\b/i
+      ]
+    };
+
+    let detectedTaskType = 'general';
+    let maxConfidence = 0;
+
+    for (const [taskType, patterns] of Object.entries(taskPatterns)) {
+      for (const pattern of patterns) {
+        if (pattern.test(message)) {
+          const confidence = 0.9; // High confidence for pattern matches
+          if (confidence > maxConfidence) {
+            maxConfidence = confidence;
+            detectedTaskType = taskType;
+            reasoning.push(`Pattern match detected for ${taskType}: ${pattern.toString()}`);
+          }
+        }
+      }
+    }
+
+    // Keyword-based analysis if no patterns match
+    if (maxConfidence === 0) {
+      const taskKeywords = ['mint', 'balance', 'transfer', 'deploy', 'check', 'send', 'swap', 'nft', 'token'];
+      const foundKeywords = taskKeywords.filter(keyword => lowerMessage.includes(keyword));
+      
+      if (foundKeywords.length > 0) {
+        maxConfidence = Math.min(0.7, foundKeywords.length * 0.2);
+        reasoning.push(`Found task keywords: ${foundKeywords.join(', ')}`);
+        
+        // Infer task type from keywords
+        if (foundKeywords.includes('mint')) detectedTaskType = 'nft_mint';
+        else if (foundKeywords.includes('balance') || foundKeywords.includes('check')) detectedTaskType = 'balance_check';
+        else if (foundKeywords.includes('transfer') || foundKeywords.includes('send')) detectedTaskType = 'token_transfer';
+        else if (foundKeywords.includes('deploy')) detectedTaskType = 'contract_deployment';
+      }
+    }
+
+    // Context-based analysis using conversation history
+    const context = this.conversationContext.get(userId);
+    if (context) {
+      const recentTaskCount = context.taskHistory.slice(-5).length;
+      if (recentTaskCount > 0) {
+        maxConfidence *= 1.1; // Boost confidence if user has been doing tasks
+        reasoning.push(`User has performed ${recentTaskCount} recent tasks, boosting confidence`);
+      }
+    }
+
+    const isTask = maxConfidence > 0.3; // Threshold for task detection
+    
+    reasoning.push(`Final analysis: ${isTask ? 'TASK' : 'CONVERSATION'} (confidence: ${maxConfidence.toFixed(2)})`);
+    reasoning.push(`Detected task type: ${detectedTaskType}`);
+
+    return {
+      isTask,
+      confidence: maxConfidence,
+      detectedTaskType,
+      reasoning
+    };
+  }
+
+  // Generate intelligent companion responses with context awareness
+  private async generateIntelligentCompanionResponse(
+    message: string, 
+    userId: string, 
+    analysisReasoning: string[]
+  ): Promise<string> {
+    const context = this.conversationContext.get(userId);
+    
+    // Use chain of thought for response generation
+    const reasoning: string[] = [];
+    reasoning.push(`Generating companion response for: "${message}"`);
+    reasoning.push(`Analysis result: ${analysisReasoning.join('; ')}`);
+    
+    if (this.companionTraits) {
+      reasoning.push(`Companion: ${this.companionTraits.name} (${this.companionTraits.role})`);
+      reasoning.push(`Personality: ${this.companionTraits.personalityType}`);
+      
+      return this.generatePersonalizedResponse(message, this.companionTraits);
+    } else {
+      reasoning.push('No companion traits available, using generic response');
+      return this.generateGenericCompanionResponse(message);
+    }
+  }
+
+  // Update conversation context for better understanding over time
+  private updateConversationContext(userId: string, message: string, wasTask: boolean): void {
+    let context = this.conversationContext.get(userId);
+    
+    if (!context) {
+      context = {
+        userId,
+        conversationHistory: [],
+        currentMood: 'neutral',
+        taskHistory: [],
+        lastInteraction: new Date(),
+        relationshipLevel: 1,
+        preferredTopics: [],
+        recentTaskSuccesses: 0
+      };
+    }
+
+    // Add to conversation history
+    context.conversationHistory.push({
+      message,
+      isUser: true,
+      timestamp: new Date(),
+      taskDetected: wasTask
+    });
+
+    // Keep only last 10 interactions
+    if (context.conversationHistory.length > 10) {
+      context.conversationHistory = context.conversationHistory.slice(-10);
+    }
+
+    // Update task history
+    if (wasTask) {
+      context.taskHistory.push(message);
+      if (context.taskHistory.length > 20) {
+        context.taskHistory = context.taskHistory.slice(-20);
+      }
+    }
+
+    // Update interaction timestamp
+    context.lastInteraction = new Date();
+
+    // Update relationship level based on interaction frequency
+    const daysSinceFirst = Math.max(1, 
+      Math.floor((new Date().getTime() - new Date(context.conversationHistory[0]?.timestamp || new Date()).getTime()) / (1000 * 60 * 60 * 24))
+    );
+    context.relationshipLevel = Math.min(10, context.conversationHistory.length / daysSinceFirst);
+
+    this.conversationContext.set(userId, context);
   }
 }

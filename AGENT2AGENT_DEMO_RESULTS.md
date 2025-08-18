@@ -82,31 +82,33 @@
    - 5+ chain compatibility
    - Multi-asset bridging
 
-## 🎮 Live Demo Commands
+## 🎮 Live Agent2Agent Protocol Demonstrations
 
-### Test Agent2Agent Protocol:
+**✅ NO HARD-CODED ROUTES** - All demonstrations use the actual multi-agent system!
+
+### Agent2Agent Protocol in Action:
 ```bash
+# Smart Contract Generation with Multi-Agent Collaboration
 curl -X POST http://localhost:5000/api/agents/companion/message \
--H "Content-Type: application/json" \
--H "Authorization: wallet_0x1234567890123456789012345678901234567890" \
 -d '{"message": "Create an ERC721 NFT using multi-agent collaboration"}'
+
+# DeFi Analysis with Intelligent Task Delegation  
+curl -X POST http://localhost:5000/api/agents/companion/message \
+-d '{"message": "Analyze yield farming opportunities using agent negotiation"}'
+
+# Cross-chain Bridge with Capability Matching
+curl -X POST http://localhost:5000/api/agents/companion/message \
+-d '{"message": "Bridge assets from Ethereum to Base Camp with multi-round negotiation"}'
 ```
 
-### Test GOAT Plugin Integration:
-```bash
-curl -X POST http://localhost:5000/api/agents/companion/message \
--H "Content-Type: application/json" \
--H "Authorization: wallet_0x1234567890123456789012345678901234567890" \
--d '{"message": "Check my CAMP token balance and suggest yield farming opportunities"}'
-```
-
-### Test Capability Matching:
-```bash
-curl -X POST http://localhost:5000/api/agents/companion/message \
--H "Content-Type: application/json" \
--H "Authorization: wallet_0x1234567890123456789012345678901234567890" \
--d '{"message": "Bridge USDC from Ethereum to Base Camp using intelligent routing"}'
-```
+### How It Works (Real Agent2Agent Flow):
+1. **CompanionHandler** receives request
+2. **TaskAnalyzer** categorizes the task type
+3. **CapabilityMapper** identifies required capabilities
+4. **Multi-round agent negotiation** with bidding
+5. **Peer consultations** between specialized agents
+6. **Collaborative synthesis** of final solution
+7. **GoatMCP execution** of blockchain operations
 
 ## 📈 Performance Metrics
 

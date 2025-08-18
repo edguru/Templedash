@@ -1,23 +1,13 @@
-// Agent2Agent Protocol Demonstration
-import { Agent2AgentProtocol } from '../core/Agent2AgentProtocol';
-import { CapabilityRegistry } from '../core/CapabilityRegistry';
-import { CapabilityMapper } from '../core/CapabilityMapper';
-import { MessageBroker } from '../core/MessageBroker';
+// Agent2Agent Protocol Integration Helper - Uses actual agent system
+import { AgentSystem } from '../index';
+import type { AgentMessage } from '../types/AgentTypes';
 
 export class Agent2AgentDemo {
-  private protocol: Agent2AgentProtocol;
-  private capabilityRegistry: CapabilityRegistry;
-  private messageBroker: MessageBroker;
+  private agentSystem: AgentSystem;
 
   constructor() {
-    this.messageBroker = new MessageBroker();
-    this.capabilityRegistry = new CapabilityRegistry();
-    const capabilityMapper = new CapabilityMapper();
-    this.protocol = new Agent2AgentProtocol(
-      this.messageBroker,
-      this.capabilityRegistry,
-      capabilityMapper
-    );
+    // Use the actual agent system instead of creating separate instances
+    this.agentSystem = AgentSystem.getInstance();
   }
 
   async demonstrateTaskDelegation(): Promise<void> {

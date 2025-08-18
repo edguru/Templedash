@@ -1,12 +1,16 @@
-// Research MCP Agent - Handles information gathering and analysis
+// Research MCP Agent - Handles information gathering and analysis with session signer support
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class ResearchMCP extends BaseAgent {
+  private sessionSigners: ServerSessionManager;
+
   constructor(messageBroker: MessageBroker) {
     super('research-mcp', messageBroker);
+    this.sessionSigners = ServerSessionManager.getInstance();
   }
 
   protected initialize(): void {

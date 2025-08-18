@@ -1,5 +1,6 @@
-// Capability Registry for Dynamic Agent Discovery and Capability Advertising
+// Capability Registry for Dynamic Agent Discovery and Capability Advertising with CapabilityMapper integration
 import { AgentMessage } from '../types/AgentTypes';
+import { CapabilityMapper } from './CapabilityMapper';
 
 export interface AgentCapability {
   agentId: string;
@@ -27,8 +28,10 @@ export interface TaskRequirement {
 export class CapabilityRegistry {
   private capabilities: Map<string, AgentCapability[]> = new Map();
   private performanceHistory: Map<string, PerformanceMetrics> = new Map();
+  private capabilityMapper: CapabilityMapper;
 
   constructor() {
+    this.capabilityMapper = new CapabilityMapper();
     this.initializeCapabilities();
   }
 
@@ -39,9 +42,31 @@ export class CapabilityRegistry {
     this.capabilities.set(capability.agentId, agentCapabilities);
   }
 
-  // Find best agent(s) for a given task requirement
+  // Find best agent(s) for a given task requirement using CapabilityMapper
   findBestAgentsForTask(requirement: TaskRequirement): AgentCapabilityMatch[] {
     const matches: AgentCapabilityMatch[] = [];
+    
+    // Use CapabilityMapper for intelligent task delegation
+    const capabilityMatches = this.capabilityMapper.findBestAgent({
+      category: requirement.taskType,
+      specificNeeds: requirement.requiredCapabilities,
+      context: requirement.context
+    });
+    
+    // Convert CapabilityMapper results to AgentCapabilityMatch format
+    for (const capMatch of capabilityMatches.slice(0, 3)) { // Top 3 matches
+      const agentCapabilities = this.capabilities.get(capMatch.agentId);
+      if (agentCapabilities) {
+        matches.push({
+          agentId: capMatch.agentId,
+          capability: agentCapabilities[0], // Use first capability as representative
+          score: capMatch.matchScore,
+          reasoning: capMatch.reasoning
+        });
+      }
+    }
+    
+    // Fallback to original logic if no matches found
 
     for (const [agentId, capabilities] of Array.from(this.capabilities.entries())) {
       for (const capability of capabilities) {

@@ -1,12 +1,16 @@
-// Document Writer MCP Agent - Generates documentation and guides
+// Document Writer MCP Agent - Generates documentation and guides with session signer support
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class DocumentWriterMCP extends BaseAgent {
+  private sessionSigners: ServerSessionManager;
+
   constructor(messageBroker: MessageBroker) {
     super('docwriter-mcp', messageBroker);
+    this.sessionSigners = ServerSessionManager.getInstance();
   }
 
   protected initialize(): void {

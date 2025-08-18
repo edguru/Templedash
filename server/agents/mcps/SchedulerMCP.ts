@@ -1,14 +1,17 @@
-// Scheduler MCP Agent - Handles task scheduling and automation
+// Scheduler MCP Agent - Handles task scheduling and automation with session signer support
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class SchedulerMCP extends BaseAgent {
   private scheduledTasks: Map<string, any> = new Map();
+  private sessionSigners: ServerSessionManager;
 
   constructor(messageBroker: MessageBroker) {
     super('scheduler-mcp', messageBroker);
+    this.sessionSigners = ServerSessionManager.getInstance();
   }
 
   protected initialize(): void {

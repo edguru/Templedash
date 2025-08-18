@@ -1,8 +1,9 @@
-// Code Generation MCP Agent - Generates smart contracts and scripts
+// Code Generation MCP Agent - Generates smart contracts and scripts with session signer support
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { ServerSessionManager } from '../../lib/SessionManager';
 
 interface CodeTemplate {
   type: string;
@@ -13,14 +14,16 @@ interface CodeTemplate {
 
 export class CodeGenMCP extends BaseAgent {
   private templates: Map<string, CodeTemplate>;
+  private sessionSigners: ServerSessionManager;
 
   constructor(messageBroker: MessageBroker) {
     super('codegen-mcp', messageBroker);
+    this.templates = new Map();
+    this.sessionSigners = ServerSessionManager.getInstance();
   }
 
   protected initialize(): void {
     this.logActivity('Initializing Code Generation MCP');
-    this.templates = new Map();
     this.loadContractTemplates();
     
     // Subscribe to code generation requests
@@ -378,6 +381,10 @@ contract ${name.replace(/\s/g, '')} is ERC1155, Ownable {
   }
 
   private loadContractTemplates(): void {
+    // Ensure templates Map is initialized
+    if (!this.templates) {
+      this.templates = new Map();
+    }
     // Load predefined contract templates
     this.templates.set('erc20-basic', {
       type: 'ERC20',

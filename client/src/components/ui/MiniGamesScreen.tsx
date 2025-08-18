@@ -17,28 +17,7 @@ const MiniGamesScreen: React.FC = () => {
       players: '1.2k',
       rating: 4.8
     },
-    {
-      id: 'crypto-puzzle',
-      title: 'Crypto Puzzle',
-      description: 'Solve blockchain puzzles to earn token rewards',
-      image: '/images/hero-image.png',
-      status: 'coming-soon',
-      difficulty: 'Hard',
-      rewards: 'Mystery boxes',
-      players: '0',
-      rating: 0
-    },
-    {
-      id: 'nft-memory',
-      title: 'NFT Memory Game',
-      description: 'Match NFT pairs to unlock exclusive collections',
-      image: '/images/hero-image.png',
-      status: 'coming-soon',
-      difficulty: 'Easy',
-      rewards: 'Rare NFTs',
-      players: '0',
-      rating: 0
-    }
+
   ];
 
   const handlePlayGame = (gameId: string) => {

@@ -1,0 +1,61 @@
+[TaskOrchestrator] Task created: {
+  taskId: 'd0d81d99-fe34-4aff-bfc2-49406870ace4',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'general_query'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: 'd0d81d99-fe34-4aff-bfc2-49406870ace4',
+  type: 'general_query',
+  priority: 'low'
+}
+[task-orchestrator] Added task to queue {
+  taskId: 'd0d81d99-fe34-4aff-bfc2-49406870ace4',
+  priority: 'low',
+  queueSize: 1
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: "Deploy an ERC20 token called 'testcmp' with ticker tcm",
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: "Deploy an ERC20 token called 'testcmp' with ticker tcm",
+  parameterKeys: []
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskTracker] Unknown task: d0d81d99-fe34-4aff-bfc2-49406870ace4
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'd0d81d99-fe34-4aff-bfc2-49406870ace4',
+  category: 'general_query'
+}
+[TaskOrchestrator] Executing single-agent task d0d81d99-fe34-4aff-bfc2-49406870ace4 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 8, requirements: 1 }
+[TaskOrchestrator] Selected agent companion-handler for task d0d81d99-fe34-4aff-bfc2-49406870ace4 {
+  reasoning: 'Direct capability match for conversation, High success rate (95.0%), Low current load (10.0%)',
+  score: 0.9723333333333333,
+  chainOfThought: [
+    "Task Analysis: Deploy an ERC20 token called 'testcmp' with ticker tcm",
+    'Task Type: general_query, Priority: low',
+    'Selected Agent: companion-handler (score: 0.97)',
+    'Agent Reasoning: Direct capability match for conversation, High success rate (95.0%), Low current load (10.0%)',
+    'Capability: conversation',
+    'Expected Latency: 100ms',
+    'Success Rate: 95.0%'
+  ]
+}
+Publishing message: execute_task from task-orchestrator to companion-handler
+[TaskOrchestrator] Updated load for companion-handler:conversation by 0.1
+12:47:33 PM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+^[[B[task-analyzer] Updated network status 

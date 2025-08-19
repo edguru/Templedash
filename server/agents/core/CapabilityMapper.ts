@@ -47,6 +47,26 @@ export class CapabilityMapper {
 
   // Initialize core capability mappings based on research findings
   private initializeCoreMappings(): void {
+    // ERC20 Token Deployment Mapping (highest priority)
+    this.mappings.set('erc20_deployment', {
+      highLevel: 'token-deployment',
+      specificTasks: ['deploy_erc20', 'create_token', 'token_contract_deployment'],
+      mcpTools: ['deploy_erc20_contract', 'create_token_contract', 'set_token_metadata'],
+      agents: ['goat-mcp'],
+      priority: 10,
+      description: 'ERC20 token contract deployment and configuration'
+    });
+
+    // Contract Deployment Mapping
+    this.mappings.set('contract_deployment', {
+      highLevel: 'smart-contract-deployment',
+      specificTasks: ['deploy_contract', 'contract_verification', 'contract_interaction'],
+      mcpTools: ['deploy_contract', 'verify_contract', 'interact_contract'],
+      agents: ['goat-mcp', 'codegen-mcp'],
+      priority: 9,
+      description: 'Smart contract deployment and management'
+    });
+
     // Blockchain Operations Mapping
     this.mappings.set('blockchain_operations', {
       highLevel: 'blockchain-operations',

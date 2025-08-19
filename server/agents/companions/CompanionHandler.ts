@@ -214,6 +214,12 @@ export class CompanionHandler extends BaseAgent {
     
     // High-confidence task patterns - these clearly indicate blockchain operations
     const taskPatterns = [
+      // ERC20 Token Deployment (highest priority)
+      /\b(deploy|create|launch)\s+.{0,30}(erc20|token|coin)\b/i,
+      /\b(deploy|create)\s+.{0,20}token\s+(called|named)\s+['"]\w+['"]/i,
+      /\b(deploy|create)\s+.{0,20}token.{0,30}(ticker|symbol)\b/i,
+      
+      // Other blockchain operations
       /\b(check|show|get|what.{0,15}is)\s+.{0,20}balance\b/i,
       /\bmint\s+.{0,30}(nft|token|companion|character|random)\b/i,
       /\b(send|transfer)\s+.{0,20}(token|nft|camp|eth)\b/i,

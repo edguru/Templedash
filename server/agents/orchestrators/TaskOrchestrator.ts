@@ -510,6 +510,7 @@ export class TaskOrchestrator extends BaseAgent {
 
   private mapTaskTypeToCapabilities(taskType: string): string[] {
     const mapping: Record<string, string[]> = {
+      'erc20_deployment': ['erc20_deployment', 'contract_deployment', 'blockchain_operations'],
       'nft_mint': ['nft_mint'],
       'balance_check': ['balance_check'],
       'token_transfer': ['token_transfer'],
@@ -534,6 +535,7 @@ export class TaskOrchestrator extends BaseAgent {
 
   private getMessageTypeForCapability(capability: string): string {
     const mapping: Record<string, string> = {
+      'erc20_deployment': 'execute_task',
       'nft_mint': 'execute_nebula_task',
       'balance_check': 'check_balance',
       'token_transfer': 'transfer_token',
@@ -888,6 +890,17 @@ export class TaskOrchestrator extends BaseAgent {
   private determineTaskType(message: string): string {
     const lowerMessage = message.toLowerCase();
     
+    // ERC20 Token Deployment (highest priority check)
+    if ((lowerMessage.includes('deploy') || lowerMessage.includes('create') || lowerMessage.includes('launch')) && 
+        (lowerMessage.includes('token') || lowerMessage.includes('erc20') || lowerMessage.includes('coin'))) {
+      return 'erc20_deployment';
+    }
+    
+    // Smart Contract Deployment
+    if (lowerMessage.includes('deploy') && (lowerMessage.includes('contract') || lowerMessage.includes('smart contract'))) {
+      return 'contract_deployment';
+    }
+    
     // Balance and token queries
     if (lowerMessage.includes('balance') || lowerMessage.includes('how much')) {
       return 'balance_check';
@@ -904,11 +917,6 @@ export class TaskOrchestrator extends BaseAgent {
     // Transfer operations
     if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) {
       return 'token_transfer';
-    }
-    
-    // Contract operations
-    if (lowerMessage.includes('deploy') && lowerMessage.includes('contract')) {
-      return 'contract_deploy';
     }
     
     return 'general_query';

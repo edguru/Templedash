@@ -510,20 +510,44 @@ export class TaskOrchestrator extends BaseAgent {
 
   private mapTaskTypeToCapabilities(taskType: string): string[] {
     const mapping: Record<string, string[]> = {
-      'erc20_deployment': ['erc20_deployment', 'contract_deployment', 'blockchain_operations'],
-      'nft_mint': ['nft_mint'],
-      'balance_check': ['balance_check'],
-      'token_transfer': ['token_transfer'],
-      'contract_deployment': ['contract_deployment'],
+      // Blockchain operations - route to BlockchainAgent
+      'erc20_deployment': ['erc20_deployment', 'blockchain_operations'],
+      'contract_deployment': ['contract_deployment', 'smart_contract_development'],
+      'nft_mint': ['nft_operations', 'blockchain_operations'],
+      'balance_check': ['blockchain_operations'],
+      'token_transfer': ['blockchain_operations'],
+      'defi_operation': ['blockchain_operations'],
+      
+      // Research operations - route to ResearchAgent
+      'market_research': ['market_research'],
+      'competitor_analysis': ['competitor_analysis'],
+      'trend_analysis': ['trend_analysis'],
+      'research_analysis': ['market_research', 'trend_analysis'],
+      
+      // Code generation - route to CodeGenerationAgent
+      'code_generation': ['frontend_development', 'api_development'],
+      'smart_contract_development': ['smart_contract_development'],
+      'frontend_development': ['frontend_development'],
+      'api_development': ['api_development'],
+      'testing_automation': ['testing_automation'],
+      
+      // Conversation - route to CompanionHandler
       'conversation': ['conversation'],
+      'general_query': ['conversation'],
       'task_detection': ['task_detection']
     };
     return mapping[taskType] || ['conversation'];
   }
 
   private getMessageTypeForAgent(agentId: string, capability: string): string {
-    // Map agent and capability to appropriate message type
-    if (agentId === 'nebula-mcp') {
+    // Map agent and capability to appropriate message type for CrewAI agents
+    if (agentId === 'blockchain-agent') {
+      return 'blockchain_operation';
+    } else if (agentId === 'research-agent') {
+      return 'research_request';
+    } else if (agentId === 'code-generation-agent') {
+      return 'code_request';
+    } else if (agentId === 'nebula-mcp') {
       return 'execute_nebula_task';
     } else if (agentId === 'goat-mcp') {
       if (capability === 'balance_check') return 'check_balance';
@@ -535,11 +559,27 @@ export class TaskOrchestrator extends BaseAgent {
 
   private getMessageTypeForCapability(capability: string): string {
     const mapping: Record<string, string> = {
-      'erc20_deployment': 'execute_task',
+      // Blockchain operations
+      'erc20_deployment': 'blockchain_operation',
+      'blockchain_operations': 'blockchain_operation',
+      'contract_deployment': 'blockchain_operation',
+      'nft_operations': 'blockchain_operation',
+      
+      // Research operations
+      'market_research': 'research_request',
+      'competitor_analysis': 'research_request',
+      'trend_analysis': 'research_request',
+      
+      // Code generation operations
+      'smart_contract_development': 'code_request',
+      'frontend_development': 'code_request',
+      'api_development': 'code_request',
+      'testing_automation': 'code_request',
+      
+      // Legacy operations
       'nft_mint': 'execute_nebula_task',
       'balance_check': 'check_balance',
       'token_transfer': 'transfer_token',
-      'contract_deployment': 'deploy_contract',
       'conversation': 'handle_conversation',
       'task_detection': 'detect_task'
     };

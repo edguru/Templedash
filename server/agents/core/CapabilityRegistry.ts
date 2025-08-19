@@ -166,9 +166,92 @@ export class CapabilityRegistry {
   }
 
   private initializeCapabilities(): void {
-    // Initialize known agent capabilities
+    // Initialize known agent capabilities with new CrewAI agents
     const agentCapabilities: AgentCapability[] = [
-      // CompanionHandler capabilities
+      // BlockchainAgent capabilities
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'erc20_deployment',
+        description: 'Deploy and manage ERC20 token contracts',
+        securityLevel: 'high',
+        estimatedLatency: 5000,
+        successRate: 0.95,
+        currentLoad: 0.2,
+        cost: 0.8,
+        dependencies: []
+      },
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'blockchain_operations',
+        description: 'Handle all blockchain-related operations and queries',
+        securityLevel: 'high',
+        estimatedLatency: 3000,
+        successRate: 0.92,
+        currentLoad: 0.3,
+        cost: 0.7,
+        dependencies: []
+      },
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'contract_deployment',
+        description: 'Deploy and verify smart contracts',
+        securityLevel: 'high',
+        estimatedLatency: 8000,
+        successRate: 0.88,
+        currentLoad: 0.4,
+        cost: 0.9,
+        dependencies: []
+      },
+
+      // ResearchAgent capabilities
+      {
+        agentId: 'research-agent',
+        capabilityName: 'market_research',
+        description: 'Conduct comprehensive market analysis and research',
+        securityLevel: 'medium',
+        estimatedLatency: 10000,
+        successRate: 0.93,
+        currentLoad: 0.1,
+        cost: 0.6,
+        dependencies: []
+      },
+      {
+        agentId: 'research-agent',
+        capabilityName: 'competitor_analysis',
+        description: 'Analyze competitors and market positioning',
+        securityLevel: 'medium',
+        estimatedLatency: 8000,
+        successRate: 0.91,
+        currentLoad: 0.15,
+        cost: 0.5,
+        dependencies: []
+      },
+
+      // CodeGenerationAgent capabilities
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'smart_contract_development',
+        description: 'Generate and optimize smart contracts',
+        securityLevel: 'high',
+        estimatedLatency: 7000,
+        successRate: 0.89,
+        currentLoad: 0.25,
+        cost: 0.8,
+        dependencies: []
+      },
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'code_generation',
+        description: 'Generate frontend, backend, and utility code',
+        securityLevel: 'medium',
+        estimatedLatency: 5000,
+        successRate: 0.94,
+        currentLoad: 0.2,
+        cost: 0.6,
+        dependencies: []
+      },
+
+      // CompanionHandler capabilities (existing)
       {
         agentId: 'companion-handler',
         capabilityName: 'conversation',
@@ -280,6 +363,155 @@ export class CapabilityRegistry {
         currentLoad: 0.25,
         dependencies: [],
         cost: 0.3
+      },
+
+      // BlockchainAgent capabilities
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'erc20_deployment',
+        description: 'Deploy ERC20 tokens with comprehensive smart contract functionality',
+        inputSchema: { name: 'string', symbol: 'string', supply: 'number', walletAddress: 'string' },
+        outputSchema: { contractAddress: 'string', transactionHash: 'string', explorer: 'string', success: 'boolean' },
+        securityLevel: 'high',
+        estimatedLatency: 8000,
+        successRate: 0.94,
+        currentLoad: 0.1,
+        dependencies: ['wallet_connection', 'gas_estimation'],
+        cost: 0.6
+      },
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'blockchain_operations',
+        description: 'Comprehensive blockchain operations including balance checks, transfers, and contract interactions',
+        inputSchema: { operation: 'string', walletAddress: 'string', parameters: 'object' },
+        outputSchema: { result: 'object', transactionHash: 'string', success: 'boolean' },
+        securityLevel: 'high',
+        estimatedLatency: 5000,
+        successRate: 0.92,
+        currentLoad: 0.15,
+        dependencies: ['wallet_connection'],
+        cost: 0.5
+      },
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'contract_deployment',
+        description: 'Deploy various types of smart contracts including NFTs, tokens, and custom contracts',
+        inputSchema: { contractType: 'string', parameters: 'object', walletAddress: 'string' },
+        outputSchema: { contractAddress: 'string', transactionHash: 'string', success: 'boolean' },
+        securityLevel: 'high',
+        estimatedLatency: 12000,
+        successRate: 0.89,
+        currentLoad: 0.1,
+        dependencies: ['wallet_connection', 'gas_estimation'],
+        cost: 0.8
+      },
+      {
+        agentId: 'blockchain-agent',
+        capabilityName: 'nft_operations',
+        description: 'NFT minting, transferring, and marketplace operations',
+        inputSchema: { operation: 'string', nftData: 'object', walletAddress: 'string' },
+        outputSchema: { tokenId: 'number', transactionHash: 'string', success: 'boolean' },
+        securityLevel: 'high',
+        estimatedLatency: 7000,
+        successRate: 0.91,
+        currentLoad: 0.12,
+        dependencies: ['contract_deployment'],
+        cost: 0.7
+      },
+
+      // ResearchAgent capabilities
+      {
+        agentId: 'research-agent',
+        capabilityName: 'market_research',
+        description: 'Comprehensive market analysis and trend research for blockchain, DeFi, and tech sectors',
+        inputSchema: { topic: 'string', depth: 'string', timeframe: 'string' },
+        outputSchema: { analysis: 'object', trends: 'array', recommendations: 'array' },
+        securityLevel: 'low',
+        estimatedLatency: 3000,
+        successRate: 0.93,
+        currentLoad: 0.2,
+        dependencies: [],
+        cost: 0.3
+      },
+      {
+        agentId: 'research-agent',
+        capabilityName: 'competitor_analysis',
+        description: 'Detailed competitor analysis and market positioning research',
+        inputSchema: { industry: 'string', competitors: 'array', focus: 'string' },
+        outputSchema: { analysis: 'object', insights: 'array', strategy: 'object' },
+        securityLevel: 'low',
+        estimatedLatency: 4000,
+        successRate: 0.91,
+        currentLoad: 0.15,
+        dependencies: [],
+        cost: 0.4
+      },
+      {
+        agentId: 'research-agent',
+        capabilityName: 'trend_analysis',
+        description: 'Analyze current and emerging trends in technology, blockchain, and digital markets',
+        inputSchema: { sector: 'string', timeframe: 'string', scope: 'string' },
+        outputSchema: { trends: 'array', predictions: 'array', impact: 'object' },
+        securityLevel: 'low',
+        estimatedLatency: 2500,
+        successRate: 0.94,
+        currentLoad: 0.18,
+        dependencies: [],
+        cost: 0.3
+      },
+
+      // CodeGenerationAgent capabilities
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'smart_contract_development',
+        description: 'Generate and optimize smart contracts in Solidity with security best practices',
+        inputSchema: { contractType: 'string', requirements: 'object', network: 'string' },
+        outputSchema: { contractCode: 'string', documentation: 'string', tests: 'array' },
+        securityLevel: 'high',
+        estimatedLatency: 6000,
+        successRate: 0.88,
+        currentLoad: 0.1,
+        dependencies: [],
+        cost: 0.6
+      },
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'frontend_development',
+        description: 'Generate React/TypeScript components with Web3 integration and responsive design',
+        inputSchema: { componentType: 'string', requirements: 'object', framework: 'string' },
+        outputSchema: { code: 'string', styles: 'string', documentation: 'string' },
+        securityLevel: 'medium',
+        estimatedLatency: 4000,
+        successRate: 0.92,
+        currentLoad: 0.15,
+        dependencies: [],
+        cost: 0.4
+      },
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'api_development',
+        description: 'Generate backend APIs, database schemas, and microservices architecture',
+        inputSchema: { apiType: 'string', endpoints: 'array', database: 'string' },
+        outputSchema: { code: 'string', schema: 'object', documentation: 'string' },
+        securityLevel: 'medium',
+        estimatedLatency: 5000,
+        successRate: 0.90,
+        currentLoad: 0.12,
+        dependencies: [],
+        cost: 0.5
+      },
+      {
+        agentId: 'code-generation-agent',
+        capabilityName: 'testing_automation',
+        description: 'Generate comprehensive test suites, CI/CD pipelines, and quality assurance automation',
+        inputSchema: { codebase: 'string', testType: 'string', coverage: 'string' },
+        outputSchema: { tests: 'array', pipeline: 'object', reports: 'array' },
+        securityLevel: 'medium',
+        estimatedLatency: 3500,
+        successRate: 0.89,
+        currentLoad: 0.08,
+        dependencies: [],
+        cost: 0.4
       }
     ];
 

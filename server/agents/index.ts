@@ -41,7 +41,7 @@ export class AgentSystem {
       goal: 'Execute complex tasks using ReAct pattern with chain of thought injection',
       backstory: 'I am an AI agent specialized in reasoning and acting iteratively to solve complex problems.',
       capabilities: ['reasoning', 'analysis', 'tool_usage', 'chain_of_thought'],
-      reasoningStyle: 'react' as const,
+      reasoningStyle: 'analytical' as const,
       tools: [],
       verbose: true,
       allowDelegation: false
@@ -51,10 +51,10 @@ export class AgentSystem {
     this.crewaiOrchestrator = new CrewAIOrchestrator(this.messageBroker);
     this.orchestrator = new AgentOrchestrator(this.messageBroker, this.registry);
     
-    this.initializeAgents();
+    this.initializeAgents(); // Will be async but non-blocking
   }
 
-  private initializeAgents() {
+  private async initializeAgents() {
     // Register core agents
     const profileMemory = new ProfileMemory(this.messageBroker);
     const companionHandler = new CompanionHandler(this.messageBroker);
@@ -63,6 +63,26 @@ export class AgentSystem {
     const taskTracker = new TaskTracker(this.messageBroker);
     const taskOrchestrator = new TaskOrchestrator(this.messageBroker, taskTracker);
     const userExperience = new UserExperience(this.messageBroker);
+
+    // Initialize new CrewAI specialized agents (conditional loading to avoid import issues)
+    try {
+      const { BlockchainAgent } = await import('./crewai/BlockchainAgent');
+      const { ResearchAgent } = await import('./crewai/ResearchAgent');
+      const { CodeGenerationAgent } = await import('./crewai/CodeGenerationAgent');
+      
+      const blockchainAgent = new BlockchainAgent(this.messageBroker);
+      const researchAgent = new ResearchAgent(this.messageBroker);
+      const codeGenerationAgent = new CodeGenerationAgent(this.messageBroker);
+      
+      // Register new CrewAI specialized agents
+      this.registry.register('blockchain-agent', blockchainAgent);
+      this.registry.register('research-agent', researchAgent);
+      this.registry.register('code-generation-agent', codeGenerationAgent);
+      
+      console.log('✅ CrewAI specialized agents initialized successfully');
+    } catch (error) {
+      console.log('⚠️ CrewAI agents not available, using legacy agents only:', error.message);
+    }
 
     // Register MCP agents
     const goatMCP = new GoatMCP(this.messageBroker);
@@ -80,6 +100,8 @@ export class AgentSystem {
     this.registry.register('task-tracker', taskTracker);
     this.registry.register('profile-memory', profileMemory);
     this.registry.register('user-experience', userExperience);
+
+    // Note: CrewAI agents are registered above in the try block
 
     // Register MCP agents
     this.registry.register('goat-mcp', goatMCP);

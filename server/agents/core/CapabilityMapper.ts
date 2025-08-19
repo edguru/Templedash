@@ -148,15 +148,30 @@ export class CapabilityMapper {
     });
   }
 
-  // Initialize semantic mappings for intelligent task matching
+  // Initialize semantic mappings for intelligent task matching  
   private initializeSemanticMappings(): void {
-    // Map similar terms to canonical capabilities
+    // Map similar terms to canonical capabilities - enhanced with new agents
+    
+    // Blockchain operations (BlockchainAgent)
     this.semanticMappings.set('balance_check', ['check_balance', 'get_balance', 'wallet_balance', 'account_balance']);
     this.semanticMappings.set('token_transfer', ['send_tokens', 'transfer_tokens', 'move_funds', 'send_payment']);
     this.semanticMappings.set('nft_mint', ['mint_nft', 'create_nft', 'generate_nft', 'deploy_nft']);
-    this.semanticMappings.set('token_deploy', ['deploy_token', 'create_token', 'launch_token', 'token_deployment']);
-    this.semanticMappings.set('contract_analysis', ['analyze_contract', 'audit_contract', 'review_contract', 'security_check']);
+    this.semanticMappings.set('erc20_deployment', ['deploy_token', 'create_token', 'launch_token', 'token_deployment', 'deploy_erc20']);
+    this.semanticMappings.set('contract_deployment', ['deploy_contract', 'smart_contract', 'contract_creation']);
     this.semanticMappings.set('blockchain_query', ['query_blockchain', 'search_blockchain', 'blockchain_data', 'chain_info']);
+    
+    // Research operations (ResearchAgent)
+    this.semanticMappings.set('market_research', ['market_analysis', 'industry_research', 'market_study', 'research_market']);
+    this.semanticMappings.set('competitor_analysis', ['competitive_analysis', 'competitor_research', 'competition_study']);
+    this.semanticMappings.set('trend_analysis', ['trend_research', 'market_trends', 'industry_trends', 'forecast']);
+    
+    // Code generation (CodeGenerationAgent)
+    this.semanticMappings.set('smart_contract_development', ['write_contract', 'create_contract', 'solidity_code', 'contract_code']);
+    this.semanticMappings.set('frontend_development', ['react_component', 'ui_component', 'frontend_code', 'web_component']);
+    this.semanticMappings.set('api_development', ['api_endpoint', 'backend_code', 'server_code', 'rest_api']);
+    this.semanticMappings.set('testing_automation', ['write_tests', 'test_suite', 'unit_tests', 'testing_code']);
+    
+    // Companion operations (existing)
     this.semanticMappings.set('companion_chat', ['chat_companion', 'talk_to_companion', 'companion_interaction', 'ai_conversation']);
   }
 

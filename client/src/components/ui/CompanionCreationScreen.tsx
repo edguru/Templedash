@@ -244,7 +244,7 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium flex items-center justify-center space-x-2"
             >
               <Save size={20} />
-              <span>Create Companion & Mint Soulbound Token</span>
+              <span>Create Companion & Mint NFT</span>
             </button>
           </div>
         </div>

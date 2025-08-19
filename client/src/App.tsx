@@ -114,8 +114,8 @@ function AppContent() {
             if (companionData) {
               setCompanion(companionData.traits);
             }
-          } else if (gamePhase === 'main') {
-            // Show companion prompt for new users
+          } else {
+            // Force companion creation for all users without companions
             setGamePhase('companionPrompt');
           }
         } catch (error) {

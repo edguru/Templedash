@@ -44,7 +44,7 @@ const CompanionPromptScreen: React.FC<CompanionPromptScreenProps> = ({ onCreateC
             </div>
             <div className="flex items-center text-left">
               <Sparkles size={16} className="text-purple-500 mr-3 flex-shrink-0" />
-              <span className="text-sm text-gray-700">Minted as a soulbound NFT token</span>
+              <span className="text-sm text-gray-700">Minted as an NFT token</span>
             </div>
             <div className="flex items-center text-left">
               <Sparkles size={16} className="text-purple-500 mr-3 flex-shrink-0" />
@@ -65,9 +65,10 @@ const CompanionPromptScreen: React.FC<CompanionPromptScreenProps> = ({ onCreateC
             
             <button
               onClick={onSkip}
-              className="w-full text-gray-500 hover:text-gray-700 transition-colors font-medium py-2"
+              className="w-full text-gray-400 cursor-not-allowed font-medium py-2"
+              disabled
             >
-              Maybe later
+              Companion creation is required
             </button>
           </div>
 

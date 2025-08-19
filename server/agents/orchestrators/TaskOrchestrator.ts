@@ -483,9 +483,19 @@ export class TaskOrchestrator extends BaseAgent {
 
   // Helper methods for intelligent delegation
   private async isComplexTask(task: Task): Promise<boolean> {
-    const complexTaskTypes = ['contract_deployment', 'multi_token_transfer', 'batch_mint'];
-    const hasMultipleSteps = task.description?.includes('and') || task.description?.includes('then');
-    return complexTaskTypes.includes(task.type || '') || hasMultipleSteps || false;
+    // Only truly collaborative multi-agent tasks should be complex
+    const complexTaskTypes = ['multi_agent_workflow', 'batch_operations_cross_platform', 'complex_research_with_coding'];
+    const hasMultipleDistinctSteps = task.description?.includes(' and then ') || 
+                                   task.description?.includes(' followed by ') ||
+                                   (task.description?.includes(' and ') && task.description?.includes(' also '));
+    
+    // ERC20 deployment, NFT operations, balance checks etc. are single-agent blockchain operations
+    const blockchainTaskTypes = ['erc20_deployment', 'contract_deployment', 'nft_mint', 'balance_check', 'token_transfer'];
+    if (blockchainTaskTypes.includes(task.type || '')) {
+      return false; // These should go to BlockchainAgent directly
+    }
+    
+    return complexTaskTypes.includes(task.type || '') || hasMultipleDistinctSteps || false;
   }
 
   private determineSecurityLevel(task: Task): 'low' | 'medium' | 'high' {

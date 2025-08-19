@@ -55,6 +55,72 @@ export class CompanionHandler extends BaseAgent {
 
   protected initialize(): void {
     this.logActivity('Initializing Companion Handler');
+    
+    // Subscribe to agent responses to relay them back to users
+    this.messageBroker.subscribe('agent_response', async (message: AgentMessage) => {
+      await this.handleAgentResponse(message);
+    });
+
+    // Subscribe to task completion messages
+    this.messageBroker.subscribe('task_step_complete', async (message: AgentMessage) => {
+      await this.handleTaskCompletion(message);
+    });
+  }
+
+  private async handleAgentResponse(message: AgentMessage): Promise<void> {
+    this.logActivity('*** RECEIVED AGENT RESPONSE ***', { 
+      agentName: message.payload.agentName, 
+      taskId: message.payload.taskId,
+      messageType: message.type,
+      responseLength: message.payload.userFriendlyResponse?.length || 0
+    });
+    
+    // Forward the response as a companion response to maintain the UI flow
+    const companionResponse: AgentMessage = {
+      type: 'companion_response',
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: message.targetId,
+      payload: {
+        message: message.payload.userFriendlyResponse || message.payload.result,
+        taskCompleted: true,
+        executedBy: message.payload.agentName,
+        chainOfThought: message.payload.chainOfThought,
+        companionName: this.companionTraits?.name
+      }
+    };
+
+    await this.sendMessage(companionResponse);
+  }
+
+  private async handleTaskCompletion(message: AgentMessage): Promise<void> {
+    this.logActivity('*** RECEIVED TASK COMPLETION ***', { 
+      taskId: message.payload.taskId,
+      agentType: message.payload.agentType,
+      success: message.payload.success,
+      hasResult: !!message.payload.result
+    });
+
+    if (message.payload.success && message.payload.result) {
+
+      // Send a completion message to the user
+      const completionResponse: AgentMessage = {
+        type: 'companion_response',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: message.targetId,
+        payload: {
+          message: message.payload.result,
+          taskCompleted: true,
+          executedBy: message.payload.agentType,
+          companionName: this.companionTraits?.name
+        }
+      };
+
+      await this.sendMessage(completionResponse);
+    }
   }
 
   getCapabilities(): string[] {

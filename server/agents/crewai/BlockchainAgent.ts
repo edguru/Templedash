@@ -135,24 +135,70 @@ export class BlockchainAgent extends BaseAgent {
       // Execute blockchain operation with reasoning
       const result = await this.executeBlockchainOperation(blockchainTask, chainOfThought);
       
-      return {
-        type: 'task_result',
+      // Send completion message back to TaskOrchestrator
+      const responseMessage = {
+        type: 'task_step_complete',
         id: uuidv4(),
         timestamp: new Date().toISOString(),
         senderId: this.agentId,
         targetId: message.senderId,
         payload: {
+          taskId: message.payload.taskId,
           success: true,
           result,
           chainOfThought,
           blockchainTask,
-          taskCompleted: true
+          agentType: 'BlockchainAgent',
+          operationDetails: blockchainTask
         }
       };
 
+      // Log the response before publishing
+      this.logActivity('Sending blockchain operation response', { 
+        taskId: responseMessage.payload.taskId, 
+        resultLength: result.length 
+      });
+
+      // Publish the completion message
+      this.messageBroker.publish('task_step_complete', responseMessage);
+      
+      // Also send a direct response for immediate user feedback
+      this.messageBroker.publish('agent_response', {
+        ...responseMessage,
+        type: 'agent_response',
+        payload: {
+          ...responseMessage.payload,
+          userFriendlyResponse: result,
+          agentName: 'Blockchain Agent'
+        }
+      });
+
+      this.logActivity('Published blockchain response messages', { 
+        taskStepComplete: true, 
+        agentResponse: true 
+      });
+
+      return responseMessage;
+
     } catch (error) {
       console.error('[BlockchainAgent] Error processing request:', error);
-      return this.createErrorMessage(message, `Blockchain operation failed: ${error.message}`);
+      
+      const errorMessage = {
+        type: 'task_step_complete',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: message.senderId,
+        payload: {
+          taskId: message.payload.taskId,
+          success: false,
+          error: `Blockchain operation failed: ${(error as Error).message}`,
+          agentType: 'BlockchainAgent'
+        }
+      };
+
+      this.messageBroker.publish('task_step_complete', errorMessage);
+      return errorMessage;
     }
   }
 

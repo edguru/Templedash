@@ -3,7 +3,9 @@
 Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
 ## Recent Updates (January 19, 2025)
-- **🎯 CREWAI AGENT DELEGATION BREAKTHROUGH**: Successfully implemented end-to-end intelligent task delegation with specialized CrewAI agents
+- **🎯 COMPREHENSIVE AGENT MANAGEMENT SYSTEM**: Created centralized JSON configuration for all 18 agents with roles, system messages, tools, and performance metrics
+- **✅ Architecture Documentation**: Complete AGENT_ARCHITECTURE.md with detailed multi-agent system documentation, message flows, and integration points
+- **✅ CrewAI Agent Delegation**: Successfully implemented end-to-end intelligent task delegation with specialized CrewAI agents
 - **✅ BlockchainAgent Integration**: Complete blockchain operation handling with real CAMP explorer API integration for authentic USD values
 - **✅ Real-Time Balance Data**: Integrated https://basecamp.cloud.blockscout.com/ API for authentic CAMP token balances and pricing data
 - **✅ Enhanced Message Flow**: Fixed CompanionHandler to properly relay specialized agent responses back to users with 0.96 confidence scores
@@ -54,12 +56,13 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Authentication**: Wallet-based authentication system for secure user sessions, primarily via Thirdweb.
 - **Comprehensive API**: Supports game scores, leaderboards, token claims, and NFT ownership tracking.
 - **Real Token Rewards**: Mystery box system for deferred crypto rewards based on performance.
-- **Agent2Agent Protocol System**: Complete Google-inspired intelligent task delegation with 15-agent architecture:
-  - **Core Framework**: MessageBroker, CapabilityRegistry, CapabilityMapper, Agent2AgentProtocol
-  - **MCP Agent Suite**: 6 specialized agents (GOAT, CodeGen, DocumentWriter, Nebula, Research, Scheduler) with unified session management
-  - **CrewAI Integration**: Role-based agents with chain-of-thought injection and collaborative planning
-  - **Multi-Round Negotiation**: Bid-based agent selection with peer consultations and synthesis
-  - **Session Management**: Server-compatible SessionManager for unified blockchain operations across all agents
+- **18-Agent Multi-Agent System**: Complete CrewAI-powered intelligent task delegation architecture:
+  - **Core Framework**: MessageBroker, CapabilityRegistry, TaskOrchestrator with chain-of-thought reasoning
+  - **Agent Categories**: 2 Core, 3 Specialized, 6 MCP, 5 Support, 2 Framework agents
+  - **MCP Agent Suite**: GOAT, Nebula, CodeGen, DocumentWriter, Research, Scheduler with unified session management
+  - **Centralized Configuration**: JSON-based agent management system with roles, capabilities, and performance metrics
+  - **Real-Time Integration**: CAMP Explorer API for authentic blockchain data and USD values
+  - **Session Management**: AWS KMS-secured session keys for unified blockchain operations across all agents
 
 ## Web3 Integration
 - **Thirdweb v5 SDK**: Modern blockchain connectivity with React hooks for all authentication and Web3 operations.

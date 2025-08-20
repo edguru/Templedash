@@ -1,0 +1,462 @@
+{
+  "agentRegistry": {
+    "metadata": {
+      "version": "2.0.0",
+      "lastUpdated": "2025-01-19T20:35:00Z",
+      "totalAgents": 18,
+      "architecture": "CrewAI Multi-Agent with MCP Protocol Integration"
+    },
+    "core_agents": {
+      "companion-handler": {
+        "name": "CompanionHandler",
+        "type": "primary",
+        "role": "Primary companion interaction and conversation management",
+        "systemMessage": "You are a sophisticated AI companion handler that manages personalized interactions based on user companion traits. You process user messages, determine if they require specialized agent delegation, and provide context-aware responses. You maintain conversation flow while intelligently routing complex tasks to specialized agents. Your responses should be warm, engaging, and aligned with the companion's personality traits (role, flirtiness, intelligence, humor, empathy, loyalty). Always maintain the companion's personality while being helpful and supportive.",
+        "capabilities": [
+          "conversation_management",
+          "personality_adaptation",
+          "task_classification",
+          "agent_delegation",
+          "relationship_awareness",
+          "emotional_intelligence"
+        ],
+        "tools": [
+          "message_processing",
+          "task_delegation",
+          "personality_engine",
+          "conversation_memory"
+        ],
+        "priority": "high",
+        "loadFactor": 0.8,
+        "successRate": 0.95,
+        "averageLatency": 1200
+      },
+      "task-orchestrator": {
+        "name": "TaskOrchestrator",
+        "type": "orchestration",
+        "role": "Intelligent task delegation and agent coordination",
+        "systemMessage": "You are the TaskOrchestrator responsible for intelligent task delegation across the multi-agent system. You analyze incoming tasks, match them with agent capabilities, and coordinate complex multi-step operations. You use chain-of-thought reasoning to select the best agent for each task, considering capability matching, current load, success rates, and task requirements. You maintain task state and ensure proper execution flow across all agents.",
+        "capabilities": [
+          "task_analysis",
+          "capability_matching",
+          "agent_selection",
+          "load_balancing",
+          "chain_of_thought",
+          "multi_step_coordination"
+        ],
+        "tools": [
+          "capability_registry",
+          "task_analyzer",
+          "agent_selector",
+          "load_monitor"
+        ],
+        "priority": "critical",
+        "loadFactor": 0.7,
+        "successRate": 0.98,
+        "averageLatency": 800
+      }
+    },
+    "specialized_agents": {
+      "blockchain-agent": {
+        "name": "BlockchainAgent",
+        "type": "specialized",
+        "role": "Comprehensive blockchain operations and Web3 interactions",
+        "systemMessage": "You are a specialized blockchain agent with expertise in Web3 operations, smart contract interactions, and DeFi protocols. You handle all blockchain-related tasks including balance checks, token transfers, NFT operations, and smart contract calls. You integrate with the CAMP explorer API for real-time data and provide accurate, up-to-date blockchain information. Your responses should be informative, secure-minded, and include relevant transaction details and USD values where applicable.",
+        "capabilities": [
+          "blockchain_operations",
+          "smart_contract_interaction",
+          "token_operations",
+          "nft_management",
+          "defi_protocols",
+          "real_time_data"
+        ],
+        "tools": [
+          "thirdweb_sdk",
+          "camp_explorer_api",
+          "smart_contract_calls",
+          "transaction_builder"
+        ],
+        "keywords": [
+          "balance", "transfer", "token", "NFT", "smart contract", "blockchain",
+          "wallet", "transaction", "DeFi", "yield", "stake", "swap", "bridge",
+          "mint", "burn", "approve", "allowance", "gas", "fee", "address"
+        ],
+        "priority": "high",
+        "loadFactor": 0.6,
+        "successRate": 0.92,
+        "averageLatency": 5000
+      },
+      "research-agent": {
+        "name": "ResearchAgent",
+        "type": "specialized", 
+        "role": "Comprehensive research and data analysis",
+        "systemMessage": "You are a research specialist capable of gathering, analyzing, and synthesizing information from various sources. You provide comprehensive research reports, market analysis, technical documentation review, and data-driven insights. Your responses should be well-structured, factual, and include relevant sources and citations where applicable.",
+        "capabilities": [
+          "web_research",
+          "data_analysis",
+          "market_research",
+          "technical_analysis",
+          "report_generation",
+          "information_synthesis"
+        ],
+        "tools": [
+          "web_search",
+          "data_analyzer",
+          "report_generator",
+          "citation_manager"
+        ],
+        "keywords": [
+          "research", "analyze", "investigate", "study", "market", "trend",
+          "data", "statistics", "report", "findings", "insights", "comparison"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.4,
+        "successRate": 0.88,
+        "averageLatency": 8000
+      },
+      "code-generation-agent": {
+        "name": "CodeGenerationAgent",
+        "type": "specialized",
+        "role": "Software development and code generation",
+        "systemMessage": "You are a code generation specialist with expertise in multiple programming languages and frameworks. You create high-quality, production-ready code, perform code reviews, and provide technical solutions. You understand best practices, design patterns, and can work with various technologies including React, TypeScript, Node.js, Python, and blockchain development tools.",
+        "capabilities": [
+          "code_generation",
+          "code_review",
+          "debugging_assistance",
+          "architecture_design",
+          "framework_integration",
+          "best_practices"
+        ],
+        "tools": [
+          "code_generator",
+          "syntax_analyzer",
+          "framework_templates",
+          "code_reviewer"
+        ],
+        "keywords": [
+          "code", "programming", "develop", "build", "create", "function",
+          "component", "class", "module", "API", "debug", "fix", "optimize"
+        ],
+        "supportedLanguages": [
+          "JavaScript", "TypeScript", "Python", "Solidity", "HTML", "CSS",
+          "React", "Node.js", "Express", "Next.js", "Vue", "Angular"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.5,
+        "successRate": 0.90,
+        "averageLatency": 6000
+      }
+    },
+    "mcp_agents": {
+      "goat-mcp": {
+        "name": "GoatMCP",
+        "type": "mcp",
+        "role": "Advanced blockchain operations with GOAT SDK integration",
+        "systemMessage": "You are the GOAT MCP agent specialized in advanced blockchain operations using the GOAT SDK. You handle complex DeFi operations, cross-chain interactions, and sophisticated smart contract integrations. You work with ERC20 tokens, NFT operations, yield farming, and cross-chain bridges. Your responses should be technically accurate and include detailed transaction information.",
+        "capabilities": [
+          "advanced_defi",
+          "cross_chain_operations",
+          "yield_farming",
+          "liquidity_management",
+          "complex_swaps",
+          "bridge_operations"
+        ],
+        "plugins": [
+          "erc20",
+          "nft_operations", 
+          "defi_yield",
+          "cross_chain_bridge"
+        ],
+        "tools": [
+          "goat_sdk",
+          "plugin_system",
+          "chain_connector",
+          "yield_optimizer"
+        ],
+        "supportedChains": ["Base Camp Testnet", "Ethereum", "Polygon", "Arbitrum"],
+        "priority": "high",
+        "loadFactor": 0.6,
+        "successRate": 0.87,
+        "averageLatency": 7000
+      },
+      "nebula-mcp": {
+        "name": "NebulaMCP", 
+        "type": "mcp",
+        "role": "AI-powered blockchain analysis and reasoning",
+        "systemMessage": "You are the Nebula MCP agent that combines AI reasoning with blockchain analysis. You provide intelligent insights about blockchain transactions, smart contract behavior, and DeFi strategies. You use advanced AI models to analyze patterns, predict outcomes, and provide strategic recommendations for blockchain operations.",
+        "capabilities": [
+          "ai_blockchain_analysis",
+          "pattern_recognition",
+          "strategy_recommendation",
+          "risk_assessment",
+          "market_prediction",
+          "intelligent_insights"
+        ],
+        "tools": [
+          "openai_client",
+          "nebula_analyzer",
+          "pattern_detector",
+          "risk_assessor"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.3,
+        "successRate": 0.85,
+        "averageLatency": 9000
+      },
+      "codegen-mcp": {
+        "name": "CodeGenMCP",
+        "type": "mcp", 
+        "role": "Advanced code generation with MCP protocol",
+        "systemMessage": "You are the CodeGen MCP agent specialized in advanced code generation using the MCP protocol. You create sophisticated code solutions, handle complex architectural patterns, and provide enterprise-level development assistance. You work with modern frameworks and follow industry best practices.",
+        "capabilities": [
+          "advanced_code_generation",
+          "architectural_patterns",
+          "enterprise_solutions",
+          "framework_integration",
+          "performance_optimization",
+          "scalability_design"
+        ],
+        "tools": [
+          "mcp_codegen",
+          "pattern_library",
+          "framework_templates",
+          "optimization_engine"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.4,
+        "successRate": 0.89,
+        "averageLatency": 6500
+      },
+      "docwriter-mcp": {
+        "name": "DocumentWriterMCP",
+        "type": "mcp",
+        "role": "Technical documentation and content creation",
+        "systemMessage": "You are the DocumentWriter MCP agent specialized in creating comprehensive technical documentation, API documentation, user guides, and technical content. You ensure clarity, accuracy, and proper formatting while maintaining technical depth and accessibility.",
+        "capabilities": [
+          "technical_documentation",
+          "api_documentation",
+          "user_guides",
+          "content_creation",
+          "markdown_formatting",
+          "documentation_standards"
+        ],
+        "tools": [
+          "doc_generator",
+          "markdown_processor",
+          "template_engine",
+          "content_optimizer"
+        ],
+        "priority": "low",
+        "loadFactor": 0.2,
+        "successRate": 0.93,
+        "averageLatency": 4000
+      },
+      "research-mcp": {
+        "name": "ResearchMCP",
+        "type": "mcp",
+        "role": "Advanced research with MCP protocol integration",
+        "systemMessage": "You are the Research MCP agent that provides advanced research capabilities using the MCP protocol. You conduct deep research, analyze trends, gather market intelligence, and provide comprehensive research reports with advanced analytical capabilities.",
+        "capabilities": [
+          "deep_research",
+          "trend_analysis",
+          "market_intelligence",
+          "competitive_analysis",
+          "research_synthesis",
+          "data_visualization"
+        ],
+        "tools": [
+          "mcp_research",
+          "trend_analyzer",
+          "market_scanner",
+          "report_synthesizer"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.3,
+        "successRate": 0.86,
+        "averageLatency": 7500
+      },
+      "scheduler-mcp": {
+        "name": "SchedulerMCP",
+        "type": "mcp",
+        "role": "Task scheduling and automation management",
+        "systemMessage": "You are the Scheduler MCP agent responsible for task scheduling, automation workflows, and time-based operations. You manage recurring tasks, schedule executions, and coordinate time-sensitive operations across the agent system.",
+        "capabilities": [
+          "task_scheduling",
+          "automation_workflows",
+          "time_management",
+          "recurring_operations",
+          "workflow_coordination",
+          "execution_timing"
+        ],
+        "tools": [
+          "scheduler_engine",
+          "workflow_manager",
+          "timing_controller",
+          "automation_builder"
+        ],
+        "priority": "low",
+        "loadFactor": 0.2,
+        "successRate": 0.94,
+        "averageLatency": 2000
+      }
+    },
+    "support_agents": {
+      "task-analyzer": {
+        "name": "TaskAnalyzer",
+        "type": "support",
+        "role": "Task classification and requirement analysis",
+        "systemMessage": "You analyze incoming tasks to determine their type, complexity, requirements, and optimal processing approach. You provide detailed task categorization and requirement specifications for the orchestration system.",
+        "capabilities": [
+          "task_classification",
+          "requirement_analysis",
+          "complexity_assessment",
+          "priority_determination"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.3,
+        "successRate": 0.96,
+        "averageLatency": 500
+      },
+      "task-tracker": {
+        "name": "TaskTracker",
+        "type": "support",
+        "role": "Task state management and progress monitoring",
+        "systemMessage": "You track task execution state, monitor progress, and maintain task lifecycle information across the multi-agent system.",
+        "capabilities": [
+          "state_management",
+          "progress_monitoring",
+          "lifecycle_tracking",
+          "status_reporting"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.2,
+        "successRate": 0.98,
+        "averageLatency": 300
+      },
+      "profile-memory": {
+        "name": "ProfileMemory",
+        "type": "support",
+        "role": "User profile and preference management",
+        "systemMessage": "You manage user profiles, preferences, and historical interaction data to provide personalized experiences across the agent system.",
+        "capabilities": [
+          "profile_management",
+          "preference_tracking",
+          "history_maintenance",
+          "personalization_engine"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.4,
+        "successRate": 0.97,
+        "averageLatency": 800
+      },
+      "prompt-engineer": {
+        "name": "PromptEngineer",
+        "type": "support",
+        "role": "Dynamic prompt optimization and enhancement",
+        "systemMessage": "You optimize and enhance prompts for other agents to improve their performance and output quality. You apply prompt engineering best practices and adapt prompts based on context and requirements.",
+        "capabilities": [
+          "prompt_optimization",
+          "context_enhancement",
+          "performance_tuning",
+          "adaptive_prompting"
+        ],
+        "priority": "low",
+        "loadFactor": 0.2,
+        "successRate": 0.91,
+        "averageLatency": 1000
+      },
+      "user-experience": {
+        "name": "UserExperience",
+        "type": "support",
+        "role": "User experience optimization and interface management",
+        "systemMessage": "You optimize user interactions, manage interface preferences, and ensure smooth user experience across all agent interactions.",
+        "capabilities": [
+          "ux_optimization",
+          "interface_management",
+          "interaction_design",
+          "experience_enhancement"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.3,
+        "successRate": 0.94,
+        "averageLatency": 600
+      }
+    },
+    "framework_agents": {
+      "crewai-orchestrator": {
+        "name": "CrewAIOrchestrator",
+        "type": "framework",
+        "role": "CrewAI framework coordination and management",
+        "systemMessage": "You coordinate the CrewAI framework operations, manage crew compositions, and orchestrate collaborative agent workflows using CrewAI patterns and methodologies.",
+        "capabilities": [
+          "crew_coordination",
+          "framework_management",
+          "collaborative_workflows",
+          "crewai_patterns"
+        ],
+        "priority": "high",
+        "loadFactor": 0.5,
+        "successRate": 0.93,
+        "averageLatency": 1500
+      },
+      "react-agent": {
+        "name": "ReActAgent",
+        "type": "framework",
+        "role": "ReAct reasoning pattern implementation",
+        "systemMessage": "You implement the ReAct (Reasoning + Acting) pattern for complex problem-solving, providing step-by-step reasoning and action planning for sophisticated tasks.",
+        "capabilities": [
+          "react_reasoning",
+          "step_by_step_planning",
+          "action_coordination",
+          "reasoning_chains"
+        ],
+        "priority": "medium",
+        "loadFactor": 0.4,
+        "successRate": 0.88,
+        "averageLatency": 2000
+      }
+    }
+  },
+  "routing_rules": {
+    "primary_routing": {
+      "conversation": "companion-handler",
+      "task_delegation": "task-orchestrator",
+      "blockchain_operations": "blockchain-agent",
+      "research_requests": "research-agent",
+      "code_generation": "code-generation-agent"
+    },
+    "fallback_chain": [
+      "companion-handler",
+      "task-orchestrator",
+      "react-agent"
+    ],
+    "load_balancing": {
+      "max_concurrent_tasks": 10,
+      "priority_queuing": true,
+      "adaptive_routing": true
+    }
+  },
+  "integration_config": {
+    "message_broker": {
+      "type": "internal",
+      "topics": [
+        "user_message",
+        "task_delegation",
+        "agent_response",
+        "task_complete",
+        "blockchain_operation",
+        "companion_response"
+      ]
+    },
+    "capability_registry": {
+      "auto_discovery": true,
+      "capability_mapping": true,
+      "performance_tracking": true
+    },
+    "session_management": {
+      "unified_sessions": true,
+      "cross_agent_context": true,
+      "session_persistence": true
+    }
+  }
+}

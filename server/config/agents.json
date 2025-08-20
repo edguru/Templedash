@@ -436,6 +436,59 @@
       "adaptive_routing": true
     }
   },
+  "data_integrity_rules": {
+    "strict_authenticity": {
+      "enabled": true,
+      "description": "All agents must use only authentic data from authorized sources",
+      "enforcement_level": "critical",
+      "rules": [
+        "NO_MOCK_DATA: Never generate, simulate, or use mock data for any real-world information",
+        "NO_PLACEHOLDER_VALUES: Never use placeholder, estimated, or synthetic values",
+        "NO_FALSE_BALANCES: Never generate fake wallet balances, token amounts, or financial data",
+        "NO_FALSE_TRANSACTIONS: Never simulate or fake blockchain transactions or operations",
+        "NO_FALSE_PRICES: Never generate fake prices, market data, or financial metrics",
+        "NO_FALSE_ADDRESSES: Never generate fake wallet addresses or contract addresses",
+        "NO_FALSE_API_DATA: Never simulate API responses or create fake external data",
+        "AUTHENTIC_SOURCES_ONLY: Only use data from verified APIs, blockchain explorers, or user-provided information",
+        "ERROR_ON_UNAVAILABLE: If authentic data is unavailable, return clear error messages instead of fake data",
+        "TRANSPARENT_LIMITATIONS: Clearly communicate when real data cannot be accessed"
+      ]
+    },
+    "blockchain_data_integrity": {
+      "enabled": true,
+      "description": "Strict rules for blockchain and financial data",
+      "rules": [
+        "REAL_BALANCE_ONLY: Only show actual blockchain balances from explorer APIs",
+        "REAL_PRICES_ONLY: Only use authentic price data from verified sources",
+        "REAL_TRANSACTIONS_ONLY: Only display actual transaction data from blockchain",
+        "NO_SIMULATION: Never simulate blockchain operations or responses",
+        "VERIFY_ADDRESSES: Validate wallet and contract addresses before use",
+        "API_FAILURE_HANDLING: Return clear error messages when APIs are unavailable"
+      ]
+    },
+    "response_validation": {
+      "enabled": true,
+      "description": "Validate all agent responses for data authenticity",
+      "validation_checks": [
+        "CHECK_DATA_SOURCE: Verify data comes from authentic sources",
+        "VALIDATE_ADDRESSES: Ensure wallet/contract addresses are real",
+        "VERIFY_AMOUNTS: Confirm financial amounts are from real sources",
+        "CHECK_TIMESTAMPS: Ensure timestamps are accurate and real",
+        "VALIDATE_SIGNATURES: Verify cryptographic signatures when applicable"
+      ]
+    },
+    "error_handling": {
+      "enabled": true,
+      "description": "Proper error handling when authentic data is unavailable",
+      "error_responses": [
+        "API_UNAVAILABLE: 'Unable to fetch real-time data. Please try again later.'",
+        "NETWORK_ERROR: 'Network error occurred. Cannot provide authentic data at this time.'",
+        "INVALID_ADDRESS: 'Invalid address provided. Please verify and try again.'",
+        "INSUFFICIENT_PERMISSIONS: 'Unable to access requested data. Check permissions.'",
+        "DATA_NOT_FOUND: 'Requested data not found on the blockchain.'"
+      ]
+    }
+  },
   "integration_config": {
     "message_broker": {
       "type": "internal",

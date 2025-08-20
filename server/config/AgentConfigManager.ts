@@ -178,8 +178,11 @@ export class AgentConfigManager {
   /**
    * Update agent performance metrics
    */
-  public updateAgentMetrics(agentName: string, metrics: Partial<Pick<AgentConfig, 'loadFactor' | 'successRate' | 'averageLatency'>>) {
-    const config = this.loadConfig();
+  public updateAgentMetrics(agentName: string, metrics: Partial<Pick<AgentConfig, 'loadFactor' | 'successRate' | 'averageLatency'>>): void {
+    if (!this.config) {
+      this.loadConfig();
+    }
+    
     const allAgents = this.getAllAgents();
     
     if (allAgents[agentName]) {
@@ -245,7 +248,7 @@ export class AgentConfigManager {
   /**
    * Get agent statistics
    */
-  public getAgentStats() {
+  public getAgentStats(): any {
     const allAgents = this.getAllAgents();
     const config = this.loadConfig();
     

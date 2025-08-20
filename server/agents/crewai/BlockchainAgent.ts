@@ -354,8 +354,19 @@ Transfer successful! 🎯`;
     const address = parameters.address || '0x...';
     const token = parameters.token || 'CAMP';
     
+    // DATA INTEGRITY RULE: Never generate fake balance data
+    if (!address || address === '0x...' || address.includes('0x0000')) {
+      return `❌ **Balance Check Failed**
+
+**Error:** Invalid wallet address provided
+**Message:** Cannot check balance for invalid or placeholder address
+**Solution:** Please provide a valid wallet address
+
+*Data Integrity Policy: Only authentic blockchain data is displayed*`;
+    }
+
     try {
-      // Get real balance and price data from CAMP explorer
+      // Get real balance and price data from CAMP explorer ONLY
       const balanceData = await this.getCampBalanceFromExplorer(address);
       const balance = balanceData.balance;
       const usdValue = balanceData.usdValue;
@@ -365,19 +376,22 @@ Transfer successful! 🎯`;
 **Account:** \`${address}\`
 **${token} Balance:** ${balance} ${token}
 **USD Value:** $${usdValue}
+**Data Source:** CAMP Explorer API (basecamp.cloud.blockscout.com)
+**Timestamp:** ${new Date().toISOString()}
 
-Balance retrieved successfully! 📊`;
+✅ Authentic blockchain data retrieved successfully`;
     } catch (error) {
       console.error('Error fetching balance from CAMP explorer:', error);
-      // Fallback to simulated data if explorer is unavailable
-      const balance = (Math.random() * 10000).toFixed(2);
-      return `💰 **Balance Check Results**
+      
+      // DATA INTEGRITY RULE: Never fallback to fake data - return error instead
+      return `❌ **Balance Check Failed**
 
 **Account:** \`${address}\`
-**${token} Balance:** ${balance} ${token}
-**USD Value:** $${(parseFloat(balance) * 1.2).toFixed(2)} (estimated)
+**Error:** Unable to retrieve authentic balance data
+**Reason:** ${error instanceof Error ? error.message : 'API unavailable'}
+**Message:** Real-time balance data is currently unavailable
 
-Balance retrieved! 📊`;
+*Data Integrity Policy: We never display simulated or fake balance data. Please try again later when the CAMP Explorer API is available.*`;
     }
   }
 

@@ -3,6 +3,8 @@
 Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
 ## Recent Updates (January 19, 2025)
+- **🔒 STRICT DATA INTEGRITY ENFORCEMENT**: Implemented comprehensive rules preventing ANY false information generation across all 18 agents
+- **✅ Authentic Data Only Policy**: Zero tolerance for mock, simulated, placeholder, or fake data - especially for wallet balances, transactions, and financial information
 - **🎯 COMPREHENSIVE AGENT MANAGEMENT SYSTEM**: Created centralized JSON configuration for all 18 agents with roles, system messages, tools, and performance metrics
 - **✅ Architecture Documentation**: Complete AGENT_ARCHITECTURE.md with detailed multi-agent system documentation, message flows, and integration points
 - **✅ CrewAI Agent Delegation**: Successfully implemented end-to-end intelligent task delegation with specialized CrewAI agents
@@ -29,6 +31,7 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Reward system**: Save token recipients for later claiming rather than immediate distribution
 - **Network**: Base Camp testnet by Camp Network for all blockchain operations
 - **System Prompts**: Detailed and accurate system prompts for all agents to ensure precise operation and enhanced performance
+- **DATA INTEGRITY CRITICAL RULE**: Absolutely NO false, mock, simulated, placeholder, or fake information generation. All data must be from authentic sources ONLY. If real data unavailable, return clear error messages instead of fake data. This applies especially to wallet balances, transaction data, prices, and any financial information.
 
 # System Architecture
 

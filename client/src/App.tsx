@@ -101,7 +101,17 @@ function AppContent() {
     };
   }, [gamePhase]);
 
-  // Check for companion after auth
+  // Check authentication and force companion creation
+  useEffect(() => {
+    if (account?.address) {
+      setAuthComplete(true);
+    } else {
+      setAuthComplete(false);
+      setCompanionChecked(false);
+    }
+  }, [account?.address]);
+
+  // MANDATORY companion check for ALL users after authentication
   useEffect(() => {
     const checkCompanion = async () => {
       if (account?.address && authComplete && !companionChecked) {
@@ -113,13 +123,22 @@ function AppContent() {
             const companionData = await companionService.getCompanionByOwner(account.address);
             if (companionData) {
               setCompanion(companionData.traits);
+              // Only proceed to main app if companion exists and is loaded
+              if (gamePhase !== 'main' && gamePhase !== 'playing') {
+                setGamePhase('main');
+              }
+            } else {
+              // Even if hasCompanion=true but no data, force creation
+              setGamePhase('companionPrompt');
             }
           } else {
-            // Force companion creation for all users without companions
+            // No companion found - FORCE creation for ALL users (new and existing)
             setGamePhase('companionPrompt');
           }
         } catch (error) {
           console.error('Error checking companion:', error);
+          // On any error, force companion creation to be safe
+          setGamePhase('companionPrompt');
         } finally {
           setCompanionChecked(true);
         }
@@ -127,13 +146,25 @@ function AppContent() {
     };
 
     checkCompanion();
-  }, [account?.address, authComplete, companionChecked, gamePhase, setGamePhase, setCompanion]);
+  }, [account?.address, authComplete, companionChecked, setGamePhase, setCompanion]);
 
-  // Show auth screen if no wallet connected or auth not complete
-  if (!account || !authComplete) {
+  // Show auth screen if no wallet connected
+  if (!account) {
     return (
       <div className="w-full h-screen">
         <AuthScreen onAuthComplete={() => setAuthComplete(true)} />
+      </div>
+    );
+  }
+
+  // If authenticated but companion not checked yet, show loading or wait
+  if (authComplete && !companionChecked) {
+    return (
+      <div className="w-full h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking companion status...</p>
+        </div>
       </div>
     );
   }
@@ -194,7 +225,7 @@ function AppContent() {
                   try {
                     const { companionService } = await import('./lib/companionService');
                     if (account && companion?.tokenId) {
-                      await companionService.updateCompanionTraits(account, companion.tokenId, traits);
+                      await companionService.updateCompanion(account, companion.tokenId, traits);
                       setCompanion(traits);
                     }
                   } catch (error) {

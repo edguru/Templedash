@@ -978,6 +978,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         empathy,
         personalityType,
         appearance,
+        backgroundStory,
         transactionHash
       } = req.body;
 
@@ -1013,6 +1014,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         empathy,
         personalityType,
         appearance,
+        backgroundStory,
         transactionHash
       }).returning();
 

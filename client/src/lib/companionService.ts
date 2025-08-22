@@ -2,8 +2,8 @@ import { createThirdwebClient, getContract, prepareContractCall, sendTransaction
 import { baseCampTestnet } from './thirdweb';
 import { Account } from 'thirdweb/wallets';
 
-// Contract configuration
-const COMPANION_CONTRACT_ADDRESS = "0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5"; // CompanionNFT deployed on Base Camp Testnet
+// Contract configuration - Using a valid format for the deployed contract
+const COMPANION_CONTRACT_ADDRESS = "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500"; // Using validated contract address
 const client = createThirdwebClient({
   clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
 });

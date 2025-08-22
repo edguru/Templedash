@@ -354,12 +354,16 @@ Transfer successful! 🎯`;
     const address = parameters.address || '0x...';
     const token = parameters.token || 'CAMP';
     
-    // DATA INTEGRITY RULE: Never generate fake balance data
-    if (!address || address === '0x...' || address.includes('0x0000')) {
+    // Import data integrity validator
+    const { dataIntegrityValidator } = await import('../../utils/DataIntegrityValidator');
+    
+    // Validate address authenticity first
+    const addressValidation = dataIntegrityValidator.validateWalletAddress(address);
+    if (!addressValidation.isValid) {
       return `❌ **Balance Check Failed**
 
-**Error:** Invalid wallet address provided
-**Message:** Cannot check balance for invalid or placeholder address
+**Error:** ${addressValidation.errors.join(', ')}
+**Address:** \`${address}\`
 **Solution:** Please provide a valid wallet address
 
 *Data Integrity Policy: Only authentic blockchain data is displayed*`;
@@ -371,6 +375,42 @@ Transfer successful! 🎯`;
       const balance = balanceData.balance;
       const usdValue = balanceData.usdValue;
 
+      // Validate the response data authenticity
+      const response = {
+        address,
+        balance,
+        usdValue,
+        token,
+        source: 'basecamp.cloud.blockscout.com',
+        timestamp: new Date().toISOString()
+      };
+
+      const dataSources = [{
+        type: 'api' as const,
+        source: 'basecamp.cloud.blockscout.com',
+        verified: true,
+        timestamp: Date.now(),
+        trustScore: 0.95
+      }];
+
+      const validation = await dataIntegrityValidator.validateResponse(
+        'blockchain-agent', 
+        response, 
+        dataSources,
+        { agentName: 'blockchain-agent', requestType: 'balance_check', userContext: { address }, historicalData: [] }
+      );
+
+      if (!validation.isValid) {
+        console.error('[BlockchainAgent] Data integrity validation failed:', validation.errors);
+        return `❌ **Balance Check Failed**
+
+**Error:** Data integrity validation failed
+**Issues:** ${validation.errors.join(', ')}
+**Confidence:** ${(validation.confidence * 100).toFixed(1)}%
+
+*Data Integrity Policy: Response failed authenticity verification*`;
+      }
+
       return `💰 **Balance Check Results**
 
 **Account:** \`${address}\`
@@ -378,6 +418,7 @@ Transfer successful! 🎯`;
 **USD Value:** $${usdValue}
 **Data Source:** CAMP Explorer API (basecamp.cloud.blockscout.com)
 **Timestamp:** ${new Date().toISOString()}
+**Validation:** ✅ Verified (${(validation.confidence * 100).toFixed(1)}% confidence)
 
 ✅ Authentic blockchain data retrieved successfully`;
     } catch (error) {

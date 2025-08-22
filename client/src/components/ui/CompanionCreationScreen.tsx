@@ -58,7 +58,7 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
     
     setIsCreating(true);
     setError('');
-    setCreationStep('Preparing NFT minting...');
+    setCreationStep('Preparing NFT minting transaction...');
     
     try {
       await onCompanionCreated(traits);
@@ -295,8 +295,9 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
                   {creationStep || 'Please approve transactions in your wallet...'}
                 </div>
                 <div className="mt-3 text-xs text-blue-500">
-                  This process requires multiple blockchain transactions and may take a few minutes.
-                  Please don't close this window.
+                  • Minting your companion NFT on Base Camp Testnet (0.001 CAMP fee)<br/>
+                  • Setting companion traits on blockchain<br/>
+                  • Multiple transactions required - please don't close this window
                 </div>
               </div>
             )}

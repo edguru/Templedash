@@ -153,15 +153,45 @@ export class CompanionService {
       
       console.log('✅ NFT minted! Transaction hash:', result.transactionHash);
       
-      // Get the token ID from the contract
-      console.log('🔍 Getting companion token ID...');
-      const tokenId = await readContract({
-        contract,
-        method: 'function getCompanionId(address owner) external view returns (uint256)',
-        params: [account.address],
-      });
+      // Wait for transaction confirmation and get token ID
+      console.log('⏳ Waiting for transaction confirmation...');
+      // TODO: Add progress callback here for UI updates
+      await new Promise(resolve => setTimeout(resolve, 3000)); // Wait 3 seconds for confirmation
       
-      console.log('🎯 Token ID:', tokenId.toString());
+      // Get the token ID from the contract with retry logic
+      console.log('🔍 Getting companion token ID...');
+      let tokenId: bigint = BigInt(0);
+      let retryCount = 0;
+      const maxRetries = 5;
+      
+      while (retryCount < maxRetries) {
+        try {
+          tokenId = await readContract({
+            contract,
+            method: 'function getCompanionId(address owner) external view returns (uint256)',
+            params: [account.address],
+          });
+          
+          if (tokenId && tokenId > BigInt(0)) {
+            console.log('🎯 Token ID:', tokenId.toString());
+            break;
+          } else {
+            throw new Error('Token ID is 0 or undefined');
+          }
+        } catch (error) {
+          retryCount++;
+          console.log(`🔄 Retry ${retryCount}/${maxRetries} getting token ID...`);
+          if (retryCount >= maxRetries) {
+            throw new Error(`Failed to get token ID after ${maxRetries} attempts: ${error}`);
+          }
+          await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2 seconds between retries
+        }
+      }
+      
+      // Ensure we have a valid token ID
+      if (!tokenId || tokenId <= BigInt(0)) {
+        throw new Error('Failed to obtain valid token ID from contract');
+      }
       
       // Set all the traits on the blockchain
       console.log('🎨 Setting companion traits on blockchain...');

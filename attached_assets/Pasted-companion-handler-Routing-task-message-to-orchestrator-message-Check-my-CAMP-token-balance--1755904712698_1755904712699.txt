@@ -1,0 +1,246 @@
+companion-handler] Routing task message to orchestrator {
+  message: 'Check my CAMP token balance',
+  confidence: 0.9,
+  taskType: 'balance_check',
+  reasoning: [
+    'Analyzing message: "Check my CAMP token balance"',
+    'User ID: 0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    'Pattern match detected for balance_check: /\\b(check|show|get|what.{0,15}is)\\s+.{0,20}balance\\b/i',
+    'Final analysis: TASK (confidence: 0.90)',
+    'Detected task type: balance_check'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'Check my CAMP token balance',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'Check my CAMP token balance',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'balance_check'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  type: 'balance_check',
+  priority: 'high'
+}
+[task-orchestrator] Added task to queue {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  priority: 'high',
+  queueSize: 1
+}
+[task-orchestrator] Processing immediate task {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  type: 'balance_check',
+  description: 'Check my CAMP token balance'
+}
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  category: 'balance_check'
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Check my CAMP token balance',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Check my CAMP token balance',
+  parameterKeys: []
+}
+[TaskOrchestrator] Executing single-agent task 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: {},
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[AgentConfigManager] Loaded configuration for 18 agents
+[DataIntegrityValidator] Loaded data integrity rules
+[TaskTracker] Unknown task: 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: {},
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+Error fetching balance from CAMP explorer: TypeError: Cannot read properties of undefined (reading 'strict_authenticity')
+    at DataIntegrityValidator.validateResponse (/home/runner/workspace/server/utils/DataIntegrityValidator.ts:89:30)
+    at BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:410:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:279:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[blockchain-agent] Sending blockchain operation response { taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d', resultLength: 418 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: '❌ **Balance Check Failed**\n' +
+    '\n' +
+    '**Account:** `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '**Error:** Una'
+}
+[TaskTracker] Unknown task: 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  messageType: 'agent_response',
+  responseLength: 418
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[AgentOrchestrator] Received task result: {
+  result: '❌ **Balance Check Failed**\n' +
+    '\n' +
+    '**Account:** `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '**Error:** Una'
+}
+[task-orchestrator] Task completed successfully {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  result: '❌ **Balance Check Failed**\n' +
+    '\n' +
+    '**Account:** `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '**Error:** Unable to retrieve authentic balance data\n' +
+    "**Reason:** Cannot read properties of undefined (reading 'strict_authenticity')\n" +
+    '**Message:** Real-time balance data is currently unavailable\n' +
+    '\n' +
+    '*Data Integrity Policy: We never display simulated or fake balance data. Please try again later when the CAMP Explorer API is available.*'
+}
+11:17:56 PM [express] POST /api/agents/chat 200 in 1964ms :: {"success":true,"response":"❌ **Balance …
+Error fetching balance from CAMP explorer: TypeError: Cannot read properties of undefined (reading 'strict_authenticity')
+    at DataIntegrityValidator.validateResponse (/home/runner/workspace/server/utils/DataIntegrityValidator.ts:89:30)
+    at BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:410:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:279:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[blockchain-agent] Sending blockchain operation response { taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d', resultLength: 418 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[TaskOrchestrator] Received completion for unknown task: 5dedcd20-5b7a-4aec-ad26-0bac5166ce7d
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: '5dedcd20-5b7a-4aec-ad26-0bac5166ce7d',
+  messageType: 'agent_response',
+  responseLength: 418
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+[task-analyzer] Updated network status 

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { sessionManager } from '../../lib/sessionSigners';
+import MessageRenderer from './MessageRenderer';
 
 interface ChatMessage {
   id: string;
@@ -215,9 +216,16 @@ export default function ChatScreen() {
                   <User className="mt-1 text-white flex-shrink-0" size={16} />
                 )}
                 <div>
-                  <p className={`text-sm ${message.role === 'user' ? 'text-white' : 'text-gray-800'}`}>
-                    {message.content}
-                  </p>
+                  {message.role === 'assistant' ? (
+                    <MessageRenderer 
+                      content={message.content} 
+                      className="text-gray-800" 
+                    />
+                  ) : (
+                    <p className="text-sm text-white">
+                      {message.content}
+                    </p>
+                  )}
                   <p className={`text-xs mt-1 ${message.role === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
                     {message.timestamp.toLocaleTimeString()}
                   </p>

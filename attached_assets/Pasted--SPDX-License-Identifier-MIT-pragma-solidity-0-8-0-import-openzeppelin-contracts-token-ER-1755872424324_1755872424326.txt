@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    struct CompanionTraits {
+        string name;
+        uint8 age;
+        string role; // partner, friend, pet
+        string gender; // male, female, non-binary
+        uint8 flirtiness; // 0-100
+        uint8 intelligence; // 0-100
+        uint8 humor; // 0-100
+        uint8 loyalty; // 0-100
+        uint8 empathy; // 0-100
+        string personalityType; // helpful, casual, professional
+        string appearance; // description or IPFS hash
+        string backgroundStory; // optional personal backstory
+        uint256 createdAt;
+        uint256 lastModified;
+    }
+
+    struct MintParams {
+        string name;
+        uint8 age;
+        string role;
+        string gender;
+        uint8 flirtiness;
+        uint8 intelligence;
+        uint8 humor;
+        uint8 loyalty;
+        uint8 empathy;
+        string personalityType;
+        string appearance;
+        string backgroundStory;
+    }
+
+    mapping(uint256 => CompanionTraits) public companionTraits;
+    mapping(address => uint256) public ownerToCompanion;
+    mapping(uint256 => bool) public isActive;
+    
+    uint256 public constant MINT_FEE = 0.001 ether; // 0.001 CAMP
+    
+    event CompanionMinted(address indexed owner, uint256 indexed tokenId, string name);
+    event TraitsUpdated(uint256 indexed tokenId, address indexed owner);
+
+    constructor() ERC721("Companion NFT", "COMP") Ownable(msg.sender) {}
+
+    modifier onlyTokenOwner(uint256 tokenId) {
+        require(ownerOf(tokenId) == msg.sender, "Not the token owner");
+        _;
+    }
+
+    function mintCompanion(MintParams memory params) external payable nonReentrant {
+        require(msg.value >= MINT_FEE, "Insufficient mint fee");
+        require(ownerToCompanion[msg.sender] == 0, "Already owns a companion");
+        require(bytes(params.name).length > 0, "Name cannot be empty");
+        require(params.age >= 18 && params.age <= 100, "Age must be between 18-100");
+        
+        _tokenIds.increment();
+        uint256 tokenId = _tokenIds.current();
+        
+        _safeMint(msg.sender, tokenId);
+        _setCompanionTraits(tokenId, params);
+        
+        ownerToCompanion[msg.sender] = tokenId;
+        isActive[tokenId] = true;
+        
+        emit CompanionMinted(msg.sender, tokenId, params.name);
+    }
+
+    function _setCompanionTraits(uint256 tokenId, MintParams memory params) internal {
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.name = params.name;
+        traits.age = params.age;
+        traits.role = params.role;
+        traits.gender = params.gender;
+        traits.flirtiness = params.flirtiness;
+        traits.intelligence = params.intelligence;
+        traits.humor = params.humor;
+        traits.loyalty = params.loyalty;
+        traits.empathy = params.empathy;
+        traits.personalityType = params.personalityType;
+        traits.appearance = params.appearance;
+        traits.backgroundStory = params.backgroundStory;
+        traits.createdAt = block.timestamp;
+        traits.lastModified = block.timestamp;
+    }
+
+    function updateBasicTraits(
+        uint256 tokenId,
+        string memory name,
+        uint8 age,
+        string memory role,
+        string memory gender
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        require(bytes(name).length > 0, "Name cannot be empty");
+        require(age >= 18 && age <= 100, "Age must be between 18-100");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.name = name;
+        traits.age = age;
+        traits.role = role;
+        traits.gender = gender;
+        traits.lastModified = block.timestamp;
+        
+        emit TraitsUpdated(tokenId, msg.sender);
+    }
+
+    function updatePersonalityTraits(
+        uint256 tokenId,
+        uint8 flirtiness,
+        uint8 intelligence,
+        uint8 humor,
+        uint8 loyalty,
+        uint8 empathy,
+        string memory personalityType
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.flirtiness = flirtiness;
+        traits.intelligence = intelligence;
+        traits.humor = humor;
+        traits.loyalty = loyalty;
+        traits.empathy = empathy;
+        traits.personalityType = personalityType;
+        traits.lastModified = block.timestamp;
+        
+        emit TraitsUpdated(tokenId, msg.sender);
+    }
+
+    function updateAppearance(
+        uint256 tokenId,
+        string memory appearance
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.appearance = appearance;
+        traits.lastModified = block.timestamp;
+        
+        emit TraitsUpdated(tokenId, msg.sender);
+    }
+
+    function getCompanionByOwner(address owner) external view returns (uint256, CompanionTraits memory) {
+        uint256 tokenId = ownerToCompanion[owner];
+        require(tokenId != 0, "No companion found");
+        return (tokenId, companionTraits[tokenId]);
+    }
+
+    function hasCompanion(address owner) external view returns (bool) {
+        return ownerToCompanion[owner] != 0 && isActive[ownerToCompanion[owner]];
+    }
+
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = _ownerOf(tokenId);
+        address previousOwner = super._update(to, tokenId, auth);
+        
+        if (from != address(0)) {
+            ownerToCompanion[from] = 0;
+        }
+        if (to != address(0)) {
+            ownerToCompanion[to] = tokenId;
+        }
+        
+        return previousOwner;
+    }
+
+    function withdrawFees() external onlyOwner {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No fees to withdraw");
+        payable(owner()).transfer(balance);
+    }
+
+    function totalSupply() external view returns (uint256) {
+        return _tokenIds.current();
+    }
+}

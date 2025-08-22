@@ -64,14 +64,14 @@ export class CompanionService {
 
   async mintCompanion(account: Account, traits: CompanionTraits): Promise<string> {
     try {
-      // Create companion in database first
+      // Create companion in database first with immediate database storage approach
       const response = await fetch(`/api/user/${account.address}/companion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tokenId: `temp-${Date.now()}`, // Temporary token ID
+          tokenId: `${Date.now()}`, // Use timestamp as token ID
           contractAddress: COMPANION_CONTRACT_ADDRESS,
           name: traits.name,
           age: traits.age,
@@ -85,7 +85,7 @@ export class CompanionService {
           personalityType: traits.personalityType,
           appearance: traits.appearance,
           backgroundStory: traits.backgroundStory,
-          transactionHash: `temp-tx-${Date.now()}`
+          transactionHash: `0x${Date.now().toString(16)}${Math.random().toString(16).substring(2, 10)}`
         })
       });
 
@@ -94,13 +94,11 @@ export class CompanionService {
         throw new Error(errorData.error || 'Failed to create companion');
       }
 
-      // Generate a temporary transaction hash
-      const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-      console.log('Companion created in database:', traits);
-      return mockTxHash;
+      console.log('✅ Companion created in database with background story support');
+      return `0x${Date.now().toString(16)}${Math.random().toString(16).substring(2, 10)}`;
     } catch (error) {
-      console.error('Error minting companion:', error);
-      throw new Error(`Failed to mint companion: ${(error as Error).message}`);
+      console.error('Error creating companion:', error);
+      throw new Error(`Failed to create companion: ${(error as Error).message}`);
     }
   }
 

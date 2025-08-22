@@ -44,51 +44,55 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         _;
     }
 
-    function mintCompanion(
-        string memory name,
-        uint8 age,
-        string memory role,
-        string memory gender,
-        uint8 flirtiness,
-        uint8 intelligence,
-        uint8 humor,
-        uint8 loyalty,
-        uint8 empathy,
-        string memory personalityType,
-        string memory appearance,
-        string memory backgroundStory
-    ) external payable nonReentrant {
+    struct MintParams {
+        string name;
+        uint8 age;
+        string role;
+        string gender;
+        uint8 flirtiness;
+        uint8 intelligence;
+        uint8 humor;
+        uint8 loyalty;
+        uint8 empathy;
+        string personalityType;
+        string appearance;
+        string backgroundStory;
+    }
+
+    function mintCompanion(MintParams memory params) external payable nonReentrant {
         require(msg.value >= MINT_FEE, "Insufficient mint fee");
         require(ownerToCompanion[msg.sender] == 0, "Already owns a companion");
-        require(bytes(name).length > 0, "Name cannot be empty");
-        require(age >= 18 && age <= 100, "Age must be between 18-100");
+        require(bytes(params.name).length > 0, "Name cannot be empty");
+        require(params.age >= 18 && params.age <= 100, "Age must be between 18-100");
         
         _tokenIds.increment();
         uint256 tokenId = _tokenIds.current();
         
         _safeMint(msg.sender, tokenId);
-        
-        // Set traits in storage directly to avoid stack depth
-        CompanionTraits storage traits = companionTraits[tokenId];
-        traits.name = name;
-        traits.age = age;
-        traits.role = role;
-        traits.gender = gender;
-        traits.flirtiness = flirtiness;
-        traits.intelligence = intelligence;
-        traits.humor = humor;
-        traits.loyalty = loyalty;
-        traits.empathy = empathy;
-        traits.personalityType = personalityType;
-        traits.appearance = appearance;
-        traits.backgroundStory = backgroundStory;
-        traits.createdAt = block.timestamp;
-        traits.lastModified = block.timestamp;
+        _setCompanionTraits(tokenId, params);
         
         ownerToCompanion[msg.sender] = tokenId;
         isActive[tokenId] = true;
         
-        emit CompanionMinted(msg.sender, tokenId, name);
+        emit CompanionMinted(msg.sender, tokenId, params.name);
+    }
+
+    function _setCompanionTraits(uint256 tokenId, MintParams memory params) internal {
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.name = params.name;
+        traits.age = params.age;
+        traits.role = params.role;
+        traits.gender = params.gender;
+        traits.flirtiness = params.flirtiness;
+        traits.intelligence = params.intelligence;
+        traits.humor = params.humor;
+        traits.loyalty = params.loyalty;
+        traits.empathy = params.empathy;
+        traits.personalityType = params.personalityType;
+        traits.appearance = params.appearance;
+        traits.backgroundStory = params.backgroundStory;
+        traits.createdAt = block.timestamp;
+        traits.lastModified = block.timestamp;
     }
 
     function updateBasicTraits(

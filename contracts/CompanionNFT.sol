@@ -68,47 +68,7 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         
         _safeMint(msg.sender, tokenId);
         
-        companionTraits[tokenId] = CompanionTraits({
-            name: name,
-            age: age,
-            role: role,
-            gender: gender,
-            flirtiness: flirtiness,
-            intelligence: intelligence,
-            humor: humor,
-            loyalty: loyalty,
-            empathy: empathy,
-            personalityType: personalityType,
-            appearance: appearance,
-            backgroundStory: backgroundStory,
-            createdAt: block.timestamp,
-            lastModified: block.timestamp
-        });
-        
-        ownerToCompanion[msg.sender] = tokenId;
-        isActive[tokenId] = true;
-        
-        emit CompanionMinted(msg.sender, tokenId, name);
-    }
-
-    function updateTraits(
-        uint256 tokenId,
-        string memory name,
-        uint8 age,
-        string memory role,
-        string memory gender,
-        uint8 flirtiness,
-        uint8 intelligence,
-        uint8 humor,
-        uint8 loyalty,
-        uint8 empathy,
-        string memory personalityType,
-        string memory appearance
-    ) external onlyTokenOwner(tokenId) {
-        require(isActive[tokenId], "Companion is not active");
-        require(bytes(name).length > 0, "Name cannot be empty");
-        require(age >= 18 && age <= 100, "Age must be between 18-100");
-        
+        // Set traits in storage directly to avoid stack depth
         CompanionTraits storage traits = companionTraits[tokenId];
         traits.name = name;
         traits.age = age;
@@ -120,6 +80,68 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         traits.loyalty = loyalty;
         traits.empathy = empathy;
         traits.personalityType = personalityType;
+        traits.appearance = appearance;
+        traits.backgroundStory = backgroundStory;
+        traits.createdAt = block.timestamp;
+        traits.lastModified = block.timestamp;
+        
+        ownerToCompanion[msg.sender] = tokenId;
+        isActive[tokenId] = true;
+        
+        emit CompanionMinted(msg.sender, tokenId, name);
+    }
+
+    function updateBasicTraits(
+        uint256 tokenId,
+        string memory name,
+        uint8 age,
+        string memory role,
+        string memory gender
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        require(bytes(name).length > 0, "Name cannot be empty");
+        require(age >= 18 && age <= 100, "Age must be between 18-100");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.name = name;
+        traits.age = age;
+        traits.role = role;
+        traits.gender = gender;
+        traits.lastModified = block.timestamp;
+        
+        emit TraitsUpdated(tokenId, msg.sender);
+    }
+
+    function updatePersonalityTraits(
+        uint256 tokenId,
+        uint8 flirtiness,
+        uint8 intelligence,
+        uint8 humor,
+        uint8 loyalty,
+        uint8 empathy,
+        string memory personalityType
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
+        traits.flirtiness = flirtiness;
+        traits.intelligence = intelligence;
+        traits.humor = humor;
+        traits.loyalty = loyalty;
+        traits.empathy = empathy;
+        traits.personalityType = personalityType;
+        traits.lastModified = block.timestamp;
+        
+        emit TraitsUpdated(tokenId, msg.sender);
+    }
+
+    function updateAppearance(
+        uint256 tokenId,
+        string memory appearance
+    ) external onlyTokenOwner(tokenId) {
+        require(isActive[tokenId], "Companion is not active");
+        
+        CompanionTraits storage traits = companionTraits[tokenId];
         traits.appearance = appearance;
         traits.lastModified = block.timestamp;
         

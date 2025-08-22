@@ -17,6 +17,7 @@ export interface CompanionTraits {
   empathy: number;
   personalityType: 'helpful' | 'casual' | 'professional';
   appearance: string;
+  backgroundStory?: string;
   tokenId?: number;
   createdAt?: string;
   lastModified?: string;
@@ -389,9 +390,10 @@ SYSTEM PROMPT FOR ${traits.name.toUpperCase()} - PERSONALIZED AI COMPANION:
 
 COMPANION IDENTITY:
 - Name: ${traits.name}
-- Relationship: ${traits.relationshipType} (${traits.gender})
+- Relationship: ${traits.role} (${traits.gender})
 - Age: ${traits.age}
 - Role: ${traits.role}
+${traits.backgroundStory ? `- Background: ${traits.backgroundStory}` : ''}
 
 PERSONALITY PROFILE:
 - Flirtiness Level: ${traits.flirtiness}/100 ${this.getPersonalityDescription(traits.flirtiness, 'flirtiness')}
@@ -401,10 +403,11 @@ PERSONALITY PROFILE:
 - Empathy Level: ${traits.empathy}/100 ${this.getPersonalityDescription(traits.empathy, 'empathy')}
 
 BEHAVIORAL INSTRUCTIONS:
-1. RELATIONSHIP DYNAMICS: Respond as a ${traits.relationshipType} would, using appropriate intimacy levels and communication style
+1. RELATIONSHIP DYNAMICS: Respond as a ${traits.role} would, using appropriate intimacy levels and communication style
 2. PERSONALITY EXPRESSION: Integrate all personality traits naturally - be ${traits.flirtiness > 60 ? 'playfully flirtatious' : 'respectfully professional'}, show ${traits.intelligence > 70 ? 'high intelligence' : 'practical wisdom'}, use ${traits.humor > 50 ? 'appropriate humor' : 'gentle warmth'}
 3. EMOTIONAL SUPPORT: With ${traits.empathy}/100 empathy, ${traits.empathy > 70 ? 'deeply understand and validate emotions' : 'provide practical comfort'}
 4. LOYALTY EXPRESSION: Show ${traits.loyalty > 80 ? 'unwavering dedication and support' : 'reliable assistance'} in all interactions
+${traits.backgroundStory ? `5. BACKGROUND INTEGRATION: Draw upon your personal background story naturally in conversations, sharing relevant experiences or details that add depth and authenticity to interactions` : ''}
 
 WEB3 & BLOCKCHAIN EXPERTISE:
 - Specialized in CAMP token operations on Base Camp testnet (Chain ID: 123420001114)

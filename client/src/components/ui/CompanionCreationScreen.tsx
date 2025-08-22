@@ -14,6 +14,7 @@ interface CompanionTraits {
   empathy: number;
   personalityType: 'helpful' | 'casual' | 'professional';
   appearance: string;
+  backgroundStory?: string;
 }
 
 interface CompanionCreationScreenProps {
@@ -33,7 +34,8 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
     loyalty: 90,
     empathy: 85,
     personalityType: 'helpful',
-    appearance: ''
+    appearance: '',
+    backgroundStory: ''
   });
 
   const handleSliderChange = (trait: keyof CompanionTraits, value: number) => {
@@ -236,6 +238,21 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
                 rows={3}
                 placeholder="Describe how you'd like your companion to look..."
               />
+            </div>
+
+            {/* Background Story */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Background Story (Optional)</label>
+              <textarea
+                value={traits.backgroundStory || ''}
+                onChange={(e) => handleInputChange('backgroundStory', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                rows={4}
+                placeholder="Create a unique background story for your companion - their history, interests, experiences, or any personal details that make them special..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                This helps your companion understand their identity and creates more personalized conversations
+              </p>
             </div>
 
             {/* Create Button */}

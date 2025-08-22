@@ -526,7 +526,9 @@ SPECIAL ATTENTION:
     const result: ValidationResult = {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [],
+      confidence: 1.0,
+      reasoning: []
     };
 
     if (!address || address.length !== 42 || !address.startsWith('0x')) {
@@ -554,7 +556,9 @@ SPECIAL ATTENTION:
     const result: ValidationResult = {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [],
+      confidence: 1.0,
+      reasoning: []
     };
 
     if (typeof amount === 'string' && amount.includes('estimated')) {

@@ -20,6 +20,7 @@ export interface CompanionTraits {
   empathy: number;
   personalityType: 'helpful' | 'casual' | 'professional';
   appearance: string;
+  backgroundStory?: string;
   tokenId?: number;
   createdAt?: string;
   lastModified?: string;

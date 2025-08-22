@@ -61,6 +61,7 @@ export const companions = pgTable("companions", {
   empathy: integer("empathy").notNull(), // 0-100
   personalityType: text("personality_type").notNull(), // helpful, casual, professional
   appearance: text("appearance"), // description or IPFS hash
+  backgroundStory: text("background_story"), // optional personal backstory
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

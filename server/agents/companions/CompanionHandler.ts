@@ -481,8 +481,12 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
         /\bcreate\s+.{0,20}(nft|character|companion)\b/i
       ],
       'balance_check': [
-        /\b(check|show|get|what.{0,15}is)\s+.{0,20}balance\b/i,
-        /\bhow\s+much\s+.{0,20}(do\s+i\s+have|is\s+my|camp|token)\b/i
+        /\b(check|show|get|display)\s+.{0,30}(balance|funds|tokens?|camp|crypto)\b/i,
+        /\bwhat.{0,30}(balance|funds|tokens?|camp|status)\b/i,
+        /\bwhats?\s+.{0,20}(balance|funds|tokens?|camp|my)\b/i,
+        /\bhow\s+much\s+.{0,30}(do\s+i\s+have|is\s+my|camp|token|balance)\b/i,
+        /\b(my\s+)?(balance|funds|tokens?|camp)(\s+is|\s+amount|\s+value)?\b/i,
+        /\b(tell|show)\s+me\s+.{0,20}(balance|funds|tokens?|camp)\b/i
       ],
       'token_transfer': [
         /\b(send|transfer)\s+.{0,20}(token|nft|camp|eth)\b/i

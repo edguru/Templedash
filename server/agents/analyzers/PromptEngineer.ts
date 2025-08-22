@@ -259,11 +259,14 @@ export class PromptEngineer extends BaseAgent {
       /compound\s+(?:rewards|staking)/i
     ]);
 
-    // Status check patterns
+    // Status check patterns - enhanced for natural language variations
     this.intentPatterns.set('check_status', [
-      /(?:check|show|get)\s+(?:status|balance|portfolio)/i,
-      /what.{0,10}(?:balance|status|happening)/i,
-      /how\s+much\s+(?:do\s+i\s+have|tokens?)/i
+      /(?:check|show|get|display)\s+(?:my\s+)?(?:status|balance|portfolio|funds|tokens?|camp|crypto)/i,
+      /what.{0,25}(?:balance|status|happening|funds|tokens?|camp)/i,
+      /whats?\s+(?:my\s+)?(?:balance|status|funds|tokens?|camp)/i,
+      /how\s+much\s+.{0,30}(?:do\s+i\s+have|is\s+my|tokens?|camp|balance)/i,
+      /(?:my\s+)?(?:balance|funds|tokens?|camp)\s*(?:is|amount|value)?/i,
+      /(?:tell|show)\s+me\s+(?:my\s+)?(?:balance|funds|tokens?|camp)/i
     ]);
 
     // Task management patterns

@@ -1,5 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export interface AgentConfig {
   name: string;
@@ -74,9 +79,9 @@ export class AgentConfigManager {
         const configData = fs.readFileSync(this.configPath, 'utf-8');
         const parsedConfig = JSON.parse(configData);
         this.config = parsedConfig.agentRegistry;
-        console.log(`[AgentConfigManager] Loaded configuration for ${this.config.metadata.totalAgents} agents`);
+        console.log(`[AgentConfigManager] Loaded configuration for ${this.config?.metadata?.totalAgents || 0} agents`);
       }
-      return this.config;
+      return this.config!;
     } catch (error) {
       console.error('[AgentConfigManager] Failed to load agent configuration:', error);
       throw new Error('Failed to load agent configuration');

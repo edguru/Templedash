@@ -1,0 +1,295 @@
+10:49:34 PM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 304 in 1762m…
+10:49:34 PM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: check my camp balance...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message { type: 'user_message' }
+[companion-handler] Routing task message to orchestrator {
+  message: 'check my camp balance',
+  confidence: 0.9,
+  taskType: 'balance_check',
+  reasoning: [
+    'Analyzing message: "check my camp balance"',
+    'User ID: 0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    'Pattern match detected for balance_check: /\\b(check|show|get|what.{0,15}is)\\s+.{0,20}balance\\b/i',
+    'Final analysis: TASK (confidence: 0.90)',
+    'Detected task type: balance_check'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'check my camp balance',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'check my camp balance',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'balance_check'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  type: 'balance_check',
+  priority: 'high'
+}
+[task-orchestrator] Added task to queue {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  priority: 'high',
+  queueSize: 1
+}
+[task-orchestrator] Processing immediate task {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  type: 'balance_check',
+  description: 'check my camp balance'
+}
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  category: 'balance_check'
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'check my camp balance',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'check my camp balance',
+  parameterKeys: []
+}
+[TaskOrchestrator] Executing single-agent task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: check my camp balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {},
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[BlockchainAgent] Error processing request: ReferenceError: __dirname is not defined in ES module scope
+    at new AgentConfigManager (/home/runner/workspace/server/config/AgentConfigManager.ts:65:33)
+    at <anonymous> (/home/runner/workspace/server/config/AgentConfigManager.ts:291:35)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:358:40)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:265:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  agentType: 'BlockchainAgent',
+  success: false,
+  hasResult: false
+}
+[task-orchestrator] Task queued { taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5', priority: 'high' }
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+[task-orchestrator] Task queued for retry { taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5', attempt: 1 }
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: check my camp balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {},
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[BlockchainAgent] Error processing request: ReferenceError: __dirname is not defined in ES module scope
+    at new AgentConfigManager (/home/runner/workspace/server/config/AgentConfigManager.ts:65:33)
+    at <anonymous> (/home/runner/workspace/server/config/AgentConfigManager.ts:291:35)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:358:40)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:265:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  agentType: 'BlockchainAgent',
+  success: false,
+  hasResult: false
+}
+[task-orchestrator] Task queued { taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5', priority: 'high' }
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+[task-orchestrator] Task queued for retry { taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5', attempt: 2 }
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: check my camp balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {},
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[BlockchainAgent] Error processing request: ReferenceError: __dirname is not defined in ES module scope
+    at new AgentConfigManager (/home/runner/workspace/server/config/AgentConfigManager.ts:65:33)
+    at <anonymous> (/home/runner/workspace/server/config/AgentConfigManager.ts:291:35)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:358:40)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:265:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  agentType: 'BlockchainAgent',
+  success: false,
+  hasResult: false
+}
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+Publishing message: task_failed from task-orchestrator to companion-handler
+[task-orchestrator] Task failed {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  error: 'Blockchain operation failed: __dirname is not defined in ES module scope'
+}
+10:51:18 PM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 0a05411f-a85a-4754-b7b9-a5174fb3d4d5 {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: check my camp balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {},
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[BlockchainAgent] Error processing request: ReferenceError: __dirname is not defined in ES module scope
+    at new AgentConfigManager (/home/runner/workspace/server/config/AgentConfigManager.ts:65:33)
+    at <anonymous> (/home/runner/workspace/server/config/AgentConfigManager.ts:291:35)
+    at ModuleJob.run (node:internal/modules/esm/module_job:263:25)
+    at async ModuleLoader.import (node:internal/modules/esm/loader:540:24)
+    at async BlockchainAgent.executeBalanceCheck (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:358:40)
+    at async BlockchainAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:265:16)
+    at async BlockchainAgent.handleMessage (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:136:22)
+    at async <anonymous> (/home/runner/workspace/server/agents/crewai/BlockchainAgent.ts:36:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  agentType: 'BlockchainAgent',
+  success: false,
+  hasResult: false
+}
+[TaskTracker] Unknown task: 0a05411f-a85a-4754-b7b9-a5174fb3d4d5
+Publishing message: task_failed from task-orchestrator to companion-handler
+[task-orchestrator] Task failed {
+  taskId: '0a05411f-a85a-4754-b7b9-a5174fb3d4d5',
+  error: 'Blockchain operation failed: __dirname is not defined in ES module scope'
+}
+[task-analyzer] Updated network status 
+^C

@@ -616,7 +616,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Direct balance check endpoint as a workaround
+  // Intelligent agent-powered balance check endpoint
   app.get('/api/balance/:walletAddress', async (req: any, res) => {
     try {
       const { walletAddress } = req.params;
@@ -625,40 +625,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Invalid wallet address' });
       }
 
-      // Direct RPC call to Base Camp testnet
-      const rpcResponse = await fetch('https://rpc.camp-network-testnet.gelato.digital', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          jsonrpc: '2.0',
-          method: 'eth_getBalance',
-          params: [walletAddress, 'latest'],
-          id: 1
-        })
-      });
+      console.log(`🔍 [Agent Route] Balance check request for ${walletAddress}`);
       
-      const data = await rpcResponse.json();
+      // Route to intelligent agent system instead of hardcoded RPC call
+      const balanceMessage = `check balance for ${walletAddress}`;
+      const response = await agentSystem.processUserMessage(walletAddress, balanceMessage, `balance_check_${Date.now()}`);
       
-      if (data.error) {
-        return res.status(500).json({ error: `RPC Error: ${data.error.message}` });
+      // Parse agent response to extract balance data (handle string response)
+      const responseStr = typeof response === 'string' ? response : String(response);
+      const balanceMatch = responseStr.match(/\*\*CAMP Balance:\*\* ([0-9.]+) CAMP/);
+      const usdMatch = responseStr.match(/\*\*USD Value:\*\* \$([0-9.]+)/);
+      
+      if (balanceMatch) {
+        const balance = parseFloat(balanceMatch[1]);
+        const usdValue = usdMatch ? parseFloat(usdMatch[1]) : 0;
+        
+        res.json({
+          success: true,
+          walletAddress,
+          balance,
+          usdValue,
+          currency: 'CAMP',
+          network: 'Base Camp Testnet',
+          source: 'intelligent_agent',
+          rawResponse: responseStr
+        });
+      } else {
+        // Agent couldn't get balance, return error from agent
+        res.status(500).json({ 
+          error: 'Balance check failed',
+          agentResponse: responseStr
+        });
       }
       
-      const balanceHex = data.result;
-      const balanceWei = BigInt(balanceHex);
-      const balanceInCAMP = Number(balanceWei) / Math.pow(10, 18);
-      
-      res.json({
-        success: true,
-        walletAddress,
-        balance: balanceInCAMP,
-        balanceWei: balanceWei.toString(),
-        currency: 'CAMP',
-        network: 'Base Camp Testnet'
-      });
-      
     } catch (error) {
-      console.error('Balance check error:', error);
-      res.status(500).json({ error: 'Failed to check balance' });
+      console.error('Intelligent balance check error:', error);
+      res.status(500).json({ error: 'Failed to process balance check through agent system' });
     }
   });
 

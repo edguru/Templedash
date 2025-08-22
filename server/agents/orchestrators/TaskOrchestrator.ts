@@ -434,6 +434,25 @@ export class TaskOrchestrator extends BaseAgent {
   private async sendTaskToAgent(task: Task, selectedAgent: AgentCapabilityMatch): Promise<void> {
     const messageType = this.getMessageTypeForAgent(selectedAgent.agentId, selectedAgent.capability.capabilityName);
     
+    // Prepare parameters with intelligent wallet address injection for blockchain operations
+    let enhancedParameters = task.parameters || {};
+    
+    // For blockchain operations, inject wallet address into parameters
+    if (this.isBlockchainOperation(selectedAgent.capability.capabilityName, task.type)) {
+      const walletAddress = task.userId && task.userId.startsWith('0x') ? task.userId : undefined;
+      
+      if (walletAddress) {
+        enhancedParameters = {
+          ...enhancedParameters,
+          address: walletAddress,
+          walletAddress: walletAddress
+        };
+        console.log(`🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: ${walletAddress}`);
+      } else {
+        console.warn(`⚠️ [TaskOrchestrator] No valid wallet address found for blockchain operation. userId: ${task.userId}`);
+      }
+    }
+    
     const executionMessage: AgentMessage = {
       type: messageType,
       id: uuidv4(),
@@ -444,7 +463,7 @@ export class TaskOrchestrator extends BaseAgent {
         taskId: task.id,
         type: task.type || task.category,
         category: task.category || task.type,
-        parameters: task.parameters,
+        parameters: enhancedParameters,
         userId: task.userId,
         description: task.description,
         walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined,
@@ -547,6 +566,15 @@ export class TaskOrchestrator extends BaseAgent {
       'task_detection': ['task_detection']
     };
     return mapping[taskType] || ['conversation'];
+  }
+
+  // Helper method to determine if an operation is blockchain-related
+  private isBlockchainOperation(capability: string, taskType?: string): boolean {
+    const blockchainCapabilities = ['blockchain_operations', 'erc20_deployment', 'nft_operations', 'contract_deployment'];
+    const blockchainTaskTypes = ['balance_check', 'token_transfer', 'nft_mint', 'contract_deployment', 'erc20_deployment'];
+    
+    return blockchainCapabilities.includes(capability) || 
+           (taskType !== undefined && blockchainTaskTypes.includes(taskType));
   }
 
   private getMessageTypeForAgent(agentId: string, capability: string): string {
@@ -740,7 +768,7 @@ export class TaskOrchestrator extends BaseAgent {
           originalMessage: taskIntent.textSegment,
           multiTaskGroup: message.id,
           canExecuteInParallel: taskIntent.canExecuteInParallel,
-          dependencies: dependencies.filter(dep => dep.taskId === taskIntent.id)
+          dependencies: dependencies.filter((dep: any) => dep.taskId === taskIntent.id)
         }
       };
       

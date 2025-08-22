@@ -64,23 +64,66 @@ export class CompanionService {
 
   async hasCompanion(address: string): Promise<boolean> {
     try {
-      // Check database for companion existence rather than blockchain
-      const response = await fetch(`/api/user/${address}/companion`);
-      if (response.ok) {
-        const data = await response.json();
-        return data.hasCompanion || false;
-      }
-      return false;
+      // Check blockchain first for most accurate data
+      const contract = await this.getContract();
+      const hasCompanionOnChain = await readContract({
+        contract,
+        method: 'function hasCompanion(address owner) external view returns (bool)',
+        params: [address],
+      });
+      
+      return hasCompanionOnChain;
     } catch (error) {
-      console.error('Error checking companion existence:', error);
+      console.error('Error checking companion existence on blockchain:', error);
+      // Fallback to database check
+      try {
+        const response = await fetch(`/api/user/${address}/companion`);
+        if (response.ok) {
+          const data = await response.json();
+          return data.hasCompanion || false;
+        }
+      } catch (dbError) {
+        console.error('Database fallback also failed:', dbError);
+      }
       return false;
     }
   }
 
   async getCompanionByOwner(address: string): Promise<{ tokenId: number; traits: CompanionTraits } | null> {
     try {
-      // For now, return null as the contract is not fully deployed/implemented
-      return null;
+      const contract = await this.getContract();
+      
+      // Check if user has a companion
+      const hasCompanionResult = await readContract({
+        contract,
+        method: 'function hasCompanion(address owner) external view returns (bool)',
+        params: [address],
+      });
+      
+      if (!hasCompanionResult) {
+        return null;
+      }
+      
+      // Get token ID
+      const tokenId = await readContract({
+        contract,
+        method: 'function getCompanionId(address owner) external view returns (uint256)',
+        params: [address],
+      });
+      
+      // Fetch traits from database for faster access
+      const response = await fetch(`/api/user/${address}/companion`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.companion) {
+          return {
+            tokenId: Number(tokenId),
+            traits: data.companion
+          };
+        }
+      }
+      
+      return { tokenId: Number(tokenId), traits: {} as CompanionTraits };
     } catch (error) {
       console.error('Error fetching companion:', error);
       return null;
@@ -89,17 +132,119 @@ export class CompanionService {
 
   async mintCompanion(account: Account, traits: CompanionTraits): Promise<string> {
     try {
-      // Get the contract address
+      console.log('🚀 Starting NFT minting process...');
+      
+      // Get the contract
+      const contract = await this.getContract();
+      
+      // First, mint the NFT on the blockchain
+      console.log('📝 Preparing mint transaction...');
+      const mintTx = prepareContractCall({
+        contract,
+        method: 'function mint() external payable',
+        value: BigInt('1000000000000000'), // 0.001 ether in wei
+      });
+      
+      console.log('⛽ Sending mint transaction...');
+      const result = await sendTransaction({
+        transaction: mintTx,
+        account,
+      });
+      
+      console.log('✅ NFT minted! Transaction hash:', result.transactionHash);
+      
+      // Get the token ID from the contract
+      console.log('🔍 Getting companion token ID...');
+      const tokenId = await readContract({
+        contract,
+        method: 'function getCompanionId(address owner) external view returns (uint256)',
+        params: [account.address],
+      });
+      
+      console.log('🎯 Token ID:', tokenId.toString());
+      
+      // Set all the traits on the blockchain
+      console.log('🎨 Setting companion traits on blockchain...');
+      
+      // Set name
+      const setNameTx = prepareContractCall({
+        contract,
+        method: 'function setName(uint256 tokenId, string calldata name) external',
+        params: [tokenId, traits.name],
+      });
+      await sendTransaction({ transaction: setNameTx, account });
+      
+      // Set role
+      const setRoleTx = prepareContractCall({
+        contract,
+        method: 'function setRole(uint256 tokenId, string calldata role) external',
+        params: [tokenId, traits.role],
+      });
+      await sendTransaction({ transaction: setRoleTx, account });
+      
+      // Set gender
+      const setGenderTx = prepareContractCall({
+        contract,
+        method: 'function setGender(uint256 tokenId, string calldata gender) external',
+        params: [tokenId, traits.gender],
+      });
+      await sendTransaction({ transaction: setGenderTx, account });
+      
+      // Set personality
+      const setPersonalityTx = prepareContractCall({
+        contract,
+        method: 'function setPersonality(uint256 tokenId, string calldata personality) external',
+        params: [tokenId, traits.personalityType],
+      });
+      await sendTransaction({ transaction: setPersonalityTx, account });
+      
+      // Set appearance
+      const setAppearanceTx = prepareContractCall({
+        contract,
+        method: 'function setAppearance(uint256 tokenId, string calldata appearance) external',
+        params: [tokenId, traits.appearance],
+      });
+      await sendTransaction({ transaction: setAppearanceTx, account });
+      
+      // Set background story
+      if (traits.backgroundStory) {
+        const setStoryTx = prepareContractCall({
+          contract,
+          method: 'function setStory(uint256 tokenId, string calldata story) external',
+          params: [tokenId, traits.backgroundStory],
+        });
+        await sendTransaction({ transaction: setStoryTx, account });
+      }
+      
+      // Set numeric traits
+      const setTraitsTx = prepareContractCall({
+        contract,
+        method: 'function setTraits(uint256 tokenId, uint8 age, uint8 flirtiness, uint8 intelligence, uint8 humor, uint8 loyalty, uint8 empathy) external',
+        params: [
+          tokenId,
+          traits.age,
+          traits.flirtiness,
+          traits.intelligence,
+          traits.humor,
+          traits.loyalty,
+          traits.empathy,
+        ],
+      });
+      await sendTransaction({ transaction: setTraitsTx, account });
+      
+      console.log('🎉 All traits set on blockchain!');
+      
+      // Now store in database after successful blockchain operations
+      console.log('💾 Storing companion in database...');
       const contractAddress = await this.getContractAddress();
       
-      // Create companion in database first with immediate database storage approach
       const response = await fetch(`/api/user/${account.address}/companion`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          tokenId: `${Date.now()}`, // Use timestamp as token ID
+          tokenId: tokenId.toString(),
           contractAddress: contractAddress,
           name: traits.name,
           age: traits.age,
@@ -113,20 +258,23 @@ export class CompanionService {
           personalityType: traits.personalityType,
           appearance: traits.appearance,
           backgroundStory: traits.backgroundStory,
-          transactionHash: `0x${Date.now().toString(16)}${Math.random().toString(16).substring(2, 10)}`
+          transactionHash: result.transactionHash
         })
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create companion');
+        console.error('Database storage failed:', errorData);
+        // NFT was minted but database storage failed - this is still a success from user perspective
+        console.warn('⚠️ NFT minted successfully but database storage failed. The NFT exists on blockchain.');
+      } else {
+        console.log('✅ Companion stored in database successfully');
       }
 
-      console.log('✅ Companion created in database with background story support');
-      return `0x${Date.now().toString(16)}${Math.random().toString(16).substring(2, 10)}`;
+      return result.transactionHash;
     } catch (error) {
-      console.error('Error creating companion:', error);
-      throw new Error(`Failed to create companion: ${(error as Error).message}`);
+      console.error('Error minting companion NFT:', error);
+      throw new Error(`Failed to mint companion NFT: ${(error as Error).message}`);
     }
   }
 

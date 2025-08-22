@@ -974,7 +974,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create companion (only if user doesn't have one)
+  // Create companion (only after successful NFT minting)
   app.post('/api/user/:walletAddress/companion', async (req, res) => {
     try {
       const walletAddress = req.params.walletAddress;
@@ -996,21 +996,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionHash
       } = req.body;
 
+      console.log('🎯 Companion creation request:', { walletAddress, tokenId, name, transactionHash });
+
       // Validate required fields
-      if (!tokenId || !contractAddress || !name || !role || !gender || !personalityType) {
-        return res.status(400).json({ error: 'Missing required companion fields' });
+      if (!tokenId || !contractAddress || !name || !role || !gender || !personalityType || !transactionHash) {
+        console.error('❌ Missing required fields:', { tokenId: !!tokenId, contractAddress: !!contractAddress, name: !!name, transactionHash: !!transactionHash });
+        return res.status(400).json({ error: 'Missing required companion fields (including transaction hash)' });
+      }
+
+      // Validate transaction hash format
+      if (!transactionHash.startsWith('0x') || transactionHash.length !== 66) {
+        console.error('❌ Invalid transaction hash format:', transactionHash);
+        return res.status(400).json({ error: 'Invalid transaction hash format' });
       }
 
       const user = await db.select().from(users).where(eq(users.walletAddress, walletAddress)).limit(1);
       if (user.length === 0) {
+        console.error('❌ User not found:', walletAddress);
         return res.status(404).json({ error: 'User not found' });
       }
 
       // Check if user already has a companion
       const existingCompanion = await db.select().from(companions).where(eq(companions.userId, user[0].id)).limit(1);
       if (existingCompanion.length > 0) {
+        console.error('❌ User already has companion:', { userId: user[0].id, existingTokenId: existingCompanion[0].tokenId });
         return res.status(409).json({ error: 'User already has a companion. Only one companion per user is allowed.' });
       }
+
+      console.log('✅ Creating companion in database after successful blockchain minting...');
 
       // Create the companion
       const newCompanion = await db.insert(companions).values({
@@ -1032,10 +1045,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         transactionHash
       }).returning();
 
+      console.log('🎉 Companion successfully stored in database:', { companionId: newCompanion[0].id, tokenId });
+
       res.json({ success: true, companion: newCompanion[0] });
     } catch (error) {
       console.error('Error creating companion:', error);
-      res.status(500).json({ error: 'Failed to create companion' });
+      res.status(500).json({ error: 'Failed to create companion in database' });
     }
   });
 

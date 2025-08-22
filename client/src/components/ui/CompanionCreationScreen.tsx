@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, User, Dog, Sparkles, Save, ArrowLeft } from 'lucide-react';
+import { Heart, User, Dog, Sparkles, Save, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useGameState } from '../../lib/stores/useGameState';
 
 interface CompanionTraits {
@@ -18,7 +18,7 @@ interface CompanionTraits {
 }
 
 interface CompanionCreationScreenProps {
-  onCompanionCreated: (traits: CompanionTraits) => void;
+  onCompanionCreated: (traits: CompanionTraits) => Promise<void>;
   onBack: () => void;
 }
 
@@ -38,6 +38,10 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
     backgroundStory: ''
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+  const [creationStep, setCreationStep] = useState('');
+  const [error, setError] = useState('');
+
   const handleSliderChange = (trait: keyof CompanionTraits, value: number) => {
     setTraits(prev => ({ ...prev, [trait]: value }));
   };
@@ -46,12 +50,24 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
     setTraits(prev => ({ ...prev, [trait]: value }));
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!traits.name.trim()) {
-      alert('Please enter a name for your companion');
+      setError('Please enter a name for your companion');
       return;
     }
-    onCompanionCreated(traits);
+    
+    setIsCreating(true);
+    setError('');
+    setCreationStep('Preparing NFT minting...');
+    
+    try {
+      await onCompanionCreated(traits);
+    } catch (error) {
+      console.error('Creation failed:', error);
+      setError(`Failed to create companion: ${(error as Error).message}`);
+      setIsCreating(false);
+      setCreationStep('');
+    }
   };
 
   const roleIcons = {
@@ -69,7 +85,12 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
         <div className="flex items-center justify-between mb-6 pt-4">
           <button
             onClick={onBack}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+            disabled={isCreating}
+            className={`flex items-center space-x-2 transition-colors ${
+              isCreating 
+                ? 'text-gray-400 cursor-not-allowed' 
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
           >
             <ArrowLeft size={20} />
             <span>Back</span>
@@ -255,13 +276,52 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
               </p>
             </div>
 
+            {/* Error Display */}
+            {error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-2 text-red-700">
+                <AlertCircle size={20} />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {/* Progress Display */}
+            {isCreating && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-center space-x-3 mb-2">
+                  <Loader2 size={20} className="animate-spin text-blue-600" />
+                  <span className="text-blue-700 font-medium">Creating Your Companion NFT</span>
+                </div>
+                <div className="text-sm text-blue-600">
+                  {creationStep || 'Please approve transactions in your wallet...'}
+                </div>
+                <div className="mt-3 text-xs text-blue-500">
+                  This process requires multiple blockchain transactions and may take a few minutes.
+                  Please don't close this window.
+                </div>
+              </div>
+            )}
+
             {/* Create Button */}
             <button
               onClick={handleCreate}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all font-medium flex items-center justify-center space-x-2"
+              disabled={isCreating || !traits.name.trim()}
+              className={`w-full py-3 px-6 rounded-lg font-medium flex items-center justify-center space-x-2 transition-all ${
+                isCreating || !traits.name.trim()
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
+              }`}
             >
-              <Save size={20} />
-              <span>Create Companion & Mint NFT</span>
+              {isCreating ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  <span>Minting NFT...</span>
+                </>
+              ) : (
+                <>
+                  <Save size={20} />
+                  <span>Create Companion & Mint NFT</span>
+                </>
+              )}
             </button>
           </div>
         </div>

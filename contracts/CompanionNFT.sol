@@ -37,7 +37,7 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
     event TraitsUpdated(uint256 indexed tokenId, address indexed owner);
     event CompanionActivated(uint256 indexed tokenId, address indexed owner);
 
-    constructor() ERC721("Companion NFT", "COMP") {}
+    constructor() ERC721("Companion NFT", "COMP") Ownable(msg.sender) {}
 
     modifier onlyTokenOwner(uint256 tokenId) {
         require(ownerOf(tokenId) == msg.sender, "Not the token owner");
@@ -137,12 +137,9 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
     }
 
     // Override transfer to update ownership mapping
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal override {
-        super._beforeTokenTransfer(from, to, tokenId);
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        address from = _ownerOf(tokenId);
+        address previousOwner = super._update(to, tokenId, auth);
         
         // Update ownership mapping on transfer
         if (from != address(0)) {
@@ -151,6 +148,8 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         if (to != address(0)) {
             ownerToCompanion[to] = tokenId; // Assign to new owner
         }
+        
+        return previousOwner;
     }
 
     // Owner functions

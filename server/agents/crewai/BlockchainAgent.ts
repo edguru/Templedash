@@ -238,9 +238,23 @@ export class BlockchainAgent extends BaseAgent {
     const userMessage = message.payload.message || message.payload.description || '';
     const operationType = this.determineOperationType(userMessage);
     
+    // Merge text-extracted parameters with injected parameters from TaskOrchestrator
+    const textParameters = this.extractParameters(userMessage, operationType);
+    const injectedParameters = message.payload.parameters || {};
+    const mergedParameters = { ...textParameters, ...injectedParameters };
+    
+    // Log the parameter merging for debugging
+    if (Object.keys(injectedParameters).length > 0) {
+      this.logActivity('Merged parameters from TaskOrchestrator injection', {
+        textExtracted: textParameters,
+        injected: injectedParameters,
+        merged: mergedParameters
+      });
+    }
+    
     return {
       operation: operationType,
-      parameters: this.extractParameters(userMessage, operationType),
+      parameters: mergedParameters,
       network: this.detectNetwork(userMessage),
       securityLevel: this.assessSecurityLevel(operationType),
       estimatedGas: this.estimateGasCost(operationType),

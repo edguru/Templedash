@@ -2,8 +2,8 @@ import { createThirdwebClient, getContract, prepareContractCall, sendTransaction
 import { baseCampTestnet } from './thirdweb';
 import { Account } from 'thirdweb/wallets';
 
-// Contract configuration - Temporary placeholder until proper deployment
-const COMPANION_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000001"; // Placeholder for now
+// Contract configuration - Updated for simplified contract
+const COMPANION_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000001"; // Will be updated with deployed address
 const client = createThirdwebClient({
   clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
 });

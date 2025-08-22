@@ -4,6 +4,7 @@ import { MessageCircle, Zap, Gamepad2, User, Menu, X } from 'lucide-react';
 import ChatScreen from './ChatScreen';
 import MiniGamesScreen from './MiniGamesScreen';
 import AccountScreen from './AccountScreen';
+import OnboardingHelpButton from './OnboardingHelpButton';
 
 type TabType = 'chat' | 'minigames' | 'account';
 
@@ -54,8 +55,9 @@ const MainApp: React.FC = () => {
           {showMenu ? <X size={20} /> : <Menu size={20} />}
         </button>
         
-        {/* Desktop wallet status */}
-        <div className="hidden md:block">
+        {/* Desktop wallet status and help */}
+        <div className="hidden md:flex items-center space-x-4">
+          <OnboardingHelpButton />
           {address ? (
             <div className="flex items-center space-x-2 bg-green-50 px-3 py-1 rounded-full">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>

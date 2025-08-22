@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Heart, User, Dog, Sparkles, Save, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { useGameState } from '../../lib/stores/useGameState';
+import { useCompanionOnboarding } from '../../hooks/useCompanionOnboarding';
+import CompanionOnboardingScreen from './CompanionOnboardingScreen';
 
 interface CompanionTraits {
   name: string;
@@ -23,6 +25,9 @@ interface CompanionCreationScreenProps {
 }
 
 const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCompanionCreated, onBack }) => {
+  const { shouldShowOnboarding, completeOnboarding, skipOnboarding } = useCompanionOnboarding();
+  const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
+  
   const [traits, setTraits] = useState<CompanionTraits>({
     name: '',
     age: 25,
@@ -41,6 +46,26 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
   const [isCreating, setIsCreating] = useState(false);
   const [creationStep, setCreationStep] = useState('');
   const [error, setError] = useState('');
+
+  const handleOnboardingComplete = () => {
+    completeOnboarding();
+    setShowOnboarding(false);
+  };
+
+  const handleOnboardingSkip = () => {
+    skipOnboarding();
+    setShowOnboarding(false);
+  };
+
+  // Show onboarding if user hasn't seen it yet
+  if (showOnboarding) {
+    return (
+      <CompanionOnboardingScreen
+        onComplete={handleOnboardingComplete}
+        onSkip={handleOnboardingSkip}
+      />
+    );
+  }
 
   const handleSliderChange = (trait: keyof CompanionTraits, value: number) => {
     setTraits(prev => ({ ...prev, [trait]: value }));

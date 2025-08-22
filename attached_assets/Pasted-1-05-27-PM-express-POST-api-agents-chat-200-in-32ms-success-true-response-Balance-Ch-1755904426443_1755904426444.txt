@@ -1,0 +1,73 @@
+1:05:27 PM [express] POST /api/agents/chat 200 in 32ms :: {"success":true,"response":"❌ **Balance Ch…
+[TaskTracker] Unknown task: 986acea5-33af-4f43-b9bb-01ec60da55c6
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '986acea5-33af-4f43-b9bb-01ec60da55c6',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 986acea5-33af-4f43-b9bb-01ec60da55c6 with capability matching
+[CollaborativePlanner] Starting agent negotiation { candidates: 26, requirements: 1 }
+[TaskOrchestrator] Selected agent blockchain-agent for task 986acea5-33af-4f43-b9bb-01ec60da55c6 {
+  reasoning: 'Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+  score: 0.9603000000000002,
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'Selected Agent: blockchain-agent (score: 0.96)',
+    'Agent Reasoning: Direct capability match for blockchain_operations, High success rate (92.0%), Low current load (15.0%)',
+    'Capability: blockchain_operations',
+    'Expected Latency: 5000ms',
+    'Success Rate: 92.0%',
+    'Security Note: High-security operation - ensuring proper validation',
+    'Dependencies: wallet_connection'
+  ]
+}
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Executing blockchain operation {
+  operation: 'balance_check',
+  parameters: {},
+  network: 'Base Camp Testnet',
+  securityLevel: 'low',
+  estimatedGas: '0 (Read operation)',
+  requiresApproval: false
+}
+[TaskOrchestrator] Updated load for blockchain-agent:blockchain_operations by 0.1
+[blockchain-agent] Sending blockchain operation response { taskId: '986acea5-33af-4f43-b9bb-01ec60da55c6', resultLength: 211 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '986acea5-33af-4f43-b9bb-01ec60da55c6',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[TaskTracker] Unknown task: 986acea5-33af-4f43-b9bb-01ec60da55c6
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: '986acea5-33af-4f43-b9bb-01ec60da55c6',
+  messageType: 'agent_response',
+  responseLength: 211
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[AgentOrchestrator] Received task result: {
+  result: '❌ **Balance Check Failed**\n' +
+    '\n' +
+    '**Error:** Invalid wallet address format\n' +
+    '**Address:** `0x...`\n' +
+    '**Solution'
+}
+[task-orchestrator] Task completed successfully {
+  taskId: '986acea5-33af-4f43-b9bb-01ec60da55c6',
+  result: '❌ **Balance Check Failed**\n' +
+    '\n' +
+    '**Error:** Invalid wallet address format\n' +
+    '**Address:** `0x...`\n' +
+    '**Solution:** Please provide a valid wallet address\n' +
+    '\n' +
+    '*Data Integrity Policy: Only authentic blockchain data is displayed*'
+}
+[task-analyzer] Updated network status 

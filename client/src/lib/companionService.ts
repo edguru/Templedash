@@ -3,7 +3,6 @@ import { baseCampTestnet } from './thirdweb';
 import { Account } from 'thirdweb/wallets';
 
 // Contract configuration - Updated for simplified contract
-const COMPANION_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000001"; // Will be updated with deployed address
 const client = createThirdwebClient({
   clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
 });
@@ -27,14 +26,40 @@ export interface CompanionTraits {
 }
 
 export class CompanionService {
-  private contract;
+  private contract: any;
+  private contractAddress: string | null = null;
 
   constructor() {
-    this.contract = getContract({
-      client,
-      chain: baseCampTestnet,
-      address: COMPANION_CONTRACT_ADDRESS,
-    });
+    this.contract = null;
+  }
+
+  private async getContractAddress(): Promise<string> {
+    if (!this.contractAddress) {
+      try {
+        const response = await fetch('/api/companion-contract-address');
+        if (!response.ok) {
+          throw new Error('Failed to fetch contract address');
+        }
+        const data = await response.json();
+        this.contractAddress = data.contractAddress;
+      } catch (error) {
+        console.error('Error fetching contract address:', error);
+        throw new Error('Failed to get companion contract address');
+      }
+    }
+    return this.contractAddress!;
+  }
+
+  private async getContract() {
+    if (!this.contract) {
+      const contractAddress = await this.getContractAddress();
+      this.contract = getContract({
+        client,
+        chain: baseCampTestnet,
+        address: contractAddress,
+      });
+    }
+    return this.contract;
   }
 
   async hasCompanion(address: string): Promise<boolean> {
@@ -64,6 +89,9 @@ export class CompanionService {
 
   async mintCompanion(account: Account, traits: CompanionTraits): Promise<string> {
     try {
+      // Get the contract address
+      const contractAddress = await this.getContractAddress();
+      
       // Create companion in database first with immediate database storage approach
       const response = await fetch(`/api/user/${account.address}/companion`, {
         method: 'POST',
@@ -72,7 +100,7 @@ export class CompanionService {
         },
         body: JSON.stringify({
           tokenId: `${Date.now()}`, // Use timestamp as token ID
-          contractAddress: COMPANION_CONTRACT_ADDRESS,
+          contractAddress: contractAddress,
           name: traits.name,
           age: traits.age,
           role: traits.role,

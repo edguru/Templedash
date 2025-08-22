@@ -427,6 +427,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get companion NFT contract address
+  app.get('/api/companion-contract-address', async (req, res) => {
+    try {
+      const contractAddress = process.env.COMPANION_NFT_CONTRACT_ADDRESS;
+      if (!contractAddress) {
+        return res.status(500).json({ error: 'Companion NFT contract address not configured' });
+      }
+      res.json({ contractAddress });
+    } catch (error) {
+      console.error('Get companion contract address error:', error);
+      res.status(500).json({ error: 'Failed to fetch companion contract address' });
+    }
+  });
+
   // User profile routes (wallet address based)
   app.get('/api/user/:address/stats', async (req, res) => {
     try {

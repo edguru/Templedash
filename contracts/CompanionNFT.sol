@@ -22,6 +22,7 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         uint8 empathy; // 0-100
         string personalityType; // helpful, casual, professional
         string appearance; // description or IPFS hash
+        string backgroundStory; // optional personal backstory
         uint256 createdAt;
         uint256 lastModified;
     }
@@ -54,7 +55,8 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
         uint8 loyalty,
         uint8 empathy,
         string memory personalityType,
-        string memory appearance
+        string memory appearance,
+        string memory backgroundStory
     ) external payable nonReentrant {
         require(msg.value >= MINT_FEE, "Insufficient mint fee");
         require(ownerToCompanion[msg.sender] == 0, "Already owns a companion");
@@ -78,6 +80,7 @@ contract CompanionNFT is ERC721, Ownable, ReentrancyGuard {
             empathy: empathy,
             personalityType: personalityType,
             appearance: appearance,
+            backgroundStory: backgroundStory,
             createdAt: block.timestamp,
             lastModified: block.timestamp
         });

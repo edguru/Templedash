@@ -1,23 +1,23 @@
 const { ethers } = require('hardhat');
 
 async function main() {
-  console.log('Deploying CompanionSoulboundToken contract to Base Camp testnet...');
+  console.log('Deploying CompanionNFT contract to Base Camp testnet...');
   
   // Get the deployer account
   const [deployer] = await ethers.getSigners();
   console.log('Deploying with account:', deployer.address);
   
   // Get the contract factory
-  const CompanionSoulboundToken = await ethers.getContractFactory('CompanionSoulboundToken');
+  const CompanionNFT = await ethers.getContractFactory('CompanionNFT');
   
   // Deploy the contract
   console.log('Deploying contract...');
-  const contract = await CompanionSoulboundToken.deploy();
+  const contract = await CompanionNFT.deploy();
   
   // Wait for deployment to complete
   await contract.deployed();
   
-  console.log('✅ CompanionSoulboundToken deployed to:', contract.address);
+  console.log('✅ CompanionNFT deployed to:', contract.address);
   console.log('Transaction hash:', contract.deployTransaction.hash);
   
   // Verify on block explorer (optional)
@@ -45,7 +45,7 @@ async function main() {
   
   // Replace the contract address
   serviceContent = serviceContent.replace(
-    /const COMPANION_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"/,
+    /const COMPANION_CONTRACT_ADDRESS = "0x[a-fA-F0-9]{40}"/,
     `const COMPANION_CONTRACT_ADDRESS = "${contract.address}"`
   );
   

@@ -2,8 +2,8 @@ import { createThirdwebClient, getContract, prepareContractCall, sendTransaction
 import { baseCampTestnet } from './thirdweb';
 import { Account } from 'thirdweb/wallets';
 
-// Contract configuration - Using a valid format for the deployed contract
-const COMPANION_CONTRACT_ADDRESS = "0x00005A2F0e8F4303F719A9f45F25cA578F4AA500"; // Using validated contract address
+// Contract configuration - Temporary placeholder until proper deployment
+const COMPANION_CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000001"; // Placeholder for now
 const client = createThirdwebClient({
   clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
 });
@@ -39,7 +39,12 @@ export class CompanionService {
 
   async hasCompanion(address: string): Promise<boolean> {
     try {
-      // For now, return false since contract is not fully deployed
+      // Check database for companion existence rather than blockchain
+      const response = await fetch(`/api/user/${address}/companion`);
+      if (response.ok) {
+        const data = await response.json();
+        return data.hasCompanion || false;
+      }
       return false;
     } catch (error) {
       console.error('Error checking companion existence:', error);
@@ -59,9 +64,39 @@ export class CompanionService {
 
   async mintCompanion(account: Account, traits: CompanionTraits): Promise<string> {
     try {
-      // For now, simulate minting
+      // Create companion in database first
+      const response = await fetch(`/api/user/${account.address}/companion`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tokenId: `temp-${Date.now()}`, // Temporary token ID
+          contractAddress: COMPANION_CONTRACT_ADDRESS,
+          name: traits.name,
+          age: traits.age,
+          role: traits.role,
+          gender: traits.gender,
+          flirtiness: traits.flirtiness,
+          intelligence: traits.intelligence,
+          humor: traits.humor,
+          loyalty: traits.loyalty,
+          empathy: traits.empathy,
+          personalityType: traits.personalityType,
+          appearance: traits.appearance,
+          backgroundStory: traits.backgroundStory,
+          transactionHash: `temp-tx-${Date.now()}`
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create companion');
+      }
+
+      // Generate a temporary transaction hash
       const mockTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-      console.log('Simulating companion mint:', traits);
+      console.log('Companion created in database:', traits);
       return mockTxHash;
     } catch (error) {
       console.error('Error minting companion:', error);

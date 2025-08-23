@@ -1,0 +1,145 @@
+ 'x-envoy-upstream-service-time': '29',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=GLsZSMnPIM1pIEa0EkGagjlCibdLZ5YhcMKi7gkbNEI-1755912577-1.0.1.1-J5CSZdhBUFs7VzSJ06GR1lAZ6x1pO04LYklq6PACjgbzPBjyhqgOwGf_Qp4SwMOc7csVHZreuUcZVLYEaauSPq4abYwuCdrqZXIW0jfVsbU; path=/; expires=Sat, 23-Aug-25 01:59:37 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=cyPmX1hiDHgkKCrnyd_47U1XaPml88jj80BMaIRyO5s-1755912577289-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9736d7067caecb6e-BOM',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_ef4094828b3e4491829eca9b1fdf2acf',
+  error: {
+    message: 'Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.',
+    type: 'invalid_request_error',
+    param: null,
+    code: 'invalid_api_key'
+  },
+  code: 'invalid_api_key',
+  param: null,
+  type: 'invalid_request_error'
+}
+[TaskOrchestrator] AI selected agent blockchain-agent for task 69d78de1-1332-4a39-8f97-98e4e1177a27 {
+  confidence: 0.7,
+  reasoning: [
+    'Task contains blockchain-related keywords',
+    'BlockchainAgent selected for Web3 operations'
+  ],
+  taskAnalysis: {
+    category: 'general',
+    complexity: 'moderate',
+    estimatedDuration: '2-5 minutes',
+    requiredCapabilities: []
+  },
+  chainOfThought: [
+    'Task Analysis: Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    'Task Type: token_transfer, Priority: medium',
+    'AI Selected Agent: blockchain-agent (confidence: 70.0%)',
+    'Selection Reasoning: Task contains blockchain-related keywords, BlockchainAgent selected for Web3 operations',
+    'Agent Type: specialized, Role: Comprehensive blockchain operations and Web3 interactions',
+    'Success Rate: 92.0%',
+    'Average Latency: 5000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: {
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE'
+  },
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'token_transfer',
+  parameters: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'medium',
+  estimatedGas: '21,000 - 65,000',
+  requiresApproval: true
+}
+[TaskOrchestrator] Agent performance update: blockchain-agent, task: token_transfer, success: true
+[blockchain-agent] Sending blockchain operation response { taskId: '69d78de1-1332-4a39-8f97-98e4e1177a27', resultLength: 422 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '69d78de1-1332-4a39-8f97-98e4e1177a27',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971'
+}
+[TaskTracker] Unknown task: 69d78de1-1332-4a39-8f97-98e4e1177a27
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: '69d78de1-1332-4a39-8f97-98e4e1177a27',
+  messageType: 'agent_response',
+  responseLength: 422
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[AgentOrchestrator] Received task result: {
+  result: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971'
+}
+[task-orchestrator] Task completed successfully {
+  taskId: '69d78de1-1332-4a39-8f97-98e4e1177a27',
+  result: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '• To: `0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE`\n' +
+    '• Network: Base Camp Testnet\n' +
+    '\n' +
+    '**Status:** Real blockchain integration required\n' +
+    '**Solution:** This requires actual Thirdweb/blockchain integration with user wallet signing\n' +
+    '\n' +
+    '*Data Integrity Policy: No fake transaction data will be generated*'
+}
+1:29:37 AM [express] POST /api/agents/chat 200 in 1678ms :: {"success":true,"response":"❌ **Token Tr…
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 

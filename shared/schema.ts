@@ -105,6 +105,39 @@ export const insertNftOwnershipSchema = createInsertSchema(nftOwnership).pick({
   transactionHash: true,
 });
 
+// Chat conversations and history management
+export const conversations = pgTable("conversations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  companionId: integer("companion_id").references(() => companions.id),
+  sessionId: text("session_id").notNull(), // For grouping related messages
+  chatTitle: text("chat_title"), // User-defined or auto-generated title
+  userMessage: text("user_message").notNull(),
+  companionResponse: text("companion_response"),
+  messageType: text("message_type").default("chat"), // 'chat', 'task', 'system'
+  sentiment: text("sentiment"), // 'positive', 'neutral', 'negative'
+  taskExecuted: boolean("task_executed").default(false),
+  executedByAgent: text("executed_by_agent"), // Which agent handled the task
+  context: text("context"), // JSON string for additional context
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const chatSessions = pgTable("chat_sessions", {
+  id: serial("id").primaryKey(),
+  sessionId: text("session_id").notNull().unique(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  companionId: integer("companion_id").references(() => companions.id),
+  title: text("title").default("New Chat"),
+  description: text("description"),
+  messageCount: integer("message_count").default(0),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  isArchived: boolean("is_archived").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 export const insertCompanionSchema = createInsertSchema(companions).pick({
   userId: true,
   tokenId: true,
@@ -123,6 +156,28 @@ export const insertCompanionSchema = createInsertSchema(companions).pick({
   transactionHash: true,
 });
 
+export const insertConversationSchema = createInsertSchema(conversations).pick({
+  userId: true,
+  companionId: true,
+  sessionId: true,
+  chatTitle: true,
+  userMessage: true,
+  companionResponse: true,
+  messageType: true,
+  sentiment: true,
+  taskExecuted: true,
+  executedByAgent: true,
+  context: true,
+});
+
+export const insertChatSessionSchema = createInsertSchema(chatSessions).pick({
+  sessionId: true,
+  userId: true,
+  companionId: true,
+  title: true,
+  description: true,
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type GameScore = typeof gameScores.$inferSelect;
@@ -130,3 +185,7 @@ export type TokenClaim = typeof tokenClaims.$inferSelect;
 export type NftOwnership = typeof nftOwnership.$inferSelect;
 export type Companion = typeof companions.$inferSelect;
 export type InsertCompanion = z.infer<typeof insertCompanionSchema>;
+export type Conversation = typeof conversations.$inferSelect;
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type ChatSession = typeof chatSessions.$inferSelect;
+export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;

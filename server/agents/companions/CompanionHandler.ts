@@ -3,6 +3,7 @@ import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { CapabilityRegistry, TaskRequirement } from '../core/CapabilityRegistry';
 import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
+import { ChatContextManager, type UserChatContext, type ChatMessage } from './ChatContextManager';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
 
@@ -48,12 +49,14 @@ export class CompanionHandler extends BaseAgent {
   private capabilityRegistry: CapabilityRegistry;
   private chainOfThought: ChainOfThoughtEngine;
   private conversationContext: Map<string, ConversationContext> = new Map();
+  private chatContextManager: ChatContextManager;
   private openai: OpenAI;
   
   constructor(messageBroker: MessageBroker) {
     super('companion-handler', messageBroker);
     this.capabilityRegistry = new CapabilityRegistry();
     this.chainOfThought = new ChainOfThoughtEngine();
+    this.chatContextManager = new ChatContextManager();
     // Initialize OpenAI client with fresh API key (clean any whitespace)
     const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
     this.openai = new OpenAI({ apiKey });
@@ -143,7 +146,12 @@ export class CompanionHandler extends BaseAgent {
       'relationship_awareness',
       'intelligent_task_detection',
       'peer_collaboration',
-      'chain_of_thought_reasoning'
+      'chain_of_thought_reasoning',
+      'chat_context_management',
+      'conversation_history',
+      'multi_chat_sessions',
+      'user_preference_learning',
+      'sentiment_analysis'
     ];
   }
 
@@ -154,14 +162,22 @@ export class CompanionHandler extends BaseAgent {
 
   async handleMessage(message: AgentMessage): Promise<AgentMessage | null> {
     try {
-      this.logActivity('Processing companion message', { type: message.type });
+      this.logActivity('Processing companion message with chat context', { type: message.type });
 
-      // Handle user messages by checking if they're task-based
+      // Handle user messages with enhanced context awareness
       if (message.type === 'user_message') {
         const userMessage = message.payload.message;
+        const userId = parseInt(message.payload.userId) || 0;
+        const sessionId = message.payload.sessionId || await this.getOrCreateSession(userId);
         
-        // Enhanced intelligent task detection with peer collaboration
-        const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, message.payload.userId);
+        // Get user context with conversation history
+        const userContext = await this.chatContextManager.getUserContext(userId, sessionId);
+        
+        // Save the incoming user message
+        await this.saveUserMessage(sessionId, userMessage, userContext);
+        
+        // Enhanced intelligent task detection with context awareness
+        const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, message.payload.userId, userContext);
         
         if (taskAnalysis.isTask) {
           this.logActivity('Routing task message to orchestrator', { 
@@ -219,8 +235,11 @@ export class CompanionHandler extends BaseAgent {
             }
           };
         } else {
-          // Handle as regular companion chat
-          const personalizedResponse = this.personalizeResponse(userMessage, this.companionTraits);
+          // Handle as regular companion chat with enhanced context
+          const personalizedResponse = await this.generateContextualResponse(userMessage, userContext);
+          
+          // Save the companion response
+          await this.saveCompanionResponse(sessionId, personalizedResponse, userContext);
           
           return {
             type: 'companion_response',
@@ -231,7 +250,9 @@ export class CompanionHandler extends BaseAgent {
             payload: {
               message: personalizedResponse,
               taskRouted: false,
-              companionName: this.companionTraits?.name
+              companionName: this.companionTraits?.name,
+              sessionId: sessionId,
+              contextAware: true
             }
           };
         }
@@ -454,6 +475,68 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
     return `Hello`;
   }
 
+  // Enhanced response generation with chat context
+  private async generateContextualResponse(userMessage: string, userContext: UserChatContext | null): Promise<string> {
+    if (!userContext || !this.companionTraits) {
+      return "I'm here to help! What would you like to talk about or what can I do for you?";
+    }
+
+    // Generate contextual prompt with conversation history
+    const contextualPrompt = this.chatContextManager.generateContextualPrompt(userContext, userMessage);
+    
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: contextualPrompt }],
+        max_tokens: 200,
+        temperature: 0.7
+      });
+      
+      return response.choices[0]?.message?.content || this.getFallbackResponse(userMessage, this.companionTraits);
+    } catch (error) {
+      console.error('[CompanionHandler] OpenAI API error:', error);
+      return this.getFallbackResponse(userMessage, this.companionTraits);
+    }
+  }
+
+  private getFallbackResponse(userMessage: string, companionTraits: CompanionTraits): string {
+    const companionName = companionTraits.name;
+    const personality = companionTraits.personalityType;
+    const role = companionTraits.role;
+    
+    return `Hey! I'm ${companionName}, your ${role} companion. I'd love to chat with you about "${userMessage}" but I'm having trouble connecting right now. What would you like to explore together?`;
+  }
+
+  // Get or create chat session for user
+  private async getOrCreateSession(userId: number): Promise<string> {
+    const sessions = await this.chatContextManager.getUserChatSessions(userId);
+    if (sessions.length > 0) {
+      return sessions[0].sessionId;
+    }
+    return await this.chatContextManager.createChatSession(userId);
+  }
+
+  // Save user message to database
+  private async saveUserMessage(sessionId: string, message: string, userContext: UserChatContext | null): Promise<void> {
+    const sentiment = this.chatContextManager.analyzeSentiment(message);
+    await this.chatContextManager.saveConversation({
+      sessionId,
+      userMessage: message,
+      messageType: 'chat',
+      sentiment
+    });
+  }
+
+  // Save companion response to database
+  private async saveCompanionResponse(sessionId: string, response: string, userContext: UserChatContext | null): Promise<void> {
+    await this.chatContextManager.saveConversation({
+      sessionId,
+      userMessage: '', // This will be populated by the context manager
+      companionResponse: response,
+      messageType: 'chat'
+    });
+  }
+
   // Public method for getting personalized responses
   getPersonalizedResponse(userInput: string): string {
     return this.personalizeResponse(userInput, this.companionTraits);
@@ -469,8 +552,8 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
     return this.companionTraits;
   }
 
-  // AI-powered intelligent task detection with natural language understanding
-  private async analyzeMessageWithChainOfThought(message: string, userId: string): Promise<{
+  // AI-powered intelligent task detection with natural language understanding and context awareness
+  private async analyzeMessageWithChainOfThought(message: string, userId: string, userContext?: UserChatContext | null): Promise<{
     isTask: boolean;
     confidence: number;
     detectedTaskType: string;

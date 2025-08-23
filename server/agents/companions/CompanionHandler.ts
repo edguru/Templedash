@@ -4,6 +4,7 @@ import { AgentMessage } from '../types/AgentTypes';
 import { CapabilityRegistry, TaskRequirement } from '../core/CapabilityRegistry';
 import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
 import { v4 as uuidv4 } from 'uuid';
+import OpenAI from 'openai';
 
 export interface CompanionTraits {
   name: string;
@@ -47,11 +48,13 @@ export class CompanionHandler extends BaseAgent {
   private capabilityRegistry: CapabilityRegistry;
   private chainOfThought: ChainOfThoughtEngine;
   private conversationContext: Map<string, ConversationContext> = new Map();
+  private openai: OpenAI;
   
   constructor(messageBroker: MessageBroker) {
     super('companion-handler', messageBroker);
     this.capabilityRegistry = new CapabilityRegistry();
     this.chainOfThought = new ChainOfThoughtEngine();
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   protected initialize(): void {
@@ -459,97 +462,132 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
     return this.companionTraits;
   }
 
-  // Enhanced intelligent task detection with chain of thought reasoning
+  // AI-powered intelligent task detection with natural language understanding
   private async analyzeMessageWithChainOfThought(message: string, userId: string): Promise<{
     isTask: boolean;
     confidence: number;
     detectedTaskType: string;
     reasoning: string[];
   }> {
-    // Generate chain of thought for message analysis
-    const reasoning: string[] = [];
-    
-    reasoning.push(`Analyzing message: "${message}"`);
-    reasoning.push(`User ID: ${userId}`);
-    
-    const lowerMessage = message.toLowerCase();
-    
-    // Pattern-based analysis
-    const taskPatterns: Record<string, RegExp[]> = {
-      'nft_mint': [
-        /\bmint\s+.{0,30}(nft|token|companion|character|random)\b/i,
-        /\bcreate\s+.{0,20}(nft|character|companion)\b/i
-      ],
-      'balance_check': [
-        /\b(check|show|get|display)\s+.{0,30}(balance|funds|tokens?|camp|crypto)\b/i,
-        /\bwhat.{0,30}(balance|funds|tokens?|camp|status)\b/i,
-        /\bwhats?\s+.{0,20}(balance|funds|tokens?|camp|my)\b/i,
-        /\bhow\s+much\s+.{0,30}(do\s+i\s+have|is\s+my|camp|token|balance)\b/i,
-        /\b(my\s+)?(balance|funds|tokens?|camp)(\s+is|\s+amount|\s+value)?\b/i,
-        /\b(tell|show)\s+me\s+.{0,20}(balance|funds|tokens?|camp)\b/i
-      ],
-      'token_transfer': [
-        /\b(send|transfer)\s+.{0,20}(token|nft|camp|eth)\b/i
-      ],
-      'contract_deployment': [
-        /\b(deploy|create)\s+.{0,20}(contract|nft|token)\b/i
-      ]
-    };
+    try {
+      // Use AI to intelligently analyze the message instead of rigid patterns
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are an intelligent intent detection agent for a Web3 AI companion system. Your role is to analyze user messages and determine if they represent a task request or casual conversation.
 
-    let detectedTaskType = 'general';
-    let maxConfidence = 0;
+TASK CATEGORIES:
+- balance_check: Checking wallet balance, token amounts, portfolio status, any financial inquiry
+- nft_mint: Creating, minting, or generating NFTs, tokens, or digital assets
+- token_transfer: Sending, transferring, or moving tokens/crypto between addresses
+- contract_deployment: Deploying smart contracts or creating new blockchain contracts
+- defi_operations: Swapping, staking, bridging, or other DeFi activities
+- general_blockchain: Any other blockchain-related request or Web3 operation
+- conversation: Casual chat, questions, greetings, or non-task interactions
 
-    for (const [taskType, patterns] of Object.entries(taskPatterns)) {
-      for (const pattern of patterns) {
-        if (pattern.test(message)) {
-          const confidence = 0.9; // High confidence for pattern matches
-          if (confidence > maxConfidence) {
-            maxConfidence = confidence;
-            detectedTaskType = taskType;
-            reasoning.push(`Pattern match detected for ${taskType}: ${pattern.toString()}`);
+ANALYSIS GUIDELINES:
+- Understand user intent from natural language, not just keywords
+- Handle variations like "whats my camp balance", "check my tokens", "how much do i have"
+- Consider context and conversational flow
+- Be flexible with informal language and typos
+- High confidence (0.8+) for clear, specific task requests
+- Medium confidence (0.5-0.7) for likely task requests with some ambiguity
+- Low confidence (0.3-0.5) for unclear but possibly task-related messages
+- Very low confidence (0.0-0.3) for casual conversation
+
+RESPONSE FORMAT:
+Respond with JSON in this exact format:
+{
+  "isTask": boolean,
+  "confidence": number (0.0-1.0),
+  "taskType": "category_name", 
+  "reasoning": ["step1", "step2", "step3"],
+  "extractedParams": {
+    "amount": "value if found",
+    "token": "token name if found",
+    "address": "wallet address if found"
+  }
+}`
+          },
+          {
+            role: "user",
+            content: `Analyze this user message: "${message}"`
           }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.1 // Very low temperature for consistent analysis
+      });
+
+      const result = JSON.parse(completion.choices[0].message.content!);
+      
+      // Add context-based confidence boost
+      const context = this.conversationContext.get(userId);
+      let finalConfidence = result.confidence;
+      
+      if (context && result.isTask) {
+        const recentTaskCount = context.taskHistory.slice(-5).length;
+        if (recentTaskCount > 0) {
+          finalConfidence = Math.min(1.0, finalConfidence * 1.1);
+          result.reasoning.push(`User has ${recentTaskCount} recent tasks, boosting confidence`);
         }
       }
-    }
-
-    // Keyword-based analysis if no patterns match
-    if (maxConfidence === 0) {
-      const taskKeywords = ['mint', 'balance', 'transfer', 'deploy', 'check', 'send', 'swap', 'nft', 'token'];
-      const foundKeywords = taskKeywords.filter(keyword => lowerMessage.includes(keyword));
       
-      if (foundKeywords.length > 0) {
-        maxConfidence = Math.min(0.7, foundKeywords.length * 0.2);
-        reasoning.push(`Found task keywords: ${foundKeywords.join(', ')}`);
-        
-        // Infer task type from keywords
-        if (foundKeywords.includes('mint')) detectedTaskType = 'nft_mint';
-        else if (foundKeywords.includes('balance') || foundKeywords.includes('check')) detectedTaskType = 'balance_check';
-        else if (foundKeywords.includes('transfer') || foundKeywords.includes('send')) detectedTaskType = 'token_transfer';
-        else if (foundKeywords.includes('deploy')) detectedTaskType = 'contract_deployment';
+      this.logActivity('AI intent analysis completed', {
+        message: message.substring(0, 50),
+        isTask: result.isTask,
+        confidence: finalConfidence,
+        taskType: result.taskType
+      });
+      
+      return {
+        isTask: result.isTask,
+        confidence: finalConfidence,
+        detectedTaskType: result.taskType,
+        reasoning: result.reasoning || [`AI detected: ${result.isTask ? 'Task' : 'Conversation'}`]
+      };
+    } catch (error) {
+      console.error('[CompanionHandler] Error in AI intent analysis:', error);
+      
+      // Fallback to simple keyword detection if AI fails
+      const reasoning = ['AI analysis failed, using fallback detection'];
+      const lowerMessage = message.toLowerCase();
+      
+      // Simple but comprehensive keyword detection
+      const taskKeywords = [
+        'balance', 'check', 'send', 'transfer', 'mint', 'deploy', 'swap', 
+        'stake', 'nft', 'token', 'camp', 'crypto', 'wallet', 'how much',
+        'whats', 'what is', 'show me', 'tell me'
+      ];
+      
+      const hasTaskKeyword = taskKeywords.some(keyword => lowerMessage.includes(keyword));
+      const isQuestionAboutBalance = /\b(what|whats|how much|check|show|tell)\b.*\b(balance|tokens?|camp|crypto|funds)\b/i.test(message);
+      
+      const isTask = hasTaskKeyword || isQuestionAboutBalance;
+      const confidence = isTask ? 0.6 : 0.1;
+      
+      let taskType = 'conversation';
+      if (isQuestionAboutBalance || lowerMessage.includes('balance') || lowerMessage.includes('camp')) {
+        taskType = 'balance_check';
+      } else if (lowerMessage.includes('mint')) {
+        taskType = 'nft_mint';
+      } else if (lowerMessage.includes('send') || lowerMessage.includes('transfer')) {
+        taskType = 'token_transfer';
+      } else if (isTask) {
+        taskType = 'general_blockchain';
       }
+      
+      reasoning.push(`Fallback analysis: ${isTask ? 'Task' : 'Conversation'} detected`);
+      if (isTask) reasoning.push(`Task type inferred: ${taskType}`);
+      
+      return {
+        isTask,
+        confidence,
+        detectedTaskType: taskType,
+        reasoning
+      };
     }
-
-    // Context-based analysis using conversation history
-    const context = this.conversationContext.get(userId);
-    if (context) {
-      const recentTaskCount = context.taskHistory.slice(-5).length;
-      if (recentTaskCount > 0) {
-        maxConfidence *= 1.1; // Boost confidence if user has been doing tasks
-        reasoning.push(`User has performed ${recentTaskCount} recent tasks, boosting confidence`);
-      }
-    }
-
-    const isTask = maxConfidence > 0.3; // Threshold for task detection
-    
-    reasoning.push(`Final analysis: ${isTask ? 'TASK' : 'CONVERSATION'} (confidence: ${maxConfidence.toFixed(2)})`);
-    reasoning.push(`Detected task type: ${detectedTaskType}`);
-
-    return {
-      isTask,
-      confidence: maxConfidence,
-      detectedTaskType,
-      reasoning
-    };
   }
 
   // Generate intelligent companion responses with context awareness

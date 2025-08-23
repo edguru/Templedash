@@ -4,6 +4,7 @@ import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { SystemPrompts } from '../prompts/SystemPrompts';
 import { v4 as uuidv4 } from 'uuid';
+import OpenAI from 'openai';
 
 interface IntentAnalysis {
   intent: string;
@@ -49,9 +50,11 @@ interface TaskDependency {
 export class PromptEngineer extends BaseAgent {
   private intentPatterns: Map<string, RegExp[]> = new Map();
   private parameterExtractors: Map<string, (text: string) => Record<string, any>> = new Map();
+  private openai: OpenAI;
 
   constructor(messageBroker: MessageBroker) {
     super('prompt-engineer', messageBroker);
+    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   protected initialize(): void {
@@ -164,29 +167,89 @@ export class PromptEngineer extends BaseAgent {
   }
 
   private async detectIntent(prompt: string): Promise<string> {
-    let highestScore = 0;
-    let detectedIntent = 'conversation';
+    try {
+      // Use AI to intelligently detect intent instead of rigid regex patterns
+      const completion = await this.openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are an intelligent intent detection system for a Web3 AI companion. Analyze user messages to determine their intent from the following categories:
 
-    // Ensure intentPatterns is initialized
-    if (!this.intentPatterns || this.intentPatterns.size === 0) {
-      this.setupIntentPatterns();
-    }
+AVAILABLE INTENTS:
+- check_status: Checking balance, portfolio, token amounts, wallet status
+- deploy_contract: Deploying smart contracts, creating new contracts
+- mint_nft: Minting NFTs, creating tokens, generating digital assets  
+- transfer_tokens: Sending, transferring, moving tokens or crypto
+- bridge_tokens: Cross-chain transfers, bridging assets
+- stake_tokens: Staking, unstaking, compound rewards
+- manage_tasks: Task management, automation, scheduling
+- swap_tokens: Token swaps, DEX trading, exchanges
+- defi_operations: General DeFi activities, yield farming, liquidity
+- conversation: Casual conversation, unclear requests, greetings
 
-    // Use Array.from to handle iterator compatibility
-    for (const [intent, patterns] of Array.from(this.intentPatterns.entries())) {
-      for (const pattern of patterns) {
-        const match = pattern.test(prompt);
-        if (match) {
-          const score = this.calculatePatternScore(prompt, pattern);
-          if (score > highestScore) {
-            highestScore = score;
-            detectedIntent = intent;
+ANALYSIS RULES:
+- Understand natural language variations and informal speech
+- Handle typos, abbreviations, and conversational tone
+- Consider context and user intent, not just keywords
+- Map similar concepts to the most appropriate intent
+- Be flexible with phrasing - "whats my camp balance" should map to "check_status"
+
+Respond with only the intent name (e.g., "check_status", "mint_nft", etc.)`
+          },
+          {
+            role: "user", 
+            content: `Analyze this message and return the intent: "${prompt}"`
           }
-        }
-      }
-    }
+        ],
+        temperature: 0.1, // Very low for consistent classification
+        max_tokens: 50
+      });
 
-    return detectedIntent;
+      const detectedIntent = completion.choices[0].message.content?.trim() || 'conversation';
+      
+      // Validate the intent is in our known list
+      const validIntents = [
+        'check_status', 'deploy_contract', 'mint_nft', 'transfer_tokens', 
+        'bridge_tokens', 'stake_tokens', 'manage_tasks', 'swap_tokens',
+        'defi_operations', 'conversation'
+      ];
+      
+      if (validIntents.includes(detectedIntent)) {
+        return detectedIntent;
+      } else {
+        // Fallback to keyword-based detection if AI returns invalid intent
+        return this.fallbackIntentDetection(prompt);
+      }
+    } catch (error) {
+      console.error('[PromptEngineer] Error in AI intent detection:', error);
+      return this.fallbackIntentDetection(prompt);
+    }
+  }
+
+  private fallbackIntentDetection(prompt: string): string {
+    const lowerPrompt = prompt.toLowerCase();
+    
+    // Simple keyword mapping for fallback
+    if (/\b(balance|check|status|how much|whats|funds|tokens?|camp)\b/i.test(prompt)) {
+      return 'check_status';
+    } else if (/\b(mint|create|generate)\b.*\b(nft|token)\b/i.test(prompt)) {
+      return 'mint_nft';
+    } else if (/\b(send|transfer|pay)\b.*\b(token|crypto|camp|eth)\b/i.test(prompt)) {
+      return 'transfer_tokens';
+    } else if (/\b(deploy|create)\b.*\bcontract\b/i.test(prompt)) {
+      return 'deploy_contract';
+    } else if (/\b(bridge|cross.chain)\b/i.test(prompt)) {
+      return 'bridge_tokens';
+    } else if (/\b(stake|staking|compound)\b/i.test(prompt)) {
+      return 'stake_tokens';
+    } else if (/\b(swap|exchange|trade)\b/i.test(prompt)) {
+      return 'swap_tokens';
+    } else if (/\b(task|automate|schedule|remind)\b/i.test(prompt)) {
+      return 'manage_tasks';
+    } else {
+      return 'conversation';
+    }
   }
 
   private calculatePatternScore(prompt: string, pattern: RegExp): number {

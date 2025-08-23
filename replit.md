@@ -15,7 +15,10 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **✅ Database Cleanup**: Removed all existing companions from database to enforce fresh companion creation workflow
 - **✅ Contract Address Updates**: Fixed CompanionNFT contract address from placeholder to deployed `0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5`
 - **✅ UI Text Corrections**: Changed "soulbound token" references to "NFT" throughout companion creation and prompt screens
-- **✅ Task Orchestrator Excellence**: Intelligent agent selection with detailed chain-of-thought reasoning and capability matching
+- **🤖 AI-POWERED AGENT SELECTION**: Completely replaced CapabilityRegistry with IntelligentAgentSelector using OpenAI for natural language task analysis
+- **✅ Natural Language Understanding**: TaskOrchestrator now analyzes agent descriptions and capabilities using AI instead of hardcoded patterns
+- **✅ Intelligent Task Routing**: Agents selected based on AI analysis of task requirements, agent roles, and capabilities with confidence scoring
+- **✅ Simplified Collaborative Planning**: Updated CollaborativePlanner to work with AI-powered agent selection while maintaining system compatibility
 - **Previous System Enhanced**: All existing functionality (NFT minting, balance checking, task routing) maintained and significantly enhanced
 - **CompanionNFT Contract**: Successfully deployed at address `0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5` on Base Camp Testnet
 
@@ -60,8 +63,9 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **Comprehensive API**: Supports game scores, leaderboards, token claims, and NFT ownership tracking.
 - **Real Token Rewards**: Mystery box system for deferred crypto rewards based on performance.
 - **18-Agent Multi-Agent System**: Complete CrewAI-powered intelligent task delegation architecture:
-  - **Core Framework**: MessageBroker, CapabilityRegistry, TaskOrchestrator with chain-of-thought reasoning
+  - **Core Framework**: MessageBroker, IntelligentAgentSelector, TaskOrchestrator with AI-powered chain-of-thought reasoning
   - **Agent Categories**: 2 Core, 3 Specialized, 6 MCP, 5 Support, 2 Framework agents
+  - **AI-Powered Selection**: Natural language understanding for task analysis and agent matching using OpenAI
   - **MCP Agent Suite**: GOAT, Nebula, CodeGen, DocumentWriter, Research, Scheduler with unified session management
   - **Centralized Configuration**: JSON-based agent management system with roles, capabilities, and performance metrics
   - **Real-Time Integration**: CAMP Explorer API for authentic blockchain data and USD values

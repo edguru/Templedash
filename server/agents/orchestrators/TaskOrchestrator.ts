@@ -4,7 +4,7 @@ import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage, Task } from '../types/AgentTypes';
 import { SystemPrompts } from '../prompts/SystemPrompts';
 import { TaskTracker } from '../trackers/TaskTracker';
-import { CapabilityRegistry, AgentCapabilityMatch, TaskRequirement } from '../core/CapabilityRegistry';
+import { IntelligentAgentSelector, AgentSelectionRequest, AgentSelectionResult } from '../core/IntelligentAgentSelector';
 import { CollaborativePlanner, CollaborationPlan } from '../core/CollaborativePlanner';
 import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
 import { v4 as uuidv4 } from 'uuid';
@@ -19,15 +19,15 @@ export class TaskOrchestrator extends BaseAgent {
   private taskQueue: TaskQueue = { high: [], medium: [], low: [] };
   private activeTasks: Map<string, Task> = new Map();
   private mcpAgents: Map<string, string> = new Map();
-  private capabilityRegistry: CapabilityRegistry;
+  private intelligentSelector: IntelligentAgentSelector;
   private collaborativePlanner: CollaborativePlanner;
   private chainOfThought: ChainOfThoughtEngine;
   private activePlans: Map<string, CollaborationPlan> = new Map();
 
   constructor(messageBroker: MessageBroker, private taskTracker: TaskTracker) {
     super('task-orchestrator', messageBroker);
-    this.capabilityRegistry = new CapabilityRegistry();
-    this.collaborativePlanner = new CollaborativePlanner(this.capabilityRegistry);
+    this.intelligentSelector = new IntelligentAgentSelector();
+    this.collaborativePlanner = new CollaborativePlanner(this.intelligentSelector);
     this.chainOfThought = new ChainOfThoughtEngine();
   }
 
@@ -348,48 +348,52 @@ export class TaskOrchestrator extends BaseAgent {
     await this.executePlanSteps(plan);
   }
 
-  // Execute simple tasks with single agent using capability-based selection
+  // Execute simple tasks with single agent using AI-powered intelligent selection
   private async executeSingleAgentTask(task: Task): Promise<void> {
-    console.log(`[TaskOrchestrator] Executing single-agent task ${task.id} with capability matching`);
+    console.log(`[TaskOrchestrator] Executing single-agent task ${task.id} with intelligent AI selection`);
 
-    // Create task requirements
-    const requirements: TaskRequirement = {
+    // Create agent selection request
+    const selectionRequest: AgentSelectionRequest = {
+      taskDescription: task.description,
       taskType: task.type || 'general',
       priority: task.priority,
-      securityLevel: this.determineSecurityLevel(task),
-      maxLatency: this.determineMaxLatency(task.priority),
-      requiredCapabilities: this.mapTaskTypeToCapabilities(task.type || 'general'),
       context: {
         originalMessage: task.description,
-        userId: task.userId
-      }
+        userId: task.userId,
+        taskId: task.id
+      },
+      userId: task.userId
     };
 
-    // Find best agent using capability registry
-    const candidateAgents = this.capabilityRegistry.findBestAgentsForTask(requirements);
+    // Use AI-powered intelligent agent selection
+    const selectionResult = await this.intelligentSelector.selectBestAgent(selectionRequest);
     
-    if (candidateAgents.length === 0) {
-      throw new Error(`No capable agents found for task type: ${task.type}`);
+    if (!selectionResult.primaryAgent) {
+      throw new Error(`No suitable agents found for task: ${task.description}`);
     }
 
-    // Conduct agent negotiation for optimal assignment
-    const negotiatedAgents = await this.collaborativePlanner.negotiateAgentAssignment(candidateAgents, [requirements]);
-    const selectedAgent = negotiatedAgents[0];
+    const selectedAgent = selectionResult.primaryAgent;
 
     // Generate chain of thought for task execution
-    const reasoning = await this.generateExecutionChainOfThought(task, selectedAgent);
+    const reasoning = await this.generateExecutionChainOfThought(task, {
+      agentId: selectedAgent.agentId,
+      agentName: selectedAgent.agentName,
+      confidence: selectedAgent.confidence,
+      reasoning: selectedAgent.reasoning
+    });
     
-    console.log(`[TaskOrchestrator] Selected agent ${selectedAgent.agentId} for task ${task.id}`, {
+    console.log(`[TaskOrchestrator] AI selected agent ${selectedAgent.agentId} for task ${task.id}`, {
+      confidence: selectedAgent.confidence,
       reasoning: selectedAgent.reasoning,
-      score: selectedAgent.score,
+      taskAnalysis: selectionResult.taskAnalysis,
       chainOfThought: reasoning
     });
 
-    // Create and send execution message
-    await this.sendTaskToAgent(task, selectedAgent);
+    // Create and send execution message using intelligent routing
+    await this.sendTaskToIntelligentAgent(task, selectionResult);
 
-    // Update agent metrics
-    this.updateAgentLoad(selectedAgent.agentId, selectedAgent.capability.capabilityName, true);
+    // Update agent performance metrics
+    this.updateIntelligentAgentMetrics(selectedAgent.agentId, task.type || 'general', true);
   }
 
   private async executePlanSteps(plan: CollaborationPlan): Promise<void> {
@@ -475,29 +479,142 @@ export class TaskOrchestrator extends BaseAgent {
     await this.sendMessage(executionMessage);
   }
 
-  // Enhanced chain of thought generation for task execution
-  private async generateExecutionChainOfThought(task: Task, selectedAgent: AgentCapabilityMatch): Promise<string[]> {
+  // Enhanced chain of thought generation for task execution with intelligent agent selection
+  private async generateExecutionChainOfThought(task: Task, selectedAgent: any): Promise<string[]> {
     const reasoning: string[] = [];
 
     reasoning.push(`Task Analysis: ${task.description}`);
     reasoning.push(`Task Type: ${task.type}, Priority: ${task.priority}`);
-    reasoning.push(`Selected Agent: ${selectedAgent.agentId} (score: ${selectedAgent.score.toFixed(2)})`);
-    reasoning.push(`Agent Reasoning: ${selectedAgent.reasoning}`);
-    reasoning.push(`Capability: ${selectedAgent.capability.capabilityName}`);
-    reasoning.push(`Expected Latency: ${selectedAgent.capability.estimatedLatency}ms`);
-    reasoning.push(`Success Rate: ${(selectedAgent.capability.successRate * 100).toFixed(1)}%`);
     
-    // Add security considerations
-    if (selectedAgent.capability.securityLevel === 'high') {
-      reasoning.push('Security Note: High-security operation - ensuring proper validation');
+    // Handle both old and new agent format
+    if (selectedAgent.confidence !== undefined) {
+      // New intelligent agent format
+      reasoning.push(`AI Selected Agent: ${selectedAgent.agentId} (confidence: ${(selectedAgent.confidence * 100).toFixed(1)}%)`);
+      reasoning.push(`Selection Reasoning: ${selectedAgent.reasoning.join(', ')}`);
+    } else {
+      // Legacy format fallback
+      reasoning.push(`Selected Agent: ${selectedAgent.agentId} (score: ${selectedAgent.score?.toFixed(2) || 'N/A'})`);
+      reasoning.push(`Agent Reasoning: ${selectedAgent.reasoning || 'Legacy selection'}`);
     }
-
-    // Add dependency analysis
-    if (selectedAgent.capability.dependencies.length > 0) {
-      reasoning.push(`Dependencies: ${selectedAgent.capability.dependencies.join(', ')}`);
+    
+    // Add agent configuration details if available
+    const agentConfig = this.intelligentSelector.getAgentConfig(selectedAgent.agentId);
+    if (agentConfig) {
+      reasoning.push(`Agent Type: ${agentConfig.type}, Role: ${agentConfig.role}`);
+      reasoning.push(`Success Rate: ${(agentConfig.successRate * 100).toFixed(1)}%`);
+      reasoning.push(`Average Latency: ${agentConfig.averageLatency}ms`);
     }
 
     return reasoning;
+  }
+
+  // Send task to intelligently selected agent
+  private async sendTaskToIntelligentAgent(task: Task, selectionResult: AgentSelectionResult): Promise<void> {
+    const selectedAgent = selectionResult.primaryAgent;
+    const messageType = this.getMessageTypeForIntelligentAgent(selectedAgent.agentId, selectionResult.taskAnalysis.category);
+    
+    // Prepare parameters with intelligent wallet address injection for blockchain operations
+    let enhancedParameters = task.parameters || {};
+    
+    // For blockchain operations, inject wallet address into parameters
+    if (this.isBlockchainOperation(selectionResult.taskAnalysis.category, task.type)) {
+      const walletAddress = task.userId && task.userId.startsWith('0x') ? task.userId : undefined;
+      
+      if (walletAddress) {
+        enhancedParameters = {
+          ...enhancedParameters,
+          address: walletAddress,
+          walletAddress: walletAddress
+        };
+        console.log(`🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: ${walletAddress}`);
+      } else {
+        console.warn(`⚠️ [TaskOrchestrator] No valid wallet address found for blockchain operation. userId: ${task.userId}`);
+      }
+    }
+    
+    const executionMessage: AgentMessage = {
+      type: messageType,
+      id: uuidv4(),
+      timestamp: new Date().toISOString(),
+      senderId: this.agentId,
+      targetId: selectedAgent.agentId,
+      payload: {
+        taskId: task.id,
+        type: task.type || task.category,
+        category: task.category || task.type,
+        parameters: enhancedParameters,
+        userId: task.userId,
+        description: task.description,
+        walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined,
+        selectionConfidence: selectedAgent.confidence,
+        selectionReasoning: selectedAgent.reasoning,
+        taskAnalysis: selectionResult.taskAnalysis
+      }
+    };
+
+    await this.sendMessage(executionMessage);
+  }
+
+  // Get message type for intelligently selected agent
+  private getMessageTypeForIntelligentAgent(agentId: string, taskCategory: string): string {
+    // Map agent types to appropriate message types
+    switch (agentId) {
+      case 'blockchain-agent':
+        return 'blockchain_operation';
+      case 'research-agent':
+        return 'research_request';
+      case 'code-generation-agent':
+        return 'code_generation_request';
+      case 'goat-mcp':
+        return 'mcp_request';
+      case 'nebula-mcp':
+        return 'nebula_request';
+      default:
+        // Fallback to category-based mapping
+        return this.getMessageTypeForCategory(taskCategory);
+    }
+  }
+
+  // Get message type for category mapping
+  private getMessageTypeForCategory(category: string): string {
+    const categoryMap: Record<string, string> = {
+      // Blockchain operations
+      'contract_deployment': 'blockchain_operation',
+      'token_transfer': 'blockchain_operation', 
+      'account_query': 'blockchain_operation',
+      'balance_check': 'blockchain_operation',
+      'token_info': 'blockchain_operation',
+      'nft_mint': 'blockchain_operation',
+      'nft_operations': 'blockchain_operation',
+      
+      // Research operations
+      'research': 'research_request',
+      'analysis': 'research_request',
+      'market_research': 'research_request',
+      
+      // Code operations
+      'code_generation': 'code_generation_request',
+      'coding': 'code_generation_request',
+      'development': 'code_generation_request',
+      
+      // MCP operations
+      'mcp_request': 'mcp_request',
+      'nebula_request': 'nebula_request',
+      
+      // Default fallback
+      'general': 'execute_task'
+    };
+    
+    return categoryMap[category] || 'execute_task';
+  }
+
+  // Update metrics for intelligently selected agent
+  private updateIntelligentAgentMetrics(agentId: string, taskType: string, success: boolean): void {
+    // Log the performance for future learning
+    console.log(`[TaskOrchestrator] Agent performance update: ${agentId}, task: ${taskType}, success: ${success}`);
+    
+    // In the future, this could update a learning database for improving agent selection
+    // For now, we just log for monitoring purposes
   }
 
   // Helper methods for intelligent delegation

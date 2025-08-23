@@ -2,6 +2,7 @@
 import OpenAI from 'openai';
 import { AgentConfigManager } from '../../config/AgentConfigManager';
 import { AgentConfig } from '../../config/AgentConfigManager';
+import { RAGAgentSelector, RAGSelectionRequest, RAGSelectionResult } from './RAGAgentSelector';
 
 export interface AgentSelectionRequest {
   taskDescription: string;
@@ -37,14 +38,16 @@ export class IntelligentAgentSelector {
   private openai: OpenAI;
   private configManager: AgentConfigManager;
   private agentConfigs: Record<string, AgentConfig> = {};
+  private ragSelector: RAGAgentSelector;
 
   constructor() {
     // Force fresh OpenAI client initialization (clean any whitespace)  
     const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
     this.openai = new OpenAI({ apiKey });
     this.configManager = new AgentConfigManager();
+    this.ragSelector = new RAGAgentSelector();
     this.loadAgentConfigurations();
-    console.log('[IntelligentAgentSelector] OpenAI client initialized', {
+    console.log('[IntelligentAgentSelector] OpenAI client initialized with RAG enhancement', {
       keyPrefix: apiKey.substring(0, 15),
       keyLength: apiKey.length,
       hasKey: !!apiKey
@@ -64,11 +67,21 @@ export class IntelligentAgentSelector {
   }
 
   /**
-   * Select the best agent(s) for a task using AI-powered analysis
+   * Select the best agent(s) for a task using RAG-enhanced analysis
    */
   async selectBestAgent(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
     try {
-      // Use AI to analyze the task and match to agent descriptions
+      // Check if this task needs execution (prefer RAG for MCP agents)
+      const needsExecution = this.taskNeedsExecution(request.taskDescription);
+      
+      // Use RAG for execution-focused tasks, traditional AI for others
+      if (needsExecution) {
+        console.log('[IntelligentAgentSelector] Using RAG for execution task');
+        return await this.selectWithRAG(request);
+      }
+
+      // Use traditional AI analysis for planning/analysis tasks
+      console.log('[IntelligentAgentSelector] Using traditional AI for analysis task');
       const agentProfiles = this.buildAgentProfiles();
       
       const completion = await this.openai.chat.completions.create({
@@ -222,5 +235,62 @@ Priority: ${config.priority}
    */
   getAllAgents(): Record<string, AgentConfig> {
     return this.agentConfigs;
+  }
+
+  /**
+   * Use RAG system for execution-focused agent selection
+   */
+  private async selectWithRAG(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
+    const ragRequest: RAGSelectionRequest = {
+      taskDescription: request.taskDescription,
+      taskType: request.taskType,
+      priority: request.priority,
+      context: request.context,
+      userId: request.userId,
+      requireExecution: true
+    };
+
+    const ragResult = await this.ragSelector.selectBestAgent(ragRequest);
+
+    // Convert RAG result to IntelligentAgentSelector format
+    return {
+      primaryAgent: {
+        agentId: ragResult.primaryAgent.agentId,
+        agentName: ragResult.primaryAgent.agentName,
+        confidence: ragResult.primaryAgent.confidence,
+        reasoning: ragResult.primaryAgent.reasoning,
+        agentType: ragResult.primaryAgent.agentType,
+        capabilities: ragResult.primaryAgent.capabilities,
+        estimatedSuccess: ragResult.primaryAgent.confidence
+      },
+      alternativeAgents: ragResult.alternativeAgents.map(alt => ({
+        agentId: alt.agentId,
+        agentName: alt.agentName,
+        confidence: alt.confidence,
+        reasoning: alt.reasoning,
+        agentType: alt.agentType,
+        capabilities: alt.capabilities,
+        estimatedSuccess: alt.confidence
+      })),
+      taskAnalysis: ragResult.taskAnalysis,
+      reasoning: [
+        ...ragResult.semanticReasoning,
+        `RAG Selection: ${ragResult.primaryAgent.agentName} selected with ${(ragResult.primaryAgent.semanticSimilarity * 100).toFixed(1)}% semantic similarity`,
+        `Execution capable: ${ragResult.primaryAgent.executionCapable ? 'Yes' : 'No'}`
+      ]
+    };
+  }
+
+  /**
+   * Determine if a task needs execution vs just analysis
+   */
+  private taskNeedsExecution(taskDescription: string): boolean {
+    const executionKeywords = [
+      'transfer', 'send', 'deploy', 'mint', 'execute', 'run', 'perform', 
+      'create', 'generate', 'build', 'swap', 'stake', 'bridge'
+    ];
+    
+    const lowerTask = taskDescription.toLowerCase();
+    return executionKeywords.some(keyword => lowerTask.includes(keyword));
   }
 }

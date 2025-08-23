@@ -7,6 +7,7 @@ import { TaskTracker } from '../trackers/TaskTracker';
 import { IntelligentAgentSelector, AgentSelectionRequest, AgentSelectionResult } from '../core/IntelligentAgentSelector';
 import { CollaborativePlanner, CollaborationPlan } from '../core/CollaborativePlanner';
 import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
+import { AgentCapabilityMatch } from '../../core/CapabilityMapper';
 import { v4 as uuidv4 } from 'uuid';
 
 interface TaskQueue {
@@ -120,6 +121,9 @@ export class TaskOrchestrator extends BaseAgent {
           type: task.type, 
           priority: task.priority 
         });
+
+        // Register with task tracker for proper monitoring
+        await this.taskTracker.registerTask(task);
 
         // Add to appropriate queue
         this.addTaskToQueue(task);

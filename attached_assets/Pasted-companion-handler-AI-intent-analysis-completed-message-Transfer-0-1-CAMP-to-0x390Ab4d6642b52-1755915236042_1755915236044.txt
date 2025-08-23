@@ -1,0 +1,176 @@
+companion-handler] AI intent analysis completed {
+  message: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f',
+  isTask: true,
+  confidence: 0.9,
+  taskType: 'token_transfer'
+}
+[companion-handler] Routing task message to orchestrator {
+  message: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  confidence: 0.9,
+  taskType: 'token_transfer',
+  reasoning: [
+    "The message contains a clear instruction to 'Transfer', indicating a movement of tokens.",
+    "The amount '0.1' and token 'CAMP' are specified, which are typical details for a token transfer.",
+    "A specific wallet address '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE' is provided, confirming the destination for the transfer."
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'token_transfer'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  type: 'token_transfer',
+  priority: 'medium'
+}
+[task-orchestrator] Added task to queue {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  priority: 'medium',
+  queueSize: 1
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  parameterKeys: []
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[task-analyzer] Updated network status 
+[TaskTracker] Unknown task: 8bc350e5-e41b-4503-85dd-fb70a8bb83ab
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  category: 'token_transfer'
+}
+[TaskOrchestrator] Executing single-agent task 8bc350e5-e41b-4503-85dd-fb70a8bb83ab with intelligent AI selection
+2:13:02 AM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent blockchain-agent for task 8bc350e5-e41b-4503-85dd-fb70a8bb83ab {
+  confidence: 0.95,
+  reasoning: [
+    'The task involves transferring a cryptocurrency token, which is a blockchain operation.',
+    'BlockchainAgent specializes in blockchain operations, including token transfers.',
+    'The agent has a high success rate and is specifically designed to handle tasks like this.'
+  ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'simple',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'blockchain_operations', 'token_operations' ]
+  },
+  chainOfThought: [
+    'Task Analysis: Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    'Task Type: token_transfer, Priority: medium',
+    'AI Selected Agent: blockchain-agent (confidence: 95.0%)',
+    'Selection Reasoning: The task involves transferring a cryptocurrency token, which is a blockchain operation., BlockchainAgent specializes in blockchain operations, including token transfers., The agent has a high success rate and is specifically designed to handle tasks like this.',
+    'Agent Type: specialized, Role: Comprehensive blockchain operations and Web3 interactions',
+    'Success Rate: 92.0%',
+    'Average Latency: 5000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: {
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE'
+  },
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'token_transfer',
+  parameters: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'medium',
+  estimatedGas: '21,000 - 65,000',
+  requiresApproval: true
+}
+[TaskOrchestrator] Agent performance update: blockchain-agent, task: token_transfer, success: true
+[blockchain-agent] Sending blockchain operation response { taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab', resultLength: 422 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[TaskTracker] Unknown task: 8bc350e5-e41b-4503-85dd-fb70a8bb83ab
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  messageType: 'agent_response',
+  responseLength: 422
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[task-orchestrator] Task completed successfully {
+  taskId: '8bc350e5-e41b-4503-85dd-fb70a8bb83ab',
+  result: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '• To: `0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE`\n' +
+    '• Network: Base Camp Testnet\n' +
+    '\n' +
+    '**Status:** Real blockchain integration required\n' +
+    '**Solution:** This requires actual Thirdweb/blockchain integration with user wallet signing\n' +
+    '\n' +
+    '*Data Integrity Policy: No fake transaction data will be generated*'
+}
+[task-analyzer] Updated network status 

@@ -57,7 +57,11 @@ export class CompanionHandler extends BaseAgent {
     // Initialize OpenAI client with fresh API key (clean any whitespace)
     const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
     this.openai = new OpenAI({ apiKey });
-    this.logActivity('OpenAI client initialized with fresh API key');
+    this.logActivity('OpenAI client initialized', { 
+      keyPrefix: apiKey.substring(0, 15), 
+      keyLength: apiKey.length,
+      hasKey: !!apiKey 
+    });
   }
 
   protected initialize(): void {

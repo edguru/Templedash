@@ -120,63 +120,63 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
 
   return (
     <div className="bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 min-h-screen overflow-y-auto overscroll-behavior-y-contain">
-      <div className="max-w-2xl mx-auto p-4 pb-12 relative" style={{ minHeight: 'calc(100vh - 2rem)' }}>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6 pt-4">
+      <div className="max-w-2xl mx-auto p-3 sm:p-4 pb-8 sm:pb-12 relative" style={{ minHeight: 'calc(100vh - 1.5rem)' }}>
+        {/* Header - Mobile Optimized */}
+        <div className="flex items-center justify-between mb-4 sm:mb-6 pt-2 sm:pt-4">
           <button
             onClick={onBack}
             disabled={isCreating}
-            className={`flex items-center space-x-2 transition-colors ${
+            className={`flex items-center space-x-1 sm:space-x-2 transition-colors ${
               isCreating 
                 ? 'text-gray-400 cursor-not-allowed' 
                 : 'text-gray-600 hover:text-gray-800'
             }`}
           >
-            <ArrowLeft size={20} />
-            <span>Back</span>
+            <ArrowLeft size={18} />
+            <span className="text-sm sm:text-base">Back</span>
           </button>
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Your Companion</h1>
-            <p className="text-gray-600">Design your perfect AI companion</p>
+          <div className="text-center flex-1 px-2">
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-800 mb-1 sm:mb-2">Create Your Companion</h1>
+            <p className="text-sm sm:text-base text-gray-600 hidden sm:block">Design your perfect AI companion</p>
           </div>
-          <div className="w-20"></div> {/* Spacer for center alignment */}
+          <div className="w-12 sm:w-20"></div> {/* Spacer for center alignment */}
         </div>
 
-        {/* Preview Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
-              <RoleIcon size={32} className="text-white" />
+        {/* Preview Card - Mobile Optimized */}
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 border border-gray-100">
+          <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
+              <RoleIcon size={24} className="text-white sm:w-8 sm:h-8" />
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-800">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-800 truncate">
                 {traits.name || 'Your Companion'}
               </h2>
-              <p className="text-gray-600 capitalize">
+              <p className="text-sm sm:text-base text-gray-600 capitalize">
                 {traits.age} years old • {traits.role} • {traits.gender}
               </p>
-              <p className="text-sm text-purple-600 capitalize font-medium">
+              <p className="text-xs sm:text-sm text-purple-600 capitalize font-medium">
                 {traits.personalityType} personality
               </p>
             </div>
           </div>
 
-          {/* Wallet Address Display */}
+          {/* Wallet Address Display - Mobile Optimized */}
           {account?.address && (
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <Wallet className="text-gray-500" size={20} />
-                  <div>
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 border border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <div className="flex items-center space-x-2 sm:space-x-3">
+                  <Wallet className="text-gray-500 flex-shrink-0" size={18} />
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-gray-700">Your Wallet Address</p>
-                    <p className="text-xs text-gray-500 font-mono">
+                    <p className="text-xs text-gray-500 font-mono break-all sm:break-normal">
                       {`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={handleCopyAddress}
-                  className="flex items-center space-x-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-center space-x-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors self-start sm:self-auto"
                 >
                   {addressCopied ? (
                     <>
@@ -198,23 +198,23 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
           )}
         </div>
 
-        {/* Creation Form */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 mb-6">
-          <div className="space-y-8">
-            {/* Basic Info */}
+        {/* Creation Form - Mobile Optimized */}
+        <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-100 mb-4 sm:mb-6">
+          <div className="space-y-6 sm:space-y-8">
+            {/* Basic Info - Mobile Optimized */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                <Sparkles className="mr-2" size={20} />
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4 flex items-center">
+                <Sparkles className="mr-2 flex-shrink-0" size={18} />
                 Basic Information
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
                   <input
                     type="text"
                     value={traits.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
                     placeholder="Enter companion name"
                   />
                 </div>
@@ -226,80 +226,80 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
                     max="100"
                     value={traits.age}
                     onChange={(e) => handleInputChange('age', parseInt(e.target.value))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
                   />
                 </div>
               </div>
             </div>
 
-            {/* Role Selection */}
+            {/* Role Selection - Mobile Optimized */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Relationship Role</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {(['partner', 'friend', 'pet'] as const).map((role) => {
                   const Icon = roleIcons[role];
                   return (
                     <button
                       key={role}
                       onClick={() => handleInputChange('role', role)}
-                      className={`p-3 rounded-lg border-2 transition-all ${
+                      className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                         traits.role === role
                           ? 'border-purple-500 bg-purple-50 text-purple-700'
                           : 'border-gray-200 hover:border-gray-300 text-gray-600'
                       }`}
                     >
-                      <Icon size={24} className="mx-auto mb-1" />
-                      <div className="text-sm font-medium capitalize">{role}</div>
+                      <Icon size={20} className="mx-auto mb-1 sm:mb-1" />
+                      <div className="text-xs sm:text-sm font-medium capitalize">{role}</div>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* Gender Selection */}
+            {/* Gender Selection - Mobile Optimized */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Gender</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {(['male', 'female', 'non-binary'] as const).map((gender) => (
                   <button
                     key={gender}
                     onClick={() => handleInputChange('gender', gender)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       traits.gender === gender
                         ? 'border-purple-500 bg-purple-50 text-purple-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-600'
                     }`}
                   >
-                    <div className="text-sm font-medium capitalize">{gender.replace('-', ' ')}</div>
+                    <div className="text-xs sm:text-sm font-medium capitalize">{gender.replace('-', ' ')}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Personality Type */}
+            {/* Personality Type - Mobile Optimized */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Personality Type</label>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {(['helpful', 'casual', 'professional'] as const).map((type) => (
                   <button
                     key={type}
                     onClick={() => handleInputChange('personalityType', type)}
-                    className={`p-3 rounded-lg border-2 transition-all ${
+                    className={`p-2 sm:p-3 rounded-lg border-2 transition-all ${
                       traits.personalityType === type
                         ? 'border-purple-500 bg-purple-50 text-purple-700'
                         : 'border-gray-200 hover:border-gray-300 text-gray-600'
                     }`}
                   >
-                    <div className="text-sm font-medium capitalize">{type}</div>
+                    <div className="text-xs sm:text-sm font-medium capitalize">{type}</div>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Personality Traits */}
+            {/* Personality Traits - Mobile Optimized */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Personality Traits</h3>
-              <div className="space-y-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 sm:mb-4">Personality Traits</h3>
+              <div className="space-y-3 sm:space-y-4">
                 {[
                   { key: 'flirtiness', label: 'Flirtiness', color: 'pink' },
                   { key: 'intelligence', label: 'Intelligence', color: 'blue' },
@@ -310,7 +310,7 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
                   <div key={key}>
                     <div className="flex justify-between items-center mb-2">
                       <label className="text-sm font-medium text-gray-700">{label}</label>
-                      <span className="text-sm text-gray-500">{traits[key as keyof CompanionTraits]}/100</span>
+                      <span className="text-sm text-gray-500 font-mono">{traits[key as keyof CompanionTraits]}/100</span>
                     </div>
                     <input
                       type="range"
@@ -318,32 +318,32 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
                       max="100"
                       value={traits[key as keyof CompanionTraits]}
                       onChange={(e) => handleSliderChange(key as keyof CompanionTraits, parseInt(e.target.value))}
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                      className="w-full h-3 sm:h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     />
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Appearance Description */}
+            {/* Appearance Description - Mobile Optimized */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Appearance Description (Optional)</label>
               <textarea
                 value={traits.appearance}
                 onChange={(e) => handleInputChange('appearance', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
                 rows={3}
                 placeholder="Describe how you'd like your companion to look..."
               />
             </div>
 
-            {/* Background Story */}
+            {/* Background Story - Mobile Optimized */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Background Story (Optional)</label>
               <textarea
                 value={traits.backgroundStory || ''}
                 onChange={(e) => handleInputChange('backgroundStory', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                className="w-full px-3 py-2.5 sm:py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent text-base"
                 rows={4}
                 placeholder="Create a unique background story for your companion - their history, interests, experiences, or any personal details that make them special..."
               />
@@ -352,37 +352,37 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
               </p>
             </div>
 
-            {/* Error Display */}
+            {/* Error Display - Mobile Optimized */}
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center space-x-2 text-red-700">
-                <AlertCircle size={20} />
-                <span>{error}</span>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 sm:p-4 flex items-start space-x-2 text-red-700">
+                <AlertCircle size={18} className="flex-shrink-0 mt-0.5" />
+                <span className="text-sm sm:text-base">{error}</span>
               </div>
             )}
 
-            {/* Progress Display */}
+            {/* Progress Display - Mobile Optimized */}
             {isCreating && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center space-x-3 mb-2">
-                  <Loader2 size={20} className="animate-spin text-blue-600" />
-                  <span className="text-blue-700 font-medium">Creating Your Companion NFT</span>
+                  <Loader2 size={18} className="animate-spin text-blue-600 flex-shrink-0" />
+                  <span className="text-sm sm:text-base text-blue-700 font-medium">Creating Your Companion NFT</span>
                 </div>
-                <div className="text-sm text-blue-600">
+                <div className="text-sm text-blue-600 mb-2">
                   {creationStep || 'Please approve transactions in your wallet...'}
                 </div>
-                <div className="mt-3 text-xs text-blue-500">
-                  • Minting your companion NFT on Base Camp Testnet (0.001 CAMP fee)<br/>
-                  • Setting companion traits on blockchain<br/>
-                  • Multiple transactions required - please don't close this window
+                <div className="text-xs text-blue-500 space-y-1">
+                  <div>• Minting your companion NFT on Base Camp Testnet (0.001 CAMP fee)</div>
+                  <div>• Setting companion traits on blockchain</div>
+                  <div>• Multiple transactions required - please don't close this window</div>
                 </div>
               </div>
             )}
 
-            {/* Create Button */}
+            {/* Create Button - Mobile Optimized */}
             <button
               onClick={handleCreate}
               disabled={isCreating || !traits.name.trim()}
-              className={`w-full py-3 px-6 rounded-lg font-medium flex items-center justify-center space-x-2 transition-all ${
+              className={`w-full py-3 sm:py-3 px-4 sm:px-6 rounded-lg font-medium flex items-center justify-center space-x-2 transition-all text-base ${
                 isCreating || !traits.name.trim()
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
@@ -390,13 +390,13 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
             >
               {isCreating ? (
                 <>
-                  <Loader2 size={20} className="animate-spin" />
+                  <Loader2 size={18} className="animate-spin" />
                   <span>Minting NFT...</span>
                 </>
               ) : (
                 <>
-                  <Save size={20} />
-                  <span>Create Companion & Mint NFT</span>
+                  <Save size={18} />
+                  <span className="sm:inline">Create Companion & Mint NFT</span>
                 </>
               )}
             </button>

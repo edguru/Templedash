@@ -1,9 +1,9 @@
 {
   "agentRegistry": {
     "metadata": {
-      "version": "2.0.0",
-      "lastUpdated": "2025-01-19T20:35:00Z",
-      "totalAgents": 18,
+      "version": "2.1.0",
+      "lastUpdated": "2025-01-23T14:25:00Z",
+      "totalAgents": 19,
       "architecture": "CrewAI Multi-Agent with MCP Protocol Integration"
     },
     "core_agents": {
@@ -298,6 +298,44 @@
         "loadFactor": 0.2,
         "successRate": 0.94,
         "averageLatency": 2000
+      },
+      "chaingpt-mcp": {
+        "name": "ChainGPTMCP",
+        "type": "mcp",
+        "role": "Web3 LLM with specialized crypto domain expertise",
+        "systemMessage": "You are ChainGPT, a specialized Web3 LLM with deep expertise in blockchain technology, smart contracts, DeFi, NFTs, and cryptocurrency markets. You provide comprehensive smart contract auditing, real-time on-chain data analysis, technical analysis, NFT creation, and security assessments. You excel at explaining complex Web3 concepts, detecting vulnerabilities, optimizing gas usage, and providing strategic crypto insights with real-time market data integration.",
+        "capabilities": [
+          "smart_contract_auditing",
+          "code_generation",
+          "nft_creation",
+          "technical_analysis",
+          "market_analysis",
+          "security_assessment",
+          "vulnerability_detection",
+          "gas_optimization",
+          "real_time_insights",
+          "web3_domain_expertise",
+          "tokenomics_analysis",
+          "defi_optimization"
+        ],
+        "tools": [
+          "chaingpt_llm",
+          "contract_auditor",
+          "code_generator",
+          "market_analyzer",
+          "security_scanner",
+          "gas_optimizer"
+        ],
+        "keywords": [
+          "audit", "security", "vulnerability", "smart contract", "code generation", 
+          "nft", "technical analysis", "market analysis", "web3", "chaingpt",
+          "defi", "tokenomics", "crypto", "blockchain", "yield", "farming",
+          "rug pull", "gas", "optimization", "solidity"
+        ],
+        "priority": "high",
+        "loadFactor": 0.5,
+        "successRate": 0.91,
+        "averageLatency": 4500
       }
     },
     "support_agents": {

@@ -17,6 +17,7 @@ import { DocumentWriterMCP } from './mcps/DocumentWriterMCP';
 import { NebulaMCP } from './mcps/NebulaMCP';
 import { ResearchMCP } from './mcps/ResearchMCP';
 import { SchedulerMCP } from './mcps/SchedulerMCP';
+import { ChainGPTMCP } from './mcps/ChainGPTMCP';
 import { CrewAIOrchestrator } from './crewai/CrewAIOrchestrator';
 import { ChainOfThoughtEngine } from './crewai/ChainOfThoughtEngine';
 import { ReActAgent } from './crewai/ReActAgent';
@@ -81,7 +82,7 @@ export class AgentSystem {
       
       console.log('✅ CrewAI specialized agents initialized successfully');
     } catch (error) {
-      console.log('⚠️ CrewAI agents not available, using legacy agents only:', error.message);
+      console.log('⚠️ CrewAI agents not available, using legacy agents only:', error instanceof Error ? error.message : error);
     }
 
     // Register MCP agents
@@ -91,6 +92,7 @@ export class AgentSystem {
     const nebulaMCP = new NebulaMCP(this.messageBroker);
     const researchMCP = new ResearchMCP(this.messageBroker);
     const schedulerMCP = new SchedulerMCP(this.messageBroker);
+    const chainGPTMCP = new ChainGPTMCP(this.messageBroker);
 
     // Register all agents
     this.registry.register('companion-handler', companionHandler);
@@ -110,6 +112,7 @@ export class AgentSystem {
     this.registry.register('nebula-mcp', nebulaMCP);
     this.registry.register('research-mcp', researchMCP);
     this.registry.register('scheduler-mcp', schedulerMCP);
+    this.registry.register('chaingpt-mcp', chainGPTMCP);
     
     // Register CrewAI Chain of Thought System (only BaseAgent instances)
     this.registry.register('crewai-orchestrator', this.crewaiOrchestrator);

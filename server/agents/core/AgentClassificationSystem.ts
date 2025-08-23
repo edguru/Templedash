@@ -14,7 +14,8 @@ export enum TaskAgentSubcategory {
   CODE_GENERATION = 'code_generation',
   DOCUMENT_WRITING = 'document_writing',
   DATA_ANALYSIS = 'data_analysis',
-  SCHEDULING = 'scheduling'
+  SCHEDULING = 'scheduling',
+  WEB3_LLM = 'web3_llm'
 }
 
 export enum NonTaskAgentSubcategory {
@@ -163,6 +164,28 @@ export class AgentClassificationSystem {
         'Create automated reporting workflows',
         'Manage time-based smart contract interactions',
         'Coordinate multi-step automated processes'
+      ]
+    });
+
+    this.addTaskAgent({
+      agentId: 'chaingpt-mcp',
+      agentName: 'ChainGPTMCP',
+      subcategory: TaskAgentSubcategory.WEB3_LLM,
+      description: 'ChainGPT Web3 LLM with specialized crypto domain expertise, real-time on-chain data, smart contract auditing, code generation, and NFT creation capabilities',
+      keywords: ['chaingpt', 'web3', 'llm', 'smart contract', 'audit', 'security', 'vulnerability', 'code generation', 'nft creation', 'technical analysis', 'market analysis', 'defi', 'tokenomics', 'crypto', 'blockchain'],
+      useCases: [
+        'Audit smart contracts for security vulnerabilities',
+        'Generate secure Web3 code and smart contracts',
+        'Create and deploy NFT contracts with best practices',
+        'Perform technical analysis on cryptocurrency markets',
+        'Analyze DeFi protocols and tokenomics',
+        'Detect potential rug pulls and security risks',
+        'Optimize gas usage and transaction costs',
+        'Provide real-time on-chain data insights',
+        'Generate comprehensive market analysis reports',
+        'Explain complex Web3 concepts and technologies',
+        'Review and verify smart contract implementations',
+        'Suggest yield farming and DeFi optimization strategies'
       ]
     });
 

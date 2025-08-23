@@ -171,21 +171,62 @@ export class AgentClassificationSystem {
       agentId: 'chaingpt-mcp',
       agentName: 'ChainGPTMCP',
       subcategory: TaskAgentSubcategory.WEB3_LLM,
-      description: 'ChainGPT Web3 LLM with specialized crypto domain expertise, real-time on-chain data, smart contract auditing, code generation, and NFT creation capabilities',
-      keywords: ['chaingpt', 'web3', 'llm', 'smart contract', 'audit', 'security', 'vulnerability', 'code generation', 'nft creation', 'technical analysis', 'market analysis', 'defi', 'tokenomics', 'crypto', 'blockchain'],
+      description: 'ChainGPT Web3 LLM with real-time on-chain and off-chain data integration, providing comprehensive market research, wallet intelligence, token analysis, social sentiment, NFT insights, regulatory updates, and developer utilities',
+      keywords: ['chaingpt', 'web3', 'llm', 'smart contract', 'audit', 'security', 'vulnerability', 'code generation', 'nft', 'market research', 'wallet analysis', 'defi', 'tokenomics', 'crypto', 'blockchain', 'whale tracking', 'sentiment analysis', 'regulatory', 'compliance', 'real-time data', 'price analysis', 'arbitrage', 'ens', 'floor price'],
       useCases: [
-        'Audit smart contracts for security vulnerabilities',
-        'Generate secure Web3 code and smart contracts',
-        'Create and deploy NFT contracts with best practices',
-        'Perform technical analysis on cryptocurrency markets',
-        'Analyze DeFi protocols and tokenomics',
-        'Detect potential rug pulls and security risks',
-        'Optimize gas usage and transaction costs',
-        'Provide real-time on-chain data insights',
-        'Generate comprehensive market analysis reports',
-        'Explain complex Web3 concepts and technologies',
-        'Review and verify smart contract implementations',
-        'Suggest yield farming and DeFi optimization strategies'
+        // Market Research & Analysis
+        'Generate real-time crypto market overview reports with top movers and volume trends',
+        'Produce comprehensive token and asset analysis reports covering fundamentals and metrics',
+        'Explain sudden price movements through pump/dump diagnostics and whale activity',
+        'Retrieve and summarize latest crypto news and market-moving announcements',
+        
+        // Wallet & Address Intelligence
+        'Fetch current wallet balances and token holdings across multiple blockchains in real-time',
+        'Analyze wallet DeFi positions including liquidity pools, loans, and yield farming deposits',
+        'Track profit/loss for wallets by examining transaction history and current prices',
+        'Review wallet transaction patterns and highlight notable activities',
+        
+        // Token Metrics & Analysis
+        'Provide token price history with ATH/ATL values and historical comparisons',
+        'Explain project tokenomics including supply, inflation rates, and distribution',
+        'Retrieve upcoming token unlock schedules and vesting milestones',
+        'Generate technical analysis with trading volume, market cap, and momentum indicators',
+        
+        // On-Chain Analytics
+        'Monitor and report whale activities and large holder transactions',
+        'Identify arbitrage opportunities and price discrepancies across DEXs',
+        'Track emerging on-chain trends and sector narratives',
+        'Trace complex transaction flows through multiple hops and protocols',
+        
+        // Social & Sentiment Insights
+        'Track key opinion leader sentiments and mentions across social platforms',
+        'Analyze community sentiment around tokens and protocols',
+        'Detect trending projects and themes in social media conversations',
+        'Contextualize news announcement impact and social reactions',
+        
+        // NFT & ENS Intelligence
+        'Retrieve real-time NFT floor prices and collection statistics',
+        'Analyze NFT portfolios and evaluate trait rarity',
+        'Perform ENS domain lookups and reverse address resolution',
+        'Track NFT market trends and emerging collection interest',
+        
+        // Regulatory & Compliance
+        'Provide real-time crypto news summaries and regulatory updates',
+        'Explain regulatory changes and compliance requirements across jurisdictions',
+        'Perform compliance checks against sanction lists and security databases',
+        'Report on market health indicators and institutional sentiment metrics',
+        
+        // Developer Utilities
+        'Execute blockchain RPC calls and fetch live on-chain data',
+        'Audit smart contract code for security vulnerabilities and best practices',
+        'Generate Web3 code snippets and complete contract implementations',
+        'Provide real-time price feeds and perform crypto asset calculations',
+        
+        // Autonomous Operations
+        'Monitor blockchain events and market conditions continuously',
+        'Execute multi-step task sequences autonomously',
+        'Generate transaction payloads for on-chain operations',
+        'Integrate with agent frameworks for real-time blockchain interactions'
       ]
     });
 

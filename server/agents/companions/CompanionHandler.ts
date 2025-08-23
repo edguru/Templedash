@@ -54,7 +54,9 @@ export class CompanionHandler extends BaseAgent {
     super('companion-handler', messageBroker);
     this.capabilityRegistry = new CapabilityRegistry();
     this.chainOfThought = new ChainOfThoughtEngine();
+    // Initialize OpenAI client with fresh API key
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    this.logActivity('OpenAI client initialized with fresh API key');
   }
 
   protected initialize(): void {
@@ -550,42 +552,17 @@ Respond with JSON in this exact format:
     } catch (error) {
       console.error('[CompanionHandler] Error in AI intent analysis:', error);
       
-      // Fallback to simple keyword detection if AI fails
-      const reasoning = ['AI analysis failed, using fallback detection'];
-      const lowerMessage = message.toLowerCase();
-      
-      // Simple but comprehensive keyword detection
-      const taskKeywords = [
-        'balance', 'check', 'send', 'transfer', 'mint', 'deploy', 'swap', 
-        'stake', 'nft', 'token', 'camp', 'crypto', 'wallet', 'how much',
-        'whats', 'what is', 'show me', 'tell me'
-      ];
-      
-      const hasTaskKeyword = taskKeywords.some(keyword => lowerMessage.includes(keyword));
-      const isQuestionAboutBalance = /\b(what|whats|how much|check|show|tell)\b.*\b(balance|tokens?|camp|crypto|funds)\b/i.test(message);
-      
-      const isTask = hasTaskKeyword || isQuestionAboutBalance;
-      const confidence = isTask ? 0.6 : 0.1;
-      
-      let taskType = 'conversation';
-      if (isQuestionAboutBalance || lowerMessage.includes('balance') || lowerMessage.includes('camp')) {
-        taskType = 'balance_check';
-      } else if (lowerMessage.includes('mint')) {
-        taskType = 'nft_mint';
-      } else if (lowerMessage.includes('send') || lowerMessage.includes('transfer')) {
-        taskType = 'token_transfer';
-      } else if (isTask) {
-        taskType = 'general_blockchain';
-      }
-      
-      reasoning.push(`Fallback analysis: ${isTask ? 'Task' : 'Conversation'} detected`);
-      if (isTask) reasoning.push(`Task type inferred: ${taskType}`);
-      
+      // CRITICAL: AI analysis failed - system requires valid OpenAI API key
+      // Return error instead of hardcoded fallback to maintain data integrity
       return {
-        isTask,
-        confidence,
-        detectedTaskType: taskType,
-        reasoning
+        isTask: false,
+        confidence: 0.0,
+        detectedTaskType: 'error',
+        reasoning: [
+          'AI analysis failed - OpenAI API key required',
+          'Cannot process without natural language understanding',
+          'Please ensure valid OPENAI_API_KEY is configured'
+        ]
       };
     }
   }

@@ -1,0 +1,270 @@
+:53:10 AM [express] GET /api/agents/tasks 304 in 1ms :: {"tasks":[]}
+1:53:11 AM [express] GET /api/companion-contract-address 304 in 1ms :: {"contractAddress":"0xda1D9e6…
+1:53:15 AM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 304 in 1886m…
+1:53:15 AM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message { type: 'user_message' }
+[CompanionHandler] Error in AI intent analysis: AuthenticationError: 401 Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/core/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/client.ts:445:28)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/client.ts:668:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async CompanionHandler.analyzeMessageWithChainOfThought (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:474:26)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:157:30)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9) {
+  status: 401,
+  headers: Headers {
+    date: 'Sat, 23 Aug 2025 01:54:27 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '419',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_e1cd11f0febd481a93c2ec98d0329803',
+    'x-envoy-upstream-service-time': '22',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=SC_IzWmp.olWYfE46xFyi7YytvQ9PFTK9EFLwg.Q00M-1755914067-1.0.1.1-tnUWJvDGXZbjeEUYd_EwKUrhulcEp3ZKO1Z8s1SUBhJ5xVy0Hf54gbhq333YsaSDRA2ec.yUfYR7kleRKmR1vbAjpSWzEMO_IFx63GMkouY; path=/; expires=Sat, 23-Aug-25 02:24:27 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=lTMQeox6F5qguudjcg4Ft54egU4_GEvAljdIlBlpRMI-1755914067816-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9736fb6a2a393f90-BOM',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_e1cd11f0febd481a93c2ec98d0329803',
+  error: {
+    message: 'Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.',
+    type: 'invalid_request_error',
+    param: null,
+    code: 'invalid_api_key'
+  },
+  code: 'invalid_api_key',
+  param: null,
+  type: 'invalid_request_error'
+}
+[companion-handler] Routing task message to orchestrator {
+  message: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  confidence: 0.6,
+  taskType: 'balance_check',
+  reasoning: [
+    'AI analysis failed, using fallback detection',
+    'Fallback analysis: Task detected',
+    'Task type inferred: balance_check'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'token_transfer'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  type: 'token_transfer',
+  priority: 'medium'
+}
+[task-orchestrator] Added task to queue {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  priority: 'medium',
+  queueSize: 1
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  parameterKeys: []
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskTracker] Unknown task: bb655f84-47a7-44f7-90ba-4cfa26a1d9ad
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  category: 'token_transfer'
+}
+[TaskOrchestrator] Executing single-agent task bb655f84-47a7-44f7-90ba-4cfa26a1d9ad with intelligent AI selection
+[IntelligentAgentSelector] Error in AI agent selection: AuthenticationError: 401 Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/core/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/client.ts:445:28)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/client.ts:668:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async IntelligentAgentSelector.selectBestAgent (/home/runner/workspace/server/agents/core/IntelligentAgentSelector.ts:67:26)
+    at async TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:369:29)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:325:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:276:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:251:7) {
+  status: 401,
+  headers: Headers {
+    date: 'Sat, 23 Aug 2025 01:54:28 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '419',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_757c3692bd3647dcb352237d21da6704',
+    'x-envoy-upstream-service-time': '2',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=s93MV5usVugTeaS8rnE3Sl7tOWyKvp4wS7C9pEEs02A-1755914068-1.0.1.1-NCFvsBQLhuv9pPVYlZI_eDt1.b08BCvJuqdxNjPA_65w2eGw4tX35Z0F2CEXPqFPs.cOFP1dG.7TElO4wX8OTQxT6l5iTWqfMjWT3DnY8BA; path=/; expires=Sat, 23-Aug-25 02:24:28 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=hc9QlEBX5C5EXKxdAx4QKV5kuV2vA01VSN_GmBfltcA-1755914068345-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '9736fb6d5bdc3f90-BOM',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_757c3692bd3647dcb352237d21da6704',
+  error: {
+    message: 'Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.',
+    type: 'invalid_request_error',
+    param: null,
+    code: 'invalid_api_key'
+  },
+  code: 'invalid_api_key',
+  param: null,
+  type: 'invalid_request_error'
+}
+[TaskOrchestrator] AI selected agent blockchain-agent for task bb655f84-47a7-44f7-90ba-4cfa26a1d9ad {
+  confidence: 0.7,
+  reasoning: [
+    'Task contains blockchain-related keywords',
+    'BlockchainAgent selected for Web3 operations'
+  ],
+  taskAnalysis: {
+    category: 'general',
+    complexity: 'moderate',
+    estimatedDuration: '2-5 minutes',
+    requiredCapabilities: []
+  },
+  chainOfThought: [
+    'Task Analysis: Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    'Task Type: token_transfer, Priority: medium',
+    'AI Selected Agent: blockchain-agent (confidence: 70.0%)',
+    'Selection Reasoning: Task contains blockchain-related keywords, BlockchainAgent selected for Web3 operations',
+    'Agent Type: specialized, Role: Comprehensive blockchain operations and Web3 interactions',
+    'Success Rate: 92.0%',
+    'Average Latency: 5000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: {
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE'
+  },
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'token_transfer',
+  parameters: {
+    address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    amount: '0.1',
+    to: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    recipient: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    token: 'CAMP',
+    from: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'medium',
+  estimatedGas: '21,000 - 65,000',
+  requiresApproval: true
+}
+[TaskOrchestrator] Agent performance update: blockchain-agent, task: token_transfer, success: true
+[blockchain-agent] Sending blockchain operation response { taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad', resultLength: 422 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971'
+}
+[TaskTracker] Unknown task: bb655f84-47a7-44f7-90ba-4cfa26a1d9ad
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  messageType: 'agent_response',
+  responseLength: 422
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[AgentOrchestrator] Received task result: {
+  result: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971'
+}
+[task-orchestrator] Task completed successfully {
+  taskId: 'bb655f84-47a7-44f7-90ba-4cfa26a1d9ad',
+  result: '❌ **Token Transfer Not Implemented**\n' +
+    '\n' +
+    '**Transfer Request:**\n' +
+    '• Amount: 0.1 CAMP\n' +
+    '• From: `0x4bcf74e971E677e95b8bFB0980721557987119Ae`\n' +
+    '• To: `0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE`\n' +
+    '• Network: Base Camp Testnet\n' +
+    '\n' +
+    '**Status:** Real blockchain integration required\n' +
+    '**Solution:** This requires actual Thirdweb/blockchain integration with user wallet signing\n' +
+    '\n' +
+    '*Data Integrity Policy: No fake transaction data will be generated*'
+}
+1:54:28 AM [express] POST /api/agents/chat 200 in 836ms :: {"success":true,"response":"❌ **Token Tra…
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 

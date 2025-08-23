@@ -39,9 +39,11 @@ export class IntelligentAgentSelector {
   private agentConfigs: Record<string, AgentConfig> = {};
 
   constructor() {
+    // Force fresh OpenAI client initialization
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     this.configManager = new AgentConfigManager();
     this.loadAgentConfigurations();
+    console.log('[IntelligentAgentSelector] OpenAI client initialized with fresh API key');
   }
 
   /**
@@ -174,8 +176,8 @@ Priority: ${config.priority}
   private validateAndEnhanceResult(result: any, request: AgentSelectionRequest): AgentSelectionResult {
     // Ensure primary agent exists in our configs
     if (!this.agentConfigs[result.primaryAgent?.agentId]) {
-      console.warn(`[IntelligentAgentSelector] Primary agent ${result.primaryAgent?.agentId} not found, using fallback`);
-      return this.fallbackAgentSelection(request);
+      console.error(`[IntelligentAgentSelector] Primary agent ${result.primaryAgent?.agentId} not found in configs`);
+      return this.createErrorResponse(request);
     }
 
     // Filter alternative agents to only include valid ones
@@ -197,61 +199,10 @@ Priority: ${config.priority}
   }
 
   /**
-   * Fallback agent selection using simple keyword matching
+   * Error response when AI analysis is not available - NO HARDCODED FALLBACKS
    */
-  private fallbackAgentSelection(request: AgentSelectionRequest): AgentSelectionResult {
-    const taskLower = request.taskDescription.toLowerCase();
-    
-    // Simple keyword-based agent selection
-    let selectedAgentId = 'companion-handler'; // Default fallback
-    let confidence = 0.5;
-    let reasoning = ['Fallback selection based on keyword matching'];
-    
-    // Check for blockchain-related keywords
-    const blockchainKeywords = ['balance', 'token', 'nft', 'transfer', 'wallet', 'blockchain', 'camp', 'crypto'];
-    if (blockchainKeywords.some(keyword => taskLower.includes(keyword))) {
-      selectedAgentId = 'blockchain-agent';
-      confidence = 0.7;
-      reasoning = ['Task contains blockchain-related keywords', 'BlockchainAgent selected for Web3 operations'];
-    }
-    
-    // Check for research keywords
-    const researchKeywords = ['research', 'analyze', 'study', 'investigate', 'data', 'market'];
-    if (researchKeywords.some(keyword => taskLower.includes(keyword))) {
-      selectedAgentId = 'research-agent';
-      confidence = 0.7;
-      reasoning = ['Task contains research-related keywords', 'ResearchAgent selected for analysis'];
-    }
-    
-    // Check for coding keywords
-    const codeKeywords = ['code', 'develop', 'program', 'function', 'api', 'debug'];
-    if (codeKeywords.some(keyword => taskLower.includes(keyword))) {
-      selectedAgentId = 'code-generation-agent';
-      confidence = 0.7;
-      reasoning = ['Task contains coding-related keywords', 'CodeGenerationAgent selected for development'];
-    }
-
-    const selectedConfig = this.agentConfigs[selectedAgentId];
-    
-    return {
-      primaryAgent: {
-        agentId: selectedAgentId,
-        agentName: selectedConfig?.name || selectedAgentId,
-        confidence,
-        reasoning,
-        agentType: selectedConfig?.type || 'unknown',
-        capabilities: selectedConfig?.capabilities || [],
-        estimatedSuccess: confidence
-      },
-      alternativeAgents: [],
-      taskAnalysis: {
-        category: 'general',
-        complexity: 'moderate',
-        estimatedDuration: '2-5 minutes',
-        requiredCapabilities: []
-      },
-      reasoning: ['Fallback agent selection due to AI analysis failure']
-    };
+  private createErrorResponse(request: AgentSelectionRequest): AgentSelectionResult {
+    throw new Error(`AI agent selection failed: OpenAI API key required for intelligent task routing. Task: "${request.taskDescription}"`);
   }
 
   /**

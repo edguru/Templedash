@@ -4,6 +4,7 @@
 import OpenAI from 'openai';
 import { AgentConfigManager } from '../../config/AgentConfigManager';
 import { AgentConfig } from '../../config/AgentConfigManager';
+import { AgentClassificationSystem, AgentCategory, AgentClassification } from './AgentClassificationSystem';
 
 export interface AgentEmbedding {
   agentId: string;
@@ -53,6 +54,7 @@ export interface RAGSelectionResult {
 export class RAGAgentSelector {
   private openai: OpenAI;
   private configManager: AgentConfigManager;
+  private classificationSystem: AgentClassificationSystem;
   private agentEmbeddings: Map<string, AgentEmbedding> = new Map();
   private isInitialized = false;
 
@@ -60,32 +62,35 @@ export class RAGAgentSelector {
     const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
     this.openai = new OpenAI({ apiKey });
     this.configManager = new AgentConfigManager();
+    this.classificationSystem = new AgentClassificationSystem();
     this.initializeRAGSystem();
   }
 
   private async initializeRAGSystem(): Promise<void> {
     try {
-      console.log('[RAGAgentSelector] Initializing RAG system with embeddings...');
+      console.log('[RAGAgentSelector] Initializing RAG system for TASK AGENTS ONLY...');
       
-      // Load agent configurations
-      const agentConfigs = this.configManager.getAllAgents();
+      // Only generate embeddings for task agents (not orchestrator/companion/etc)
+      const taskAgents = this.classificationSystem.getTaskAgents();
       
-      // Generate embeddings for each agent
-      for (const [agentId, config] of Object.entries(agentConfigs)) {
-        await this.generateAgentEmbedding(agentId, config);
+      console.log(`[RAGAgentSelector] Found ${taskAgents.length} task agents for RAG processing`);
+      
+      // Generate embeddings only for task agents
+      for (const taskAgent of taskAgents) {
+        await this.generateTaskAgentEmbedding(taskAgent);
       }
       
       this.isInitialized = true;
-      console.log(`[RAGAgentSelector] RAG system initialized with ${this.agentEmbeddings.size} agent embeddings`);
+      console.log(`[RAGAgentSelector] RAG system initialized with ${this.agentEmbeddings.size} TASK agent embeddings (non-task agents excluded)`);
     } catch (error) {
       console.error('[RAGAgentSelector] Failed to initialize RAG system:', error);
     }
   }
 
-  private async generateAgentEmbedding(agentId: string, config: AgentConfig): Promise<void> {
+  private async generateTaskAgentEmbedding(taskAgent: AgentClassification): Promise<void> {
     try {
-      // Create comprehensive agent description for embedding
-      const agentDescription = this.buildAgentDescriptionForEmbedding(config);
+      // Create comprehensive agent description with name, description, keywords, and use cases
+      const agentDescription = this.buildTaskAgentDescriptionForEmbedding(taskAgent);
       
       // Generate embedding using OpenAI
       const embeddingResponse = await this.openai.embeddings.create({
@@ -95,20 +100,21 @@ export class RAGAgentSelector {
       });
 
       const embedding: AgentEmbedding = {
-        agentId,
-        agentName: config.name,
-        description: config.description,
-        capabilities: config.capabilities || [],
-        useCases: config.useCases || [],
+        agentId: taskAgent.agentId,
+        agentName: taskAgent.agentName,
+        description: taskAgent.description,
+        capabilities: taskAgent.keywords, // Use keywords as capabilities
+        useCases: taskAgent.useCases,
         embedding: embeddingResponse.data[0].embedding,
-        agentType: config.agentType as any,
-        executionCapable: this.isExecutionCapableAgent(config)
+        agentType: taskAgent.subcategory as string,
+        executionCapable: taskAgent.executionCapable
       };
 
-      this.agentEmbeddings.set(agentId, embedding);
+      this.agentEmbeddings.set(taskAgent.agentId, embedding);
+      console.log(`[RAGAgentSelector] Generated embedding for TASK agent: ${taskAgent.agentName}`);
       
     } catch (error) {
-      console.error(`[RAGAgentSelector] Failed to generate embedding for ${agentId}:`, error);
+      console.error(`[RAGAgentSelector] Failed to generate embedding for ${taskAgent.agentId}:`, error);
     }
   }
 

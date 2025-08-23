@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Heart, User, Dog, Sparkles, Save, ArrowLeft, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { Heart, User, Dog, Sparkles, Save, ArrowLeft, Loader2, CheckCircle, AlertCircle, Copy, Check, Wallet } from 'lucide-react';
 import { useGameState } from '../../lib/stores/useGameState';
 import { useCompanionOnboarding } from '../../hooks/useCompanionOnboarding';
+import { useActiveAccount } from 'thirdweb/react';
 import CompanionOnboardingScreen from './CompanionOnboardingScreen';
 
 interface CompanionTraits {
@@ -27,6 +28,7 @@ interface CompanionCreationScreenProps {
 const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCompanionCreated, onBack }) => {
   const { shouldShowOnboarding, completeOnboarding, skipOnboarding } = useCompanionOnboarding();
   const [showOnboarding, setShowOnboarding] = useState(shouldShowOnboarding());
+  const account = useActiveAccount();
   
   const [traits, setTraits] = useState<CompanionTraits>({
     name: '',
@@ -46,6 +48,7 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
   const [isCreating, setIsCreating] = useState(false);
   const [creationStep, setCreationStep] = useState('');
   const [error, setError] = useState('');
+  const [addressCopied, setAddressCopied] = useState(false);
 
   const handleOnboardingComplete = () => {
     completeOnboarding();
@@ -95,6 +98,18 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
     }
   };
 
+  const handleCopyAddress = async () => {
+    if (!account?.address) return;
+    
+    try {
+      await navigator.clipboard.writeText(account.address);
+      setAddressCopied(true);
+      setTimeout(() => setAddressCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy address:', error);
+    }
+  };
+
   const roleIcons = {
     partner: Heart,
     friend: User,
@@ -133,7 +148,7 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
             <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full flex items-center justify-center">
               <RoleIcon size={32} className="text-white" />
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-2xl font-bold text-gray-800">
                 {traits.name || 'Your Companion'}
               </h2>
@@ -145,6 +160,42 @@ const CompanionCreationScreen: React.FC<CompanionCreationScreenProps> = ({ onCom
               </p>
             </div>
           </div>
+
+          {/* Wallet Address Display */}
+          {account?.address && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <Wallet className="text-gray-500" size={20} />
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Your Wallet Address</p>
+                    <p className="text-xs text-gray-500 font-mono">
+                      {`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleCopyAddress}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  {addressCopied ? (
+                    <>
+                      <Check size={16} className="text-green-500" />
+                      <span className="text-green-600">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} className="text-gray-500" />
+                      <span className="text-gray-600">Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 mt-2">
+                This companion NFT will be minted to the above address
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Creation Form */}

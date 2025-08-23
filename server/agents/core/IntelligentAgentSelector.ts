@@ -39,8 +39,9 @@ export class IntelligentAgentSelector {
   private agentConfigs: Record<string, AgentConfig> = {};
 
   constructor() {
-    // Force fresh OpenAI client initialization
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // Force fresh OpenAI client initialization (clean any whitespace)
+    const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
+    this.openai = new OpenAI({ apiKey });
     this.configManager = new AgentConfigManager();
     this.loadAgentConfigurations();
     console.log('[IntelligentAgentSelector] OpenAI client initialized with fresh API key');
@@ -142,7 +143,7 @@ Select the best agent(s) for this task and provide detailed analysis.`
       
     } catch (error) {
       console.error('[IntelligentAgentSelector] Error in AI agent selection:', error);
-      return this.fallbackAgentSelection(request);
+      return this.createErrorResponse(request);
     }
   }
 

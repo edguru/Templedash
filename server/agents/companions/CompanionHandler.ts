@@ -54,8 +54,9 @@ export class CompanionHandler extends BaseAgent {
     super('companion-handler', messageBroker);
     this.capabilityRegistry = new CapabilityRegistry();
     this.chainOfThought = new ChainOfThoughtEngine();
-    // Initialize OpenAI client with fresh API key
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    // Initialize OpenAI client with fresh API key (clean any whitespace)
+    const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
+    this.openai = new OpenAI({ apiKey });
     this.logActivity('OpenAI client initialized with fresh API key');
   }
 
@@ -176,7 +177,7 @@ export class CompanionHandler extends BaseAgent {
             targetId: 'task-orchestrator',
             payload: {
               message: userMessage,
-              userId: message.payload.userId || message.payload.walletAddress || message.userId,
+              userId: message.payload.userId || message.payload.walletAddress || '',
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,
@@ -401,11 +402,11 @@ COMPANION IDENTITY:
 ${traits.backgroundStory ? `- Background: ${traits.backgroundStory}` : ''}
 
 PERSONALITY PROFILE:
-- Flirtiness Level: ${traits.flirtiness}/100 ${this.getPersonalityDescription(traits.flirtiness, 'flirtiness')}
-- Intelligence Level: ${traits.intelligence}/100 ${this.getPersonalityDescription(traits.intelligence, 'intelligence')} 
-- Humor Level: ${traits.humor}/100 ${this.getPersonalityDescription(traits.humor, 'humor')}
-- Loyalty Level: ${traits.loyalty}/100 ${this.getPersonalityDescription(traits.loyalty, 'loyalty')}
-- Empathy Level: ${traits.empathy}/100 ${this.getPersonalityDescription(traits.empathy, 'empathy')}
+- Flirtiness Level: ${traits.flirtiness}/100
+- Intelligence Level: ${traits.intelligence}/100 
+- Humor Level: ${traits.humor}/100
+- Loyalty Level: ${traits.loyalty}/100
+- Empathy Level: ${traits.empathy}/100
 
 BEHAVIORAL INSTRUCTIONS:
 1. RELATIONSHIP DYNAMICS: Respond as a ${traits.role} would, using appropriate intimacy levels and communication style
@@ -584,10 +585,10 @@ Respond with JSON in this exact format:
       reasoning.push(`Companion: ${this.companionTraits.name} (${this.companionTraits.role})`);
       reasoning.push(`Personality: ${this.companionTraits.personalityType}`);
       
-      return this.generatePersonalizedResponse(message, this.companionTraits);
+      return this.getPersonalizedResponse(message);
     } else {
       reasoning.push('No companion traits available, using generic response');
-      return this.generateGenericCompanionResponse(message);
+      return 'How can I assist you today?';
     }
   }
 

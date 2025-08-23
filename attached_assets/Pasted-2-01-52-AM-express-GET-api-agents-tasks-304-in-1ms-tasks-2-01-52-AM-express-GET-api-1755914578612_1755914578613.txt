@@ -1,0 +1,47 @@
+2:01:52 AM [express] GET /api/agents/tasks 304 in 1ms :: {"tasks":[]}
+2:01:52 AM [express] GET /api/companion-contract-address 304 in 1ms :: {"contractAddress":"0xda1D9e6…
+2:01:56 AM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 304 in 1926m…
+2:01:56 AM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message { type: 'user_message' }
+[CompanionHandler] Error in AI intent analysis: AuthenticationError: 401 Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/core/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/client.ts:445:28)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/client.ts:668:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async CompanionHandler.analyzeMessageWithChainOfThought (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:476:26)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:159:30)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9) {
+  status: 401,
+  headers: Headers {
+    date: 'Sat, 23 Aug 2025 02:02:11 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '419',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_1d519236a67a42a5ba78c8b0ac243a87',
+    'x-envoy-upstream-service-time': '2',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=2GcMNLkqkuU1FvBY.WV9IWsyAlibU_EtfPQiTmkMB98-1755914531-1.0.1.1-t1Ck4wkYO0tctb6uTWB_0_QoGsMJhSiHBT6OQhgz9jVgdjuyEAP.tQMAd4p6E4IAm1MNncSPS.Ru.hgDjCcvgxhIGxkJVIi.Fa2Yfu6rHOk; path=/; expires=Sat, 23-Aug-25 02:32:11 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=IVEkf6B1Rk1l3CrYlR9xactDxjJN85XaGRaLGbVu7J8-1755914531576-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '973706bd1ce01432-BOM',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_1d519236a67a42a5ba78c8b0ac243a87',
+  error: {
+    message: 'Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.',
+    type: 'invalid_request_error',
+    param: null,
+    code: 'invalid_api_key'
+  },
+  code: 'invalid_api_key',
+  param: null,
+  type: 'invalid_request_error'
+}
+[task-analyzer] Updated network status 
+2:02:21 AM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 

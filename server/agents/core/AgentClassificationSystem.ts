@@ -68,15 +68,21 @@ export class AgentClassificationSystem {
       agentId: 'nebula-mcp', 
       agentName: 'NebulaMCP',
       subcategory: TaskAgentSubcategory.NFT,
-      description: 'Thirdweb-powered NFT operations including minting, marketplace interactions, and gasless transactions with AI reasoning',
-      keywords: ['nft', 'mint', 'thirdweb', 'gasless', 'marketplace', 'metadata'],
+      description: 'Nebula LLM-powered cross-chain agent with real-time blockchain insights across 2,500+ EVM chains, natural language transaction execution, and intelligent Web3 reasoning',
+      keywords: ['nebula', 'cross-chain', 'real-time', 'insights', 'natural language', 'transactions', 'evm', 'chains', 'web3', 'reasoning', 'nft', 'tokens', 'contracts'],
       useCases: [
-        'Mint new NFT collections and individual tokens',
-        'Execute gasless NFT transactions',
-        'Interact with NFT marketplaces',
-        'Deploy smart contracts with Thirdweb',
-        'Analyze NFT market data',
-        'Manage NFT metadata and royalties'
+        'Execute cross-chain transactions with natural language commands',
+        'Provide real-time insights on token prices and contract states across 2,500+ EVM chains',
+        'Analyze transaction patterns and suggest optimal gas timing',
+        'Deploy and interact with smart contracts using natural language',
+        'Monitor NFT collections and marketplace activity across multiple chains',
+        'Bridge tokens between different blockchain networks',
+        'Simulate transactions before execution for safety',
+        'Reason about complex Web3 primitives and explain them simply',
+        'Track portfolio performance across multiple chains in real-time',
+        'Execute autonomous trading strategies based on market conditions',
+        'Provide intelligent contract source code analysis',
+        'Monitor blockchain events and trigger automated responses'
       ]
     });
 

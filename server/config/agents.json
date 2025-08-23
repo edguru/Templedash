@@ -57,34 +57,44 @@
       }
     },
     "specialized_agents": {
-      "blockchain-agent": {
-        "name": "BlockchainAgent",
-        "type": "specialized",
-        "role": "Comprehensive blockchain operations and Web3 interactions",
-        "systemMessage": "You are a specialized blockchain agent with expertise in Web3 operations, smart contract interactions, and DeFi protocols. You handle all blockchain-related tasks including balance checks, token transfers, NFT operations, and smart contract calls. You integrate with the CAMP explorer API for real-time data and provide accurate, up-to-date blockchain information. Your responses should be informative, secure-minded, and include relevant transaction details and USD values where applicable.",
+      "goat-agent": {
+        "name": "UnifiedGoatAgent",
+        "type": "specialized", 
+        "role": "Unified blockchain operations with session key signing and comprehensive DeFi capabilities",
+        "systemMessage": "You are the unified GOAT SDK agent combining all blockchain capabilities including token operations, DeFi protocols, NFT management, and cross-chain interactions. You provide automated transaction signing through secure session keys stored in AWS KMS, enabling seamless blockchain operations without manual approval. You handle balance checks, transfers, swaps, liquidity operations, yield farming, and smart contract interactions on Base Camp network with real-time data integration.",
         "capabilities": [
           "blockchain_operations",
-          "smart_contract_interaction",
-          "token_operations",
-          "nft_management",
+          "session_key_signing",
+          "automated_transactions", 
           "defi_protocols",
-          "real_time_data"
+          "token_operations",
+          "nft_management", 
+          "cross_chain_operations",
+          "yield_farming",
+          "liquidity_management",
+          "smart_contract_interaction",
+          "gas_optimization",
+          "security_analysis"
         ],
         "tools": [
-          "thirdweb_sdk",
+          "goat_sdk",
+          "session_signers",
+          "aws_kms",
+          "plugin_system",
+          "chain_connector",
           "camp_explorer_api",
-          "smart_contract_calls",
           "transaction_builder"
         ],
         "keywords": [
           "balance", "transfer", "token", "NFT", "smart contract", "blockchain",
-          "wallet", "transaction", "DeFi", "yield", "stake", "swap", "bridge",
-          "mint", "burn", "approve", "allowance", "gas", "fee", "address"
+          "wallet", "transaction", "DeFi", "yield", "stake", "swap", "bridge", 
+          "mint", "burn", "approve", "allowance", "gas", "fee", "address",
+          "session", "sign", "automated", "liquidity", "pool", "farming"
         ],
-        "priority": "high",
-        "loadFactor": 0.6,
-        "successRate": 0.92,
-        "averageLatency": 5000
+        "priority": "critical",
+        "loadFactor": 0.8,
+        "successRate": 0.95,
+        "averageLatency": 3000
       },
       "research-agent": {
         "name": "ResearchAgent",
@@ -148,37 +158,6 @@
       }
     },
     "mcp_agents": {
-      "goat-mcp": {
-        "name": "GoatMCP",
-        "type": "mcp",
-        "role": "Advanced blockchain operations with GOAT SDK integration",
-        "systemMessage": "You are the GOAT MCP agent specialized in advanced blockchain operations using the GOAT SDK. You handle complex DeFi operations, cross-chain interactions, and sophisticated smart contract integrations. You work with ERC20 tokens, NFT operations, yield farming, and cross-chain bridges. Your responses should be technically accurate and include detailed transaction information.",
-        "capabilities": [
-          "advanced_defi",
-          "cross_chain_operations",
-          "yield_farming",
-          "liquidity_management",
-          "complex_swaps",
-          "bridge_operations"
-        ],
-        "plugins": [
-          "erc20",
-          "nft_operations", 
-          "defi_yield",
-          "cross_chain_bridge"
-        ],
-        "tools": [
-          "goat_sdk",
-          "plugin_system",
-          "chain_connector",
-          "yield_optimizer"
-        ],
-        "supportedChains": ["Base Camp Testnet", "Ethereum", "Polygon", "Arbitrum"],
-        "priority": "high",
-        "loadFactor": 0.6,
-        "successRate": 0.87,
-        "averageLatency": 7000
-      },
       "nebula-mcp": {
         "name": "NebulaMCP", 
         "type": "mcp",

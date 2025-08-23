@@ -50,18 +50,24 @@ export class AgentClassificationSystem {
   private initializeClassifications(): void {
     // TASK AGENTS - Use RAG selection for intelligent routing
     this.addTaskAgent({
-      agentId: 'blockchain-agent',
-      agentName: 'BlockchainAgent',
+      agentId: 'goat-agent',
+      agentName: 'UnifiedGoatAgent', 
       subcategory: TaskAgentSubcategory.BLOCKCHAIN,
-      description: 'GOAT SDK-powered blockchain operations including token transfers, balance checks, and DeFi interactions on Base Camp network',
-      keywords: ['blockchain', 'token', 'transfer', 'balance', 'defi', 'goat', 'sdk', 'camp'],
+      description: 'Unified GOAT SDK agent with comprehensive blockchain operations, session key signing, DeFi protocols, NFT management, and cross-chain capabilities on Base Camp network',
+      keywords: ['blockchain', 'token', 'transfer', 'balance', 'defi', 'goat', 'sdk', 'camp', 'session', 'signing', 'swap', 'liquidity', 'nft', 'mint', 'cross-chain', 'bridge', 'yield', 'farming', 'automated'],
       useCases: [
-        'Transfer CAMP tokens between wallets',
-        'Check token balances and portfolio values',
-        'Execute DeFi operations like swaps and staking',
-        'Interact with ERC20 contracts',
-        'Monitor blockchain transactions',
-        'Manage wallet operations'
+        'Execute token transfers with automatic session key signing',
+        'Check CAMP and ERC20 token balances in real-time',
+        'Perform DeFi swaps and liquidity operations via Uniswap',
+        'Manage NFT minting, transfers, and marketplace interactions',
+        'Execute cross-chain bridging and asset transfers',
+        'Automate yield farming and staking strategies',
+        'Deploy and interact with smart contracts',
+        'Monitor blockchain transactions and wallet activities',
+        'Provide gas optimization and security analysis',
+        'Create and manage session signers for automated transactions',
+        'Execute complex multi-step DeFi strategies',
+        'Bridge assets across multiple blockchain networks'
       ]
     });
 
@@ -119,21 +125,6 @@ export class AgentClassificationSystem {
       ]
     });
 
-    this.addTaskAgent({
-      agentId: 'goat-mcp',
-      agentName: 'GoatMCP',
-      subcategory: TaskAgentSubcategory.DEFI,
-      description: 'Advanced DeFi operations with GOAT SDK integration, supporting multiple protocols and cross-chain operations',
-      keywords: ['defi', 'goat', 'uniswap', 'liquidity', 'yield', 'farming', 'cross-chain'],
-      useCases: [
-        'Execute complex DeFi strategies',
-        'Manage liquidity positions across protocols',
-        'Perform cross-chain asset bridging',
-        'Automate yield farming operations',
-        'Analyze DeFi protocol performance', 
-        'Execute multi-step DeFi transactions'
-      ]
-    });
 
     this.addTaskAgent({
       agentId: 'docwriter-mcp',

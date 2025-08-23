@@ -65,28 +65,27 @@ export class AgentSystem {
     const taskOrchestrator = new TaskOrchestrator(this.messageBroker, taskTracker);
     const userExperience = new UserExperience(this.messageBroker);
 
-    // Initialize new CrewAI specialized agents (conditional loading to avoid import issues)
+    // Initialize unified GOAT agent and other specialized agents (conditional loading to avoid import issues)
     try {
-      const { BlockchainAgent } = await import('./crewai/BlockchainAgent');
+      const { UnifiedGoatAgent } = await import('./blockchain/UnifiedGoatAgent');
       const { ResearchAgent } = await import('./crewai/ResearchAgent');
       const { CodeGenerationAgent } = await import('./crewai/CodeGenerationAgent');
       
-      const blockchainAgent = new BlockchainAgent(this.messageBroker);
+      const unifiedGoatAgent = new UnifiedGoatAgent(this.messageBroker);
       const researchAgent = new ResearchAgent(this.messageBroker);
       const codeGenerationAgent = new CodeGenerationAgent(this.messageBroker);
       
-      // Register new CrewAI specialized agents
-      this.registry.register('blockchain-agent', blockchainAgent);
+      // Register specialized agents
+      this.registry.register('goat-agent', unifiedGoatAgent);
       this.registry.register('research-agent', researchAgent);
       this.registry.register('code-generation-agent', codeGenerationAgent);
       
-      console.log('✅ CrewAI specialized agents initialized successfully');
+      console.log('✅ Unified GOAT agent and specialized agents initialized successfully');
     } catch (error) {
-      console.log('⚠️ CrewAI agents not available, using legacy agents only:', error instanceof Error ? error.message : error);
+      console.log('⚠️ Specialized agents not available, using MCP agents only:', error instanceof Error ? error.message : error);
     }
 
-    // Register MCP agents
-    const goatMCP = new GoatMCP(this.messageBroker);
+    // Register remaining MCP agents (GoatMCP removed - replaced by UnifiedGoatAgent)
     const codeGenMCP = new CodeGenMCP(this.messageBroker);
     const documentWriterMCP = new DocumentWriterMCP(this.messageBroker);
     const nebulaMCP = new NebulaMCP(this.messageBroker);
@@ -105,8 +104,7 @@ export class AgentSystem {
 
     // Note: CrewAI agents are registered above in the try block
 
-    // Register MCP agents
-    this.registry.register('goat-mcp', goatMCP);
+    // Register MCP agents (goat-mcp replaced by unified goat-agent)
     this.registry.register('codegen-mcp', codeGenMCP);
     this.registry.register('docwriter-mcp', documentWriterMCP);
     this.registry.register('nebula-mcp', nebulaMCP);

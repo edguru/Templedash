@@ -239,9 +239,24 @@ export class BlockchainAgent extends BaseAgent {
     const operationType = this.determineOperationType(userMessage);
     
     // Merge text-extracted parameters with injected parameters from TaskOrchestrator
+    // CRITICAL: For transfers, preserve recipient from text extraction, only inject sender info
     const textParameters = this.extractParameters(userMessage, operationType);
     const injectedParameters = message.payload.parameters || {};
-    const mergedParameters = { ...textParameters, ...injectedParameters };
+    
+    let mergedParameters: Record<string, any>;
+    if (operationType === 'token_transfer') {
+      // For transfers: preserve recipient from text, get sender from injection
+      mergedParameters = {
+        ...injectedParameters,
+        ...textParameters,
+        // Ensure sender info from injection is preserved as 'from'
+        from: injectedParameters.walletAddress || injectedParameters.address,
+        walletAddress: injectedParameters.walletAddress || injectedParameters.address
+      };
+    } else {
+      // For other operations: normal merge priority
+      mergedParameters = { ...textParameters, ...injectedParameters };
+    }
     
     // Log the parameter merging for debugging
     if (Object.keys(injectedParameters).length > 0) {
@@ -295,34 +310,19 @@ export class BlockchainAgent extends BaseAgent {
     const initialSupply = parameters.supply || '1000000';
     const decimals = parameters.decimals || 18;
 
-    // Simulate ERC20 deployment with realistic details
-    const contractAddress = `0x${Math.random().toString(16).substring(2, 42)}`;
-    const transactionHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-    const gasUsed = Math.floor(Math.random() * 500000) + 1000000;
-    const blockNumber = Math.floor(Math.random() * 1000000) + 18000000;
+    // STRICT DATA INTEGRITY: NO FAKE DEPLOYMENTS
+    return `❌ **ERC20 Deployment Not Implemented**
 
-    return `🎉 **ERC20 Token Deployed Successfully!**
-
-**Token Details:**
-• Name: ${tokenName}
+**Deployment Request:**
+• Token Name: ${tokenName}
 • Symbol: ${tokenSymbol}
+• Initial Supply: ${Number(initialSupply).toLocaleString()}
 • Decimals: ${decimals}
-• Initial Supply: ${Number(initialSupply).toLocaleString()} tokens
-• Contract Address: \`${contractAddress}\`
 
-**Transaction Details:**
-• Transaction Hash: \`${transactionHash}\`
-• Network: Base Camp Testnet
-• Gas Used: ${gasUsed.toLocaleString()}
-• Block Number: ${blockNumber.toLocaleString()}
-• Deployment Status: ✅ Confirmed
+**Status:** Real smart contract deployment required
+**Solution:** This requires actual blockchain integration with contract deployment tools
 
-**Next Steps:**
-• Add token to MetaMask using contract address
-• Verify contract on block explorer
-• Set up token distribution strategy
-
-Your ERC20 token is now live and ready for use! 🚀`;
+*Data Integrity Policy: No fake contract addresses will be generated*`;
   }
 
   private async executeNFTDeployment(parameters: Record<string, any>): Promise<string> {
@@ -330,38 +330,73 @@ Your ERC20 token is now live and ready for use! 🚀`;
     const collectionSymbol = parameters.symbol || 'NFT';
     const maxSupply = parameters.maxSupply || '10000';
 
-    const contractAddress = `0x${Math.random().toString(16).substring(2, 42)}`;
-    const transactionHash = `0x${Math.random().toString(16).substring(2, 66)}`;
+    // STRICT DATA INTEGRITY: NO FAKE DEPLOYMENTS
+    return `❌ **NFT Collection Deployment Not Implemented**
 
-    return `🎨 **NFT Collection Deployed Successfully!**
-
-**Collection Details:**
+**Collection Request:**
 • Name: ${collectionName}
 • Symbol: ${collectionSymbol}
 • Max Supply: ${Number(maxSupply).toLocaleString()} NFTs
-• Contract Address: \`${contractAddress}\`
 • Standard: ERC721
-• Transaction Hash: \`${transactionHash}\`
 
-Your NFT collection is ready for minting! 🖼️`;
+**Status:** Real smart contract deployment required
+**Solution:** This requires actual blockchain integration with NFT contract deployment
+
+*Data Integrity Policy: No fake contract addresses or transaction hashes will be generated*`;
   }
 
   private async executeTokenTransfer(parameters: Record<string, any>): Promise<string> {
-    const amount = parameters.amount || '100';
-    const recipient = parameters.to || '0x...';
+    // Extract and validate parameters - NO FAKE DATA ALLOWED
+    const amount = parameters.amount;
+    const recipient = parameters.to || parameters.recipient || parameters.address;
     const token = parameters.token || 'CAMP';
+    const sender = parameters.walletAddress || parameters.from;
 
-    const transactionHash = `0x${Math.random().toString(16).substring(2, 66)}`;
+    // STRICT DATA INTEGRITY: Return error for missing critical parameters
+    if (!amount) {
+      return `❌ **Token Transfer Failed**
 
-    return `💸 **Token Transfer Completed!**
+**Error:** Amount not specified
+**Required:** Please specify the amount to transfer
+**Example:** "transfer 0.01 CAMP to 0x123..."
 
-**Transfer Details:**
+*Data Integrity Policy: Real blockchain operations only*`;
+    }
+
+    if (!recipient || recipient === '0x...' || !recipient.startsWith('0x') || recipient.length !== 42) {
+      return `❌ **Token Transfer Failed**
+
+**Error:** Invalid or missing recipient address
+**Provided:** \`${recipient || 'none'}\`
+**Required:** Valid Ethereum address (0x followed by 40 hex characters)
+**Example:** "transfer 0.01 CAMP to 0x123..."
+
+*Data Integrity Policy: Real blockchain operations only*`;
+    }
+
+    if (!sender || !sender.startsWith('0x') || sender.length !== 42) {
+      return `❌ **Token Transfer Failed**
+
+**Error:** Invalid sender wallet address
+**Provided:** \`${sender || 'none'}\`
+**Required:** Valid authenticated wallet address
+
+*Data Integrity Policy: Real blockchain operations only*`;
+    }
+
+    // CRITICAL: NO FAKE TRANSACTIONS - This would require real blockchain integration
+    return `❌ **Token Transfer Not Implemented**
+
+**Transfer Request:**
 • Amount: ${amount} ${token}
-• Recipient: \`${recipient}\`
-• Transaction Hash: \`${transactionHash}\`
-• Status: ✅ Confirmed
+• From: \`${sender}\`
+• To: \`${recipient}\`
+• Network: Base Camp Testnet
 
-Transfer successful! 🎯`;
+**Status:** Real blockchain integration required
+**Solution:** This requires actual Thirdweb/blockchain integration with user wallet signing
+
+*Data Integrity Policy: No fake transaction data will be generated*`;
   }
 
   private async executeBalanceCheck(parameters: Record<string, any>): Promise<string> {
@@ -602,6 +637,28 @@ Operation executed successfully! 🎯`;
 
   private extractParameters(message: string, operationType: string): Record<string, any> {
     const params: Record<string, any> = {};
+    
+    // Extract transfer-specific parameters with high priority
+    if (operationType === 'token_transfer') {
+      // Extract amount (handles decimal numbers)
+      const amountMatch = message.match(/(?:transfer|send)\s+([0-9]+\.?[0-9]*)\s*(?:camp|token|eth|usdc|usdt)?/i);
+      if (amountMatch) {
+        params.amount = amountMatch[1];
+      }
+      
+      // Extract recipient address (prioritize 'to' patterns)
+      const recipientMatch = message.match(/(?:to|recipient)\s+(0x[a-fA-F0-9]{40})/i);
+      if (recipientMatch) {
+        params.to = recipientMatch[1];
+        params.recipient = recipientMatch[1]; // Also set as recipient for clarity
+      }
+      
+      // Extract token type
+      const tokenMatch = message.match(/([0-9]+\.?[0-9]*)\s*(camp|eth|usdc|usdt|token)/i);
+      if (tokenMatch) {
+        params.token = tokenMatch[2].toUpperCase();
+      }
+    }
     
     // Extract token name
     const nameMatch = message.match(/(?:called|named)\s+['"](.*?)['"]|(?:called|named)\s+(\w+)/i);

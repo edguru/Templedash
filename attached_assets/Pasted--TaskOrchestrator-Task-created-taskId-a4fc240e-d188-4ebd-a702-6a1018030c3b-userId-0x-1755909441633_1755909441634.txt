@@ -1,0 +1,185 @@
+[TaskOrchestrator] Task created: {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'token_transfer'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  type: 'token_transfer',
+  priority: 'medium'
+}
+[task-orchestrator] Added task to queue {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  priority: 'medium',
+  queueSize: 1
+}
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'transfer 0.01 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'transfer 0.01 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  parameterKeys: []
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskTracker] Unknown task: a4fc240e-d188-4ebd-a702-6a1018030c3b
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  category: 'token_transfer'
+}
+[TaskOrchestrator] Executing single-agent task a4fc240e-d188-4ebd-a702-6a1018030c3b with intelligent AI selection
+[IntelligentAgentSelector] Error in AI agent selection: AuthenticationError: 401 Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.
+    at Function.generate (/home/runner/workspace/node_modules/openai/src/core/error.ts:76:14)
+    at OpenAI.makeStatusError (/home/runner/workspace/node_modules/openai/src/client.ts:445:28)
+    at OpenAI.makeRequest (/home/runner/workspace/node_modules/openai/src/client.ts:668:24)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async IntelligentAgentSelector.selectBestAgent (/home/runner/workspace/server/agents/core/IntelligentAgentSelector.ts:67:26)
+    at async TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:369:29)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:325:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:276:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:251:7) {
+  status: 401,
+  headers: Headers {
+    date: 'Sat, 23 Aug 2025 00:29:30 GMT',
+    'content-type': 'application/json; charset=utf-8',
+    'content-length': '419',
+    connection: 'keep-alive',
+    vary: 'Origin',
+    'x-request-id': 'req_f9ace118df6b4ff78b84a0ff631b785e',
+    'x-envoy-upstream-service-time': '0',
+    'cf-cache-status': 'DYNAMIC',
+    'set-cookie': '__cf_bm=GI9BU.0ZtepYeLetg_mpCyXSirstCgedMcejAZLVRv0-1755908970-1.0.1.1-WHStstMsy_YCvtUulsOp6HfKtb040KwU5r4SchOPUwtkg5UyhG9BXR2uyVoTqhTKbcvuJyMO2DpG_M7eG2uLDjUMIWQjyDk6oE5rTX16q2s; path=/; expires=Sat, 23-Aug-25 00:59:30 GMT; domain=.api.openai.com; HttpOnly; Secure; SameSite=None, _cfuvid=mWDuOvrzjaKEckMzoZiHwos2X3v_nAGYe1S9sl3EUaI-1755908970781-0.0.1.1-604800000; path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None',
+    'strict-transport-security': 'max-age=31536000; includeSubDomains; preload',
+    'x-content-type-options': 'nosniff',
+    server: 'cloudflare',
+    'cf-ray': '97367ef99d024087-BOM',
+    'alt-svc': 'h3=":443"; ma=86400'
+  },
+  requestID: 'req_f9ace118df6b4ff78b84a0ff631b785e',
+  error: {
+    message: 'Incorrect API key provided: sk-proj-*************************************************************************************************************************************************************iLwA. You can find your API key at https://platform.openai.com/account/api-keys.',
+    type: 'invalid_request_error',
+    param: null,
+    code: 'invalid_api_key'
+  },
+  code: 'invalid_api_key',
+  param: null,
+  type: 'invalid_request_error'
+}
+[TaskOrchestrator] AI selected agent blockchain-agent for task a4fc240e-d188-4ebd-a702-6a1018030c3b {
+  confidence: 0.7,
+  reasoning: [
+    'Task contains blockchain-related keywords',
+    'BlockchainAgent selected for Web3 operations'
+  ],
+  taskAnalysis: {
+    category: 'general',
+    complexity: 'moderate',
+    estimatedDuration: '2-5 minutes',
+    requiredCapabilities: []
+  },
+  chainOfThought: [
+    'Task Analysis: transfer 0.01 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    'Task Type: token_transfer, Priority: medium',
+    'AI Selected Agent: blockchain-agent (confidence: 70.0%)',
+    'Selection Reasoning: Task contains blockchain-related keywords, BlockchainAgent selected for Web3 operations',
+    'Agent Type: specialized, Role: Comprehensive blockchain operations and Web3 interactions',
+    'Success Rate: 92.0%',
+    'Average Latency: 5000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: blockchain_operation from task-orchestrator to blockchain-agent
+[blockchain-agent] Processing blockchain operation request { type: 'blockchain_operation' }
+[blockchain-agent] Merged parameters from TaskOrchestrator injection {
+  textExtracted: { address: '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE' },
+  injected: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  merged: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  }
+}
+[blockchain-agent] Executing blockchain operation {
+  operation: 'token_transfer',
+  parameters: {
+    address: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    walletAddress: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+  },
+  network: 'Base Camp Testnet',
+  securityLevel: 'medium',
+  estimatedGas: '21,000 - 65,000',
+  requiresApproval: true
+}
+[TaskOrchestrator] Agent performance update: blockchain-agent, task: token_transfer, success: true
+[blockchain-agent] Sending blockchain operation response { taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b', resultLength: 180 }
+Publishing message: task_step_complete from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  agentType: 'BlockchainAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: '💸 **Token Transfer Completed!**\n' +
+    '\n' +
+    '**Transfer Details:**\n' +
+    '• Amount: 100 CAMP\n' +
+    '• Recipient: `0x...`\n' +
+    '• Tr'
+}
+[TaskTracker] Unknown task: a4fc240e-d188-4ebd-a702-6a1018030c3b
+Publishing message: agent_response from blockchain-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Blockchain Agent',
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  messageType: 'agent_response',
+  responseLength: 180
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[blockchain-agent] Published blockchain response messages { taskStepComplete: true, agentResponse: true }
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[AgentOrchestrator] Received task result: {
+  result: '💸 **Token Transfer Completed!**\n' +
+    '\n' +
+    '**Transfer Details:**\n' +
+    '• Amount: 100 CAMP\n' +
+    '• Recipient: `0x...`\n' +
+    '• Tr'
+}
+[AgentOrchestrator] Received task result: {
+  result: '💸 **Token Transfer Completed!**\n' +
+    '\n' +
+    '**Transfer Details:**\n' +
+    '• Amount: 100 CAMP\n' +
+    '• Recipient: `0x...`\n' +
+    '• Tr'
+}
+[task-orchestrator] Task completed successfully {
+  taskId: 'a4fc240e-d188-4ebd-a702-6a1018030c3b',
+  result: '💸 **Token Transfer Completed!**\n' +
+    '\n' +
+    '**Transfer Details:**\n' +
+    '• Amount: 100 CAMP\n' +
+    '• Recipient: `0x...`\n' +
+    '• Transaction Hash: `0x7c41880ecbaa8`\n' +
+    '• Status: ✅ Confirmed\n' +
+    '\n' +
+    'Transfer successful! 🎯'
+}

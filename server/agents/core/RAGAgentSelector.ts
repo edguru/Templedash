@@ -118,16 +118,18 @@ export class RAGAgentSelector {
     }
   }
 
-  private buildAgentDescriptionForEmbedding(config: AgentConfig): string {
+  private buildTaskAgentDescriptionForEmbedding(taskAgent: AgentClassification): string {
     return `
-Agent: ${config.name}
-Description: ${config.description}
-Role: ${config.role}
-Capabilities: ${config.capabilities?.join(', ') || 'None'}
-Use Cases: ${config.useCases?.join(', ') || 'None'}
-Agent Type: ${config.agentType}
-Specializations: ${config.keywords?.join(', ') || 'None'}
-Performance: Success Rate ${config.performanceMetrics?.successRate}%, Latency ${config.performanceMetrics?.averageLatency}ms
+Agent Name: ${taskAgent.agentName}
+Description: ${taskAgent.description}
+Category: ${taskAgent.category} (${taskAgent.subcategory})
+Keywords: ${taskAgent.keywords.join(', ')}
+Use Cases: ${taskAgent.useCases.join(' | ')}
+Execution Capable: ${taskAgent.executionCapable ? 'Yes' : 'No'}
+Specialization: ${taskAgent.subcategory}
+
+Task Examples:
+${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
     `.trim();
   }
 

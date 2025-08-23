@@ -1,11 +1,18 @@
-// Blockchain Operations Agent - Specialized CrewAI agent for all blockchain-related tasks
-// Handles token deployment, DeFi operations, NFT management, and blockchain queries
+// GOAT SDK Blockchain Agent - Pure GOAT SDK implementation for blockchain operations
+// Handles CAMP token transfers, balance checks, and DeFi operations on Base Camp testnet
 
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { ChainOfThoughtEngine } from './ChainOfThoughtEngine';
 import { v4 as uuidv4 } from 'uuid';
+
+// GOAT SDK imports
+import { getOnChainTools } from '@goat-sdk/core';
+import { erc20 } from '@goat-sdk/plugin-erc20';
+import { createWalletClient, http, createPublicClient } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+import crypto from 'crypto';
 
 interface BlockchainTask {
   operation: string;

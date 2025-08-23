@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { AgentConfigManager } from '../../config/AgentConfigManager';
 import { AgentConfig } from '../../config/AgentConfigManager';
 import { RAGAgentSelector, RAGSelectionRequest, RAGSelectionResult } from './RAGAgentSelector';
+import { AgentClassificationSystem, AgentCategory } from './AgentClassificationSystem';
 
 export interface AgentSelectionRequest {
   taskDescription: string;
@@ -39,15 +40,17 @@ export class IntelligentAgentSelector {
   private configManager: AgentConfigManager;
   private agentConfigs: Record<string, AgentConfig> = {};
   private ragSelector: RAGAgentSelector;
+  private classificationSystem: AgentClassificationSystem;
 
   constructor() {
     // Force fresh OpenAI client initialization (clean any whitespace)  
     const apiKey = process.env.OPENAI_API_KEY?.replace(/\s+/g, '') || '';
     this.openai = new OpenAI({ apiKey });
     this.configManager = new AgentConfigManager();
+    this.classificationSystem = new AgentClassificationSystem();
     this.ragSelector = new RAGAgentSelector();
     this.loadAgentConfigurations();
-    console.log('[IntelligentAgentSelector] OpenAI client initialized with RAG enhancement', {
+    console.log('[IntelligentAgentSelector] OpenAI client initialized with RAG for TASK agents only', {
       keyPrefix: apiKey.substring(0, 15),
       keyLength: apiKey.length,
       hasKey: !!apiKey
@@ -67,22 +70,21 @@ export class IntelligentAgentSelector {
   }
 
   /**
-   * Select the best agent(s) for a task using RAG-enhanced analysis
+   * Select the best agent(s) for a task using hybrid RAG + traditional routing
    */
   async selectBestAgent(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
     try {
-      // Check if this task needs execution (prefer RAG for MCP agents)
-      const needsExecution = this.taskNeedsExecution(request.taskDescription);
+      // Check if this should be routed to task agents (use RAG) or non-task agents (traditional)
+      const isTaskAgent = this.shouldUseTaskAgentRouting(request.taskDescription);
       
-      // Use RAG for execution-focused tasks, traditional AI for others
-      if (needsExecution) {
-        console.log('[IntelligentAgentSelector] Using RAG for execution task');
+      if (isTaskAgent) {
+        console.log('[IntelligentAgentSelector] Routing to TASK agents using RAG selection');
         return await this.selectWithRAG(request);
       }
 
-      // Use traditional AI analysis for planning/analysis tasks
-      console.log('[IntelligentAgentSelector] Using traditional AI for analysis task');
-      const agentProfiles = this.buildAgentProfiles();
+      // Use traditional AI analysis for non-task agents (orchestrator, companion, etc)
+      console.log('[IntelligentAgentSelector] Routing to NON-TASK agents using traditional AI');
+      const agentProfiles = this.buildNonTaskAgentProfiles();
       
       const completion = await this.openai.chat.completions.create({
         model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
@@ -282,15 +284,65 @@ Priority: ${config.priority}
   }
 
   /**
-   * Determine if a task needs execution vs just analysis
+   * Determine if a task should be routed to task agents (RAG) vs non-task agents (traditional)
    */
-  private taskNeedsExecution(taskDescription: string): boolean {
-    const executionKeywords = [
-      'transfer', 'send', 'deploy', 'mint', 'execute', 'run', 'perform', 
-      'create', 'generate', 'build', 'swap', 'stake', 'bridge'
+  private shouldUseTaskAgentRouting(taskDescription: string): boolean {
+    const taskAgentKeywords = [
+      // Blockchain & DeFi
+      'transfer', 'send', 'swap', 'stake', 'bridge', 'balance', 'token', 'defi',
+      // NFT operations  
+      'mint', 'nft', 'deploy', 'contract', 'gasless',
+      // Research & Analysis
+      'research', 'analyze', 'investigate', 'study', 'report', 'data',
+      // Code generation
+      'code', 'generate', 'develop', 'build', 'create', 'programming',
+      // Document writing
+      'document', 'write', 'report', 'documentation', 'markdown',
+      // Scheduling
+      'schedule', 'automate', 'recurring', 'timer', 'workflow'
+    ];
+
+    const nonTaskKeywords = [
+      // Companion/conversation
+      'chat', 'talk', 'conversation', 'companion', 'hello', 'how are you',
+      // Memory/profile
+      'remember', 'forget', 'profile', 'preference', 'memory',
+      // Task management
+      'track', 'status', 'progress', 'orchestrate', 'manage'
     ];
     
     const lowerTask = taskDescription.toLowerCase();
-    return executionKeywords.some(keyword => lowerTask.includes(keyword));
+    
+    // Check for non-task keywords first (higher priority)
+    const isNonTask = nonTaskKeywords.some(keyword => lowerTask.includes(keyword));
+    if (isNonTask) return false;
+    
+    // Check for task keywords
+    const isTask = taskAgentKeywords.some(keyword => lowerTask.includes(keyword));
+    
+    // Default to task agents for execution-oriented requests
+    return isTask || lowerTask.includes('execute') || lowerTask.includes('perform');
+  }
+
+  /**
+   * Build profiles only for non-task agents (orchestrator, companion, etc)
+   */
+  private buildNonTaskAgentProfiles(): string {
+    const profiles: string[] = [];
+    const nonTaskAgents = this.classificationSystem.getNonTaskAgents();
+    
+    for (const agent of nonTaskAgents) {
+      const profile = `
+AGENT: ${agent.agentName} (${agent.agentId})
+Type: ${agent.category} (${agent.subcategory})
+Description: ${agent.description}
+Use RAG: ${agent.useRAG ? 'Yes' : 'No'}
+Execution Capable: ${agent.executionCapable ? 'Yes' : 'No'}
+      `.trim();
+      
+      profiles.push(profile);
+    }
+    
+    return profiles.join('\n\n');
   }
 }

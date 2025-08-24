@@ -104,7 +104,7 @@ export class RAGAgentSelector {
         agentId: taskAgent.agentId,
         agentName: taskAgent.agentName,
         description: taskAgent.description,
-        capabilities: taskAgent.keywords, // Use keywords as capabilities
+        capabilities: this.getAgentConfig(taskAgent.agentId)?.capabilities || taskAgent.keywords, // Use enhanced capabilities first
         useCases: taskAgent.useCases,
         embedding: embeddingResponse.data[0].embedding,
         agentType: this.mapToAgentType(taskAgent.subcategory),
@@ -120,18 +120,36 @@ export class RAGAgentSelector {
   }
 
   private buildTaskAgentDescriptionForEmbedding(taskAgent: AgentClassification): string {
+    const capabilities = taskAgent.keywords || [];
+    const agentConfig = this.getAgentConfig(taskAgent.agentId);
+    const enhancedCapabilities = agentConfig?.capabilities || [];
+    
     return `
 Agent Name: ${taskAgent.agentName}
 Description: ${taskAgent.description}
 Category: ${taskAgent.category} (${taskAgent.subcategory})
-Keywords: ${taskAgent.keywords.join(', ')}
+Keywords: ${capabilities.join(', ')}
+Enhanced Capabilities: ${enhancedCapabilities.join(' | ')}
 Use Cases: ${taskAgent.useCases.join(' | ')}
 Execution Capable: ${taskAgent.executionCapable ? 'Yes' : 'No'}
 Specialization: ${taskAgent.subcategory}
 
 Task Examples:
 ${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
+
+Detailed Enhanced Capabilities:
+${enhancedCapabilities.map((cap: string) => `• ${cap}`).join('\n')}
     `.trim();
+  }
+
+  private getAgentConfig(agentId: string): any {
+    try {
+      const allAgents = this.configManager.getAllAgents();
+      return allAgents[agentId] || null;
+    } catch (error) {
+      console.error(`[RAGAgentSelector] Error loading agent config for ${agentId}:`, error);
+      return null;
+    }
   }
 
   private isExecutionCapableAgent(config: AgentConfig): boolean {

@@ -87,10 +87,10 @@
           "transaction_builder"
         ],
         "keywords": [
-          "balance", "transfer", "token", "NFT", "smart contract", "blockchain",
-          "wallet", "transaction", "DeFi", "yield", "stake", "swap", "bridge", 
-          "mint", "burn", "approve", "allowance", "gas", "fee", "address",
-          "session", "sign", "automated", "liquidity", "pool", "farming"
+          "swap", "trade", "uniswap", "1inch", "defi", "liquidity", "pool", "stake", 
+          "yield", "farming", "lending", "borrowing", "bridge", "prediction", "markets",
+          "polymarket", "arbitrage", "optimize", "session", "automated", "goat", "sdk",
+          "protocols", "trading", "strategies", "financial", "operations", "cross-chain"
         ],
         "priority": "critical",
         "loadFactor": 0.8,
@@ -184,6 +184,11 @@
           "nebula_analyzer",
           "pattern_detector",
           "risk_assessor"
+        ],
+        "keywords": [
+          "balance", "check", "wallet", "transaction", "history", "address", "validation",
+          "gas", "fees", "block", "token", "contract", "metadata", "query", "lookup",
+          "nft", "ownership", "blockchain", "data", "simple", "basic", "retrieve"
         ],
         "priority": "medium",
         "loadFactor": 0.3,
@@ -333,13 +338,10 @@
           "gas_estimator"
         ],
         "keywords": [
-          "chaingpt", "web3", "llm", "real-time", "live data", "market research",
-          "wallet analysis", "token metrics", "on-chain analytics", "whale tracking",
-          "sentiment analysis", "nft floor price", "ens lookup", "regulatory",
-          "compliance", "smart contract", "audit", "security", "vulnerability",
-          "code generation", "defi", "arbitrage", "price analysis", "tokenomics",
-          "pump dump", "transaction tracing", "kol tracking", "news summaries",
-          "blockchain rpc", "autonomous", "monitoring", "gas optimization"
+          "analyze", "research", "market", "trends", "strategies", "fundamentals", "metrics",
+          "sentiment", "nft", "compliance", "audit", "security", "reports", "whale", 
+          "arbitrage", "price", "tokenomics", "investment", "thesis", "risks", "opportunities",
+          "emerging", "innovations", "cross-chain", "intelligence", "complex", "analysis"
         ],
         "priority": "high",
         "loadFactor": 0.6,

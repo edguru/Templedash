@@ -318,11 +318,13 @@ Respond naturally as ${companionPersonality?.name || 'the companion'}, consideri
 
   private async updateSessionActivity(sessionId: string): Promise<void> {
     try {
+      const { eq, sql } = await import('drizzle-orm');
+      
       await this.db
         .update(chatSessions)
-        .set({ 
-          lastMessageAt: new Date(),
-          messageCount: this.db.sql`${chatSessions.messageCount} + 1`
+        .set({
+          messageCount: sql`${chatSessions.messageCount} + 1`,
+          lastMessageAt: new Date()
         })
         .where(eq(chatSessions.sessionId, sessionId));
     } catch (error) {
@@ -338,15 +340,16 @@ Respond naturally as ${companionPersonality?.name || 'the companion'}, consideri
     return {
       responseStyle: 'friendly', // Could be analyzed from message patterns
       topics: this.extractTopics(topics),
-      taskHistory: [...new Set(taskTypes)]
+      taskHistory: Array.from(new Set(taskTypes))
     };
   }
 
   private async buildRelationshipData(userId: number, history: Conversation[]): Promise<any> {
     const interactionCount = history.length;
     const moodPattern = history.slice(-10).map(msg => msg.sentiment || 'neutral');
-    const lastInteractionDate = history.length > 0 && history[history.length - 1].createdAt 
-      ? new Date(history[history.length - 1].createdAt) 
+    const lastMessage = history.length > 0 ? history[history.length - 1] : null;
+    const lastInteractionDate = lastMessage && lastMessage.createdAt 
+      ? new Date(lastMessage.createdAt) 
       : new Date();
 
     return {
@@ -361,7 +364,7 @@ Respond naturally as ${companionPersonality?.name || 'the companion'}, consideri
     const commonTopics = ['blockchain', 'crypto', 'trading', 'defi', 'nft', 'games', 'ai', 'technology'];
     const lowerText = text.toLowerCase();
     
-    return Array.from(commonTopics).filter(topic => lowerText.includes(topic));
+    return commonTopics.filter(topic => lowerText.includes(topic));
   }
 
   // Clean up cached contexts (called periodically)

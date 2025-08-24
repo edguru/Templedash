@@ -1,0 +1,172 @@
+2:41:26 PM [express] GET /api/agents/tasks 304 in 2ms :: {"tasks":[]}
+2:41:26 PM [express] GET /api/companion-contract-address 304 in 1ms :: {"contractAddress":"0xda1D9e6…
+2:41:32 PM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 304 in 3839m…
+2:41:33 PM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: Check my CAMP token balance...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message with chat context { type: 'user_message' }
+[ChatContextManager] Built user context { userId: 1, sessionCount: 1, historyLength: 1 }
+[ChatContextManager] Failed to update session activity: TypeError: this.db.sql is not a function
+    at ChatContextManager.updateSessionActivity (/home/runner/workspace/server/agents/companions/ChatContextManager.ts:325:33)
+    at ChatContextManager.saveConversation (/home/runner/workspace/server/agents/companions/ChatContextManager.ts:150:18)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async CompanionHandler.saveUserMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:602:7)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:236:11)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[ChatContextManager] Saved conversation turn {
+  sessionId: '9daa877b-e863-40f8-820f-4b98b52c6351',
+  messageType: 'chat'
+}
+[companion-handler] AI intent analysis completed {
+  message: 'Check my CAMP token balance',
+  isTask: true,
+  confidence: 0.9,
+  taskType: 'balance_check'
+}
+[companion-handler] Routing task message to orchestrator {
+  message: 'Check my CAMP token balance',
+  confidence: 0.9,
+  taskType: 'balance_check',
+  reasoning: [
+    "The user explicitly asks to 'Check' which indicates a request for information.",
+    "The mention of 'CAMP token balance' specifies a financial inquiry related to a specific token.",
+    'The structure and wording align with a typical balance check request.'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'Check my CAMP token balance',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'Check my CAMP token balance',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'balance_check'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  type: 'balance_check',
+  priority: 'high'
+}
+[task-tracker] Task registered {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_registered from task-tracker to broadcast
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Check my CAMP token balance',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Check my CAMP token balance',
+  parameterKeys: []
+}
+[task-orchestrator] Added task to queue {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  priority: 'high',
+  queueSize: 1
+}
+[task-orchestrator] Processing immediate task {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  type: 'balance_check',
+  description: 'Check my CAMP token balance'
+}
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 6e11b585-fcc9-498b-80ef-f0159ebf8d6a with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+2:41:49 PM [express] POST /api/agents/chat 200 in 10001ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent goat-agent for task 6e11b585-fcc9-498b-80ef-f0159ebf8d6a {
+  confidence: 0.4572447279459165,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[chaingpt-mcp] Executing ChainGPT task {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  description: 'Check my CAMP token balance'
+}
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[task-analyzer] Updated network status 
+[task-tracker] Task state updated {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 6e11b585-fcc9-498b-80ef-f0159ebf8d6a with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[TaskOrchestrator] AI selected agent goat-agent for task 6e11b585-fcc9-498b-80ef-f0159ebf8d6a {
+  confidence: 0.4572447279459165,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[chaingpt-mcp] Executing ChainGPT task {
+  taskId: '6e11b585-fcc9-498b-80ef-f0159ebf8d6a',
+  description: 'Check my CAMP token balance'
+}
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[task-analyzer] Updated network status 

@@ -37,9 +37,9 @@ export class BlockchainTaskRouter {
     
     // Analysis & Research - Route to ChainGPT  
     const analysisKeywords = [
-      'analyze', 'research', 'study', 'investigate', 'report',
-      'market', 'price', 'trend', 'data', 'statistics',
-      'compare', 'evaluate', 'assess', 'audit'
+      'analyze', 'analysis', 'research', 'study', 'investigate', 'report',
+      'market', 'price', 'trend', 'trends', 'data', 'statistics',
+      'compare', 'evaluate', 'assess', 'audit', 'optimal', 'strategy', 'strategies'
     ];
     
     // Network Detection
@@ -51,31 +51,47 @@ export class BlockchainTaskRouter {
     let confidence = 0.5;
     let reasoning: string[] = [];
     
-    // Check for Nebula capabilities FIRST (blockchain queries, interactions have highest priority)
+    // Check for matches across all categories
     const nebulaMatches = nebulaKeywords.filter(keyword => lowerTask.includes(keyword));
-    if (nebulaMatches.length > 0) {
+    const defiMatches = defiKeywords.filter(keyword => lowerTask.includes(keyword));
+    const analysisMatches = analysisKeywords.filter(keyword => lowerTask.includes(keyword));
+    
+    console.log('[BlockchainTaskRouter] Keyword analysis:', {
+      task: lowerTask,
+      nebulaMatches,
+      defiMatches,
+      analysisMatches,
+      hasNebula: nebulaMatches.length > 0,
+      hasAnalysis: analysisMatches.length > 0,
+      hasBoth: nebulaMatches.length > 0 && analysisMatches.length > 0
+    });
+    
+    // DeFi operations have highest priority
+    if (defiMatches.length > 0) {
+      taskType = 'defi';
+      suggestedAgent = 'goat-agent';
+      confidence = Math.min(0.9, 0.6 + (defiMatches.length * 0.1));
+      reasoning.push(`DeFi operation detected: ${defiMatches.join(', ')}`);
+      reasoning.push('Goat agent specializes in DeFi protocols with 200+ tools');
+    }
+    // If both Nebula and ChainGPT match, prioritize ChainGPT
+    else if (nebulaMatches.length > 0 && analysisMatches.length > 0) {
+      taskType = 'analysis';
+      suggestedAgent = 'chaingpt-mcp';
+      confidence = Math.min(0.85, 0.5 + (analysisMatches.length * 0.1) + (nebulaMatches.length * 0.05));
+      reasoning.push(`Analysis task with blockchain query elements: ${analysisMatches.join(', ')}, ${nebulaMatches.join(', ')}`);
+      reasoning.push('ChainGPT prioritized for comprehensive analysis over simple queries');
+    }
+    // Pure blockchain queries go to Nebula
+    else if (nebulaMatches.length > 0) {
       taskType = 'query';
       suggestedAgent = 'nebula-mcp';
       confidence = Math.min(0.9, 0.6 + (nebulaMatches.length * 0.1));
       reasoning.push(`Blockchain query detected: ${nebulaMatches.join(', ')}`);
       reasoning.push('Nebula excels at blockchain interactions and data queries');
     }
-    
-    // Check for DeFi operations (only if not already identified as query)
-    else {
-      const defiMatches = defiKeywords.filter(keyword => lowerTask.includes(keyword));
-      if (defiMatches.length > 0) {
-        taskType = 'defi';
-        suggestedAgent = 'goat-agent';
-        confidence = Math.min(0.9, 0.6 + (defiMatches.length * 0.1));
-        reasoning.push(`DeFi operation detected: ${defiMatches.join(', ')}`);
-        reasoning.push('Goat agent specializes in DeFi protocols with 200+ tools');
-      }
-    }
-    
-    // Check for analysis tasks
-    const analysisMatches = analysisKeywords.filter(keyword => lowerTask.includes(keyword));
-    if (analysisMatches.length > 0 && taskType === 'general') {
+    // Pure analysis tasks go to ChainGPT
+    else if (analysisMatches.length > 0) {
       taskType = 'analysis';
       suggestedAgent = 'chaingpt-mcp';
       confidence = Math.min(0.8, 0.4 + (analysisMatches.length * 0.1));

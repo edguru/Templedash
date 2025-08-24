@@ -1,0 +1,465 @@
+:07:33 PM [express] GET /api/companion-contract-address 304 in 0ms :: {"contractAddress":"0xda1D9e6…
+[task-analyzer] Updated network status 
+3:07:41 PM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 304 in 5927m…
+3:07:41 PM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+[task-analyzer] Updated network status 
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: Check my CAMP token balance...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message with chat context { type: 'user_message' }
+[ChatContextManager] Built user context { userId: 1, sessionCount: 1, historyLength: 10 }
+[ChatContextManager] Saved conversation turn {
+  sessionId: '9daa877b-e863-40f8-820f-4b98b52c6351',
+  messageType: 'chat'
+}
+[task-analyzer] Updated network status 
+[companion-handler] AI intent analysis completed {
+  message: 'Check my CAMP token balance',
+  isTask: true,
+  confidence: 0.9,
+  taskType: 'balance_check'
+}
+[companion-handler] Routing task message to orchestrator {
+  message: 'Check my CAMP token balance',
+  confidence: 0.9,
+  taskType: 'balance_check',
+  reasoning: [
+    "The user explicitly asks to 'Check' something, indicating a request for information.",
+    "The phrase 'my CAMP token balance' specifies a particular token and balance inquiry.",
+    'The structure and keywords align with a financial inquiry about token holdings.'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'Check my CAMP token balance',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'Check my CAMP token balance',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'balance_check'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  type: 'balance_check',
+  priority: 'high'
+}
+[task-tracker] Task registered {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_registered from task-tracker to broadcast
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Check my CAMP token balance',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Check my CAMP token balance',
+  parameterKeys: []
+}
+[task-orchestrator] Added task to queue {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  priority: 'high',
+  queueSize: 1
+}
+[task-orchestrator] Processing immediate task {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  type: 'balance_check',
+  description: 'Check my CAMP token balance'
+}
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 782864e1-68d4-4517-b91e-dd8fad55668b with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[TaskOrchestrator] AI selected agent goat-agent for task 782864e1-68d4-4517-b91e-dd8fad55668b {
+  confidence: 0.4572224073378806,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[goat-agent] Executing blockchain operation with GOAT DeFi capabilities {
+  operation: 'balance_check',
+  goatProtocol: undefined,
+  hasSessionSigner: false
+}
+[UnifiedGoatAgent] Operation execution failed: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[UnifiedGoatAgent] Error processing request: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[DEBUG] Full error stack: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-orchestrator] Task queued { taskId: '782864e1-68d4-4517-b91e-dd8fad55668b', priority: 'high' }
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'QUEUED',
+  newState: 'QUEUED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Task queued for retry { taskId: '782864e1-68d4-4517-b91e-dd8fad55668b', attempt: 1 }
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 782864e1-68d4-4517-b91e-dd8fad55668b with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+3:08:44 PM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent goat-agent for task 782864e1-68d4-4517-b91e-dd8fad55668b {
+  confidence: 0.4572430176474743,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[goat-agent] Executing blockchain operation with GOAT DeFi capabilities {
+  operation: 'balance_check',
+  goatProtocol: undefined,
+  hasSessionSigner: false
+}
+[UnifiedGoatAgent] Operation execution failed: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[UnifiedGoatAgent] Error processing request: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[DEBUG] Full error stack: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-orchestrator] Task queued { taskId: '782864e1-68d4-4517-b91e-dd8fad55668b', priority: 'high' }
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'QUEUED',
+  newState: 'QUEUED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Task queued for retry { taskId: '782864e1-68d4-4517-b91e-dd8fad55668b', attempt: 2 }
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 782864e1-68d4-4517-b91e-dd8fad55668b with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[TaskOrchestrator] AI selected agent goat-agent for task 782864e1-68d4-4517-b91e-dd8fad55668b {
+  confidence: 0.4572447279459165,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[goat-agent] Executing blockchain operation with GOAT DeFi capabilities {
+  operation: 'balance_check',
+  goatProtocol: undefined,
+  hasSessionSigner: false
+}
+[UnifiedGoatAgent] Operation execution failed: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[UnifiedGoatAgent] Error processing request: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[DEBUG] Full error stack: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'FAILED',
+  newState: 'FAILED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+Publishing message: task_failed from task-orchestrator to companion-handler
+[task-orchestrator] Task failed {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  error: "Unified GOAT operation failed: Balance check failed: Cannot read properties of undefined (reading 'getBalance')"
+}
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task 782864e1-68d4-4517-b91e-dd8fad55668b with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[TaskOrchestrator] AI selected agent goat-agent for task 782864e1-68d4-4517-b91e-dd8fad55668b {
+  confidence: 0.4572447279459165,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 45.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: specialized, Role: Unified blockchain operations with session key signing and comprehensive DeFi capabilities',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[goat-agent] Executing blockchain operation with GOAT DeFi capabilities {
+  operation: 'balance_check',
+  goatProtocol: undefined,
+  hasSessionSigner: false
+}
+[UnifiedGoatAgent] Operation execution failed: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[UnifiedGoatAgent] Error processing request: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[DEBUG] Full error stack: Error: Balance check failed: Cannot read properties of undefined (reading 'getBalance')
+    at UnifiedGoatAgent.executeBalanceCheck (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:796:13)
+    at UnifiedGoatAgent.executeBlockchainOperation (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:599:29)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:440:33)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:130:9)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-tracker] Task state updated {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  oldState: 'FAILED',
+  newState: 'FAILED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+Publishing message: task_failed from task-orchestrator to companion-handler
+[task-orchestrator] Task failed {
+  taskId: '782864e1-68d4-4517-b91e-dd8fad55668b',
+  error: "Unified GOAT operation failed: Balance check failed: Cannot read properties of undefined (reading 'getBalance')"
+}
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 

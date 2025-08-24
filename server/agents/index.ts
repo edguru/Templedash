@@ -65,24 +65,48 @@ export class AgentSystem {
     const taskOrchestrator = new TaskOrchestrator(this.messageBroker, taskTracker);
     const userExperience = new UserExperience(this.messageBroker);
 
-    // Initialize unified GOAT agent and other specialized agents (conditional loading to avoid import issues)
+    // Initialize unified GOAT agent and other specialized agents with enhanced debugging
+    console.log('[DEBUG] Starting specialized agent initialization...');
     try {
+      console.log('[DEBUG] Attempting to import UnifiedGoatAgent...');
       const { UnifiedGoatAgent } = await import('./blockchain/UnifiedGoatAgent');
-      const { ResearchAgent } = await import('./crewai/ResearchAgent');
-      const { CodeGenerationAgent } = await import('./crewai/CodeGenerationAgent');
+      console.log('[DEBUG] UnifiedGoatAgent imported successfully');
       
+      console.log('[DEBUG] Attempting to import ResearchAgent...');
+      const { ResearchAgent } = await import('./crewai/ResearchAgent');
+      console.log('[DEBUG] ResearchAgent imported successfully');
+      
+      console.log('[DEBUG] Attempting to import CodeGenerationAgent...');
+      const { CodeGenerationAgent } = await import('./crewai/CodeGenerationAgent');
+      console.log('[DEBUG] CodeGenerationAgent imported successfully');
+      
+      console.log('[DEBUG] Creating UnifiedGoatAgent instance...');
       const unifiedGoatAgent = new UnifiedGoatAgent(this.messageBroker);
+      console.log('[DEBUG] UnifiedGoatAgent instance created successfully');
+      
+      console.log('[DEBUG] Creating ResearchAgent instance...');
       const researchAgent = new ResearchAgent(this.messageBroker);
+      console.log('[DEBUG] ResearchAgent instance created successfully');
+      
+      console.log('[DEBUG] Creating CodeGenerationAgent instance...');
       const codeGenerationAgent = new CodeGenerationAgent(this.messageBroker);
+      console.log('[DEBUG] CodeGenerationAgent instance created successfully');
       
       // Register specialized agents
+      console.log('[DEBUG] Registering goat-agent...');
       this.registry.register('goat-agent', unifiedGoatAgent);
+      console.log('[DEBUG] goat-agent registered successfully');
+      
       this.registry.register('research-agent', researchAgent);
       this.registry.register('code-generation-agent', codeGenerationAgent);
       
       console.log('✅ Unified GOAT agent and specialized agents initialized successfully');
+      console.log('[DEBUG] All specialized agents registered in registry');
     } catch (error) {
-      console.log('⚠️ Specialized agents not available, using MCP agents only:', error instanceof Error ? error.message : error);
+      console.error('❌ Specialized agents initialization failed with detailed error:');
+      console.error('Error message:', error instanceof Error ? error.message : error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
+      console.log('⚠️ Falling back to MCP agents only');
     }
 
     // Register remaining MCP agents (GoatMCP removed - replaced by UnifiedGoatAgent)

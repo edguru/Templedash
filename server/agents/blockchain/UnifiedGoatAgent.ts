@@ -44,10 +44,10 @@ interface BlockchainTask {
 
 export class UnifiedGoatAgent extends BaseAgent {
   private chainOfThought: ChainOfThoughtEngine;
-  private sessionSigners: Map<string, SessionSigner> = new Map();
-  private goatCapabilities: Map<string, GoatDeFiCapability> = new Map();
-  private blockchainKeywords: Set<string> = new Set();
-  private supportedOperations: Set<string> = new Set();
+  private sessionSigners: Map<string, SessionSigner>;
+  private goatCapabilities: Map<string, GoatDeFiCapability>;
+  private blockchainKeywords: Set<string>;
+  private supportedOperations: Set<string>;
   private kmsClient: KMSClient;
   
   // Network Configuration for GOAT SDK operations
@@ -85,7 +85,17 @@ export class UnifiedGoatAgent extends BaseAgent {
   private publicClient: any;
 
   constructor(messageBroker: MessageBroker) {
+    // Initialize all Maps BEFORE calling super() because BaseAgent calls initialize() in constructor
     super('goat-agent', messageBroker);
+  }
+
+  protected initialize(): void {
+    // Initialize all Maps and objects here to ensure they're available during initialization
+    this.sessionSigners = new Map();
+    this.goatCapabilities = new Map();
+    this.blockchainKeywords = new Set();
+    this.supportedOperations = new Set();
+    
     this.chainOfThought = new ChainOfThoughtEngine();
     
     // Initialize AWS KMS for secure session key storage
@@ -96,12 +106,10 @@ export class UnifiedGoatAgent extends BaseAgent {
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
       }
     });
-  }
-
-  protected initialize(): void {
+    
     this.logActivity('Initializing Unified GOAT Agent with GOAT SDK DeFi capabilities (200+ blockchain tools)');
     
-    // Initialize all capabilities
+    // Initialize all capabilities after Maps are ready
     this.initializeBlockchainCapabilities();
     this.initializeGoatDeFiCapabilities();
     this.initializePublicClient();
@@ -124,6 +132,7 @@ export class UnifiedGoatAgent extends BaseAgent {
 
     this.logActivity('Unified GOAT Agent initialized with advanced DeFi capabilities and GOAT SDK integration');
   }
+
 
   private initializeGoatDeFiCapabilities(): void {
     this.logActivity('Initializing GOAT SDK DeFi Protocol Capabilities');
@@ -230,6 +239,11 @@ export class UnifiedGoatAgent extends BaseAgent {
 
   private initializePublicClient(): void {
     try {
+      if (!this.networkConfig || !this.networkConfig.base_camp_testnet) {
+        console.error('[UnifiedGoatAgent] Network config not properly initialized');
+        return;
+      }
+      
       const baseCampConfig = this.networkConfig.base_camp_testnet;
       this.publicClient = createPublicClient({
         transport: http(baseCampConfig.rpcUrl),
@@ -262,11 +276,15 @@ export class UnifiedGoatAgent extends BaseAgent {
       'portfolio_management'
     ];
     
-    // Dynamically add capabilities based on GOAT DeFi protocols
-    const defiCapabilities = Array.from(this.goatCapabilities.entries()).flatMap(([key, capability]) => [
-      `${key}_integration`,
-      ...capability.operations.map(op => `${key}_${op}`)
-    ]);
+    // Safely add capabilities based on GOAT DeFi protocols (defensive against undefined Maps)
+    let defiCapabilities: string[] = [];
+    
+    if (this.goatCapabilities && this.goatCapabilities.size > 0) {
+      defiCapabilities = Array.from(this.goatCapabilities.entries()).flatMap(([key, capability]) => [
+        `${key}_integration`,
+        ...capability.operations.map(op => `${key}_${op}`)
+      ]);
+    }
     
     return [...baseCapabilities, ...defiCapabilities];
   }

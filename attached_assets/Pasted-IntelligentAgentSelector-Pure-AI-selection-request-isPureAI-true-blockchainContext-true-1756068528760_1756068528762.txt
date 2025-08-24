@@ -1,0 +1,206 @@
+IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: true,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+8:48:01 PM [express] POST /api/agents/chat 200 in 10001ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent goat-agent for task d2c3c54f-768b-490d-a6bc-231f4b2aa4da {
+  confidence: 0.4170338008164198,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 41.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: task, Role: Specialized Plugin Executor - Execute DeFi actions only when a specific Goat SDK plugin is required',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] Error processing request: Error: GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.
+    at UnifiedGoatAgent.determineOperationType (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:1027:11)
+    at UnifiedGoatAgent.generateChainOfThought (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:558:32)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:475:41)
+    at <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:160:20)
+    at MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:15)
+    at MessageBroker.emit (node:events:536:35)
+    at MessageBroker.publish (/home/runner/workspace/server/agents/core/MessageBroker.ts:25:12)
+    at TaskOrchestrator.sendMessage (/home/runner/workspace/server/agents/core/BaseAgent.ts:28:30)
+    at TaskOrchestrator.sendTaskToIntelligentAgent (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:559:16)
+    at TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:397:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:329:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:280:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:255:7)
+[DEBUG] Full error stack: Error: GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.
+    at UnifiedGoatAgent.determineOperationType (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:1027:11)
+    at UnifiedGoatAgent.generateChainOfThought (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:558:32)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:475:41)
+    at <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:160:20)
+    at MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:15)
+    at MessageBroker.emit (node:events:536:35)
+    at MessageBroker.publish (/home/runner/workspace/server/agents/core/MessageBroker.ts:25:12)
+    at TaskOrchestrator.sendMessage (/home/runner/workspace/server/agents/core/BaseAgent.ts:28:30)
+    at TaskOrchestrator.sendTaskToIntelligentAgent (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:559:16)
+    at TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:397:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:329:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:280:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:255:7)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-orchestrator] Task queued { taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da', priority: 'high' }
+[task-tracker] Task state updated {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  oldState: 'QUEUED',
+  newState: 'QUEUED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[task-orchestrator] Task queued for retry { taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da', attempt: 2 }
+[task-tracker] Task state updated {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  category: 'balance_check'
+}
+[TaskOrchestrator] Executing single-agent task d2c3c54f-768b-490d-a6bc-231f4b2aa4da with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[BlockchainTaskRouter] AI-based analysis: {
+  task: 'check my camp token balance',
+  isBlockchainRelated: true,
+  networks: [ 'camp' ],
+  message: 'Pure AI agent selection - no hardcoded routing'
+}
+[IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'query',
+  suggestedAgent: undefined,
+  confidence: 0.7,
+  networks: [ 'camp' ],
+  reasoning: [ 'Blockchain context detected', 'Networks: camp' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: true,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+[TaskOrchestrator] AI selected agent goat-agent for task d2c3c54f-768b-490d-a6bc-231f4b2aa4da {
+  confidence: 0.4170744356559467,
+  reasoning: [ 'UnifiedGoatAgent matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: goat-agent (confidence: 41.7%)',
+    'Selection Reasoning: UnifiedGoatAgent matched based on capabilities and use cases',
+    'Agent Type: task, Role: Specialized Plugin Executor - Execute DeFi actions only when a specific Goat SDK plugin is required',
+    'Success Rate: 95.0%',
+    'Average Latency: 3000ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] Error processing request: Error: GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.
+    at UnifiedGoatAgent.determineOperationType (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:1027:11)
+    at UnifiedGoatAgent.generateChainOfThought (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:558:32)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:475:41)
+    at <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:160:20)
+    at MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:15)
+    at MessageBroker.emit (node:events:536:35)
+    at MessageBroker.publish (/home/runner/workspace/server/agents/core/MessageBroker.ts:25:12)
+    at TaskOrchestrator.sendMessage (/home/runner/workspace/server/agents/core/BaseAgent.ts:28:30)
+    at TaskOrchestrator.sendTaskToIntelligentAgent (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:559:16)
+    at TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:397:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:329:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:280:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:255:7)
+[DEBUG] Full error stack: Error: GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.
+    at UnifiedGoatAgent.determineOperationType (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:1027:11)
+    at UnifiedGoatAgent.generateChainOfThought (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:558:32)
+    at UnifiedGoatAgent.handleMessage (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:475:41)
+    at <anonymous> (/home/runner/workspace/server/agents/blockchain/UnifiedGoatAgent.ts:160:20)
+    at MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:15)
+    at MessageBroker.emit (node:events:536:35)
+    at MessageBroker.publish (/home/runner/workspace/server/agents/core/MessageBroker.ts:25:12)
+    at TaskOrchestrator.sendMessage (/home/runner/workspace/server/agents/core/BaseAgent.ts:28:30)
+    at TaskOrchestrator.sendTaskToIntelligentAgent (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:559:16)
+    at TaskOrchestrator.executeSingleAgentTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:397:16)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async TaskOrchestrator.executeTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:329:9)
+    at async TaskOrchestrator.processNextTask (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:280:7)
+    at async Timeout._onTimeout (/home/runner/workspace/server/agents/orchestrators/TaskOrchestrator.ts:255:7)
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  agentType: 'UnifiedGoatAgent',
+  success: false,
+  hasResult: false
+}
+[task-tracker] Task state updated {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  oldState: 'FAILED',
+  newState: 'FAILED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+Publishing message: task_failed from task-orchestrator to companion-handler
+[task-orchestrator] Task failed {
+  taskId: 'd2c3c54f-768b-490d-a6bc-231f4b2aa4da',
+  error: 'Unified GOAT operation failed: GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.'
+}

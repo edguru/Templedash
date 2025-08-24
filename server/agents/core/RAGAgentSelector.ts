@@ -113,6 +113,10 @@ export class RAGAgentSelector {
 
       this.agentEmbeddings.set(taskAgent.agentId, embedding);
       console.log(`[RAGAgentSelector] Generated embedding for TASK agent: ${taskAgent.agentName}`);
+      console.log(`[RAGAgentSelector] - Description: ${taskAgent.description}`);
+      console.log(`[RAGAgentSelector] - Keywords: ${taskAgent.keywords.join(', ')}`);
+      console.log(`[RAGAgentSelector] - Use cases: ${taskAgent.useCases.slice(0, 3).join(' | ')}`);
+      console.log(`[RAGAgentSelector] - Capabilities: ${embedding.capabilities.slice(0, 5).join(', ')}`);
       
     } catch (error) {
       console.error(`[RAGAgentSelector] Failed to generate embedding for ${taskAgent.agentId}:`, error);

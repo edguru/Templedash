@@ -83,10 +83,10 @@
           "transaction_builder"
         ],
         "keywords": [
-          "plugin", "goat", "defi", "dex", "amm", "liquidity", "stake", "borrow", "lend", 
-          "bridge", "polymarket", "yield", "farming", "arbitrage", "execution", "strategies", 
-          "sdk", "session", "automated", "uniswap", "1inch", "jupiter", "orca", "compound",
-          "aave", "curve", "balancer", "sushiswap", "pancakeswap", "quickswap"
+          "uniswap", "1inch", "jupiter", "orca", "compound", "aave", "curve", "balancer", 
+          "sushiswap", "pancakeswap", "quickswap", "polymarket", "debridge", "plugin", 
+          "goat", "defi", "dex", "amm", "liquidity", "stake", "borrow", "lend", "bridge", 
+          "yield", "farming", "arbitrage", "execution", "strategies", "sdk", "session", "automated"
         ],
         "priority": "critical",
         "loadFactor": 0.8,

@@ -53,21 +53,20 @@ export class AgentClassificationSystem {
       agentId: 'goat-agent',
       agentName: 'UnifiedGoatAgent', 
       subcategory: TaskAgentSubcategory.BLOCKCHAIN,
-      description: 'Unified GOAT SDK agent with comprehensive blockchain operations, session key signing, DeFi protocols, NFT management, and cross-chain capabilities on Base Camp network',
-      keywords: ['blockchain', 'token', 'transfer', 'balance', 'defi', 'goat', 'sdk', 'camp', 'session', 'signing', 'swap', 'liquidity', 'nft', 'mint', 'cross-chain', 'bridge', 'yield', 'farming', 'automated'],
+      description: 'GOAT SDK specialized plugin executor for specific DeFi protocols only. Handles Uniswap, 1inch, Jupiter, Curve, Polymarket, and other named DeFi protocol operations. Does NOT handle balance checks or generic blockchain operations.',
+      keywords: ['uniswap', '1inch', 'jupiter', 'curve', 'polymarket', 'debridge', 'compound', 'aave', 'defi', 'protocol', 'plugin', 'goat', 'sdk', 'swap', 'liquidity', 'yield', 'farming', 'lending', 'borrowing', 'prediction', 'markets'],
       useCases: [
-        'Execute token transfers with automatic session key signing',
-        'Check CAMP and ERC20 token balances in real-time',
-        'Perform DeFi swaps and liquidity operations via Uniswap',
-        'Manage NFT minting, transfers, and marketplace interactions',
-        'Execute cross-chain bridging and asset transfers',
-        'Automate yield farming and staking strategies',
-        'Deploy and interact with smart contracts',
-        'Monitor blockchain transactions and wallet activities',
-        'Provide gas optimization and security analysis',
-        'Create and manage session signers for automated transactions',
-        'Execute complex multi-step DeFi strategies',
-        'Bridge assets across multiple blockchain networks'
+        'Execute Uniswap token swaps when Uniswap is specifically mentioned',
+        'Perform 1inch aggregated swaps when 1inch is requested',
+        'Execute Jupiter swaps on Solana when Jupiter is named',
+        'Provide liquidity to Curve pools when Curve protocol is specified',
+        'Trade on Polymarket prediction markets when Polymarket is mentioned',
+        'Bridge assets via deBridge when deBridge protocol is requested',
+        'Execute Compound lending/borrowing when Compound is named',
+        'Perform Aave lending operations when Aave is specified',
+        'Create session signers for automated DeFi protocol operations',
+        'Execute multi-step DeFi strategies involving specific named protocols',
+        'Handle complex protocol-specific workflows when protocols are explicitly mentioned'
       ]
     });
 

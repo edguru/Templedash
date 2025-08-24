@@ -172,7 +172,46 @@ export class CompanionHandler extends BaseAgent {
         // Resolve wallet address to actual user ID from database
         const userId = await this.resolveUserIdFromWallet(walletAddress);
         if (!userId) {
-          this.logActivity('User not found in database', { walletAddress });
+          this.logActivity('User not found in database - providing basic response without chat context', { walletAddress });
+          
+          // Still analyze message for task routing even without chat context
+          const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, walletAddress, null);
+          
+          if (taskAnalysis.isTask) {
+            // Route to task system even for new users
+            const taskMessage: AgentMessage = {
+              type: 'analyze_task',
+              id: uuidv4(),
+              timestamp: new Date().toISOString(),
+              senderId: this.agentId,
+              targetId: 'task-orchestrator',
+              payload: {
+                message: userMessage,
+                userId: walletAddress,
+                context: {
+                  hasCompanion: false,
+                  companionName: null,
+                  personalityGreeting: "I'll help you with that"
+                }
+              }
+            };
+            
+            await this.sendMessage(taskMessage);
+            
+            return {
+              type: 'companion_response',
+              id: uuidv4(),
+              timestamp: new Date().toISOString(),
+              senderId: this.agentId,
+              targetId: message.senderId,
+              payload: {
+                message: "I'll help you with that request. Let me get that information for you...",
+                taskRouted: true,
+                contextAware: false
+              }
+            };
+          }
+          
           return {
             type: 'companion_response',
             id: uuidv4(),
@@ -180,7 +219,7 @@ export class CompanionHandler extends BaseAgent {
             senderId: this.agentId,
             targetId: message.senderId,
             payload: {
-              message: "Welcome! It looks like you're new here. Please make sure you're logged in with your wallet to access personalized features.",
+              message: "Welcome! I can help you with blockchain operations and crypto tasks. What would you like to do?",
               taskRouted: false,
               contextAware: false
             }
@@ -192,8 +231,10 @@ export class CompanionHandler extends BaseAgent {
         // Get user context with conversation history
         const userContext = await this.chatContextManager.getUserContext(userId, sessionId);
         
-        // Save the incoming user message
-        await this.saveUserMessage(sessionId, userMessage, userContext);
+        // Save the incoming user message (only if we have a valid user ID)
+        if (userId > 0) {
+          await this.saveUserMessage(sessionId, userMessage, userContext);
+        }
         
         // Enhanced intelligent task detection with context awareness
         const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, walletAddress, userContext);
@@ -257,8 +298,10 @@ export class CompanionHandler extends BaseAgent {
           // Handle as regular companion chat with enhanced context
           const personalizedResponse = await this.generateContextualResponse(userMessage, userContext);
           
-          // Save the companion response
-          await this.saveCompanionResponse(sessionId, personalizedResponse, userContext);
+          // Save the companion response (only if we have a valid user ID)
+          if (userId > 0) {
+            await this.saveCompanionResponse(sessionId, personalizedResponse, userContext);
+          }
           
           return {
             type: 'companion_response',
@@ -548,23 +591,45 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
 
   // Save user message to database
   private async saveUserMessage(sessionId: string, message: string, userContext: UserChatContext | null): Promise<void> {
-    const sentiment = this.chatContextManager.analyzeSentiment(message);
-    await this.chatContextManager.saveConversation({
-      sessionId,
-      userMessage: message,
-      messageType: 'chat',
-      sentiment
-    });
+    try {
+      // Skip if this is a temporary session ID (indicates error in user resolution)
+      if (sessionId.startsWith('temp-session-')) {
+        this.logActivity('Skipping message save for temporary session', { sessionId });
+        return;
+      }
+      
+      const sentiment = this.chatContextManager.analyzeSentiment(message);
+      await this.chatContextManager.saveConversation({
+        sessionId,
+        userMessage: message,
+        messageType: 'chat',
+        sentiment
+      });
+    } catch (error) {
+      console.error('[CompanionHandler] Failed to save user message:', error);
+      // Don't throw - just log and continue
+    }
   }
 
   // Save companion response to database
   private async saveCompanionResponse(sessionId: string, response: string, userContext: UserChatContext | null): Promise<void> {
-    await this.chatContextManager.saveConversation({
-      sessionId,
-      userMessage: '', // This will be populated by the context manager
-      companionResponse: response,
-      messageType: 'chat'
-    });
+    try {
+      // Skip if this is a temporary session ID (indicates error in user resolution)
+      if (sessionId.startsWith('temp-session-')) {
+        this.logActivity('Skipping response save for temporary session', { sessionId });
+        return;
+      }
+      
+      await this.chatContextManager.saveConversation({
+        sessionId,
+        userMessage: '', // This will be populated by the context manager
+        companionResponse: response,
+        messageType: 'chat'
+      });
+    } catch (error) {
+      console.error('[CompanionHandler] Failed to save companion response:', error);
+      // Don't throw - just log and continue
+    }
   }
 
   // Public method for getting personalized responses

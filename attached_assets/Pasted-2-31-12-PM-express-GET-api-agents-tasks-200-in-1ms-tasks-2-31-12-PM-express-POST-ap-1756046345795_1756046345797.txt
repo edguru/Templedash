@@ -1,0 +1,91 @@
+2:31:12 PM [express] GET /api/agents/tasks 200 in 1ms :: {"tasks":[]}
+2:31:12 PM [express] POST /api/agents/session-signer 200 in 3ms
+2:31:13 PM [express] GET /api/companion-contract-address 200 in 1ms :: {"contractAddress":"0xda1D9e6…
+[task-analyzer] Updated network status 
+2:31:19 PM [express] GET /api/user/0x4bcf74e971E677e95b8bFB0980721557987119Ae/companion 200 in 3782m…
+2:31:19 PM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+Processing user message from 0x4bcf74e971E677e95b8bFB0980721557987119Ae: Check my CAMP token balance...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message with chat context { type: 'user_message' }
+[ChatContextManager] Failed to fetch user sessions: NeonDbError: invalid input syntax for type integer: "4.328007465302428e+47"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonHttpPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-http/session.ts:68:18)
+    at async ChatContextManager.getUserChatSessions (/home/runner/workspace/server/agents/companions/ChatContextManager.ts:86:24)
+    at async CompanionHandler.getOrCreateSession (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:512:22)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:171:56)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9) {
+  severity: 'ERROR',
+  code: '22P02',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "unnamed portal parameter $1 = '...'",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe',
+  sourceError: undefined
+}
+[ChatContextManager] Failed to create chat session: NeonDbError: invalid input syntax for type integer: "4.328007465302428e+47"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async ChatContextManager.createChatSession (/home/runner/workspace/server/agents/companions/ChatContextManager.ts:66:7)
+    at async CompanionHandler.getOrCreateSession (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:516:12)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:171:56)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9) {
+  severity: 'ERROR',
+  code: '22P02',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "unnamed portal parameter $2 = '...'",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe',
+  sourceError: undefined
+}
+[CompanionHandler] Error processing message: NeonDbError: invalid input syntax for type integer: "4.328007465302428e+47"
+    at execute (file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1556:55)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async ChatContextManager.createChatSession (/home/runner/workspace/server/agents/companions/ChatContextManager.ts:66:7)
+    at async CompanionHandler.getOrCreateSession (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:516:12)
+    at async CompanionHandler.handleMessage (/home/runner/workspace/server/agents/companions/CompanionHandler.ts:171:56)
+    at async <anonymous> (/home/runner/workspace/server/agents/core/AgentOrchestrator.ts:25:7)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9) {
+  severity: 'ERROR',
+  code: '22P02',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: "unnamed portal parameter $2 = '...'",
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'numutils.c',
+  line: '617',
+  routine: 'pg_strtoint32_safe',
+  sourceError: undefined
+}
+[task-analyzer] Updated network status 
+2:31:51 PM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 

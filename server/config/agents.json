@@ -81,10 +81,10 @@
           "transaction_builder"
         ],
         "keywords": [
-          "swap", "trade", "uniswap", "1inch", "defi", "liquidity", "pool", "stake", 
-          "yield", "farming", "lending", "borrowing", "bridge", "prediction", "markets",
-          "polymarket", "arbitrage", "optimize", "session", "automated", "goat", "sdk",
-          "protocols", "trading", "strategies", "financial", "operations", "cross-chain"
+          "plugin", "goat", "defi", "dex", "amm", "liquidity", "stake", "borrow", "lend", 
+          "bridge", "polymarket", "yield", "farming", "arbitrage", "execution", "strategies", 
+          "sdk", "session", "automated", "uniswap", "1inch", "jupiter", "orca", "compound",
+          "aave", "curve", "balancer", "sushiswap", "pancakeswap", "quickswap"
         ],
         "priority": "critical",
         "loadFactor": 0.8,
@@ -157,21 +157,20 @@
         "name": "NebulaMCP", 
         "type": "task",
         "role": "Blockchain Query Specialist - Simple balance checks, transaction lookups, and basic blockchain data retrieval",
-        "description": "I am the blockchain query specialist who focuses exclusively on simple blockchain data retrieval operations. I excel at checking wallet balances, looking up transaction details, validating addresses, and fetching basic blockchain information. I am specifically designed for straightforward queries like 'check my balance', 'show my transaction history', or 'validate this address'. I do NOT handle complex DeFi operations, trading, or advanced analysis - those go to specialized agents. Think of me as your blockchain data lookup service for simple, direct queries.",
+        "description": "I am the primary on-chain execution and Web3 operations specialist. I handle wallet balances, holdings, portfolio positions, transaction history, smart contract interactions, token transfers, swaps, and bridges across supported networks. I execute direct blockchain operations, deploy contracts, manage NFTs, and provide developer support for thirdweb SDK integrations. I am the go-to agent for direct blockchain execution when specific DeFi protocols aren't mentioned. Think of me as your primary Web3 operations center.",
         "systemMessage": "You are the blockchain query specialist for simple data retrieval only. Handle balance checks, transaction lookups, address validation, and basic blockchain queries. Do NOT attempt DeFi operations, trading, or complex analysis. Focus purely on fetching and displaying blockchain data in a clear, concise format. Route complex operations to appropriate specialists.",
         "capabilities": [
-          "Check wallet token balances and display current holdings",
-          "Retrieve transaction history and analyze transaction details",
-          "Query smart contract state and read contract data",
-          "Validate wallet addresses and check address formats", 
-          "Calculate gas fees and estimate transaction costs",
-          "Fetch block information and blockchain network status",
-          "Look up token information and contract metadata",
-          "Trace transaction paths and analyze transaction flows",
-          "Monitor wallet activity and track address interactions",
-          "Retrieve NFT metadata and ownership information",
-          "Query blockchain data and provide real-time information",
-          "Perform basic smart contract interactions and calls"
+          "Check wallet balances, holdings, and portfolio positions",
+          "Retrieve full transaction history, decode tx details, and monitor address activity",
+          "Query smart contracts, read/write state, and interact with deployed contracts",
+          "Validate wallet addresses and ENS, confirm formats",
+          "Estimate gas fees, simulate transactions, and fetch latest block info",
+          "Perform token discovery: look up metadata, contract addresses, price feeds",
+          "Execute token transfers, swaps, and bridges across supported networks",
+          "Deploy smart contracts from published templates (ERC20, ERC721, ERC1155, Splits, etc.)",
+          "Retrieve NFT metadata, ownership, and collection details",
+          "Trace transaction paths and analyze flows directly on-chain",
+          "Provide developer support for thirdweb SDK integrations (wallet connect, smart wallets, claims, signatures)"
         ],
         "tools": [
           "openai_client",
@@ -180,9 +179,10 @@
           "risk_assessor"
         ],
         "keywords": [
-          "balance", "check", "wallet", "transaction", "history", "address", "validation",
-          "gas", "fees", "block", "token", "contract", "metadata", "query", "lookup",
-          "nft", "ownership", "blockchain", "data", "simple", "basic", "retrieve"
+          "balance", "wallet", "holdings", "transfer", "swap", "bridge", "deploy", "contract", 
+          "abi", "query", "gas", "block", "transaction", "history", "address", "ens", "token", 
+          "metadata", "nft", "ownership", "trace", "thirdweb", "sdk", "build", "web3", "execution",
+          "portfolio", "positions", "simulate", "templates", "erc20", "erc721", "erc1155"
         ],
         "priority": "medium",
         "loadFactor": 0.3,
@@ -332,10 +332,12 @@
           "gas_estimator"
         ],
         "keywords": [
-          "analyze", "research", "market", "trends", "strategies", "fundamentals", "metrics",
-          "sentiment", "nft", "compliance", "audit", "security", "reports", "whale", 
-          "arbitrage", "price", "tokenomics", "investment", "thesis", "risks", "opportunities",
-          "emerging", "innovations", "cross-chain", "intelligence", "complex", "analysis"
+          "analyze", "research", "trends", "market", "token", "fundamentals", "unlocks", "whale", 
+          "arbitrage", "discovery", "metrics", "social", "sentiment", "nft", "ens", "compliance", 
+          "audit", "security", "risk", "investment", "tokenomics", "reports", "thesis", "innovation", 
+          "cross-chain", "intelligence", "price", "action", "volumes", "behavioral", "patterns",
+          "vulnerability", "influencer", "narratives", "community", "signals", "floor", "rarity",
+          "supply", "models", "regulatory", "developments", "emerging", "protocol", "innovations"
         ],
         "priority": "high",
         "loadFactor": 0.6,

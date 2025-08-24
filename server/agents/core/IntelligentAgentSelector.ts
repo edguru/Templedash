@@ -373,15 +373,19 @@ Priority: ${config.priority}
     
     const lowerTask = taskDescription.toLowerCase();
     
-    // Check for non-task keywords first (higher priority)
-    const isNonTask = nonTaskKeywords.some(keyword => lowerTask.includes(keyword));
-    if (isNonTask) return false;
+    // Use traditional routing only for internal orchestration tasks
+    const nonTaskIndicators = [
+      'orchestrate', 'coordinate', 'delegate', 'manage task', 'system internal',
+      'agent management', 'prompt engineering', 'memory management'
+    ];
     
-    // Check for task keywords
-    const isTask = taskAgentKeywords.some(keyword => lowerTask.includes(keyword));
+    // Check for non-task indicators - these should use traditional routing
+    if (nonTaskIndicators.some(indicator => lowerTask.includes(indicator))) {
+      return false;
+    }
     
-    // Default to task agents for execution-oriented requests
-    return isTask || lowerTask.includes('execute') || lowerTask.includes('perform');
+    // Default to RAG-based task agent routing for all user requests
+    return true;
   }
 
   /**

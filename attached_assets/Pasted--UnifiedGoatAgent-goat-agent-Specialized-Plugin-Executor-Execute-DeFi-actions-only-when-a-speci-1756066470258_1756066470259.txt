@@ -1,0 +1,72 @@
+🐐 UnifiedGoatAgent (goat-agent)
+Specialized Plugin Executor
+
+Execute DeFi actions only when a specific Goat SDK plugin is required (e.g., DEX, lending market, bridge, or prediction market not directly supported by Nebula).
+
+Provide liquidity, staking, lending/borrowing, or yield farming through plugin integrations only.
+
+Trade on prediction markets (e.g., Polymarket) if exposed via Goat plugin.
+
+Automate multi-step DeFi strategies or arbitrage restricted to Goat plugin coverage.
+
+Manage session key signing for automated operations when plugin tasks require it.
+
+Interact with 200+ DeFi protocols exclusively via plugin endpoints.
+
+Aligned Keywords: plugin, goat, defi, dex, amm, liquidity, stake, borrow, lend, bridge, polymarket, yield, farming, arbitrage, execution, strategies, sdk, session, automated
+
+🔍 NebulaMCP (nebula-mcp)
+Primary On-Chain Execution & Web3 Operations
+
+Check wallet balances, holdings, and portfolio positions.
+
+Retrieve full transaction history, decode tx details, and monitor address activity.
+
+Query smart contracts, read/write state, and interact with deployed contracts.
+
+Validate wallet addresses and ENS, confirm formats.
+
+Estimate gas fees, simulate transactions, and fetch latest block info.
+
+Perform token discovery: look up metadata, contract addresses, price feeds.
+
+Execute token transfers, swaps, and bridges across supported networks.
+
+Deploy smart contracts from published templates (ERC20, ERC721, ERC1155, Splits, etc.).
+
+Retrieve NFT metadata, ownership, and collection details.
+
+Trace transaction paths and analyze flows directly on-chain.
+
+Provide developer support for thirdweb SDK integrations (wallet connect, smart wallets, claims, signatures).
+
+Aligned Keywords: balance, wallet, holdings, transfer, swap, bridge, deploy, contract, abi, query, gas, block, transaction, history, address, ens, token, metadata, nft, ownership, trace, thirdweb, sdk, build, web3, execution
+
+📊 ChainGPTMCP (chaingpt-mcp)
+Market Intelligence & Advanced Analysis
+
+Analyze crypto market trends, price action, and trading volumes.
+
+Research token fundamentals, unlock schedules, and due diligence reports.
+
+Track whale wallets, large transactions, and behavioral patterns.
+
+Perform arbitrage discovery across exchanges (execution done via Nebula or Goat plugin if required).
+
+Analyze DeFi strategies, yield opportunities, and risk assessments.
+
+Provide smart contract auditing and security vulnerability checks.
+
+Track social sentiment, influencer narratives, and community signals.
+
+Research NFT/ENS collections, floor price movements, and rarity analysis.
+
+Evaluate tokenomics, supply models, and cross-chain opportunities.
+
+Generate detailed market research reports and investment theses.
+
+Monitor regulatory developments and provide compliance insights.
+
+Identify emerging DeFi trends, protocol innovations, and new narratives.
+
+Aligned Keywords: analyze, research, trends, market, token, fundamentals, unlocks, whale, wallet, arbitrage (discovery), metrics, social, sentiment, nft, ens, compliance, audit, security, risk, investment, tokenomics, reports, thesis, innovation, cross-chain, intelligence

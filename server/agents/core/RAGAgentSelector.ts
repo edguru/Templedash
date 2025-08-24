@@ -216,11 +216,26 @@ ${enhancedCapabilities.map((cap: string) => `• ${cap}`).join('\n')}
         matches.sort((a, b) => {
           if (a.executionCapable && !b.executionCapable) return -1;
           if (!a.executionCapable && b.executionCapable) return 1;
+          
+          // Give priority to ChainGPT over Nebula when confidence is close (within 0.1)
+          if (Math.abs(a.confidence - b.confidence) <= 0.1) {
+            if (a.agentId === 'chaingpt-mcp' && b.agentId === 'nebula-mcp') return -1;
+            if (a.agentId === 'nebula-mcp' && b.agentId === 'chaingpt-mcp') return 1;
+          }
+          
           return b.confidence - a.confidence;
         });
       } else {
-        // For non-execution tasks, sort by confidence only
-        matches.sort((a, b) => b.confidence - a.confidence);
+        // For non-execution tasks, sort by confidence with ChainGPT priority
+        matches.sort((a, b) => {
+          // Give priority to ChainGPT over Nebula when confidence is close (within 0.1)
+          if (Math.abs(a.confidence - b.confidence) <= 0.1) {
+            if (a.agentId === 'chaingpt-mcp' && b.agentId === 'nebula-mcp') return -1;
+            if (a.agentId === 'nebula-mcp' && b.agentId === 'chaingpt-mcp') return 1;
+          }
+          
+          return b.confidence - a.confidence;
+        });
       }
 
       const primaryAgent = matches[0];

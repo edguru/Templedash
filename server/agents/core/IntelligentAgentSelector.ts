@@ -4,6 +4,7 @@ import { AgentConfigManager } from '../../config/AgentConfigManager';
 import { AgentConfig } from '../../config/AgentConfigManager';
 import { RAGAgentSelector, RAGSelectionRequest, RAGSelectionResult } from './RAGAgentSelector';
 import { AgentClassificationSystem, AgentCategory } from './AgentClassificationSystem';
+import { BlockchainTaskRouter, BlockchainTaskAnalysis } from './BlockchainTaskRouter';
 
 export interface AgentSelectionRequest {
   taskDescription: string;
@@ -240,21 +241,84 @@ Priority: ${config.priority}
   }
 
   /**
-   * Use RAG system for execution-focused agent selection
+   * Use RAG system for execution-focused agent selection with blockchain-specific routing
    */
   private async selectWithRAG(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
-    const ragRequest: RAGSelectionRequest = {
-      taskDescription: request.taskDescription,
-      taskType: request.taskType,
-      priority: request.priority,
-      context: request.context,
-      userId: request.userId,
-      requireExecution: true
-    };
+    try {
+      // First, analyze if this is a blockchain task and get routing suggestions
+      const blockchainAnalysis = BlockchainTaskRouter.analyzeBlockchainTask(request.taskDescription);
+      
+      console.log('[IntelligentAgentSelector] Blockchain task analysis:', {
+        taskType: blockchainAnalysis.taskType,
+        suggestedAgent: blockchainAnalysis.suggestedAgent,
+        confidence: blockchainAnalysis.confidence,
+        networks: blockchainAnalysis.networks,
+        reasoning: blockchainAnalysis.reasoning
+      });
+      
+      // For high-confidence blockchain routing, prioritize the suggested agent
+      if (blockchainAnalysis.confidence > 0.7) {
+        console.log(`[IntelligentAgentSelector] High-confidence blockchain routing to ${blockchainAnalysis.suggestedAgent}`);
+      }
+      
+      const ragRequest: RAGSelectionRequest = {
+        taskDescription: request.taskDescription,
+        taskType: request.taskType,
+        priority: request.priority,
+        context: {
+          ...request.context,
+          blockchainAnalysis,
+          suggestedAgent: blockchainAnalysis.suggestedAgent,
+          targetNetworks: blockchainAnalysis.networks
+        },
+        userId: request.userId,
+        requireExecution: true,
+        preferredAgentId: blockchainAnalysis.confidence > 0.6 ? blockchainAnalysis.suggestedAgent : undefined
+      };
+      
+      console.log('[IntelligentAgentSelector] RAG request with blockchain preference:', {
+        preferredAgentId: ragRequest.preferredAgentId,
+        blockchainConfidence: blockchainAnalysis.confidence,
+        suggestedAgent: blockchainAnalysis.suggestedAgent
+      });
 
-    const ragResult = await this.ragSelector.selectBestAgent(ragRequest);
+      const ragResult = await this.ragSelector.selectBestAgent(ragRequest);
+      
+      // If blockchain analysis suggests a specific agent and RAG confirms it, boost confidence
+      if (ragResult.primaryAgent && 
+          ragResult.primaryAgent.agentId === blockchainAnalysis.suggestedAgent &&
+          blockchainAnalysis.confidence > 0.6) {
+        ragResult.primaryAgent.confidence = Math.max(ragResult.primaryAgent.confidence, blockchainAnalysis.confidence);
+        ragResult.semanticReasoning.unshift(...blockchainAnalysis.reasoning);
+        ragResult.semanticReasoning.push(`Blockchain routing confirmed: ${blockchainAnalysis.taskType} operation`);
+      }
 
-    // Convert RAG result to IntelligentAgentSelector format
+      return this.buildRAGResult(ragResult, blockchainAnalysis);
+      
+    } catch (error) {
+      console.error('[IntelligentAgentSelector] RAG selection failed:', error);
+      throw new Error(`RAG agent selection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+  
+  /**
+   * Build standardized RAG result with blockchain analysis integration
+   */
+  private buildRAGResult(ragResult: RAGSelectionResult, blockchainAnalysis: BlockchainTaskAnalysis): AgentSelectionResult {
+    const reasoning = [
+      ...ragResult.semanticReasoning,
+      `RAG Selection: ${ragResult.primaryAgent.agentName} selected with ${(ragResult.primaryAgent.semanticSimilarity * 100).toFixed(1)}% semantic similarity`,
+      `Execution capable: ${ragResult.primaryAgent.executionCapable ? 'Yes' : 'No'}`
+    ];
+    
+    // Add blockchain-specific reasoning if applicable
+    if (blockchainAnalysis.confidence > 0.3) {
+      reasoning.push(`Blockchain Analysis: ${blockchainAnalysis.taskType} task with ${(blockchainAnalysis.confidence * 100).toFixed(1)}% confidence`);
+      if (blockchainAnalysis.networks.length > 0) {
+        reasoning.push(`Target Networks: ${blockchainAnalysis.networks.join(', ')}`);
+      }
+    }
+
     return {
       primaryAgent: {
         agentId: ragResult.primaryAgent.agentId,
@@ -274,12 +338,11 @@ Priority: ${config.priority}
         capabilities: alt.capabilities,
         estimatedSuccess: alt.confidence
       })),
-      taskAnalysis: ragResult.taskAnalysis,
-      reasoning: [
-        ...ragResult.semanticReasoning,
-        `RAG Selection: ${ragResult.primaryAgent.agentName} selected with ${(ragResult.primaryAgent.semanticSimilarity * 100).toFixed(1)}% semantic similarity`,
-        `Execution capable: ${ragResult.primaryAgent.executionCapable ? 'Yes' : 'No'}`
-      ]
+      taskAnalysis: {
+        ...ragResult.taskAnalysis,
+        category: blockchainAnalysis.taskType !== 'general' ? 'blockchain' : ragResult.taskAnalysis.category
+      },
+      reasoning
     };
   }
 

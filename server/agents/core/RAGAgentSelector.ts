@@ -24,6 +24,7 @@ export interface RAGSelectionRequest {
   context?: Record<string, any>;
   userId?: string;
   requireExecution?: boolean; // Prefer MCP agents for real execution
+  preferredAgentId?: string; // Bias towards specific agent from blockchain analysis
 }
 
 export interface RAGMatch {
@@ -106,7 +107,7 @@ export class RAGAgentSelector {
         capabilities: taskAgent.keywords, // Use keywords as capabilities
         useCases: taskAgent.useCases,
         embedding: embeddingResponse.data[0].embedding,
-        agentType: taskAgent.subcategory as string,
+        agentType: this.mapToAgentType(taskAgent.subcategory),
         executionCapable: taskAgent.executionCapable
       };
 
@@ -135,13 +136,27 @@ ${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
 
   private isExecutionCapableAgent(config: AgentConfig): boolean {
     // MCP agents and specialized agents can execute, others mostly plan/analyze
-    return config.agentType === 'mcp' || 
-           config.agentType === 'specialized' ||
+    return config.type === 'mcp' || 
+           config.type === 'specialized' ||
            (config.capabilities?.some(cap => 
              cap.includes('execution') || 
              cap.includes('blockchain_operations') ||
              cap.includes('deployment')
            ) ?? false);
+  }
+  
+  private mapToAgentType(subcategory: string): 'core' | 'specialized' | 'mcp' | 'support' {
+    const typeMap: Record<string, 'core' | 'specialized' | 'mcp' | 'support'> = {
+      'blockchain': 'specialized',
+      'research': 'specialized', 
+      'code_generation': 'specialized',
+      'mcp_protocol': 'mcp',
+      'web3_llm': 'mcp',
+      'document_writing': 'mcp',
+      'scheduling': 'mcp',
+      'support': 'support'
+    };
+    return typeMap[subcategory] || 'support';
   }
 
   /**
@@ -159,7 +174,21 @@ ${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
       const taskEmbedding = await this.generateTaskEmbedding(request.taskDescription);
       
       // Calculate semantic similarities
-      const matches = await this.calculateSemanticMatches(taskEmbedding, request);
+      let matches = await this.calculateSemanticMatches(taskEmbedding, request);
+      
+      // Apply blockchain analysis preference if provided
+      if (request.preferredAgentId && request.context?.blockchainAnalysis) {
+        console.log(`[RAGAgentSelector] Applying blockchain analysis preference: ${request.preferredAgentId}`);
+        const blockchainAnalysis = request.context.blockchainAnalysis;
+        
+        // Find the preferred agent and boost its confidence
+        const preferredMatch = matches.find(match => match.agentId === request.preferredAgentId);
+        if (preferredMatch && blockchainAnalysis.confidence > 0.6) {
+          preferredMatch.confidence = Math.max(preferredMatch.confidence, blockchainAnalysis.confidence);
+          preferredMatch.reasoning.unshift(`Blockchain routing: ${blockchainAnalysis.reasoning.join(', ')}`);
+          console.log(`[RAGAgentSelector] Boosted ${request.preferredAgentId} confidence to ${preferredMatch.confidence}`);
+        }
+      }
       
       // Analyze task requirements
       const taskAnalysis = await this.analyzeTaskRequirements(request);
@@ -171,6 +200,9 @@ ${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
           if (!a.executionCapable && b.executionCapable) return 1;
           return b.confidence - a.confidence;
         });
+      } else {
+        // For non-execution tasks, sort by confidence only
+        matches.sort((a, b) => b.confidence - a.confidence);
       }
 
       const primaryAgent = matches[0];
@@ -207,7 +239,7 @@ ${taskAgent.useCases.map(useCase => `- ${useCase}`).join('\n')}
   private async calculateSemanticMatches(taskEmbedding: number[], request: RAGSelectionRequest): Promise<RAGMatch[]> {
     const matches: RAGMatch[] = [];
 
-    for (const [agentId, agentEmb] of this.agentEmbeddings) {
+    for (const [agentId, agentEmb] of Array.from(this.agentEmbeddings.entries())) {
       // Calculate cosine similarity
       const similarity = this.cosineSimilarity(taskEmbedding, agentEmb.embedding);
       

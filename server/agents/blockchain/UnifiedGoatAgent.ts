@@ -43,12 +43,12 @@ interface BlockchainTask {
 }
 
 export class UnifiedGoatAgent extends BaseAgent {
-  private chainOfThought: ChainOfThoughtEngine;
-  private sessionSigners: Map<string, SessionSigner>;
-  private goatCapabilities: Map<string, GoatDeFiCapability>;
-  private blockchainKeywords: Set<string>;
-  private supportedOperations: Set<string>;
-  private kmsClient: KMSClient;
+  private chainOfThought!: ChainOfThoughtEngine;
+  private sessionSigners!: Map<string, SessionSigner>;
+  private goatCapabilities!: Map<string, GoatDeFiCapability>;
+  private blockchainKeywords!: Set<string>;
+  private supportedOperations!: Set<string>;
+  private kmsClient!: KMSClient;
   
   // Network Configuration for GOAT SDK operations
   private networkConfig = {
@@ -120,8 +120,19 @@ export class UnifiedGoatAgent extends BaseAgent {
     });
 
     this.messageBroker.subscribe('execute_task', async (message: AgentMessage) => {
-      if (this.isBlockchainTask(message)) {
+      // Only handle messages explicitly targeted to this agent
+      if (message.targetId === this.agentId) {
+        console.log('[DEBUG] UnifiedGoatAgent received execute_task message:', { 
+          taskId: message.payload?.taskId,
+          targetId: message.targetId,
+          agentId: this.agentId
+        });
         await this.handleMessage(message);
+      } else if (this.isBlockchainTask(message)) {
+        console.log('[DEBUG] UnifiedGoatAgent ignoring execute_task (not targeted):', { 
+          targetId: message.targetId,
+          agentId: this.agentId
+        });
       }
     });
 
@@ -411,6 +422,12 @@ export class UnifiedGoatAgent extends BaseAgent {
 
   async handleMessage(message: AgentMessage): Promise<AgentMessage | null> {
     try {
+      console.log('[DEBUG] UnifiedGoatAgent processing message:', { 
+        type: message.type, 
+        taskId: message.payload?.taskId,
+        targetId: message.targetId 
+      });
+      
       this.logActivity('Processing GOAT SDK blockchain operation', { type: message.type });
 
       // Generate chain of thought reasoning
@@ -421,6 +438,12 @@ export class UnifiedGoatAgent extends BaseAgent {
       
       // Execute operation with GOAT SDK
       const result = await this.executeBlockchainOperation(blockchainTask, message);
+      
+      console.log('[DEBUG] UnifiedGoatAgent operation completed:', { 
+        taskId: message.payload?.taskId,
+        resultLength: result?.length || 0,
+        success: true
+      });
       
       // Send completion response
       const responseMessage = {
@@ -458,6 +481,7 @@ export class UnifiedGoatAgent extends BaseAgent {
 
     } catch (error) {
       console.error('[UnifiedGoatAgent] Error processing request:', error);
+      console.error('[DEBUG] Full error stack:', error instanceof Error ? error.stack : 'No stack');
       
       const errorMessage = {
         type: 'task_step_complete',
@@ -466,7 +490,7 @@ export class UnifiedGoatAgent extends BaseAgent {
         senderId: this.agentId,
         targetId: message.senderId,
         payload: {
-          taskId: message.payload.taskId,
+          taskId: message.payload?.taskId || 'unknown',
           success: false,
           error: `Unified GOAT operation failed: ${(error as Error).message}`,
           agentType: 'UnifiedGoatAgent'
@@ -495,11 +519,13 @@ export class UnifiedGoatAgent extends BaseAgent {
     reasoning.push(`⚙️ Operation Type: ${operationType}`);
     if (matchedCapability) {
       reasoning.push(`🐐 GOAT Protocol: ${matchedCapability.protocol} - ${matchedCapability.description}`);
+    } else {
+      reasoning.push(`🐐 GOAT Protocol: Standard blockchain operation (no specific protocol detected)`);
     }
     
     // Check session signer availability
     const userId = message.payload.userId || message.payload.address;
-    const hasSessionSigner = userId && this.sessionSigners.has(userId);
+    const hasSessionSigner = userId && this.sessionSigners && this.sessionSigners.has(userId);
     reasoning.push(`🔐 Session Signer: ${hasSessionSigner ? 'Available' : 'Not Available'}`);
     
     // Security assessment
@@ -536,9 +562,9 @@ export class UnifiedGoatAgent extends BaseAgent {
       mergedParameters = { ...textParameters, ...injectedParameters };
     }
     
-    // Check for session signer
+    // Check for session signer (with defensive check)
     const userId = message.payload.userId || injectedParameters.address;
-    const sessionSigner = userId ? this.sessionSigners.get(userId) : null;
+    const sessionSigner = (userId && this.sessionSigners) ? this.sessionSigners.get(userId) : null;
     
     return {
       operation: operationType,
@@ -955,6 +981,15 @@ ${isExpired ? '*Create a new session signer for GOAT SDK automation*' : '*GOAT S
   // Helper methods
   private detectBlockchainKeywords(message: string): string[] {
     const lowerMessage = message.toLowerCase();
+    
+    // Defensive check to ensure blockchainKeywords is initialized
+    if (!this.blockchainKeywords || this.blockchainKeywords.size === 0) {
+      console.warn('[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection');
+      // Fallback keyword detection
+      const fallbackKeywords = ['blockchain', 'crypto', 'token', 'balance', 'swap', 'wallet', 'defi', 'camp'];
+      return fallbackKeywords.filter(keyword => lowerMessage.includes(keyword));
+    }
+    
     return Array.from(this.blockchainKeywords).filter(keyword => 
       lowerMessage.includes(keyword)
     );
@@ -982,6 +1017,12 @@ ${isExpired ? '*Create a new session signer for GOAT SDK automation*' : '*GOAT S
 
   private findMatchingGoatCapability(message: string): GoatDeFiCapability | null {
     const lowerMessage = message.toLowerCase();
+    
+    // Defensive check for goatCapabilities
+    if (!this.goatCapabilities || this.goatCapabilities.size === 0) {
+      console.warn('[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching');
+      return null;
+    }
     
     // Check for specific protocol mentions
     for (const [key, capability] of Array.from(this.goatCapabilities.entries())) {
@@ -1100,8 +1141,26 @@ ${isExpired ? '*Create a new session signer for GOAT SDK automation*' : '*GOAT S
   }
 
   private isBlockchainTask(message: AgentMessage): boolean {
-    const description = message.payload.description || message.payload.message || '';
-    const detectedKeywords = this.detectBlockchainKeywords(description);
-    return detectedKeywords.length > 0;
+    try {
+      const description = message.payload?.description || message.payload?.message || '';
+      if (!description) {
+        return false;
+      }
+      
+      const detectedKeywords = this.detectBlockchainKeywords(description);
+      const isBlockchain = detectedKeywords.length > 0;
+      
+      console.log('[DEBUG] UnifiedGoatAgent blockchain task check:', { 
+        description: description.substring(0, 50),
+        detectedKeywords,
+        isBlockchain,
+        targetId: message.targetId
+      });
+      
+      return isBlockchain;
+    } catch (error) {
+      console.error('[UnifiedGoatAgent] Error in isBlockchainTask:', error);
+      return false;
+    }
   }
 }

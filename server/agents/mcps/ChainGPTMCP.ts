@@ -32,10 +32,19 @@ export class ChainGPTMCP extends BaseAgent {
     // Initialize capabilities
     this.setupCapabilities();
     
-    // Subscribe to task execution messages
+    // Subscribe to task execution messages - only handle messages explicitly targeted to this agent
     this.messageBroker.subscribe('execute_task', async (message: AgentMessage) => {
-      if (message.targetId === this.agentId || this.shouldHandleTask(message)) {
+      if (message.targetId === this.agentId) {
+        console.log('[DEBUG] ChainGPTMCP received targeted execute_task:', { 
+          taskId: message.payload?.taskId,
+          targetId: message.targetId 
+        });
         await this.handleMessage(message);
+      } else {
+        console.log('[DEBUG] ChainGPTMCP ignoring execute_task (not targeted):', { 
+          targetId: message.targetId,
+          agentId: this.agentId
+        });
       }
     });
   }

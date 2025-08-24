@@ -1,0 +1,49 @@
+
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to goat-agent
+[DEBUG] UnifiedGoatAgent received execute_task message: {
+  taskId: '22aea00b-896b-4508-bea8-f830ebbd7528',
+  targetId: 'goat-agent',
+  agentId: 'goat-agent'
+}
+[DEBUG] UnifiedGoatAgent processing message: {
+  type: 'execute_task',
+  taskId: '22aea00b-896b-4508-bea8-f830ebbd7528',
+  targetId: 'goat-agent'
+}
+[goat-agent] Processing GOAT SDK blockchain operation { type: 'execute_task' }
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[DEBUG] ChainGPTMCP ignoring execute_task (not targeted): { targetId: 'goat-agent', agentId: 'chaingpt-mcp' }
+[UnifiedGoatAgent] goatCapabilities not initialized, skipping capability matching
+[goat-agent] Executing blockchain operation with GOAT DeFi capabilities {
+  operation: 'balance_check',
+  goatProtocol: undefined,
+  hasSessionSigner: false
+}
+[goat-agent] Attempting balance check with client: true
+[goat-agent] Balance check for address: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+[goat-agent] Simulated balance: 81.6904333821951 CAMP
+[TaskOrchestrator] Agent performance update: goat-agent, task: balance_check, success: true
+[DEBUG] UnifiedGoatAgent operation completed: {
+  taskId: '22aea00b-896b-4508-bea8-f830ebbd7528',
+  resultLength: 355,
+  success: true
+}
+Publishing message: task_step_complete from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '22aea00b-896b-4508-bea8-f830ebbd7528',
+  agentType: 'UnifiedGoatAgent',
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[TaskOrchestrator] Received completion for unknown task: 22aea00b-896b-4508-bea8-f830ebbd7528
+Publishing message: agent_response from goat-agent to task-orchestrator
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'Unified GOAT Agent',
+  taskId: '22aea00b-896b-4508-bea8-f830ebbd7528',
+  messageType: 'agent_response',
+  responseLength: 355
+}
+Publishing message: companion_response from companion-handler to task-orchestrator

@@ -60,6 +60,11 @@ export class ChatContextManager {
 
   // Create new chat session
   async createChatSession(userId: number, companionId?: number, title?: string): Promise<string> {
+    // Validate userId before creating session
+    if (!userId || userId <= 0) {
+      throw new Error(`Invalid userId for session creation: ${userId}`);
+    }
+    
     const sessionId = uuidv4();
     
     try {
@@ -119,8 +124,16 @@ export class ChatContextManager {
   // Save a conversation turn
   async saveConversation(chatMessage: ChatMessage): Promise<void> {
     try {
+      const userId = await this.getUserIdFromSession(chatMessage.sessionId);
+      
+      // Validate we have a valid user before saving
+      if (!userId || userId <= 0) {
+        console.warn('[ChatContextManager] Cannot save conversation - invalid userId:', userId);
+        return;
+      }
+
       const insertData: InsertConversation = {
-        userId: await this.getUserIdFromSession(chatMessage.sessionId),
+        userId,
         sessionId: chatMessage.sessionId,
         userMessage: chatMessage.userMessage,
         companionResponse: chatMessage.companionResponse || '',
@@ -149,6 +162,12 @@ export class ChatContextManager {
   // Get enhanced user context with conversation history
   async getUserContext(userId: number, sessionId?: string): Promise<UserChatContext | null> {
     try {
+      // Validate userId
+      if (!userId || userId <= 0) {
+        console.warn('[ChatContextManager] Invalid userId provided:', userId);
+        return null;
+      }
+
       // Check cache first
       if (this.userContexts.has(userId)) {
         const cachedContext = this.userContexts.get(userId)!;
@@ -326,12 +345,14 @@ Respond naturally as ${companionPersonality?.name || 'the companion'}, consideri
   private async buildRelationshipData(userId: number, history: Conversation[]): Promise<any> {
     const interactionCount = history.length;
     const moodPattern = history.slice(-10).map(msg => msg.sentiment || 'neutral');
-    const lastInteraction = history.length > 0 ? new Date(history[history.length - 1].createdAt) : new Date();
+    const lastInteractionDate = history.length > 0 && history[history.length - 1].createdAt 
+      ? new Date(history[history.length - 1].createdAt) 
+      : new Date();
 
     return {
       interactionCount,
       favoriteTopics: this.extractTopics(history.map(h => h.userMessage).join(' ')),
-      lastInteractionDate: lastInteraction,
+      lastInteractionDate: lastInteractionDate,
       moodPattern
     };
   }
@@ -340,7 +361,7 @@ Respond naturally as ${companionPersonality?.name || 'the companion'}, consideri
     const commonTopics = ['blockchain', 'crypto', 'trading', 'defi', 'nft', 'games', 'ai', 'technology'];
     const lowerText = text.toLowerCase();
     
-    return commonTopics.filter(topic => lowerText.includes(topic));
+    return Array.from(commonTopics).filter(topic => lowerText.includes(topic));
   }
 
   // Clean up cached contexts (called periodically)

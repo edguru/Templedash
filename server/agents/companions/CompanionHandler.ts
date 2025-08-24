@@ -167,7 +167,26 @@ export class CompanionHandler extends BaseAgent {
       // Handle user messages with enhanced context awareness
       if (message.type === 'user_message') {
         const userMessage = message.payload.message;
-        const userId = parseInt(message.payload.userId) || 0;
+        const walletAddress = message.payload.userId;
+        
+        // Resolve wallet address to actual user ID from database
+        const userId = await this.resolveUserIdFromWallet(walletAddress);
+        if (!userId) {
+          this.logActivity('User not found in database', { walletAddress });
+          return {
+            type: 'companion_response',
+            id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            senderId: this.agentId,
+            targetId: message.senderId,
+            payload: {
+              message: "Welcome! It looks like you're new here. Please make sure you're logged in with your wallet to access personalized features.",
+              taskRouted: false,
+              contextAware: false
+            }
+          };
+        }
+        
         const sessionId = message.payload.sessionId || await this.getOrCreateSession(userId);
         
         // Get user context with conversation history
@@ -177,7 +196,7 @@ export class CompanionHandler extends BaseAgent {
         await this.saveUserMessage(sessionId, userMessage, userContext);
         
         // Enhanced intelligent task detection with context awareness
-        const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, message.payload.userId, userContext);
+        const taskAnalysis = await this.analyzeMessageWithChainOfThought(userMessage, walletAddress, userContext);
         
         if (taskAnalysis.isTask) {
           this.logActivity('Routing task message to orchestrator', { 
@@ -197,7 +216,7 @@ export class CompanionHandler extends BaseAgent {
             targetId: 'task-orchestrator',
             payload: {
               message: userMessage,
-              userId: message.payload.userId || message.payload.walletAddress || '',
+              userId: walletAddress,
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,
@@ -509,11 +528,22 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
 
   // Get or create chat session for user
   private async getOrCreateSession(userId: number): Promise<string> {
-    const sessions = await this.chatContextManager.getUserChatSessions(userId);
-    if (sessions.length > 0) {
-      return sessions[0].sessionId;
+    try {
+      // Validate userId first
+      if (!userId || userId <= 0) {
+        throw new Error(`Invalid userId for session: ${userId}`);
+      }
+      
+      const sessions = await this.chatContextManager.getUserChatSessions(userId);
+      if (sessions.length > 0) {
+        return sessions[0].sessionId;
+      }
+      return await this.chatContextManager.createChatSession(userId);
+    } catch (error) {
+      console.error('[CompanionHandler] Failed to get/create session:', error);
+      // Create a temporary session ID for error cases
+      return `temp-session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     }
-    return await this.chatContextManager.createChatSession(userId);
   }
 
   // Save user message to database
@@ -550,6 +580,32 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
   // Public method for getting companion info
   getCompanionInfo(): CompanionTraits | null {
     return this.companionTraits;
+  }
+
+  // Resolve wallet address to user ID from database
+  private async resolveUserIdFromWallet(walletAddress: string): Promise<number | null> {
+    if (!walletAddress) return null;
+    
+    try {
+      const { drizzle } = await import('drizzle-orm/neon-http');
+      const { neon } = await import('@neondatabase/serverless');
+      const { users } = await import('../../../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      const sql = neon(process.env.DATABASE_URL!);
+      const db = drizzle(sql);
+      
+      const user = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.walletAddress, walletAddress))
+        .limit(1);
+      
+      return user.length > 0 ? user[0].id : null;
+    } catch (error) {
+      console.error('[CompanionHandler] Failed to resolve user ID:', error);
+      return null;
+    }
   }
 
   // AI-powered intelligent task detection with natural language understanding and context awareness

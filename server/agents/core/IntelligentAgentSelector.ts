@@ -268,29 +268,26 @@ Priority: ${config.priority}
         context: {
           ...request.context,
           blockchainAnalysis,
-          suggestedAgent: blockchainAnalysis.suggestedAgent,
-          targetNetworks: blockchainAnalysis.networks
+          targetNetworks: blockchainAnalysis.networks,
+          isPureAISelection: true
         },
         userId: request.userId,
-        requireExecution: true,
-        preferredAgentId: blockchainAnalysis.confidence > 0.6 ? blockchainAnalysis.suggestedAgent : undefined
+        requireExecution: true
       };
       
-      console.log('[IntelligentAgentSelector] RAG request with blockchain preference:', {
-        preferredAgentId: ragRequest.preferredAgentId,
-        blockchainConfidence: blockchainAnalysis.confidence,
-        suggestedAgent: blockchainAnalysis.suggestedAgent
+      console.log('[IntelligentAgentSelector] Pure AI selection request:', {
+        isPureAI: true,
+        blockchainContext: blockchainAnalysis.confidence > 0.5,
+        networks: blockchainAnalysis.networks,
+        message: 'Using pure AI intelligence for agent selection'
       });
 
       const ragResult = await this.ragSelector.selectBestAgent(ragRequest);
       
-      // If blockchain analysis suggests a specific agent and RAG confirms it, boost confidence
-      if (ragResult.primaryAgent && 
-          ragResult.primaryAgent.agentId === blockchainAnalysis.suggestedAgent &&
-          blockchainAnalysis.confidence > 0.6) {
-        ragResult.primaryAgent.confidence = Math.max(ragResult.primaryAgent.confidence, blockchainAnalysis.confidence);
-        ragResult.semanticReasoning.unshift(...blockchainAnalysis.reasoning);
-        ragResult.semanticReasoning.push(`Blockchain routing confirmed: ${blockchainAnalysis.taskType} operation`);
+      // Add blockchain context to reasoning if relevant
+      if (blockchainAnalysis.confidence > 0.5) {
+        ragResult.semanticReasoning.unshift(`Blockchain context: ${blockchainAnalysis.reasoning.join(', ')}`);
+        ragResult.semanticReasoning.push('Pure AI selection based on agent capabilities and task requirements');
       }
 
       return this.buildRAGResult(ragResult, blockchainAnalysis);

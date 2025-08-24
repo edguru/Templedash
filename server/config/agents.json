@@ -64,12 +64,14 @@
         "description": "I am the specialized plugin executor for DeFi operations that require specific GOAT SDK plugins. I only handle operations when users mention specific DeFi protocols like Uniswap, 1inch, Jupiter, Orca, Polymarket, or other protocols not directly supported by Nebula. I excel at plugin-based liquidity provision, staking, lending/borrowing, yield farming, prediction markets, and multi-step DeFi strategies exclusively through plugin integrations. I am NOT used for basic blockchain operations like balance checks or simple transfers - those go to Nebula. Think of me as the specialist called in only when specific DeFi protocol plugins are needed.",
         "systemMessage": "You are the DeFi operations specialist using GOAT SDK with 200+ protocol integrations. You execute token swaps on Uniswap/1inch, manage liquidity pools, handle yield farming, execute lending/borrowing operations, bridge assets across chains, and trade on prediction markets. You provide automated transaction signing through AWS KMS session keys for seamless DeFi operations without manual approval. Focus on DeFi protocol interactions, trading operations, yield optimization, and complex financial strategies on blockchain networks.",
         "capabilities": [
-          "Execute DeFi actions only when a specific Goat SDK plugin is required (e.g., DEX, lending market, bridge, or prediction market not directly supported by Nebula)",
-          "Provide liquidity, staking, lending/borrowing, or yield farming through plugin integrations only",
-          "Trade on prediction markets (e.g., Polymarket) if exposed via Goat plugin",
-          "Automate multi-step DeFi strategies or arbitrage restricted to Goat plugin coverage",
-          "Manage session key signing for automated operations when plugin tasks require it",
-          "Interact with 200+ DeFi protocols exclusively via plugin endpoints"
+          "Execute token swaps on specific DeFi protocols like Uniswap, 1inch, Jupiter, Orca when mentioned by name",
+          "Provide liquidity to specific AMM protocols (Uniswap, Curve, Balancer) when protocol is specified",
+          "Execute lending/borrowing on specific platforms (Compound, Aave) when platform is mentioned",
+          "Trade on Polymarket prediction markets when Polymarket is specifically requested",
+          "Bridge assets using specific protocols (deBridge) when bridge protocol is named",
+          "Automate multi-step DeFi strategies only when specific protocol workflows are requested",
+          "Manage session key signing for automated operations on specified DeFi protocols",
+          "Execute cross-chain operations when specific bridge or multi-chain protocol is mentioned"
         ],
         "tools": [
           "goat_sdk",

@@ -242,38 +242,28 @@ export class UnifiedGoatAgent extends BaseAgent {
   }
 
   private initializeBlockchainCapabilities(): void {
-    // Enhanced blockchain keywords based on GOAT SDK capabilities
+    // GOAT SDK specific protocol keywords - ONLY specific DeFi protocols, NO generic operations
     this.blockchainKeywords = new Set([
-      // Core blockchain terms
-      'blockchain', 'crypto', 'cryptocurrency', 'bitcoin', 'ethereum', 'web3',
-      'defi', 'nft', 'token', 'coin', 'wallet', 'address', 'hash', 'block',
+      // Specific DeFi protocols only
+      'uniswap', '1inch', 'jupiter', 'orca', 'compound', 'aave', 'curve', 'balancer',
+      'sushiswap', 'pancakeswap', 'quickswap', 'polymarket', 'debridge',
       
-      // GOAT SDK specific terms
-      'goat', 'swap', 'uniswap', 'dex', 'amm', 'liquidity', 'yield', 'farm',
-      'erc20', 'erc721', 'erc1155', 'approve', 'allowance', 'transfer',
+      // Protocol-specific operations
+      'liquidity', 'yield', 'farm', 'prediction', 'markets', 'bridge',
+      'lending', 'borrowing', 'staking', 'cross-chain', 'multichain',
       
-      // Advanced DeFi operations
-      'cross-chain', 'bridge', 'debridge', 'multichain', 'slippage',
-      'polymarket', 'prediction', 'markets', 'trading', 'arbitrage',
-      
-      // Networks supported by GOAT
-      'base', 'polygon', 'arbitrum', 'optimism', 'solana', 'aptos',
-      'camp', 'mode', 'sei', 'fuel', 'starknet', 'sui', 'zilliqa',
-      
-      // Session and automation
+      // Session and automation for DeFi protocols
       'session', 'sign', 'automated', 'signer', 'permissions'
     ]);
 
-    // GOAT SDK supported operations
+    // GOAT SDK supported operations - ONLY specific DeFi protocol operations
     this.supportedOperations = new Set([
-      'token_swap', 'uniswap_swap', 'dex_trading',
-      'token_transfer', 'erc20_transfer', 'approve_token',
-      'balance_check', 'token_balance', 'portfolio_check',
-      'liquidity_provision', 'yield_farming', 'liquidity_mining',
+      'uniswap_swap', 'curve_liquidity', 'balancer_pool',
+      'compound_lending', 'aave_borrowing', 'polymarket_trading',
+      'debridge_bridge', 'jupiter_swap', 'orca_pool',
       'cross_chain_bridge', 'multichain_operations',
-      'prediction_markets', 'polymarket_trading',
+      'prediction_markets', 'yield_farming', 'liquidity_mining',
       'session_management', 'automated_signing',
-      'gas_optimization', 'transaction_analysis',
       'defi_strategies', 'yield_optimization'
     ]);
   }
@@ -646,13 +636,15 @@ export class UnifiedGoatAgent extends BaseAgent {
       
       // Fallback to standard operations
       switch (task.operation) {
-        case 'balance_check':
-          return await this.executeBalanceCheck(task, userId);
         case 'token_transfer':
           return await this.executeTokenTransfer(task, userId);
         case 'session_management':
           return await this.executeSessionManagement(task, userId);
         default:
+          // Only handle DeFi protocol operations - reject balance checks
+          if (task.operation === 'balance_check') {
+            throw new Error('Balance checks should be handled by Nebula or ChainGPT agents, not GOAT. GOAT is only for specific DeFi protocol operations.');
+          }
           return await this.executeGenericOperation(task, userId);
       }
 
@@ -812,52 +804,8 @@ ${task.goatCapability?.operations.map(op => `✅ ${op.replace('_', ' ')}`).join(
   }
 
   // Standard operation implementations (keeping existing ones)
-  private async executeBalanceCheck(task: BlockchainTask, userId: string): Promise<string> {
-    const { address, tokenSymbol = 'CAMP' } = task.parameters;
-    
-    try {
-      // Defensive check for publicClient
-      if (!this.publicClient) {
-        console.error('[UnifiedGoatAgent] publicClient not initialized, reinitializing...');
-        this.initializePublicClient();
-        
-        if (!this.publicClient) {
-          throw new Error('Failed to initialize blockchain client');
-        }
-      }
-      
-      if (tokenSymbol === 'CAMP') {
-        console.log('[goat-agent] Attempting balance check with client:', !!this.publicClient);
-        const balance = await this.publicClient.getBalance({ address });
-        const balanceInCAMP = Number(balance) / Math.pow(10, 18);
-        
-        return `✅ **CAMP Balance Check Complete**
-
-**Address:** ${address}
-**Balance:** ${balanceInCAMP.toFixed(6)} CAMP
-**Network:** Base Camp Testnet
-**USD Value:** ~$${(balanceInCAMP * 0.12).toFixed(2)}
-
-**🐐 GOAT SDK Ready:** Your balance can be used in 200+ DeFi protocols
-**Available Operations:** Uniswap swaps, yield farming, cross-chain bridges
-
-*🚀 Powered by Unified GOAT Agent*`;
-      } else {
-        const mockBalance = parseFloat((Math.random() * 1000 + 0.1).toFixed(4));
-        
-        return `✅ **${tokenSymbol} Balance Check**
-
-**Address:** ${address}
-**Balance:** ${mockBalance} ${tokenSymbol}
-**Network:** Base Camp Testnet
-
-**🐐 GOAT SDK Integration:** Ready for advanced DeFi operations
-*Create a session signer to enable automated trading*`;
-      }
-    } catch (error) {
-      throw new Error(`Balance check failed: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+  // REMOVED: executeBalanceCheck - GOAT agent should NOT handle balance checks
+  // Balance checks should be handled by Nebula or ChainGPT agents
 
   private async executeTokenTransfer(task: BlockchainTask, userId: string): Promise<string> {
     const { to, amount, from, tokenSymbol = 'CAMP' } = task.parameters;
@@ -1047,8 +995,8 @@ ${isExpired ? '*Create a new session signer for GOAT SDK automation*' : '*GOAT S
     // Defensive check to ensure blockchainKeywords is initialized
     if (!this.blockchainKeywords || this.blockchainKeywords.size === 0) {
       console.warn('[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection');
-      // Fallback keyword detection
-      const fallbackKeywords = ['blockchain', 'crypto', 'token', 'balance', 'swap', 'wallet', 'defi', 'camp'];
+      // Fallback for specific DeFi protocol keywords only - NO generic operations like balance
+      const fallbackKeywords = ['uniswap', '1inch', 'jupiter', 'orca', 'compound', 'aave', 'curve', 'balancer', 'polymarket', 'debridge'];
       return fallbackKeywords.filter(keyword => lowerMessage.includes(keyword));
     }
     
@@ -1060,21 +1008,23 @@ ${isExpired ? '*Create a new session signer for GOAT SDK automation*' : '*GOAT S
   private determineOperationType(message: string): string {
     const lowerMessage = message.toLowerCase();
     
-    // GOAT SDK specific operations
-    if (lowerMessage.includes('swap') || lowerMessage.includes('trade') || lowerMessage.includes('uniswap')) return 'token_swap';
-    if (lowerMessage.includes('bridge') || lowerMessage.includes('cross-chain')) return 'cross_chain_bridge';
-    if (lowerMessage.includes('yield') || lowerMessage.includes('farm')) return 'yield_farming';
-    if (lowerMessage.includes('liquidity') || lowerMessage.includes('pool')) return 'liquidity_provision';
-    if (lowerMessage.includes('predict') || lowerMessage.includes('polymarket')) return 'prediction_markets';
+    // GOAT SDK specific protocol operations ONLY
+    if (lowerMessage.includes('swap') && (lowerMessage.includes('uniswap') || lowerMessage.includes('1inch') || lowerMessage.includes('jupiter'))) return 'token_swap';
+    if (lowerMessage.includes('bridge') && lowerMessage.includes('debridge')) return 'cross_chain_bridge';
+    if (lowerMessage.includes('yield') && lowerMessage.includes('farm')) return 'yield_farming';
+    if (lowerMessage.includes('liquidity') && (lowerMessage.includes('uniswap') || lowerMessage.includes('curve'))) return 'liquidity_provision';
+    if (lowerMessage.includes('predict') && lowerMessage.includes('polymarket')) return 'prediction_markets';
+    if (lowerMessage.includes('lend') && (lowerMessage.includes('compound') || lowerMessage.includes('aave'))) return 'lending_operation';
     
-    // Standard operations
-    if (lowerMessage.includes('balance') || lowerMessage.includes('check')) return 'balance_check';
-    if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) return 'token_transfer';
+    // Session management (still needed for DeFi protocol operations)
     if (lowerMessage.includes('session') || lowerMessage.includes('signer')) return 'session_management';
-    if (lowerMessage.includes('mint') && lowerMessage.includes('nft')) return 'nft_mint';
-    if (lowerMessage.includes('deploy') || lowerMessage.includes('contract')) return 'contract_deployment';
     
-    return 'blockchain_query';
+    // REMOVED: balance_check - GOAT should NOT handle balance checks
+    // REMOVED: generic transfers - should be handled by Nebula
+    // REMOVED: generic operations - GOAT is ONLY for specific DeFi protocols
+    
+    // If no specific DeFi protocol is mentioned, this shouldn't be handled by GOAT
+    throw new Error('GOAT agent only handles specific DeFi protocol operations. Generic blockchain operations should be handled by Nebula or ChainGPT.');
   }
 
   private findMatchingGoatCapability(message: string): GoatDeFiCapability | null {

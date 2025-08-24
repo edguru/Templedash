@@ -7,7 +7,7 @@ import { TaskTracker } from '../trackers/TaskTracker';
 import { IntelligentAgentSelector, AgentSelectionRequest, AgentSelectionResult } from '../core/IntelligentAgentSelector';
 import { CollaborativePlanner, CollaborationPlan } from '../core/CollaborativePlanner';
 import { ChainOfThoughtEngine } from '../crewai/ChainOfThoughtEngine';
-import { AgentCapabilityMatch } from '../../core/CapabilityMapper';
+// Removed import - CapabilityMapper not needed for intelligent routing
 import { v4 as uuidv4 } from 'uuid';
 
 interface TaskQueue {
@@ -439,7 +439,7 @@ export class TaskOrchestrator extends BaseAgent {
     await this.sendMessage(executionMessage);
   }
 
-  private async sendTaskToAgent(task: Task, selectedAgent: AgentCapabilityMatch): Promise<void> {
+  private async sendTaskToAgent(task: Task, selectedAgent: any): Promise<void> {
     const messageType = this.getMessageTypeForAgent(selectedAgent.agentId, selectedAgent.capability.capabilityName);
     
     // Prepare parameters with intelligent wallet address injection for blockchain operations

@@ -1,12 +1,11 @@
-// Nebula MCP - Pure LLM Integration for Advanced Blockchain Operations  
+// Nebula MCP - Direct Thirdweb API Integration for Advanced Blockchain Operations  
 import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
-import OpenAI from 'openai';
 
 export class NebulaMCP extends BaseAgent {
-  private openaiClient: OpenAI;
+  private thirdwebSecretKey: string;
   private capabilities = new Set<string>();
 
   constructor(messageBroker: MessageBroker) {
@@ -15,13 +14,10 @@ export class NebulaMCP extends BaseAgent {
     // Initialize capabilities Set
     this.capabilities = new Set();
     
-    // Initialize OpenAI client
-    if (process.env.OPENAI_API_KEY) {
-      this.openaiClient = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
-      });
-    } else {
-      console.warn('[NebulaMCP] OpenAI API key not found');
+    // Initialize Thirdweb secret key
+    this.thirdwebSecretKey = process.env.THIRDWEB_SECRET_KEY || '';
+    if (!this.thirdwebSecretKey) {
+      console.warn('[NebulaMCP] Thirdweb secret key not found');
     }
   }
 
@@ -71,42 +67,53 @@ export class NebulaMCP extends BaseAgent {
     const { taskId, description, parameters } = message.payload;
     
     try {
-      this.logActivity('Processing with Nebula LLM', { 
+      this.logActivity('Processing with Thirdweb Nebula API', { 
         taskId, 
         description: description?.substring(0, 100)
       });
 
-      if (!this.openaiClient) {
-        return this.createTaskResponse(taskId, false, 'Nebula LLM is currently unavailable');
+      if (!this.thirdwebSecretKey) {
+        return this.createTaskResponse(taskId, false, 'Thirdweb secret key is not configured');
       }
 
-      // Build context from parameters if available
-      let contextInfo = '';
-      if (parameters?.walletAddress || parameters?.address) {
-        const address = parameters.walletAddress || parameters.address;
-        contextInfo = `\n\nUser's wallet address: ${address}`;
-      }
-
-      const response = await this.openaiClient.chat.completions.create({
-        model: 'gpt-4o', // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      // Build request for Thirdweb AI API
+      const walletAddress = parameters?.walletAddress || parameters?.address;
+      
+      const requestBody = {
+        context: {
+          chain_ids: [123420001114], // Base Camp Testnet
+          ...(walletAddress && { from: walletAddress })
+        },
         messages: [{
-          role: 'system',
-          content: 'You are Nebula, an advanced blockchain development and infrastructure AI assistant. You specialize in smart contract development, DeFi protocols, NFT operations, cross-chain bridges, gasless transactions, and complex blockchain architecture. Provide technical, actionable guidance for blockchain developers and advanced users.'
-        }, {
-          role: 'user', 
-          content: `${description}${contextInfo}`
+          role: 'user',
+          content: description
         }],
-        temperature: 0.7,
-        max_tokens: 1000
+        stream: false
+      };
+
+      console.log('[NebulaMCP] Making request to Thirdweb AI API');
+      
+      const response = await fetch('https://api.thirdweb.com/v1/ai/chat', {
+        method: 'POST',
+        headers: {
+          'x-secret-key': this.thirdwebSecretKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
       });
 
-      const result = response.choices[0].message.content || 'No response from Nebula.';
+      if (!response.ok) {
+        throw new Error(`Thirdweb AI API returned ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      const answer = result.content || result.message || 'No response from Thirdweb AI.';
       
-      return this.createTaskResponse(taskId, true, result);
+      return this.createTaskResponse(taskId, true, answer);
       
     } catch (error) {
-      console.error('[NebulaMCP] LLM request failed:', error);
-      return this.createTaskResponse(taskId, false, 'I encountered an error processing your request. Please try again.');
+      console.error('[NebulaMCP] Thirdweb AI API request failed:', error);
+      return this.createTaskResponse(taskId, false, 'I encountered an error processing your request with Thirdweb AI. Please try again.');
     }
   }
 

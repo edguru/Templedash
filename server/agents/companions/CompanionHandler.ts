@@ -690,23 +690,26 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
             content: `You are an intelligent intent detection agent for a Web3 AI companion system. Your role is to analyze user messages and determine if they represent a task request or casual conversation.
 
 TASK CATEGORIES:
-- balance_check: Checking wallet balance, token amounts, portfolio status, any financial inquiry
+- balance_check: Checking wallet balance, token amounts, portfolio status, personal financial inquiry
+- price_inquiry: Token prices, market data, price trends, "what is X token price", market analysis
 - nft_mint: Creating, minting, or generating NFTs, tokens, or digital assets
 - token_transfer: Sending, transferring, or moving tokens/crypto between addresses
 - contract_deployment: Deploying smart contracts or creating new blockchain contracts
 - defi_operations: Swapping, staking, bridging, or other DeFi activities
 - general_blockchain: Any other blockchain-related request or Web3 operation
-- conversation: Casual chat, questions, greetings, or non-task interactions
+- conversation: Casual chat, personal questions, greetings, or non-blockchain interactions
 
 ANALYSIS GUIDELINES:
 - Understand user intent from natural language, not just keywords
 - Handle variations like "whats my camp balance", "check my tokens", "how much do i have"
+- Price questions like "what is CAMP price", "how much is token worth" are TASKS not conversation
+- Any blockchain, crypto, DeFi, NFT, or Web3 related query should be considered a TASK
 - Consider context and conversational flow
 - Be flexible with informal language and typos
-- High confidence (0.8+) for clear, specific task requests
+- High confidence (0.8+) for clear blockchain/crypto requests
 - Medium confidence (0.5-0.7) for likely task requests with some ambiguity
 - Low confidence (0.3-0.5) for unclear but possibly task-related messages
-- Very low confidence (0.0-0.3) for casual conversation
+- Very low confidence (0.0-0.3) for casual conversation ONLY
 
 RESPONSE FORMAT:
 Respond with JSON in this exact format:
@@ -745,18 +748,32 @@ Respond with JSON in this exact format:
         }
       }
       
+      // Fallback detection for common blockchain queries that AI might miss
+      const blockchainKeywords = /\b(price|balance|token|crypto|nft|swap|stake|defi|blockchain|web3|contract|deploy|mint|transfer|camp|eth|btc|usd)\b/i;
+      let isTask = result.isTask;
+      let taskType = result.taskType;
+      let confidence = finalConfidence;
+      let reasoning = result.reasoning || [`AI detected: ${result.isTask ? 'Task' : 'Conversation'}`];
+      
+      if (!isTask && blockchainKeywords.test(message) && confidence < 0.6) {
+        isTask = true;
+        confidence = 0.7;
+        taskType = message.toLowerCase().includes('price') ? 'price_inquiry' : 'general_blockchain';
+        reasoning.push('Fallback blockchain detection triggered - detected blockchain keywords');
+      }
+
       this.logActivity('AI intent analysis completed', {
         message: message.substring(0, 50),
-        isTask: result.isTask,
-        confidence: finalConfidence,
-        taskType: result.taskType
+        isTask: isTask,
+        confidence: confidence,
+        taskType: taskType
       });
       
       return {
-        isTask: result.isTask,
-        confidence: finalConfidence,
-        detectedTaskType: result.taskType,
-        reasoning: result.reasoning || [`AI detected: ${result.isTask ? 'Task' : 'Conversation'}`]
+        isTask: isTask,
+        confidence: confidence,
+        detectedTaskType: taskType,
+        reasoning: reasoning
       };
     } catch (error) {
       console.error('[CompanionHandler] Error in AI intent analysis:', error);

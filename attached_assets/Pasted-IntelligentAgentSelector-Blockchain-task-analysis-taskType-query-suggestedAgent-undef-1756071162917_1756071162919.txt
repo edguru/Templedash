@@ -1,0 +1,73 @@
+IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'query',
+  suggestedAgent: undefined,
+  confidence: 0.7,
+  networks: [ 'camp' ],
+  reasoning: [ 'Blockchain context detected', 'Networks: camp' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: true,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+[TaskOrchestrator] AI selected agent chaingpt-mcp for task 1d2962a8-27d5-43a6-9713-86bb7eacfb71 {
+  confidence: 0.33277426195803106,
+  reasoning: [ 'ChainGPTMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: chaingpt-mcp (confidence: 33.3%)',
+    'Selection Reasoning: ChainGPTMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Blockchain Research Analyst - Complex market analysis, research reports, and strategic blockchain intelligence',
+    'Success Rate: 93.0%',
+    'Average Latency: 3800ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to chaingpt-mcp
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] UnifiedGoatAgent blockchain task check: {
+  description: 'Check my CAMP token balance',
+  detectedKeywords: [],
+  isBlockchain: false,
+  targetId: 'chaingpt-mcp'
+}
+[TaskOrchestrator] Agent performance update: chaingpt-mcp, task: balance_check, success: true
+9:30:54 PM [express] POST /api/agents/chat 200 in 10001ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent chaingpt-mcp for task 1d2962a8-27d5-43a6-9713-86bb7eacfb71 {
+  confidence: 0.33277426195803106,
+  reasoning: [ 'ChainGPTMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: balance_check, Priority: high',
+    'AI Selected Agent: chaingpt-mcp (confidence: 33.3%)',
+    'Selection Reasoning: ChainGPTMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Blockchain Research Analyst - Complex market analysis, research reports, and strategic blockchain intelligence',
+    'Success Rate: 93.0%',
+    'Average Latency: 3800ms'
+  ]
+}
+🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: execute_task from task-orchestrator to chaingpt-mcp
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] UnifiedGoatAgent blockchain task check: {
+  description: 'Check my CAMP token balance',
+  detectedKeywords: [],
+  isBlockchain: false,
+  targetId: 'chaingpt-mcp'
+}

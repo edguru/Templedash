@@ -21,6 +21,18 @@ export class ChainGPTMCP extends BaseAgent {
   protected initialize(): void {
     this.logActivity('Initializing ChainGPT MCP as pure LLM integration');
     this.setupCapabilities();
+    
+    // Subscribe to execute_task messages
+    this.messageBroker.subscribe('execute_task', async (message: AgentMessage) => {
+      // Only process messages targeted to this agent
+      if (message.targetId === this.agentId) {
+        console.log('[ChainGPTMCP] Received execute_task message:', message.payload.taskId);
+        const response = await this.handleMessage(message);
+        if (response) {
+          await this.sendMessage(response);
+        }
+      }
+    });
   }
 
   private setupCapabilities(): void {
@@ -99,7 +111,12 @@ export class ChainGPTMCP extends BaseAgent {
         ...(useCustomContext && { contextInjection })
       };
 
-      console.log('[ChainGPTMCP] Making request to ChainGPT API');
+      console.log('[ChainGPTMCP] Making request to ChainGPT API', {
+        url: 'https://api.chaingpt.org/chat/stream',
+        hasApiKey: !!this.chainGPTApiKey,
+        keyLength: this.chainGPTApiKey?.length,
+        requestBody: JSON.stringify(requestBody)
+      });
       
       const response = await fetch('https://api.chaingpt.org/chat/stream', {
         method: 'POST',
@@ -107,17 +124,26 @@ export class ChainGPTMCP extends BaseAgent {
           'Authorization': `Bearer ${this.chainGPTApiKey}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(30000) // 30 second timeout
       });
+
+      console.log('[ChainGPTMCP] API response status:', response.status);
 
       if (!response.ok) {
         throw new Error(`ChainGPT API returned ${response.status}: ${response.statusText}`);
       }
 
-      const result = await response.json();
-      const answer = result.answer || result.response || 'No response from ChainGPT.';
+      // ChainGPT API returns plain text, not JSON
+      const answer = await response.text();
+      console.log('[ChainGPTMCP] Raw API response length:', answer.length);
+      console.log('[ChainGPTMCP] API response preview:', answer.substring(0, 200));
       
-      return this.createTaskResponse(taskId, true, answer);
+      if (!answer || answer.trim().length === 0) {
+        throw new Error('Empty response from ChainGPT API');
+      }
+      
+      return this.createTaskResponse(taskId, true, answer.trim());
       
     } catch (error) {
       console.error('[ChainGPTMCP] ChainGPT API request failed:', error);

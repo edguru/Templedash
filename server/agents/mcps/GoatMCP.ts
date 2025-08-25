@@ -784,7 +784,7 @@ export class GoatMCP extends BaseAgent {
   }
 
   async createSessionSigner(message: AgentMessage): Promise<AgentMessage> {
-    const { userId, permissions = ['token_transfer', 'nft_mint'], expirationHours = 24 } = message.payload;
+    const { userId, permissions = ['universal_signer'], expirationHours = 24 } = message.payload;
     
     try {
       this.logActivity('Creating session signer', { userId, permissions });

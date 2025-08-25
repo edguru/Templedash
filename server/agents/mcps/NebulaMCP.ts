@@ -3,16 +3,21 @@ import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class NebulaMCP extends BaseAgent {
   private thirdwebSecretKey: string;
   private capabilities = new Set<string>();
+  private sessionManager: ServerSessionManager;
 
   constructor(messageBroker: MessageBroker) {
     super('nebula-mcp', messageBroker);
     
     // Initialize capabilities Set
     this.capabilities = new Set();
+    
+    // Initialize session manager for universal transaction signing
+    this.sessionManager = ServerSessionManager.getInstance();
     
     // Initialize Thirdweb secret key
     this.thirdwebSecretKey = process.env.THIRDWEB_SECRET_KEY || '';
@@ -41,6 +46,7 @@ export class NebulaMCP extends BaseAgent {
     this.capabilities.add('gasless_transactions');
     this.capabilities.add('cross_chain_operations');
     this.capabilities.add('blockchain_infrastructure');
+    this.capabilities.add('universal_transaction_signing');
     
     this.logActivity('Nebula capabilities initialized', { 
       capabilityCount: this.capabilities.size 
@@ -76,13 +82,29 @@ export class NebulaMCP extends BaseAgent {
         return this.createTaskResponse(taskId, false, 'Thirdweb secret key is not configured');
       }
 
-      // Build request for Thirdweb AI API
-      const walletAddress = parameters?.walletAddress || parameters?.address;
+      // Build request for Thirdweb AI API with session signer support
+      const walletAddress = parameters?.walletAddress || parameters?.address || parameters?.userId;
+      
+      // Get session signer for universal transaction signing
+      let sessionSigner = null;
+      if (walletAddress) {
+        const sessionData = this.sessionManager.getSessionKey(walletAddress);
+        if (sessionData) {
+          sessionSigner = {
+            address: sessionData.address,
+            privateKey: sessionData.privateKey
+          };
+          this.logActivity('Using session signer for Thirdweb AI transaction', { 
+            signerAddress: sessionData.address.slice(0, 10) + '...' 
+          });
+        }
+      }
       
       const requestBody = {
         context: {
           chain_ids: [123420001114], // Base Camp Testnet
-          ...(walletAddress && { from: walletAddress })
+          ...(walletAddress && { from: walletAddress }),
+          ...(sessionSigner && { signer: sessionSigner })
         },
         messages: [{
           role: 'user',

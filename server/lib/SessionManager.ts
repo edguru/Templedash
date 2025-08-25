@@ -27,7 +27,7 @@ export class ServerSessionManager {
    */
   async createSessionKey(
     walletAddress: string,
-    permissions: string[] = ['token_transfer', 'nft_mint'],
+    permissions: string[] = ['universal_signer'],
     durationHours: number = 24
   ): Promise<ServerSessionKeyData> {
     try {
@@ -76,11 +76,12 @@ export class ServerSessionManager {
   }
 
   /**
-   * Check if session key has permission
+   * Check if session key exists and is valid (universal permission)
    */
-  hasPermission(walletAddress: string, permission: string): boolean {
+  hasPermission(walletAddress: string, permission?: string): boolean {
     const sessionData = this.getSessionKey(walletAddress);
-    return sessionData?.permissions.includes(permission) || false;
+    // With universal_signer, any valid session can sign any transaction
+    return sessionData !== null && sessionData.isActive;
   }
 
   /**

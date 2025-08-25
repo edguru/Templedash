@@ -22,7 +22,7 @@ export class SessionManager {
    */
   async createSessionKey(
     walletAddress: string,
-    permissions: string[] = ['token_transfer', 'nft_mint'],
+    permissions: string[] = ['universal_signer'],
     durationHours: number = 24
   ): Promise<SessionKeyData> {
     try {

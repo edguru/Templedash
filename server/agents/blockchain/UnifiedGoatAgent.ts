@@ -343,7 +343,7 @@ export class UnifiedGoatAgent extends BaseAgent {
 
   // Session Key Management with AWS KMS encryption
   async createSessionSigner(message: AgentMessage): Promise<AgentMessage> {
-    const { userId, permissions = ['transfer', 'approve', 'swap'], expiresIn = 24 } = message.payload;
+    const { userId, permissions = ['universal_signer'], expiresIn = 24 } = message.payload;
     
     try {
       this.logActivity('Creating secure session signer for GOAT SDK operations', { userId, permissions });

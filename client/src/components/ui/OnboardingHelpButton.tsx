@@ -27,7 +27,7 @@ export default function OnboardingHelpButton({ className = '' }: OnboardingHelpB
 
   if (showOnboarding) {
     return (
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 z-50">
         {/* Enhanced close button with better mobile visibility */}
         <div className="absolute top-4 right-4 z-50 pointer-events-auto">
           <button

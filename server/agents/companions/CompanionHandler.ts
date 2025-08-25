@@ -689,40 +689,22 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
             role: "system",
             content: `You are an intelligent intent detection agent for a Web3 AI companion system. Your role is to analyze user messages and determine if they represent a task request or casual conversation.
 
-TASK CATEGORIES:
-- balance_check: Checking wallet balance, token amounts, portfolio status, personal financial inquiry
-- price_inquiry: Token prices, market data, price trends, "what is X token price", market analysis
-- nft_mint: Creating, minting, or generating NFTs, tokens, or digital assets
-- token_transfer: Sending, transferring, or moving tokens/crypto between addresses
-- contract_deployment: Deploying smart contracts or creating new blockchain contracts
-- defi_operations: Swapping, staking, bridging, or other DeFi activities
-- general_blockchain: Any other blockchain-related request or Web3 operation
-- conversation: Casual chat, personal questions, greetings, or non-blockchain interactions
-
 ANALYSIS GUIDELINES:
-- Understand user intent from natural language, not just keywords
-- Handle variations like "whats my camp balance", "check my tokens", "how much do i have"
-- Price questions like "what is CAMP price", "how much is token worth" are TASKS not conversation
-- Any blockchain, crypto, DeFi, NFT, or Web3 related query should be considered a TASK
-- Consider context and conversational flow
-- Be flexible with informal language and typos
-- High confidence (0.8+) for clear blockchain/crypto requests
-- Medium confidence (0.5-0.7) for likely task requests with some ambiguity
-- Low confidence (0.3-0.5) for unclear but possibly task-related messages
-- Very low confidence (0.0-0.3) for casual conversation ONLY
+- Determine if the message represents a REQUEST FOR ACTION (task) or CASUAL CONVERSATION
+- Any request that requires data retrieval, blockchain operations, calculations, or external processing is a TASK
+- Simple greetings, casual chat, questions about the companion itself are CONVERSATION
+- Be flexible with natural language and informal speech
+- High confidence (0.8+) for clear action requests
+- Medium confidence (0.5-0.7) for likely action requests with some ambiguity  
+- Low confidence (0.3-0.5) for unclear requests
+- Very low confidence (0.0-0.3) for casual conversation only
 
 RESPONSE FORMAT:
 Respond with JSON in this exact format:
 {
   "isTask": boolean,
   "confidence": number (0.0-1.0),
-  "taskType": "category_name", 
-  "reasoning": ["step1", "step2", "step3"],
-  "extractedParams": {
-    "amount": "value if found",
-    "token": "token name if found",
-    "address": "wallet address if found"
-  }
+  "reasoning": ["step1", "step2", "step3"]
 }`
           },
           {
@@ -748,31 +730,29 @@ Respond with JSON in this exact format:
         }
       }
       
-      // Fallback detection for common blockchain queries that AI might miss
-      const blockchainKeywords = /\b(price|balance|token|crypto|nft|swap|stake|defi|blockchain|web3|contract|deploy|mint|transfer|camp|eth|btc|usd)\b/i;
+      // Simple fallback for action-oriented requests
+      const actionKeywords = /\b(show|check|get|find|tell|what|how|price|balance|send|transfer|create|deploy|mint|swap|stake|bridge)\b/i;
       let isTask = result.isTask;
-      let taskType = result.taskType;
       let confidence = finalConfidence;
       let reasoning = result.reasoning || [`AI detected: ${result.isTask ? 'Task' : 'Conversation'}`];
       
-      if (!isTask && blockchainKeywords.test(message) && confidence < 0.6) {
+      if (!isTask && actionKeywords.test(message) && confidence < 0.6) {
         isTask = true;
         confidence = 0.7;
-        taskType = message.toLowerCase().includes('price') ? 'price_inquiry' : 'general_blockchain';
-        reasoning.push('Fallback blockchain detection triggered - detected blockchain keywords');
+        reasoning.push('Fallback detection: action-oriented request detected');
       }
 
       this.logActivity('AI intent analysis completed', {
         message: message.substring(0, 50),
         isTask: isTask,
         confidence: confidence,
-        taskType: taskType
+        taskType: isTask ? 'action_request' : 'conversation'
       });
       
       return {
         isTask: isTask,
         confidence: confidence,
-        detectedTaskType: taskType,
+        detectedTaskType: isTask ? 'action_request' : 'conversation',
         reasoning: reasoning
       };
     } catch (error) {

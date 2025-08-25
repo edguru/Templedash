@@ -1087,38 +1087,8 @@ export class TaskOrchestrator extends BaseAgent {
   }
 
   private determineTaskType(message: string): string {
-    const lowerMessage = message.toLowerCase();
-    
-    // ERC20 Token Deployment (highest priority check)
-    if ((lowerMessage.includes('deploy') || lowerMessage.includes('create') || lowerMessage.includes('launch')) && 
-        (lowerMessage.includes('token') || lowerMessage.includes('erc20') || lowerMessage.includes('coin'))) {
-      return 'erc20_deployment';
-    }
-    
-    // Smart Contract Deployment
-    if (lowerMessage.includes('deploy') && (lowerMessage.includes('contract') || lowerMessage.includes('smart contract'))) {
-      return 'contract_deployment';
-    }
-    
-    // Balance and token queries
-    if (lowerMessage.includes('balance') || lowerMessage.includes('how much')) {
-      return 'balance_check';
-    }
-    if (lowerMessage.includes('token') && (lowerMessage.includes('info') || lowerMessage.includes('price'))) {
-      return 'token_info';
-    }
-    
-    // NFT operations
-    if (lowerMessage.includes('mint') && (lowerMessage.includes('nft') || lowerMessage.includes('random') || lowerMessage.includes('character') || lowerMessage.includes('companion'))) {
-      return 'nft_mint';
-    }
-    
-    // Transfer operations
-    if (lowerMessage.includes('transfer') || lowerMessage.includes('send')) {
-      return 'token_transfer';
-    }
-    
-    return 'general_query';
+    // Let capability manager handle specifics - just return generic task type
+    return 'user_request';
   }
 
   private determinePriority(message: string): 'high' | 'medium' | 'low' {

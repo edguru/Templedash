@@ -237,7 +237,12 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
   const currentTutorialStep = tutorialSteps[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-y-auto overflow-x-hidden" 
+         style={{ 
+           WebkitOverflowScrolling: 'touch',
+           touchAction: 'pan-y',
+           overscrollBehavior: 'contain'
+         }}>
       {/* Header - Mobile Optimized */}
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
@@ -272,9 +277,14 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
       </div>
 
       {/* Main Content - Mobile Optimized */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8 min-h-0 flex-1 overflow-y-auto">
         <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8" 
+               style={{ 
+                 maxHeight: '85vh',
+                 overflowY: 'auto',
+                 WebkitOverflowScrolling: 'touch'
+               }}>
             {/* Step Header - Mobile Optimized */}
             <div className="text-center mb-6 sm:mb-8">
               <div className="flex items-center justify-center mb-3 sm:mb-4">
@@ -294,14 +304,20 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
             </div>
 
             {/* Step Content - Mobile Optimized */}
-            <div className="max-w-3xl mx-auto">
+            <div className="max-w-3xl mx-auto" 
+                 style={{ 
+                   overflowY: 'auto',
+                   maxHeight: '50vh',
+                   WebkitOverflowScrolling: 'touch'
+                 }}
+                 className="sm:overflow-visible sm:max-h-none">
               {currentTutorialStep.content}
             </div>
           </div>
         </div>
 
         {/* Navigation - Mobile Optimized */}
-        <div className="mt-6 sm:mt-8 flex items-center justify-between">
+        <div className="mt-6 sm:mt-8 flex items-center justify-between sticky bottom-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-4 -mx-4 px-4 sm:static sm:bg-transparent sm:py-0 sm:mx-0 sm:px-0">
           <button
             onClick={handleBack}
             disabled={currentStep === 0}

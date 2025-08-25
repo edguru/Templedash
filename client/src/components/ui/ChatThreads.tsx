@@ -564,11 +564,7 @@ export default function ChatThreads() {
                 key={thread.id}
                 onClick={() => {
                   setCurrentThreadId(thread.sessionId);
-                  // Only close sidebar on mobile after selection, keep open on desktop
-                  if (window.innerWidth < 768) {
-                    setShowSidebar(false);
-                  }
-                  // On desktop (>= 768px), keep sidebar open
+                  // Keep sidebar open on both mobile and desktop unless user manually closes it
                 }}
                 className={`p-4 md:p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group touch-manipulation ${
                   thread.id === currentThreadId 

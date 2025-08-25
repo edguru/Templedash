@@ -48,7 +48,6 @@ export class AgentOrchestrator {
         conversationId,
         payload: {
           message,
-          userId, // Include userId in payload so it gets passed to companion handler
           context: {
             conversationId,
             timestamp: new Date().toISOString()
@@ -63,19 +62,22 @@ export class AgentOrchestrator {
         let responseReceived = false;
         
         // Listen for companion response
-        const cleanup = this.messageBroker.subscribe('companion_response', (companionMessage: AgentMessage) => {
+        const cleanup = this.messageBroker.subscribe('companion_response', async (companionMessage: AgentMessage) => {
           console.log('[AgentOrchestrator] Received companion response:', {
             taskRouted: companionMessage.payload.taskRouted,
-            message: companionMessage.payload.message?.substring(0, 100)
+            taskCompleted: companionMessage.payload.taskCompleted,
+            message: companionMessage.payload.message?.substring(0, 100),
+            taskId: companionMessage.payload.taskId
           });
           
           if (!responseReceived) {
             responseReceived = true;
-            cleanup();
+            enhancedCleanup();
+            enhancedTaskCleanup(); // Clean up both listeners
             
             resolve({
               success: true,
-              taskCreated: companionMessage.payload.taskRouted || false,
+              taskCreated: companionMessage.payload.taskRouted || companionMessage.payload.taskCompleted || false,
               taskId: companionMessage.payload.taskId || null,
               response: companionMessage.payload.message
             });
@@ -83,15 +85,15 @@ export class AgentOrchestrator {
         });
         
         // Also listen for task results if a task was routed
-        const taskCleanup = this.messageBroker.subscribe('task_result', (taskMessage: AgentMessage) => {
+        const taskCleanup = this.messageBroker.subscribe('task_result', async (taskMessage: AgentMessage) => {
           console.log('[AgentOrchestrator] Received task result:', {
             result: taskMessage.payload.result?.substring(0, 100)
           });
           
           if (!responseReceived) {
             responseReceived = true;
-            cleanup();
-            taskCleanup();
+            enhancedCleanup();
+            enhancedTaskCleanup();
             
             resolve({
               success: true,
@@ -103,11 +105,12 @@ export class AgentOrchestrator {
         });
         
         // Set timeout to prevent hanging
-        setTimeout(() => {
+        const timeoutId = setTimeout(() => {
           if (!responseReceived) {
             responseReceived = true;
-            cleanup();
-            taskCleanup();
+            enhancedCleanup();
+            enhancedTaskCleanup();
+            console.log('[AgentOrchestrator] ⏰ TIMEOUT - No response received in 30 seconds, using fallback');
             resolve({
               success: true,
               taskCreated: false,
@@ -115,6 +118,16 @@ export class AgentOrchestrator {
             });
           }
         }, 30000); // 30 second timeout for blockchain operations
+        
+        // Create enhanced cleanup function
+        const enhancedCleanup = () => { 
+          clearTimeout(timeoutId); 
+          cleanup(); 
+        };
+        const enhancedTaskCleanup = () => { 
+          clearTimeout(timeoutId); 
+          taskCleanup(); 
+        };
         
         // Send message to companion handler
         this.messageBroker.publish('user_message', userMessage);

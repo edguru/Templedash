@@ -317,7 +317,7 @@ export default function ChatScreen() {
   ];
 
   return (
-    <div className="h-full bg-gray-50 flex flex-col max-h-screen">
+    <div className="h-full bg-gray-50 flex flex-col max-h-screen min-h-screen">
       {/* Header - Mobile Optimized */}
       <div className="bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2 sm:space-x-3">
@@ -341,7 +341,7 @@ export default function ChatScreen() {
       </div>
 
       {/* Messages - Mobile Optimized */}
-      <div className="flex-1 chat-scroll-area px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 min-h-0">
+      <div className="flex-1 chat-scroll-area px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 min-h-0 overflow-y-auto">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -414,7 +414,7 @@ export default function ChatScreen() {
       )}
 
       {/* Input Form - Mobile Optimized */}
-      <div className="bg-white border-t px-3 sm:px-6 py-3 sm:py-4 mobile-safe-input">
+      <div className="bg-white border-t px-3 sm:px-6 py-3 sm:py-4 mobile-safe-input flex-shrink-0">
         {!account ? (
           <div className="text-center text-gray-500 py-4">
             <Bot size={24} className="mx-auto mb-2 text-gray-400" />
@@ -426,7 +426,7 @@ export default function ChatScreen() {
               <textarea
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Ask me to deploy contracts, mint NFTs, transfer tokens..."
+                placeholder={window.innerWidth < 640 ? "Ask me to help with Web3 tasks..." : "Ask me to deploy contracts, mint NFTs, transfer tokens..."}
                 className="w-full px-3 sm:px-4 py-2 sm:py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm sm:text-base min-h-[44px] max-h-32"
                 disabled={isLoading}
                 rows={1}

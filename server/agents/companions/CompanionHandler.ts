@@ -170,14 +170,15 @@ export class CompanionHandler extends BaseAgent {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
       senderId: this.agentId,
-      targetId: message.senderId, // Always route back to the original sender
+      targetId: undefined, // Broadcast to all listeners including AgentOrchestrator
       payload: {
         message: agentResponseMessage,
         taskCompleted: true,
         executedBy: message.payload.agentName,
         chainOfThought: message.payload.chainOfThought,
         companionName: this.companionTraits?.name,
-        sessionId: message.payload.sessionId
+        sessionId: message.payload.sessionId,
+        taskId: message.payload.taskId // Include taskId for proper routing
       }
     };
 

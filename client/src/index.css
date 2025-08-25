@@ -30,7 +30,24 @@ html, body {
   }
   
   .mobile-safe-input {
-    padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+    padding-bottom: max(1rem, calc(env(safe-area-inset-bottom) + 0.25rem));
+  }
+}
+
+/* Enhanced mobile chat optimizations */
+@media (max-width: 640px) {
+  .chat-scroll-area {
+    height: calc(100vh - 160px);
+    height: calc(100dvh - 160px);
+    min-height: 200px;
+  }
+  
+  .mobile-safe-input {
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
   }
 }
 
@@ -145,6 +162,14 @@ canvas {
   body {
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height for mobile */
+    min-height: -webkit-fill-available;
+    min-height: 100dvh;
+  }
+  
+  #root {
+    height: 100vh;
+    height: 100dvh;
+    min-height: -webkit-fill-available;
   }
   
   canvas {

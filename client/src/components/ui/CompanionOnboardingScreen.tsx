@@ -237,13 +237,14 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
   const currentTutorialStep = tutorialSteps[currentStep];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 flex flex-col relative"
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
          style={{ 
-           touchAction: 'pan-y',
-           overscrollBehavior: 'contain'
+           paddingTop: '60px', // Space for close button
+           touchAction: 'auto'
          }}>
-      {/* Header - Mobile Optimized */}
-      <div className="bg-white shadow-sm border-b flex-shrink-0" style={{ marginTop: '60px' }}>
+      
+      {/* Header - Fixed */}
+      <div className="bg-white shadow-sm border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
             <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -275,14 +276,11 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
         </div>
       </div>
 
-      {/* Main Content - Mobile Optimized */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8 flex-1 overflow-y-auto" 
-           style={{ 
-             WebkitOverflowScrolling: 'touch'
-           }}>
+      {/* Scrollable Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <div className={`transition-all duration-300 ${isTransitioning ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
-          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8">
-            {/* Step Header - Mobile Optimized */}
+          <div className="bg-white rounded-xl shadow-lg p-4 sm:p-8 mb-6">
+            {/* Step Header */}
             <div className="text-center mb-6 sm:mb-8">
               <div className="flex items-center justify-center mb-3 sm:mb-4">
                 {currentTutorialStep.icon}
@@ -300,60 +298,63 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
               </div>
             </div>
 
-            {/* Step Content - Mobile Optimized */}
+            {/* Step Content */}
             <div className="max-w-3xl mx-auto">
               {currentTutorialStep.content}
             </div>
           </div>
-        </div>
 
-        {/* Navigation - Mobile Optimized */}
-        <div className="mt-6 sm:mt-8 flex items-center justify-between">
-          <button
-            onClick={handleBack}
-            disabled={currentStep === 0}
-            className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors ${
-              currentStep === 0
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-            }`}
-          >
-            <ChevronLeft size={18} />
-            <span className="text-sm sm:text-base">Back</span>
-          </button>
+          {/* Navigation */}
+          <div className="flex items-center justify-between bg-white rounded-xl shadow-lg p-4">
+            <button
+              onClick={handleBack}
+              disabled={currentStep === 0}
+              className={`flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 rounded-lg transition-colors ${
+                currentStep === 0
+                  ? 'text-gray-400 cursor-not-allowed'
+                  : 'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+              }`}
+            >
+              <ChevronLeft size={18} />
+              <span className="text-sm sm:text-base">Back</span>
+            </button>
 
-          <div className="flex space-x-1.5 sm:space-x-2">
-            {tutorialSteps.map((_, index) => (
-              <div
-                key={index}
-                className={`w-2 h-2 rounded-full transition-colors ${
-                  index === currentStep
-                    ? 'bg-purple-500'
-                    : completedSteps.has(index)
-                    ? 'bg-green-500'
-                    : 'bg-gray-300'
-                }`}
-              />
-            ))}
+            <div className="flex space-x-1.5 sm:space-x-2">
+              {tutorialSteps.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full transition-colors ${
+                    index === currentStep
+                      ? 'bg-purple-500'
+                      : completedSteps.has(index)
+                      ? 'bg-green-500'
+                      : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={handleNext}
+              className="flex items-center space-x-1 sm:space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all text-sm sm:text-base"
+            >
+              <span>
+                {currentStep === tutorialSteps.length - 1 ? (
+                  <span className="hidden sm:inline">Create My Companion</span>
+                ) : (
+                  'Next'
+                )}
+                {currentStep === tutorialSteps.length - 1 && (
+                  <span className="sm:hidden">Create</span>
+                )}
+              </span>
+              <ChevronRight size={18} />
+            </button>
           </div>
-
-          <button
-            onClick={handleNext}
-            className="flex items-center space-x-1 sm:space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 sm:px-6 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all text-sm sm:text-base"
-          >
-            <span>
-              {currentStep === tutorialSteps.length - 1 ? (
-                <span className="hidden sm:inline">Create My Companion</span>
-              ) : (
-                'Next'
-              )}
-              {currentStep === tutorialSteps.length - 1 && (
-                <span className="sm:hidden">Create</span>
-              )}
-            </span>
-            <ChevronRight size={18} />
-          </button>
         </div>
+        
+        {/* Bottom spacing for safe scrolling */}
+        <div className="h-8"></div>
       </div>
     </div>
   );

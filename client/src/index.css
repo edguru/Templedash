@@ -7,14 +7,12 @@
 /* Mobile touch scrolling improvements */
 * {
   -webkit-overflow-scrolling: touch;
-  touch-action: manipulation;
 }
 
 /* Improve scrolling performance on mobile */
 body, html {
   -webkit-overflow-scrolling: touch;
   overflow-x: hidden;
-  touch-action: pan-y;
 }
 
 @layer base {

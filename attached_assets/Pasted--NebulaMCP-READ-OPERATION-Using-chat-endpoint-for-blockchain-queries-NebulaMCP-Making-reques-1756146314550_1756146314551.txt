@@ -1,0 +1,43 @@
+[NebulaMCP] 📖 READ OPERATION: Using chat endpoint for blockchain queries
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+6:19:45 PM [express] POST /api/agents/chat 200 in 30002ms :: {"success":true,"response":"How can I a…
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'ff4e2732-de8c-4708-934b-9c539450a644',
+  success: true,
+  resultLength: 479,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '08c08e0e-090c-4976-895f-57357df30986',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'ff4e2732-de8c-4708-934b-9c539450a644',
+  messageType: 'agent_response',
+  responseLength: 479,
+  senderId: 'nebula-mcp',
+  targetId: 'companion-handler'
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'ff4e2732-de8c-4708-934b-9c539450a644',
+  success: true,
+  fullResponse: 'On the Base Camp testnet (chain ID: 123420001114), your wallet (0xd176F4C8ACeDfb20E6E81539f94c928a0A434578) holds: - **Native currency (CAMP):** 0.9987862449807621 CAMP - **Raw units:** 998,786,244,980,762,050 wei (using 18 decimals) This balance was fetched as a native currency on the Base Camp testnet, following your instructions to use native transfer logic rather than token contract methods. Would you like to transfer CAMP, view more assets, or perform another operation?'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'ff4e2732-de8c-4708-934b-9c539450a644',
+  responsePreview: 'On the Base Camp testnet (chain ID: 123420001114), your wallet (0xd176F4C8ACeDfb20E6E81539f94c928a0A434578) holds: - **Native currency (CAMP):** 0.9987862449807621 CAMP - **Raw units:** 998,786,244,98...',
+  fullResponse: 'On the Base Camp testnet (chain ID: 123420001114), your wallet (0xd176F4C8ACeDfb20E6E81539f94c928a0A434578) holds: - **Native currency (CAMP):** 0.9987862449807621 CAMP - **Raw units:** 998,786,244,980,762,050 wei (using 18 decimals) This balance was fetched as a native currency on the Base Camp testnet, following your instructions to use native transfer logic rather than token contract methods. Would you like to transfer CAMP, view more assets, or perform another operation?'
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: 'ff4e2732-de8c-4708-934b-9c539450a644',
+  targetId: 'nebula-mcp',
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to nebula-mcp
+[NebulaMCP] ✅ DEBUG: Response sent successfully

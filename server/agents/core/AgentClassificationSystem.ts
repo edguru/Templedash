@@ -170,11 +170,10 @@ export class AgentClassificationSystem {
         'Explain sudden price movements through pump/dump diagnostics and whale activity',
         'Retrieve and summarize latest crypto news and market-moving announcements',
         
-        // Wallet & Address Intelligence
-        'Fetch current wallet balances and token holdings across multiple blockchains in real-time',
-        'Analyze wallet DeFi positions including liquidity pools, loans, and yield farming deposits',
-        'Track profit/loss for wallets by examining transaction history and current prices',
-        'Review wallet transaction patterns and highlight notable activities',
+        // Wallet Analysis (NO balance fetching - delegated to Nebula)
+        'Analyze wallet DeFi positions and portfolio composition strategies',
+        'Track profit/loss patterns by examining transaction history trends',
+        'Review wallet behavioral patterns and trading strategies',
         
         // Token Metrics & Analysis
         'Provide token price history with ATH/ATL values and historical comparisons',

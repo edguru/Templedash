@@ -245,7 +245,46 @@ Priority: ${config.priority}
    */
   private async selectWithRAG(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
     try {
-      // Natural AI-powered agent selection (no forced routing)
+      // Natural AI-powered agent selection with ChainGPT priority and Nebula fallback
+      
+      // Special priority system: If both ChainGPT and Nebula match, prioritize ChainGPT but use Nebula for balance checks
+      const taskLower = request.taskDescription.toLowerCase();
+      const isBalanceCheck = taskLower.includes('balance') || 
+                           (taskLower.includes('check') && (taskLower.includes('camp') || taskLower.includes('token'))) ||
+                           taskLower.includes('wallet balance') ||
+                           taskLower.includes('my balance') ||
+                           taskLower.includes('token balance');
+
+      // For balance checks, always use Nebula (specialized balance agent)
+      if (isBalanceCheck) {
+        console.log('[IntelligentAgentSelector] Balance check detected - routing to Nebula specialist');
+        const nebulaSelection: AgentSelectionResult = {
+          primaryAgent: {
+            agentId: 'nebula-mcp',
+            agentName: 'NebulaMCP',
+            confidence: 0.98,
+            reasoning: ['Balance check detected - Nebula is the specialized balance agent with authentic data access'],
+            agentType: 'mcp',
+            capabilities: ['balance_check', 'wallet_analysis', 'portfolio_positions'],
+            estimatedSuccess: 0.99
+          },
+          alternativeAgents: [],
+          taskAnalysis: {
+            category: 'blockchain',
+            complexity: 'simple',
+            estimatedDuration: 'short',
+            requiredCapabilities: ['balance_check', 'authentic_data_access']
+          },
+          reasoning: [
+            'Balance check operation detected',
+            'Nebula MCP is the specialized balance checking agent with direct CAMP Explorer API access',
+            'High confidence selection for accurate balance retrieval'
+          ]
+        };
+        
+        console.log('[IntelligentAgentSelector] Nebula specialist selected for balance check');
+        return nebulaSelection;
+      }
 
       // First, analyze if this is a blockchain task and get routing suggestions
       const blockchainAnalysis = BlockchainTaskRouter.analyzeBlockchainTask(request.taskDescription);

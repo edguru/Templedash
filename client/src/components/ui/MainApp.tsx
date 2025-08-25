@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useActiveAccount } from 'thirdweb/react';
 import { MessageCircle, Zap, Gamepad2, User, Menu, X } from 'lucide-react';
-import ChatScreen from './ChatScreen';
+import ChatThreads from './ChatThreads';
 import MiniGamesScreen from './MiniGamesScreen';
 import AccountScreen from './AccountScreen';
 import OnboardingHelpButton from './OnboardingHelpButton';
@@ -23,13 +23,13 @@ const MainApp: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'chat':
-        return <ChatScreen />;
+        return <ChatThreads />;
       case 'minigames':
         return <MiniGamesScreen />;
       case 'account':
         return <AccountScreen />;
       default:
-        return <ChatScreen />;
+        return <ChatThreads />;
     }
   };
 

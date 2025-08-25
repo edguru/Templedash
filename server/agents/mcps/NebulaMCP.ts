@@ -205,17 +205,23 @@ export class NebulaMCP extends BaseAgent {
         fullResult: result
       });
       
-      const answer = result.message || result.content || result.response || 'No response from Thirdweb AI.';
-      console.log(`[NebulaMCP] 🎯 DEBUG: Extracted answer:`, {
-        answerLength: answer.length,
-        answerPreview: answer.substring(0, 100)
+      const rawAnswer = result.message || result.content || result.response || 'No response available.';
+      
+      // Clean up response to remove internal tool references
+      const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
+      
+      console.log(`[NebulaMCP] 🎯 DEBUG: Extracted and cleaned answer:`, {
+        rawLength: rawAnswer.length,
+        cleanedLength: cleanedAnswer.length,
+        rawPreview: rawAnswer.substring(0, 100),
+        cleanedPreview: cleanedAnswer.substring(0, 100)
       });
       
-      return this.createTaskResponse(taskId, true, answer);
+      return this.createTaskResponse(taskId, true, cleanedAnswer);
       
     } catch (error) {
-      console.error('[NebulaMCP] Thirdweb AI API request failed:', error);
-      return this.createTaskResponse(taskId, false, 'I encountered an error processing your request with Thirdweb AI. Please try again.');
+      console.error('[NebulaMCP] Blockchain API request failed:', error);
+      return this.createTaskResponse(taskId, false, 'I encountered an error processing your blockchain request. Please try again.');
     }
   }
 
@@ -262,5 +268,29 @@ export class NebulaMCP extends BaseAgent {
         agent: 'NebulaMCP'
       }
     };
+  }
+
+  private cleanResponseFormat(response: string): string {
+    // Remove internal tool references and clean up the response
+    let cleaned = response
+      // Remove any markdown links with thirdweb and keep just the wallet address
+      .replace(/\[`([^`]+)`\]\(https:\/\/thirdweb\.com\/[^)]+\)/g, '$1')
+      // Remove any remaining thirdweb URLs
+      .replace(/https?:\/\/thirdweb\.com\/[^\s\)]+/g, '')
+      // Remove thirdweb references
+      .replace(/thirdweb/gi, 'blockchain')
+      // Remove nebula references  
+      .replace(/nebula/gi, 'blockchain API')
+      // Remove chaingpt references
+      .replace(/chaingpt/gi, 'blockchain AI')
+      // Clean up any remaining technical references
+      .replace(/Thirdweb AI/g, 'Blockchain AI')
+      .replace(/Nebula API/g, 'Blockchain API')
+      .replace(/ChainGPT/g, 'Blockchain AI')
+      // Clean up extra parentheses and spaces
+      .replace(/\(\s*\)/g, '')
+      .replace(/\s{2,}/g, ' ');
+
+    return cleaned.trim();
   }
 }

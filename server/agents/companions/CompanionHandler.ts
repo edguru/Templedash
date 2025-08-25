@@ -82,11 +82,28 @@ export class CompanionHandler extends BaseAgent {
   }
 
   private async handleAgentResponse(message: AgentMessage): Promise<void> {
+    const response = message.payload.userFriendlyResponse || message.payload.result;
+    
     this.logActivity('*** RECEIVED AGENT RESPONSE ***', { 
       agentName: message.payload.agentName, 
       taskId: message.payload.taskId,
       messageType: message.type,
-      responseLength: message.payload.userFriendlyResponse?.length || 0
+      responseLength: response?.length || 0
+    });
+    
+    // Enhanced debugging - print full agent response
+    console.log(`[CompanionHandler] 📋 FULL AGENT RESPONSE:`, {
+      agent: message.payload.agentName,
+      taskId: message.payload.taskId,
+      success: message.payload.success,
+      fullResponse: response
+    });
+    
+    // Log the cleaned response that will be sent to user
+    console.log(`[CompanionHandler] 📤 RESPONSE TO USER:`, {
+      taskId: message.payload.taskId,
+      responsePreview: response?.substring(0, 200) + '...',
+      fullResponse: response
     });
     
     // Forward the response as a companion response to maintain the UI flow

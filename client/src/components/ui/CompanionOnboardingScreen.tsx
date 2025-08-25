@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronRight, ChevronLeft, Check, Star, Heart, Sparkles, Bot, User, MessageCircle, Zap } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, Star, Heart, Sparkles, Bot, User, MessageCircle, Zap, Twitter, Users, ExternalLink } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 
 interface TutorialStep {
@@ -161,6 +161,78 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
       ),
       canSkip: true,
       estimatedTime: '2 min'
+    },
+    {
+      id: 'follow-twitter',
+      title: 'Follow Us on X (Twitter)',
+      description: 'Stay updated with the latest features, updates, and community announcements.',
+      icon: <Twitter className="text-blue-500" size={32} />,
+      content: (
+        <div className="text-center space-y-4 sm:space-y-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full flex items-center justify-center mx-auto">
+            <Twitter className="text-white" size={32} />
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-800">Join Our Community</h3>
+            <p className="text-sm sm:text-base text-gray-600 px-2">
+              Follow us on X (Twitter) to get the latest updates, feature announcements, and connect with other users.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
+              <p className="text-sm text-blue-700 mb-3">
+                Click the button below to follow us and stay in the loop!
+              </p>
+              <a
+                href="https://twitter.com/puppet_runner"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                <Twitter size={16} />
+                <span>Follow @puppet_runner</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+          </div>
+        </div>
+      ),
+      canSkip: true,
+      estimatedTime: '1 min'
+    },
+    {
+      id: 'join-telegram',
+      title: 'Join Our Telegram Community',
+      description: 'Connect with other users, get support, and participate in exclusive community events.',
+      icon: <Users className="text-blue-600" size={32} />,
+      content: (
+        <div className="text-center space-y-4 sm:space-y-6">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto">
+            <Users className="text-white" size={32} />
+          </div>
+          <div className="space-y-3">
+            <h3 className="text-lg sm:text-xl font-bold text-gray-800">Join Our Telegram</h3>
+            <p className="text-sm sm:text-base text-gray-600 px-2">
+              Join our Telegram community for real-time discussions, support, and exclusive updates.
+            </p>
+            <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+              <p className="text-sm text-purple-700 mb-3">
+                Click the button below to join our active community!
+              </p>
+              <a
+                href="https://t.me/puppet_runner"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center space-x-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                <Users size={16} />
+                <span>Join Telegram</span>
+                <ExternalLink size={14} />
+              </a>
+            </div>
+          </div>
+        </div>
+      ),
+      canSkip: true,
+      estimatedTime: '1 min'
     },
     {
       id: 'ready-to-create',

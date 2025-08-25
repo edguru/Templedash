@@ -1,0 +1,40 @@
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '18ea1171-7c54-4b1f-88f7-73a38fd44d74',
+  messageType: 'agent_response',
+  responseLength: 386,
+  senderId: 'nebula-mcp',
+  targetId: 'companion-handler'
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '18ea1171-7c54-4b1f-88f7-73a38fd44d74',
+  success: true,
+  fullResponse: `I couldn't find a CAMP token with the symbol "CAMP" on Ethereum Mainnet. Could you please provide one of the following so I can check your balance?\n` +
+    '- The CAMP token contract address - Or, confirm if CAMP is on a different blockchain - Or, provide more details about the token (e.g., full name or a transaction involving the token) Once provided, I will retrieve your balance right away.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '18ea1171-7c54-4b1f-88f7-73a38fd44d74',
+  responsePreview: `I couldn't find a CAMP token with the symbol "CAMP" on Ethereum Mainnet. Could you please provide one of the following so I can check your balance?\n` +
+    '- The CAMP token contract address - Or, confirm if C...',
+  fullResponse: `I couldn't find a CAMP token with the symbol "CAMP" on Ethereum Mainnet. Could you please provide one of the following so I can check your balance?\n` +
+    '- The CAMP token contract address - Or, confirm if CAMP is on a different blockchain - Or, provide more details about the token (e.g., full name or a transaction involving the token) Once provided, I will retrieve your balance right away.'
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: '18ea1171-7c54-4b1f-88f7-73a38fd44d74',
+  targetId: undefined,
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to broadcast
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  taskCompleted: true,
+  message: `I couldn't find a CAMP token with the symbol "CAMP" on Ethereum Mainnet. Could you please provide on`,
+  taskId: '18ea1171-7c54-4b1f-88f7-73a38fd44d74'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+9:02:11 PM [express] POST /api/agents/chat 200 in 14518ms :: {"success":true,"response":"I couldn't …
+9:02:12 PM [express] GET /api/agents/tasks 304 in 0ms :: {"tasks":[]}
+[task-analyzer] Updated network status 
+[task-analyzer] Updated network status 

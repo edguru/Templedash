@@ -270,8 +270,30 @@ export class CompanionHandler extends BaseAgent {
     });
 
     if (message.payload.success && message.payload.result) {
+      // Forward task completion directly to ensure AgentOrchestrator gets it
+      const taskResult: AgentMessage = {
+        type: 'task_result',
+        id: uuidv4(),
+        timestamp: new Date().toISOString(),
+        senderId: this.agentId,
+        targetId: undefined, // Broadcast so AgentOrchestrator can catch it
+        payload: {
+          taskId: message.payload.taskId,
+          result: message.payload.result,
+          success: message.payload.success,
+          executedBy: message.payload.agentType
+        }
+      };
 
-      // Send a completion message to the user
+      console.log('[CompanionHandler] 📤 FORWARDING TASK RESULT to AgentOrchestrator:', {
+        taskId: message.payload.taskId,
+        resultLength: message.payload.result.length,
+        messageType: 'task_result'
+      });
+
+      await this.sendMessage(taskResult);
+
+      // Also send a completion message to the user for backup
       const completionResponse: AgentMessage = {
         type: 'companion_response',
         id: uuidv4(),
@@ -282,7 +304,8 @@ export class CompanionHandler extends BaseAgent {
           message: message.payload.result,
           taskCompleted: true,
           executedBy: message.payload.agentType,
-          companionName: this.companionTraits?.name
+          companionName: this.companionTraits?.name,
+          taskId: message.payload.taskId
         }
       };
 

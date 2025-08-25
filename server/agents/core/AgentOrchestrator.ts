@@ -88,7 +88,9 @@ export class AgentOrchestrator {
         // Also listen for task results if a task was routed
         const taskCleanup = this.messageBroker.subscribe('task_result', async (taskMessage: AgentMessage) => {
           console.log('[AgentOrchestrator] Received task result:', {
-            result: taskMessage.payload.result?.substring(0, 100)
+            result: taskMessage.payload.result?.substring(0, 100),
+            responseReceived,
+            taskId: taskMessage.payload.taskId
           });
           
           if (!responseReceived) {
@@ -96,29 +98,34 @@ export class AgentOrchestrator {
             enhancedCleanup();
             enhancedTaskCleanup();
             
+            console.log('[AgentOrchestrator] ✅ TASK RESULT - Resolving with agent response');
             resolve({
               success: true,
               taskCreated: true,
               taskId: taskMessage.payload.taskId || null,
               response: taskMessage.payload.result
             });
+          } else {
+            console.log('[AgentOrchestrator] ⚠️ LATE TASK RESULT - Response already sent, ignoring', {
+              taskId: taskMessage.payload.taskId
+            });
           }
         });
         
-        // Set timeout to prevent hanging
+        // Set timeout to prevent hanging - longer than individual agent timeouts
         const timeoutId = setTimeout(() => {
           if (!responseReceived) {
             responseReceived = true;
             enhancedCleanup();
             enhancedTaskCleanup();
-            console.log('[AgentOrchestrator] ⏰ TIMEOUT - No response received in 30 seconds, using fallback');
+            console.log('[AgentOrchestrator] ⏰ TIMEOUT - No response received in 90 seconds, using fallback');
             resolve({
               success: true,
               taskCreated: false,
-              response: 'How can I assist you today?'
+              response: 'I apologize for the delay. The operation is taking longer than expected. Please try again or check back in a moment for any pending results.'
             });
           }
-        }, 30000); // 30 second timeout for blockchain operations
+        }, 90000); // 90 second timeout - longer than individual agents (ChainGPT: 60s)
         
         // Create enhanced cleanup function
         const enhancedCleanup = () => { 

@@ -207,13 +207,16 @@ export class NebulaMCP extends BaseAgent {
 
       // Phase 2: Execute configuration matching the API example format
       const requestBody = {
-        message: enhancedPrompt,
+        messages: [{
+          role: 'user',
+          content: enhancedPrompt
+        }],
         stream: false,
         session_id: uuidv4(),
-        context: JSON.stringify({
+        context: {
           chainIds: [123420001114],
           walletAddress: userWalletAddress
-        })
+        }
       };
 
       console.log(`[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint`, {
@@ -221,10 +224,12 @@ export class NebulaMCP extends BaseAgent {
         hasExecuteConfig: true,
         userWallet: userWalletAddress?.slice(0, 10) + '...',
         requestBodyStructure: {
-          hasMessage: !!requestBody.message,
+          hasMessages: !!requestBody.messages,
+          messagesLength: requestBody.messages?.length,
           hasContext: !!requestBody.context,
           hasSessionId: !!requestBody.session_id,
-          stream: requestBody.stream
+          stream: requestBody.stream,
+          contextType: typeof requestBody.context
         }
       });
       

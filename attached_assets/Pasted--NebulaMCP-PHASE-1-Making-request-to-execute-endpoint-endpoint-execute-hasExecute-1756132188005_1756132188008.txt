@@ -1,0 +1,56 @@
+[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint {
+  endpoint: '/execute',
+  hasExecuteConfig: true,
+  userWallet: '0x4bcf74e9...',
+  requestBodyStructure: {
+    hasMessage: true,
+    hasContext: true,
+    hasSessionId: true,
+    stream: false
+  }
+}
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[NebulaMCP] Execute API Error Response: {"detail":[{"type":"model_attributes_type","loc":["body","ChatParamsSingleMessage","context"],"msg":"Input should be a valid dictionary or object to extract fields from","input":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"},{"type":"model_attributes_type","loc":["body","ChatParamsMultiMessages","context"],"msg":"Input should be a valid dictionary or object to extract fields from","input":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"},{"type":"missing","loc":["body","ChatParamsMultiMessages","messages"],"msg":"Field required","input":{"message":"Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE. Execute this transaction using the user's wallet address: 0x4bcf74e971E677e95b8bFB0980721557987119Ae. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). For security, all write operations must use the authenticated user's wallet.","stream":false,"session_id":"36c25f00-f03e-4b10-88c8-bc951dd1ceec","context":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"}}]}
+[NebulaMCP] Execute endpoint request failed: Error: Thirdweb Execute API returned 422: Unprocessable Entity - {"detail":[{"type":"model_attributes_type","loc":["body","ChatParamsSingleMessage","context"],"msg":"Input should be a valid dictionary or object to extract fields from","input":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"},{"type":"model_attributes_type","loc":["body","ChatParamsMultiMessages","context"],"msg":"Input should be a valid dictionary or object to extract fields from","input":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"},{"type":"missing","loc":["body","ChatParamsMultiMessages","messages"],"msg":"Field required","input":{"message":"Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE. Execute this transaction using the user's wallet address: 0x4bcf74e971E677e95b8bFB0980721557987119Ae. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). For security, all write operations must use the authenticated user's wallet.","stream":false,"session_id":"36c25f00-f03e-4b10-88c8-bc951dd1ceec","context":"{\"chainIds\":[123420001114],\"walletAddress\":\"0x4bcf74e971E677e95b8bFB0980721557987119Ae\"}"}}]}
+    at NebulaMCP.processWithExecuteEndpoint (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:250:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NebulaMCP.processWithNebulaLLM (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:184:16)
+    at async NebulaMCP.handleMessage (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:127:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:59:24)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '7d01a98d-ebb0-43ab-b652-7972750f5e4d',
+  success: false,
+  resultLength: 59,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'd4e678c4-6379-40df-b19b-bf2d807f91c8',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '7d01a98d-ebb0-43ab-b652-7972750f5e4d',
+  messageType: 'agent_response',
+  responseLength: 59
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '7d01a98d-ebb0-43ab-b652-7972750f5e4d',
+  success: false,
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '7d01a98d-ebb0-43ab-b652-7972750f5e4d',
+  responsePreview: 'Failed to execute blockchain transaction. Please try again....',
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: 'Failed to execute blockchain transaction. Please try again.'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+2:29:11 PM [express] POST /api/agents/chat 200 in 14511ms :: {"success":true,"response":"Failed to e…

@@ -178,10 +178,10 @@ export class NebulaMCP extends BaseAgent {
         }
       }
 
-      // Phase 1 & 2: Route to appropriate endpoint with execute configuration
+      // Hybrid approach: Chat first for analysis, then Execute for transactions
       if (operationType === 'write') {
-        console.log(`[NebulaMCP] 🚀 PHASE 1 & 2: Routing WRITE operation to /execute endpoint with unsigned tx config`);
-        return await this.processWithExecuteEndpoint(taskId, description, userWalletAddress, sessionSigner);
+        console.log(`[NebulaMCP] 🔄 HYBRID APPROACH: Using chat endpoint first for transaction analysis`);
+        return await this.processWithHybridApproach(taskId, description, userWalletAddress, sessionSigner);
       } else {
         console.log(`[NebulaMCP] 📖 Routing READ operation to /chat endpoint`);
         return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
@@ -203,7 +203,7 @@ export class NebulaMCP extends BaseAgent {
       });
 
       // Enhanced prompt for transaction execution
-      const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). For security, all write operations must use the authenticated user's wallet.`;
+      const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). CAMP is the NATIVE CURRENCY on this network (like ETH on Ethereum) - NOT an ERC-20 token. For CAMP transfers, use native currency transfer methods, not token contract calls. For security, all write operations must use the authenticated user's wallet.`;
 
       // Phase 2: Execute configuration matching the API example format
       const requestBody = {
@@ -372,6 +372,31 @@ Request ID: ${requestId}`;
     } catch (error) {
       console.error('[NebulaMCP] Transaction action processing failed:', error);
       return this.createTaskResponse(taskId, false, 'Failed to process transaction actions. Please try again.');
+    }
+  }
+
+  // Hybrid Approach: Chat first for analysis, then Execute for transaction creation
+  private async processWithHybridApproach(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] 🔄 STEP 1: Using chat endpoint for transaction analysis and validation`);
+      
+      // Step 1: Use chat endpoint for analysis
+      const analysisPrompt = `Analyze this transaction request: ${description}. User wallet: ${userWalletAddress}. Base Camp testnet (chain ID: 123420001114). CAMP is the NATIVE CURRENCY (like ETH on Ethereum) - NOT an ERC-20 token. Validate the transaction details and confirm if this is a valid native CAMP transfer. If valid, provide the transaction details that would be needed.`;
+      
+      const chatResult = await this.processWithChatEndpoint(taskId, analysisPrompt, userWalletAddress, sessionSigner);
+      
+      if (!chatResult.success) {
+        return chatResult; // Return analysis error
+      }
+      
+      console.log(`[NebulaMCP] 🔄 STEP 2: Analysis complete, proceeding with execute endpoint for transaction creation`);
+      
+      // Step 2: Use execute endpoint for actual transaction creation
+      return await this.processWithExecuteEndpoint(taskId, description, userWalletAddress, sessionSigner);
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Hybrid approach failed:', error);
+      return this.createTaskResponse(taskId, false, 'Failed to process transaction using hybrid approach. Please try again.');
     }
   }
 

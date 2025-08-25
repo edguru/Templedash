@@ -1,0 +1,44 @@
+TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[NebulaMCP] 🎯 PHASE 1 & 2: Execute endpoint response: {
+  status: 200,
+  responseKeys: [ 'message', 'actions', 'session_id', 'request_id' ],
+  hasActions: true,
+  actionsCount: 0,
+  resultSnippet: `{"message":"I couldn't find a token called \\"CAMP\\" on the Basecamp testnet (chain ID: 123420001114) using the symbol alone.  \\nTo continue, I need the CAMP token's contract address on Basecamp.\\n\\nCo`
+}
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'f9f84191-157c-4390-8ea8-4a454b54bc85',
+  success: true,
+  resultLength: 252,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'd63f53ed-216d-41be-9f35-b0f98a6e4754',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'f9f84191-157c-4390-8ea8-4a454b54bc85',
+  messageType: 'agent_response',
+  responseLength: 252
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'f9f84191-157c-4390-8ea8-4a454b54bc85',
+  success: true,
+  fullResponse: `I couldn't find a token called "CAMP" on the Basecamp testnet (chain ID: 123420001114) using the symbol alone. To continue, I need the CAMP token's contract address on Basecamp. Could you please provide the CAMP token contract address for this network?`
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'f9f84191-157c-4390-8ea8-4a454b54bc85',
+  responsePreview: `I couldn't find a token called "CAMP" on the Basecamp testnet (chain ID: 123420001114) using the symbol alone. To continue, I need the CAMP token's contract address on Basecamp. Could you please provi...`,
+  fullResponse: `I couldn't find a token called "CAMP" on the Basecamp testnet (chain ID: 123420001114) using the symbol alone. To continue, I need the CAMP token's contract address on Basecamp. Could you please provide the CAMP token contract address for this network?`
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: `I couldn't find a token called "CAMP" on the Basecamp testnet (chain ID: 123420001114) using the sym`
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+2:47:53 PM [express] POST /api/agents/chat 200 in 26851ms :: {"success":true,"response":"I couldn't …

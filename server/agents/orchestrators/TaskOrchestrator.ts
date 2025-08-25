@@ -356,7 +356,7 @@ export class TaskOrchestrator extends BaseAgent {
   private async executeSingleAgentTask(task: Task): Promise<void> {
     console.log(`[TaskOrchestrator] Executing single-agent task ${task.id} with intelligent AI selection`);
 
-    // Create agent selection request
+    // Create agent selection request with enhanced context
     const selectionRequest: AgentSelectionRequest = {
       taskDescription: task.description,
       taskType: task.type || 'general',
@@ -364,7 +364,9 @@ export class TaskOrchestrator extends BaseAgent {
       context: {
         originalMessage: task.description,
         userId: task.userId,
-        taskId: task.id
+        taskId: task.id,
+        walletAddress: task.userId, // Pass wallet address explicitly
+        userContext: task.userId ? `User wallet: ${task.userId}` : 'Unknown user'
       },
       userId: task.userId
     };
@@ -520,7 +522,7 @@ export class TaskOrchestrator extends BaseAgent {
     // Prepare parameters with intelligent wallet address injection for blockchain operations
     let enhancedParameters = task.parameters || {};
     
-    // For blockchain operations, inject wallet address into parameters
+    // For blockchain operations, inject wallet address into parameters  
     if (this.isBlockchainOperation(selectionResult.taskAnalysis.category, task.type)) {
       const walletAddress = task.userId && task.userId.startsWith('0x') ? task.userId : undefined;
       
@@ -528,12 +530,27 @@ export class TaskOrchestrator extends BaseAgent {
         enhancedParameters = {
           ...enhancedParameters,
           address: walletAddress,
-          walletAddress: walletAddress
+          walletAddress: walletAddress,
+          userWallet: walletAddress,
+          userId: task.userId
         };
         console.log(`🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: ${walletAddress}`);
       } else {
         console.warn(`⚠️ [TaskOrchestrator] No valid wallet address found for blockchain operation. userId: ${task.userId}`);
       }
+    }
+    
+    // ALWAYS inject wallet address for balance checks regardless of operation type
+    const isBalanceCheck = task.description.toLowerCase().includes('balance');
+    if (isBalanceCheck && task.userId && task.userId.startsWith('0x')) {
+      enhancedParameters = {
+        ...enhancedParameters,
+        address: task.userId,
+        walletAddress: task.userId,
+        userWallet: task.userId,
+        userId: task.userId
+      };
+      console.log(`💰 [TaskOrchestrator] Injected wallet address for balance check: ${task.userId}`);
     }
     
     const executionMessage: AgentMessage = {

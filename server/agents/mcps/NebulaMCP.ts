@@ -3,6 +3,7 @@ import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
+import { campPriceService } from '../../lib/campPriceService';
 import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class NebulaMCP extends BaseAgent {
@@ -211,7 +212,15 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
       }
 
       // Build request for Thirdweb AI API with session signer support  
-      const userWalletAddress = walletAddress || parameters?.address || parameters?.userId;
+      const userWalletAddress = walletAddress || parameters?.walletAddress || parameters?.userWallet || parameters?.address || parameters?.userId;
+      
+      console.log('[NebulaMCP] Processing with wallet context:', {
+        taskId,
+        userWalletAddress: userWalletAddress?.slice(0, 10) + '...',
+        hasWalletAddress: !!userWalletAddress,
+        parametersReceived: Object.keys(parameters || {}),
+        description: description?.substring(0, 50)
+      });
       
       // Get session signer for universal transaction signing
       let sessionSigner = null;
@@ -228,15 +237,22 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
         }
       }
       
+      // Enhanced prompt with wallet context for better results
+      const enhancedPrompt = userWalletAddress 
+        ? `${description}. User's wallet address is ${userWalletAddress}. Check the CAMP token balance for this specific wallet on Base Camp testnet (chain ID: 123420001114). Provide the balance in CAMP tokens and calculate USD value using current market rates.`
+        : description;
+      
       const requestBody = {
         context: {
           chain_ids: [123420001114], // Base Camp Testnet
           ...(userWalletAddress && { from: userWalletAddress }),
-          ...(sessionSigner && { signer: sessionSigner })
+          ...(sessionSigner && { signer: sessionSigner }),
+          operation_type: 'balance_check',
+          token_symbol: 'CAMP'
         },
         messages: [{
           role: 'user',
-          content: description
+          content: enhancedPrompt
         }],
         stream: false
       };

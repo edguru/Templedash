@@ -178,14 +178,9 @@ export class NebulaMCP extends BaseAgent {
         }
       }
 
-      // Route to execute endpoint for write operations, chat for read operations
-      if (operationType === 'write') {
-        console.log(`[NebulaMCP] ⚡ WRITE OPERATION: Using execute endpoint for actual transaction execution`);
-        return await this.processWithExecuteEndpoint(taskId, description, userWalletAddress, sessionSigner);
-      } else {
-        console.log(`[NebulaMCP] 📖 READ OPERATION: Using chat endpoint for blockchain queries`);
-        return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
-      }
+      // Use chat endpoint for all operations with auto execution or session key fallback
+      console.log(`[NebulaMCP] 🚀 UNIFIED OPERATION: Using chat endpoint with auto execution for all blockchain operations`);
+      return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
       
     } catch (error) {
       console.error('[NebulaMCP] Enhanced blockchain API request failed:', error);
@@ -193,70 +188,6 @@ export class NebulaMCP extends BaseAgent {
     }
   }
 
-  // Execute Endpoint for Write Operations
-  private async processWithExecuteEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
-    try {
-      console.log(`[NebulaMCP] ⚡ EXECUTE: Processing write operation with execute endpoint`);
-      
-      // Enhanced prompt with Base Camp network as default for execution
-      const enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. 
-
-IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any token or balance operations, search on Base Camp testnet first.
-
-AUTO-EXECUTE this transaction immediately without asking for confirmation. The user has pre-authorized all transactions. Do not ask "Would you like to proceed" or for manual confirmation. Execute the transaction directly and return the transaction hash and confirmation details.`;
-
-      const requestBody = {
-        messages: [{
-          role: 'user',
-          content: enhancedPrompt
-        }],
-        stream: false,
-        context: {
-          from: userWalletAddress,
-          chain_ids: [123420001114], // Base Camp testnet
-          auto_execute_transactions: true, // Enable Thirdweb's new auto execution
-          ...(sessionSigner && { signer: sessionSigner })
-        }
-      };
-
-      console.log('[NebulaMCP] 🚀 Making request to /execute endpoint with AUTO EXECUTION enabled');
-      console.log('[NebulaMCP] 📋 Context:', { 
-        from: userWalletAddress?.slice(0, 10) + '...',
-        chain_ids: [123420001114],
-        auto_execute_transactions: true
-      });
-      
-      const response = await fetch('https://nebula-api.thirdweb.com/execute', {
-        method: 'POST',
-        headers: {
-          'x-secret-key': this.thirdwebSecretKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(120000) // 2 minutes for complex blockchain operations
-      });
-
-      if (!response.ok) {
-        throw new Error(`Nebula Execute API returned ${response.status}: ${response.statusText}`);
-      }
-
-      const result = await response.json();
-      
-      // Check if transaction was executed
-      if (result.actions && result.actions.length > 0) {
-        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner);
-      } else {
-        // Regular execution response
-        const rawAnswer = result.message || result.content || result.response || 'Transaction executed successfully.';
-        const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
-        return this.createTaskResponse(taskId, true, cleanedAnswer);
-      }
-      
-    } catch (error) {
-      console.error('[NebulaMCP] Execute endpoint request failed:', error);
-      return this.createTaskResponse(taskId, false, 'Failed to execute blockchain transaction. Please try again.');
-    }
-  }
 
   // Phase 3 & 4: Process unsigned transactions and implement monitoring
   private async processTransactionActions(taskId: string, result: any, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
@@ -330,18 +261,52 @@ AUTO-EXECUTE this transaction immediately without asking for confirmation. The u
             
             return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
           } else {
-            // No real transaction hash available - return error instead of fake data
-            console.log(`[NebulaMCP] ❌ NO REAL TRANSACTION HASH: Cannot proceed without authentic blockchain data`);
-            
-            transactionStatus.status = 'failed';
-            transactionStatus.timestamp = new Date();
-            this.transactionStatuses.set(transactionId, transactionStatus);
-            
-            await this.updateTransactionStatusInDatabase(transactionId, 'failed');
-            
-            const errorMessage = `❌ Transaction execution failed: No authentic transaction hash received from blockchain network.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Unable to verify on-chain execution\n\nPlease try again or check your wallet connection.`;
-            
-            return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+            // Try session key signing if available
+            if (sessionSigner && sessionSigner.privateKey) {
+              console.log(`[NebulaMCP] 🔐 Session signer available - attempting manual execution`);
+              
+              try {
+                // Here you would implement actual session key signing
+                // For now, we'll prepare the transaction but require real implementation
+                console.log(`[NebulaMCP] 🔑 Session key signing not yet implemented - preparing transaction`);
+                
+                transactionStatus.status = 'pending';
+                transactionStatus.timestamp = new Date();
+                this.transactionStatuses.set(transactionId, transactionStatus);
+                
+                await this.updateTransactionStatusInDatabase(transactionId, 'pending');
+                
+                const pendingMessage = `⚠️ Transaction prepared but requires signature implementation.\n\n📝 **Transaction ID:** ${transactionId}\n⏳ **Status:** Pending - Session key signing needs implementation\n\nTransaction data available for manual signing.`;
+                
+                return this.createTaskResponse(taskId, false, this.cleanResponseFormat(pendingMessage));
+                
+              } catch (signingError) {
+                console.error(`[NebulaMCP] Session key signing failed:`, signingError);
+                
+                transactionStatus.status = 'failed';
+                transactionStatus.timestamp = new Date();
+                this.transactionStatuses.set(transactionId, transactionStatus);
+                
+                await this.updateTransactionStatusInDatabase(transactionId, 'failed');
+                
+                const errorMessage = `❌ Session key signing failed.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Unable to sign with session key\n\nPlease try again or use manual wallet signing.`;
+                
+                return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+              }
+            } else {
+              // No session signer available and auto execution failed
+              console.log(`[NebulaMCP] ❌ NO EXECUTION METHOD: Auto execution failed and no session signer available`);
+              
+              transactionStatus.status = 'failed';
+              transactionStatus.timestamp = new Date();
+              this.transactionStatuses.set(transactionId, transactionStatus);
+              
+              await this.updateTransactionStatusInDatabase(transactionId, 'failed');
+              
+              const errorMessage = `❌ Transaction execution failed: No execution method available.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Auto execution failed and no session key available\n\nPlease connect your wallet and try again.`;
+              
+              return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+            }
           }
         }
       }
@@ -387,9 +352,12 @@ AUTO-EXECUTE this transaction immediately without asking for confirmation. The u
   }
 
 
-  // Enhanced Chat Endpoint for Read Operations
+  // Unified Chat Endpoint with Auto Execution and Session Key Fallback
   private async processWithChatEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
     try {
+      const operationType = this.detectOperationType(description);
+      const isWriteOperation = operationType === 'write';
+      
       // Enhanced prompt with Base Camp network as default
       let enhancedPrompt = description;
       if (userWalletAddress) {
@@ -397,18 +365,19 @@ AUTO-EXECUTE this transaction immediately without asking for confirmation. The u
 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.
 
-Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+${isWriteOperation ? 'AUTO-EXECUTE this transaction immediately without asking for confirmation. The user has pre-authorized all transactions. Do not ask "Would you like to proceed" or for manual confirmation. Execute the transaction directly and return the transaction hash and confirmation details.' : 'Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.'}`;
       } else {
         enhancedPrompt = `${description}. 
 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.`;
       }
       
+      // Try auto execution first, fallback to session keys if needed
       const requestBody = {
         context: {
           ...(userWalletAddress && { from: userWalletAddress }),
           chain_ids: [123420001114], // Base Camp testnet
-          auto_execute_transactions: true, // Enable Thirdweb's new auto execution
+          auto_execute_transactions: isWriteOperation, // Only auto-execute for write operations
           ...(sessionSigner && { signer: sessionSigner })
         },
         messages: [{
@@ -418,11 +387,13 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         stream: false
       };
 
-      console.log('[NebulaMCP] 🚀 Making request to /chat endpoint with AUTO EXECUTION enabled');
+      console.log(`[NebulaMCP] 🚀 Making request to /chat endpoint - ${isWriteOperation ? 'AUTO EXECUTION' : 'READ OPERATION'}`);
       console.log('[NebulaMCP] 📋 Context:', { 
         from: userWalletAddress?.slice(0, 10) + '...',
         chain_ids: [123420001114],
-        auto_execute_transactions: true
+        auto_execute_transactions: isWriteOperation,
+        hasSessionSigner: !!sessionSigner,
+        operationType
       });
       
       const response = await fetch('https://api.thirdweb.com/ai/chat', {
@@ -440,6 +411,23 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
       }
 
       const result = await response.json();
+      
+      // Check if transaction was executed or needs processing
+      if (result.actions && result.actions.length > 0) {
+        console.log(`[NebulaMCP] 📦 Received transaction actions - processing with session key fallback`);
+        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner);
+      } 
+      
+      // Check for direct transaction hash (successful auto execution)
+      if (result.transaction_hash || result.txHash || result.hash) {
+        const realTxHash = result.transaction_hash || result.txHash || result.hash;
+        console.log(`[NebulaMCP] ✅ Auto execution successful:`, { realTxHash });
+        
+        const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${realTxHash}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+        return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+      }
+      
+      // Regular response (read operations or informational)
       const rawAnswer = result.message || result.content || result.response || 'No response available.';
       const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
       

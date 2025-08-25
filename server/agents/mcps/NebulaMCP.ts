@@ -162,10 +162,20 @@ export class NebulaMCP extends BaseAgent {
         }
       }
       
-      // Enhanced prompt for native CAMP balance on Base Camp testnet
-      const enhancedPrompt = userWalletAddress 
-        ? `${description}. User's wallet address is ${userWalletAddress}. Check the native CAMP balance (not an ERC-20 token) for this wallet on Base Camp testnet (chain ID: 123420001114). CAMP is the native gas currency on this network, similar to ETH on Ethereum. Provide the balance in CAMP tokens with proper formatting.`
-        : description;
+      // Intelligent prompt enhancement based on operation type
+      let enhancedPrompt = description;
+      
+      if (userWalletAddress) {
+        const operationType = parameters?.operationType || 'read';
+        
+        if (operationType === 'write') {
+          // For write operations, always emphasize user's wallet usage
+          enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. For security, all write operations (send, swap, bridge, etc.) must use the authenticated user's wallet on Base Camp testnet (chain ID: 123420001114).`;
+        } else {
+          // For read operations, let the AI use the appropriate address
+          enhancedPrompt = `${description}. If no specific wallet address is mentioned in the request, check for the user's wallet address: ${userWalletAddress}. Check the native CAMP balance (not an ERC-20 token) on Base Camp testnet (chain ID: 123420001114). CAMP is the native gas currency on this network, similar to ETH on Ethereum.`;
+        }
+      }
       
       const requestBody = {
         context: {
@@ -190,7 +200,7 @@ export class NebulaMCP extends BaseAgent {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(25000) // 25 second timeout
+        signal: AbortSignal.timeout(35000) // 35 second timeout for complex operations
       });
 
       if (!response.ok) {

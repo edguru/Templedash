@@ -1,0 +1,70 @@
+[nebula-mcp] Processing with Thirdweb Nebula API {
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  description: 'camp balance on 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE'
+}
+[NebulaMCP] Processing with wallet context: {
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  userWalletAddress: '0x4bcf74e9...',
+  hasWalletAddress: true,
+  parametersReceived: [ 'address', 'walletAddress', 'userWallet', 'userId' ],
+  description: 'camp balance on 0x390Ab4d6642b525C6Af166F507f0AC85'
+}
+[NebulaMCP] Making request to Thirdweb AI API
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[NebulaMCP] 🎯 DEBUG: Thirdweb AI response: {
+  status: 200,
+  responseKeys: [ 'message', 'actions', 'session_id', 'request_id' ],
+  resultSnippet: '{"message":"The native CAMP balance for wallet [`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.com/123420001114/0x4bcf74e971E677e95b8bFB0980721557987119Ae) on the Base Camp testnet (ch',
+  fullResult: {
+    message: 'The native CAMP balance for wallet [`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.com/123420001114/0x4bcf74e971E677e95b8bFB0980721557987119Ae) on the Base Camp testnet (chain ID: 123420001114) is:\n' +
+      '\n' +
+      '**0.9067611579421302 CAMP**\n' +
+      '\n' +
+      'This value is shown in full precision (18 decimals), representing the native gas token (CAMP) balance for the account. Let me know if you need this rounded or want information on any other assets!\n',
+    actions: [],
+    session_id: 'c9537b66-84d8-4678-8bb0-bed27e6596ae',
+    request_id: 'eb8e78ab-0827-4352-996d-0a91f580e026'
+  }
+}
+[NebulaMCP] 🎯 DEBUG: Extracted and cleaned answer: {
+  rawLength: 441,
+  cleanedLength: 356,
+  rawPreview: 'The native CAMP balance for wallet [`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.c',
+  cleanedPreview: 'The native CAMP balance for wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae on the Base Camp testn'
+}
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  success: true,
+  resultLength: 356,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '6e34e778-5d3b-4a4a-958d-338d0ccb6aaf',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  messageType: 'agent_response',
+  responseLength: 356
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  success: true,
+  fullResponse: 'The native CAMP balance for wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae on the Base Camp testnet (chain ID: 123420001114) is: **0.9067611579421302 CAMP** This value is shown in full precision (18 decimals), representing the native gas token (CAMP) balance for the account. Let me know if you need this rounded or want information on any other assets!'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '5fdc3cc5-73f0-4dd1-b852-83f6cd1cf644',
+  responsePreview: 'The native CAMP balance for wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae on the Base Camp testnet (chain ID: 123420001114) is: **0.9067611579421302 CAMP** This value is shown in full precision (1...',
+  fullResponse: 'The native CAMP balance for wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae on the Base Camp testnet (chain ID: 123420001114) is: **0.9067611579421302 CAMP** This value is shown in full precision (18 decimals), representing the native gas token (CAMP) balance for the account. Let me know if you need this rounded or want information on any other assets!'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: 'The native CAMP balance for wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae on the Base Camp testn'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+12:17:04 PM [express] POST /api/agents/chat 200 in 25319ms :: {"success":true,"response":"The native …

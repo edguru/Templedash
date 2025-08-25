@@ -447,17 +447,19 @@ export class TaskOrchestrator extends BaseAgent {
     // Prepare parameters with intelligent wallet address injection for blockchain operations
     let enhancedParameters = task.parameters || {};
     
-    // For blockchain operations, inject wallet address into parameters
+    // For blockchain operations, inject appropriate wallet address using intelligent determination
     if (this.isBlockchainOperation(selectedAgent.capability.capabilityName, task.type)) {
-      const walletAddress = task.userId && task.userId.startsWith('0x') ? task.userId : undefined;
+      const walletInfo = this.determineWalletAddress(task.description, task.userId);
       
-      if (walletAddress) {
+      if (walletInfo.targetWallet) {
         enhancedParameters = {
           ...enhancedParameters,
-          address: walletAddress,
-          walletAddress: walletAddress
+          address: walletInfo.targetWallet,
+          walletAddress: walletInfo.targetWallet,
+          userWallet: walletInfo.userWallet,
+          operationType: walletInfo.operationType
         };
-        console.log(`🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: ${walletAddress}`);
+        console.log(`🔗 [TaskOrchestrator] ${walletInfo.logMessage}`);
       } else {
         console.warn(`⚠️ [TaskOrchestrator] No valid wallet address found for blockchain operation. userId: ${task.userId}`);
       }
@@ -522,35 +524,32 @@ export class TaskOrchestrator extends BaseAgent {
     // Prepare parameters with intelligent wallet address injection for blockchain operations
     let enhancedParameters = task.parameters || {};
     
-    // For blockchain operations, inject wallet address into parameters  
+    // Intelligent wallet address handling
+    const walletInfo = this.determineWalletAddress(task.description, task.userId);
+    
+    console.log(`🧠 [TaskOrchestrator] Wallet determination result:`, {
+      taskDescription: task.description,
+      userWallet: task.userId,
+      targetWallet: walletInfo.targetWallet,
+      operationType: walletInfo.operationType,
+      logMessage: walletInfo.logMessage
+    });
+    
+    // For blockchain operations, inject appropriate wallet address
     if (this.isBlockchainOperation(selectionResult.taskAnalysis.category, task.type)) {
-      const walletAddress = task.userId && task.userId.startsWith('0x') ? task.userId : undefined;
-      
-      if (walletAddress) {
+      if (walletInfo.targetWallet) {
         enhancedParameters = {
           ...enhancedParameters,
-          address: walletAddress,
-          walletAddress: walletAddress,
-          userWallet: walletAddress,
-          userId: task.userId
+          address: walletInfo.targetWallet,
+          walletAddress: walletInfo.targetWallet,
+          userWallet: walletInfo.userWallet,
+          userId: task.userId,
+          operationType: walletInfo.operationType
         };
-        console.log(`🔗 [TaskOrchestrator] Injected wallet address for blockchain operation: ${walletAddress}`);
+        console.log(`🔗 [TaskOrchestrator] ${walletInfo.logMessage}`);
       } else {
         console.warn(`⚠️ [TaskOrchestrator] No valid wallet address found for blockchain operation. userId: ${task.userId}`);
       }
-    }
-    
-    // ALWAYS inject wallet address for balance checks regardless of operation type
-    const isBalanceCheck = task.description.toLowerCase().includes('balance');
-    if (isBalanceCheck && task.userId && task.userId.startsWith('0x')) {
-      enhancedParameters = {
-        ...enhancedParameters,
-        address: task.userId,
-        walletAddress: task.userId,
-        userWallet: task.userId,
-        userId: task.userId
-      };
-      console.log(`💰 [TaskOrchestrator] Injected wallet address for balance check: ${task.userId}`);
     }
     
     const executionMessage: AgentMessage = {
@@ -566,7 +565,7 @@ export class TaskOrchestrator extends BaseAgent {
         parameters: enhancedParameters,
         userId: task.userId,
         description: task.description,
-        walletAddress: task.userId && task.userId.startsWith('0x') ? task.userId : undefined,
+        walletAddress: walletInfo.targetWallet || (task.userId && task.userId.startsWith('0x') ? task.userId : undefined),
         selectionConfidence: selectedAgent.confidence,
         selectionReasoning: selectedAgent.reasoning,
         taskAnalysis: selectionResult.taskAnalysis
@@ -594,6 +593,67 @@ export class TaskOrchestrator extends BaseAgent {
         // Fallback to category-based mapping
         return this.getMessageTypeForCategory(taskCategory);
     }
+  }
+
+  // Intelligent wallet address determination
+  private determineWalletAddress(description: string, userId: string): {
+    targetWallet: string;
+    userWallet: string;
+    operationType: 'read' | 'write';
+    logMessage: string;
+  } {
+    const userWallet = userId && userId.startsWith('0x') ? userId : '';
+    
+    // Extract wallet address from description using regex
+    const walletRegex = /0x[a-fA-F0-9]{40}/g;
+    const foundWallets = description.match(walletRegex) || [];
+    
+    // Determine operation type based on keywords
+    const writeOperations = ['send', 'transfer', 'swap', 'bridge', 'approve', 'deploy', 'mint', 'stake', 'unstake', 'claim'];
+    const readOperations = ['balance', 'check', 'view', 'get', 'fetch', 'history', 'transactions', 'holdings'];
+    
+    const descLower = description.toLowerCase();
+    const isWriteOperation = writeOperations.some(op => descLower.includes(op));
+    const isReadOperation = readOperations.some(op => descLower.includes(op));
+    
+    // For WRITE operations, always use user's wallet for security
+    if (isWriteOperation) {
+      return {
+        targetWallet: userWallet,
+        userWallet: userWallet,
+        operationType: 'write',
+        logMessage: `Write operation detected - using user wallet: ${userWallet} (security: always use user's wallet for transactions)`
+      };
+    }
+    
+    // For READ operations, use wallet from prompt if provided, otherwise user's wallet
+    if (isReadOperation || descLower.includes('balance')) {
+      const promptWallet = foundWallets.find(wallet => wallet !== userWallet) || foundWallets[0];
+      
+      if (promptWallet && promptWallet !== userWallet) {
+        return {
+          targetWallet: promptWallet,
+          userWallet: userWallet,
+          operationType: 'read',
+          logMessage: `Read operation with specific wallet: ${promptWallet} (from user prompt)`
+        };
+      } else {
+        return {
+          targetWallet: userWallet,
+          userWallet: userWallet,
+          operationType: 'read',
+          logMessage: `Read operation using user wallet: ${userWallet} (no specific wallet mentioned)`
+        };
+      }
+    }
+    
+    // Default to user wallet for unclassified operations
+    return {
+      targetWallet: userWallet,
+      userWallet: userWallet,
+      operationType: 'read',
+      logMessage: `Default operation using user wallet: ${userWallet}`
+    };
   }
 
   // Get message type for category mapping

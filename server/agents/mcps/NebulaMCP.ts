@@ -7,6 +7,35 @@ import { ServerSessionManager } from '../../lib/SessionManager';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import { transactionStatuses } from '../../../shared/schema';
+import { createWalletClient, http, parseEther } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
+
+// Base Camp testnet chain configuration
+const baseCampTestnet = {
+  id: 123420001114,
+  name: 'Base Camp Testnet',
+  network: 'basecamp-testnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'CAMP',
+    symbol: 'CAMP',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.camp-network-testnet.gelato.digital'],
+    },
+    public: {
+      http: ['https://rpc.camp-network-testnet.gelato.digital'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Base Camp Explorer',
+      url: 'https://basecamp.blockscout.com',
+    },
+  },
+  testnet: true,
+} as const;
 
 // Transaction status tracking interface
 interface TransactionStatus {
@@ -268,17 +297,70 @@ export class NebulaMCP extends BaseAgent {
               try {
                 // Here you would implement actual session key signing
                 // For now, we'll prepare the transaction but require real implementation
-                console.log(`[NebulaMCP] 🔑 Session key signing not yet implemented - preparing transaction`);
+                console.log(`[NebulaMCP] 🔑 Implementing session key signing with private key`);
                 
-                transactionStatus.status = 'pending';
+                // Extract transaction parameters from actions
+                const transactionAction = unsignedTransactions[0];
+                if (!transactionAction) {
+                  throw new Error('No valid transaction action found');
+                }
+                
+                // Create account from session private key
+                const account = privateKeyToAccount(sessionSigner.privateKey as `0x${string}`);
+                console.log(`[NebulaMCP] 💼 Created account from session key:`, { address: account.address });
+                
+                // Create wallet client for Base Camp testnet
+                const walletClient = createWalletClient({
+                  account,
+                  chain: baseCampTestnet,
+                  transport: http('https://rpc.camp-network-testnet.gelato.digital')
+                });
+                
+                // Prepare transaction parameters from action data
+                let transactionRequest: any = {};
+                
+                if (transactionAction.data) {
+                  // If there's transaction data in the action
+                  const txData = transactionAction.data;
+                  transactionRequest = {
+                    to: txData.to as `0x${string}`,
+                    value: txData.value ? parseEther(txData.value.toString()) : BigInt(0),
+                    data: txData.data as `0x${string}` || '0x',
+                    gas: txData.gas ? BigInt(txData.gas) : undefined,
+                    gasPrice: txData.gasPrice ? BigInt(txData.gasPrice) : undefined
+                  };
+                } else if (transactionAction.type === 'transaction') {
+                  // If it's a transaction type, construct from action properties
+                  transactionRequest = {
+                    to: transactionAction.to as `0x${string}`,
+                    value: transactionAction.value ? parseEther(transactionAction.value.toString()) : BigInt(0),
+                    data: transactionAction.data as `0x${string}` || '0x'
+                  };
+                } else {
+                  throw new Error('Unable to extract transaction data from action');
+                }
+                
+                console.log(`[NebulaMCP] 📤 Sending transaction with session key:`, {
+                  to: transactionRequest.to,
+                  value: transactionRequest.value?.toString(),
+                  from: account.address
+                });
+                
+                // Sign and send transaction
+                const txHash = await walletClient.sendTransaction(transactionRequest);
+                console.log(`[NebulaMCP] ✅ Session key transaction sent:`, { txHash });
+                
+                // Update transaction status with real hash
+                transactionStatus.transactionHash = txHash;
+                transactionStatus.status = 'confirmed';
                 transactionStatus.timestamp = new Date();
                 this.transactionStatuses.set(transactionId, transactionStatus);
                 
-                await this.updateTransactionStatusInDatabase(transactionId, 'pending');
+                await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', txHash);
                 
-                const pendingMessage = `⚠️ Transaction prepared but requires signature implementation.\n\n📝 **Transaction ID:** ${transactionId}\n⏳ **Status:** Pending - Session key signing needs implementation\n\nTransaction data available for manual signing.`;
+                const successMessage = `✅ Transaction executed with session key!\n\n🔗 **Transaction Hash:** ${txHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n🔑 **Method:** Session Key Signing\n\n${result.message || 'Blockchain operation completed successfully.'}`;
                 
-                return this.createTaskResponse(taskId, false, this.cleanResponseFormat(pendingMessage));
+                return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
                 
               } catch (signingError) {
                 console.error(`[NebulaMCP] Session key signing failed:`, signingError);

@@ -37,7 +37,7 @@ interface ActiveTask {
 export default function ChatThreads() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [currentThreadId, setCurrentThreadId] = useState<string>('');
-  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // Show sidebar based on screen size
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // Desktop: open, Mobile: closed by default
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
   const [inputValue, setInputValue] = useState('');
@@ -189,15 +189,17 @@ export default function ChatThreads() {
 
   useEffect(() => {
     const handleResize = () => {
-      // Only auto-open sidebar when transitioning from mobile to desktop
-      // Don't auto-close when going from desktop to mobile to preserve user intent
-      if (window.innerWidth >= 768 && !showSidebar) {
+      // Desktop: auto-open sidebar if closed
+      // Mobile: keep closed by default (like ChatGPT app)
+      if (window.innerWidth >= 768) {
         setShowSidebar(true);
+      } else {
+        setShowSidebar(false);
       }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [showSidebar]);
+  }, []);
 
   const checkSessionKey = () => {
     if (!account?.address) return;
@@ -564,7 +566,11 @@ export default function ChatThreads() {
                 key={thread.id}
                 onClick={() => {
                   setCurrentThreadId(thread.sessionId);
-                  // Keep sidebar open on both mobile and desktop unless user manually closes it
+                  // Mobile: close sidebar after selection (like ChatGPT app)
+                  // Desktop: keep sidebar open
+                  if (window.innerWidth < 768) {
+                    setShowSidebar(false);
+                  }
                 }}
                 className={`p-4 md:p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group touch-manipulation ${
                   thread.id === currentThreadId 

@@ -133,10 +133,11 @@ export class CompanionHandler extends BaseAgent {
     // Get the agent response message
     const agentResponseMessage = message.payload.userFriendlyResponse || message.payload.result;
     
-    // Save the agent response to conversation history if we have context
+    // Save the complete conversation turn if we have context
     if (message.payload.sessionId && agentResponseMessage) {
       const pendingMessage = this.pendingUserMessages.get(message.payload.sessionId);
       if (pendingMessage) {
+        // Save complete conversation turn: initial acknowledgment + user message + final response
         await this.saveCompleteConversationTurn(
           message.payload.sessionId, 
           pendingMessage.message, 
@@ -144,6 +145,12 @@ export class CompanionHandler extends BaseAgent {
           pendingMessage.userContext
         );
         this.pendingUserMessages.delete(message.payload.sessionId);
+        
+        console.log(`[CompanionHandler] 💾 SAVED COMPLETE CONVERSATION TURN:`, {
+          sessionId: message.payload.sessionId,
+          userMessage: pendingMessage.message.substring(0, 50) + '...',
+          agentResponse: agentResponseMessage.substring(0, 50) + '...'
+        });
       } else {
         // Fallback: save just the agent response if no pending message found
         await this.chatContextManager.saveConversation({
@@ -163,7 +170,7 @@ export class CompanionHandler extends BaseAgent {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
       senderId: this.agentId,
-      targetId: message.targetId || message.senderId, // Ensure proper routing
+      targetId: message.senderId, // Always route back to the original sender
       payload: {
         message: agentResponseMessage,
         taskCompleted: true,
@@ -344,9 +351,30 @@ export class CompanionHandler extends BaseAgent {
             
             await this.sendMessage(taskMessage);
             
-            // Don't send immediate response - wait for agent to complete
-            // The actual response will be sent via handleAgentResponse
-            return null;
+            // Always provide immediate acknowledgment for new users too
+            const sessionId = message.payload.context?.conversationId;
+            if (sessionId) {
+              this.pendingUserMessages.set(sessionId, {
+                message: userMessage,
+                userContext: null,
+                timestamp: Date.now()
+              });
+            }
+            
+            return {
+              type: 'companion_response',
+              id: uuidv4(),
+              timestamp: new Date().toISOString(),
+              senderId: this.agentId,
+              targetId: message.senderId,
+              payload: {
+                message: "I'll help you with that request. Let me get that information for you...",
+                taskRouted: true,
+                contextAware: false,
+                sessionId: sessionId,
+                pendingTask: true
+              }
+            };
           }
           
           return {
@@ -395,7 +423,7 @@ export class CompanionHandler extends BaseAgent {
             payload: {
               message: userMessage,
               userId: walletAddress,
-              sessionId: userContext?.sessionId || message.payload.context?.conversationId,
+              sessionId: userContext?.currentSessionId || message.payload.context?.conversationId,
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,
@@ -406,9 +434,35 @@ export class CompanionHandler extends BaseAgent {
           
           await this.sendMessage(taskMessage);
           
-          // Don't send immediate response - wait for agent to complete
-          // The actual response will be sent via handleAgentResponse  
-          return null;
+          // Always provide immediate acknowledgment to keep user engaged in their chat
+          const personalizedGreeting = this.companionTraits ? 
+            this.getPersonalizedGreeting() : 
+            "I'll help you with that.";
+          
+          // Store the pending message for session tracking
+          const sessionId = userContext?.currentSessionId || message.payload.context?.conversationId;
+          if (sessionId) {
+            this.pendingUserMessages.set(sessionId, {
+              message: userMessage,
+              userContext,
+              timestamp: Date.now()
+            });
+          }
+          
+          return {
+            type: 'companion_response',
+            id: uuidv4(),
+            timestamp: new Date().toISOString(),
+            senderId: this.agentId,
+            targetId: message.senderId,
+            payload: {
+              message: `${personalizedGreeting} I'm checking that for you now...`,
+              taskRouted: true,
+              companionName: this.companionTraits?.name,
+              sessionId: sessionId,
+              pendingTask: true
+            }
+          };
         } else {
           // Handle as regular companion chat with enhanced context
           const personalizedResponse = await this.generateContextualResponse(userMessage, userContext);

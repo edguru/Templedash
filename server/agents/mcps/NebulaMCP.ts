@@ -178,13 +178,72 @@ export class NebulaMCP extends BaseAgent {
         }
       }
 
-      // Use chat endpoint for all operations - let API handle intelligence
-      console.log(`[NebulaMCP] 🧠 Using chat endpoint for all blockchain operations and intelligence`);
-      return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
+      // Route to execute endpoint for write operations, chat for read operations
+      if (operationType === 'write') {
+        console.log(`[NebulaMCP] ⚡ WRITE OPERATION: Using execute endpoint for actual transaction execution`);
+        return await this.processWithExecuteEndpoint(taskId, description, userWalletAddress, sessionSigner);
+      } else {
+        console.log(`[NebulaMCP] 📖 READ OPERATION: Using chat endpoint for blockchain queries`);
+        return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
+      }
       
     } catch (error) {
       console.error('[NebulaMCP] Enhanced blockchain API request failed:', error);
       return this.createTaskResponse(taskId, false, 'I encountered an error processing your blockchain request. Please try again.');
+    }
+  }
+
+  // Execute Endpoint for Write Operations
+  private async processWithExecuteEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] ⚡ EXECUTE: Processing write operation with execute endpoint`);
+      
+      // Enhanced prompt with Base Camp network as default for execution
+      const enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Default to Base Camp testnet (chain ID: 123420001114) where CAMP is the native currency unless another network is explicitly specified. EXECUTE this transaction - do not just prepare it. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+
+      const requestBody = {
+        messages: [{
+          role: 'user',
+          content: enhancedPrompt
+        }],
+        stream: false,
+        context: {
+          walletAddress: userWalletAddress,
+          executeTransaction: true
+        }
+      };
+
+      console.log('[NebulaMCP] Making request to /execute endpoint for transaction execution');
+      
+      const response = await fetch('https://api.thirdweb.com/ai/execute', {
+        method: 'POST',
+        headers: {
+          'x-secret-key': this.thirdwebSecretKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(60000)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Thirdweb Execute API returned ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Check if transaction was executed
+      if (result.actions && result.actions.length > 0) {
+        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner);
+      } else {
+        // Regular execution response
+        const rawAnswer = result.message || result.content || result.response || 'Transaction executed successfully.';
+        const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
+        return this.createTaskResponse(taskId, true, cleanedAnswer);
+      }
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Execute endpoint request failed:', error);
+      return this.createTaskResponse(taskId, false, 'Failed to execute blockchain transaction. Please try again.');
     }
   }
 

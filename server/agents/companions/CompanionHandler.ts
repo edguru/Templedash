@@ -320,7 +320,7 @@ export class CompanionHandler extends BaseAgent {
       // Handle user messages with enhanced context awareness
       if (message.type === 'user_message') {
         const userMessage = message.payload.message;
-        const walletAddress = message.payload.userId;
+        const walletAddress = message.payload.walletAddress || message.payload.userId;
         
         // Resolve wallet address to actual user ID from database
         const userId = await this.resolveUserIdFromWallet(walletAddress);

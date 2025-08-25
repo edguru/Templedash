@@ -59,6 +59,19 @@ html, body {
   .mobile-sidebar-hidden {
     transform: translateX(-100%) !important;
   }
+  
+  /* Fix viewport issue when agent is thinking */
+  .mobile-thinking-fix {
+    width: 100% !important;
+    max-width: calc(100vw - 2rem) !important;
+    overflow-x: hidden;
+  }
+  
+  .mobile-chat-container {
+    width: 100%;
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
 }
 
 @layer base {

@@ -647,7 +647,7 @@ export default function ChatThreads() {
       </div>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mobile-chat-container">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm border-b border-indigo-200/50 px-4 py-3 flex items-center justify-between">
           <div className="flex items-center space-x-3 flex-1">

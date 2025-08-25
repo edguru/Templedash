@@ -18,6 +18,7 @@ export interface UserMessage {
   conversationId: string;
   payload: {
     message: string;
+    walletAddress?: string; // Add wallet address to payload
     context: {
       conversationId: string;
       timestamp: string;

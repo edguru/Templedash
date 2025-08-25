@@ -144,8 +144,8 @@ export class AgentSystem {
     console.log('Agent system initialized with', this.registry.getAllAgents().length, 'agents');
   }
 
-  async processUserMessage(userId: string, message: string, conversationId: string) {
-    return this.orchestrator.processUserMessage(userId, message, conversationId);
+  async processUserMessage(userId: string, message: string, conversationId: string, walletAddress?: string) {
+    return this.orchestrator.processUserMessage(userId, message, conversationId, walletAddress);
   }
 
   async getTaskStatus(taskId: string) {

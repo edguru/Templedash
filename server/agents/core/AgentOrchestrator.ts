@@ -38,7 +38,7 @@ export class AgentOrchestrator {
     });
   }
 
-  async processUserMessage(userId: string, message: string, conversationId: string) {
+  async processUserMessage(userId: string, message: string, conversationId: string, walletAddress?: string) {
     try {
       const userMessage: UserMessage = {
         type: 'user_message',
@@ -48,6 +48,7 @@ export class AgentOrchestrator {
         conversationId,
         payload: {
           message,
+          walletAddress, // Include wallet address in payload
           context: {
             conversationId,
             timestamp: new Date().toISOString()

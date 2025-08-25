@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { db } from "./storage";
 import { users, gameScores, tokenClaims, nftOwnership, contracts, companions, conversations, chatSessions, transactionStatuses, tasks, insertTaskSchema } from '../shared/schema';
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
-import { eq, desc, sum, count, and, sql } from 'drizzle-orm';
+import { eq, desc, sum, count, and, or, sql } from 'drizzle-orm';
 
 
 const JWT_SECRET = process.env.JWT_SECRET || 'temple-runner-secret-key';
@@ -576,7 +576,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Missing message' });
       }
 
-      const response = await agentSystem.processUserMessage(effectiveUserId, message, conversationId);
+      const response = await agentSystem.processUserMessage(effectiveUserId, message, conversationId, walletAddress);
       
       res.json({
         success: true,

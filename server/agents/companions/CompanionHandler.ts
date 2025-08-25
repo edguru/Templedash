@@ -863,4 +863,9 @@ Respond with JSON in this exact format:
 
     this.conversationContext.set(userId, context);
   }
+
+  // Expose ChatContextManager for external access (needed for API endpoints)
+  getChatContextManager(): ChatContextManager {
+    return this.chatContextManager;
+  }
 }

@@ -616,6 +616,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Chat History Management API Endpoints
+  app.get('/api/chat/sessions/:userId', async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (!userId || userId <= 0) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const chatContextManager = agentSystem.getChatContextManager();
+      const sessions = await chatContextManager.getUserChatSessions(userId);
+      
+      res.json({ sessions });
+    } catch (error) {
+      console.error('Get chat sessions error:', error);
+      res.status(500).json({ error: 'Failed to get chat sessions' });
+    }
+  });
+
+  app.get('/api/chat/history/:sessionId', async (req: any, res) => {
+    try {
+      const sessionId = req.params.sessionId;
+      if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID is required' });
+      }
+
+      const chatContextManager = agentSystem.getChatContextManager();
+      const history = await chatContextManager.getConversationHistory(sessionId);
+      
+      res.json({ history });
+    } catch (error) {
+      console.error('Get conversation history error:', error);
+      res.status(500).json({ error: 'Failed to get conversation history' });
+    }
+  });
+
+  app.post('/api/chat/sessions', async (req: any, res) => {
+    try {
+      const { userId, companionId, title } = req.body;
+      
+      if (!userId || userId <= 0) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const chatContextManager = agentSystem.getChatContextManager();
+      const sessionId = await chatContextManager.createChatSession(userId, companionId, title);
+      
+      res.json({ sessionId });
+    } catch (error) {
+      console.error('Create chat session error:', error);
+      res.status(500).json({ error: 'Failed to create chat session' });
+    }
+  });
+
   // Intelligent agent-powered balance check endpoint
   app.get('/api/balance/:walletAddress', async (req: any, res) => {
     try {

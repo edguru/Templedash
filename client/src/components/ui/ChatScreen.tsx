@@ -19,19 +19,23 @@ interface ActiveTask {
   progress?: number;
 }
 
+interface ChatSession {
+  sessionId: string;
+  title: string;
+  messageCount: number;
+  lastMessageAt: Date;
+  isArchived: boolean;
+}
+
 export default function ChatScreen() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
-      timestamp: new Date()
-    }
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTasks, setActiveTasks] = useState<ActiveTask[]>([]);
   const [hasSessionKey, setHasSessionKey] = useState(false);
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const account = useActiveAccount();
@@ -46,6 +50,7 @@ export default function ChatScreen() {
 
   useEffect(() => {
     if (account?.address) {
+      initializeChatSession();
       fetchActiveTasks();
       checkSessionKey();
     }
@@ -80,6 +85,139 @@ export default function ChatScreen() {
       setMessages(prev => [...prev, sessionMessage]);
     } catch (error) {
       console.error('[ChatScreen] Error creating session key:', error);
+    }
+  };
+
+  // Initialize chat session - load existing or create new
+  const initializeChatSession = async () => {
+    if (!account?.address) return;
+    
+    try {
+      setIsLoadingHistory(true);
+      
+      // Try to load existing chat sessions
+      const sessionsResponse = await fetch(`/api/chat/sessions/${account.address}`);
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json();
+        setChatSessions(sessionsData.sessions || []);
+        
+        // Use the most recent session or create new one
+        if (sessionsData.sessions && sessionsData.sessions.length > 0) {
+          const mostRecentSession = sessionsData.sessions[0];
+          setCurrentSessionId(mostRecentSession.sessionId);
+          await loadChatHistory(mostRecentSession.sessionId);
+        } else {
+          // Create new session
+          await createNewChatSession();
+        }
+      } else {
+        // If sessions endpoint fails, create new session
+        await createNewChatSession();
+      }
+    } catch (error) {
+      console.error('Error initializing chat session:', error);
+      // Fallback to default welcome message
+      setMessages([{
+        id: '1',
+        role: 'assistant',
+        content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // Create new chat session
+  const createNewChatSession = async () => {
+    if (!account?.address) return;
+    
+    try {
+      const response = await fetch('/api/chat/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: account.address,
+          title: 'New Chat'
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentSessionId(data.sessionId);
+        
+        // Set welcome message for new session
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
+          timestamp: new Date()
+        }]);
+      }
+    } catch (error) {
+      console.error('Error creating new chat session:', error);
+    }
+  };
+
+  // Load chat history for a session
+  const loadChatHistory = async (sessionId: string) => {
+    try {
+      const response = await fetch(`/api/chat/history/${sessionId}`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.history && data.history.length > 0) {
+          // Convert backend history to frontend message format
+          const convertedMessages: ChatMessage[] = [];
+          
+          data.history.forEach((conversation: any) => {
+            // Add user message
+            if (conversation.userMessage) {
+              convertedMessages.push({
+                id: `user-${conversation.id}`,
+                role: 'user',
+                content: conversation.userMessage,
+                timestamp: new Date(conversation.createdAt)
+              });
+            }
+            
+            // Add assistant response
+            if (conversation.companionResponse) {
+              convertedMessages.push({
+                id: `assistant-${conversation.id}`,
+                role: 'assistant',
+                content: conversation.companionResponse,
+                timestamp: new Date(conversation.createdAt)
+              });
+            }
+          });
+          
+          setMessages(convertedMessages);
+        } else {
+          // No history, show welcome message
+          setMessages([{
+            id: '1',
+            role: 'assistant',
+            content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
+            timestamp: new Date()
+          }]);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+    }
+  };
+
+  // Save chat conversation turn to backend
+  const saveChatTurn = async (userMessage: string, companionResponse: string, sessionId: string) => {
+    try {
+      // Note: The actual saving is handled by the ChatContextManager through the /api/agents/chat endpoint
+      // This is just a placeholder for future direct saving functionality
+      console.log('[ChatScreen] Chat turn saved via agent system', { sessionId });
+    } catch (error) {
+      console.error('Error saving chat turn:', error);
     }
   };
 
@@ -121,7 +259,9 @@ export default function ChatScreen() {
         },
         body: JSON.stringify({
           message: userMessage.content,
-          userId: account.address
+          userId: account.address,
+          walletAddress: account.address,
+          conversationId: currentSessionId
         })
       });
 
@@ -137,6 +277,11 @@ export default function ChatScreen() {
         };
 
         setMessages(prev => [...prev, assistantMessage]);
+
+        // Save conversation to chat history if we have a session
+        if (currentSessionId) {
+          await saveChatTurn(userMessage.content, assistantMessage.content, currentSessionId);
+        }
 
         // If a task was created, refresh active tasks
         if (data.taskCreated) {

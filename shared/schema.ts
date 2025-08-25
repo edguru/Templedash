@@ -189,3 +189,35 @@ export type Conversation = typeof conversations.$inferSelect;
 export type InsertConversation = z.infer<typeof insertConversationSchema>;
 export type ChatSession = typeof chatSessions.$inferSelect;
 export type InsertChatSession = z.infer<typeof insertChatSessionSchema>;
+
+// Transaction monitoring table for Phase 4
+export const transactionStatuses = pgTable("transaction_statuses", {
+  id: text("id").primaryKey(), // UUID
+  taskId: text("task_id").notNull(),
+  transactionHash: text("transaction_hash"),
+  status: text("status").notNull(), // 'pending', 'submitted', 'confirmed', 'failed'
+  userWallet: text("user_wallet").notNull(),
+  requestId: text("request_id"),
+  sessionId: text("session_id"),
+  executionMethod: text("execution_method").notNull(), // 'chat', 'execute'
+  unsignedTxData: text("unsigned_tx_data"), // JSON string
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertTransactionStatusSchema = createInsertSchema(transactionStatuses).pick({
+  id: true,
+  taskId: true,
+  transactionHash: true,
+  status: true,
+  userWallet: true,
+  requestId: true,
+  sessionId: true,
+  executionMethod: true,
+  unsignedTxData: true,
+  errorMessage: true,
+});
+
+export type TransactionStatus = typeof transactionStatuses.$inferSelect;
+export type InsertTransactionStatus = z.infer<typeof insertTransactionStatusSchema>;

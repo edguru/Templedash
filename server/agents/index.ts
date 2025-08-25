@@ -162,6 +162,15 @@ export class AgentSystem {
     return taskTracker.getActiveTasks(userId);
   }
 
+  // Chat History Management - Access ChatContextManager through CompanionHandler
+  getChatContextManager() {
+    const companionHandler = this.registry.getAgent('companion-handler');
+    if (companionHandler && 'getChatContextManager' in companionHandler) {
+      return (companionHandler as any).getChatContextManager();
+    }
+    throw new Error('ChatContextManager not available - CompanionHandler not found');
+  }
+
   async shutdown() {
     console.log('Shutting down agent system...');
     await this.orchestrator.shutdown();

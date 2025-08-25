@@ -684,8 +684,8 @@ export default function ChatThreads() {
               <div
                 className={`max-w-[85%] sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-lg ${
                   message.role === 'user'
-                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white'
-                    : 'bg-white/80 backdrop-blur-sm border border-indigo-200/50'
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white mr-2 sm:mr-0'
+                    : 'bg-white/80 backdrop-blur-sm border border-indigo-200/50 ml-2 sm:ml-0'
                 }`}
               >
                 <div className="flex items-start space-x-2">
@@ -766,7 +766,7 @@ export default function ChatThreads() {
         )}
 
         {/* Input Form */}
-        <div className="bg-white/80 backdrop-blur-sm border-t border-indigo-200/50 px-4 py-4">
+        <div className="bg-white/80 backdrop-blur-sm border-t border-indigo-200/50 px-4 py-4 mobile-safe-input">
           {!account ? (
             <div className="text-center text-indigo-600 py-6">
               <Bot size={32} className="mx-auto mb-3 text-indigo-400" />

@@ -350,8 +350,8 @@ export default function ChatScreen() {
             <div
               className={`max-w-[85%] sm:max-w-xs lg:max-w-md px-3 sm:px-4 py-2 sm:py-3 rounded-lg ${
                 message.role === 'user'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-white border shadow-sm'
+                  ? 'bg-blue-500 text-white mr-2 sm:mr-0'
+                  : 'bg-white border shadow-sm ml-2 sm:ml-0'
               }`}
             >
               <div className="flex items-start space-x-2">
@@ -414,7 +414,7 @@ export default function ChatScreen() {
       )}
 
       {/* Input Form - Mobile Optimized */}
-      <div className="bg-white border-t px-3 sm:px-6 py-3 sm:py-4 safe-area-inset-bottom">
+      <div className="bg-white border-t px-3 sm:px-6 py-3 sm:py-4 mobile-safe-input">
         {!account ? (
           <div className="text-center text-gray-500 py-4">
             <Bot size={24} className="mx-auto mb-2 text-gray-400" />

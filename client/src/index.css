@@ -23,6 +23,17 @@ html, body {
   overscroll-behavior: contain;
 }
 
+/* Mobile-specific viewport and safe area fixes */
+@supports(padding: max(0px)) {
+  .mobile-safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .mobile-safe-input {
+    padding-bottom: max(1.5rem, calc(env(safe-area-inset-bottom) + 0.5rem));
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

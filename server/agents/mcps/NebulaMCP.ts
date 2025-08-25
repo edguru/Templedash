@@ -380,7 +380,7 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
 
       console.log('[NebulaMCP] Making request to /chat endpoint for read operation');
       
-      const response = await fetch('https://nebula-api.thirdweb.com/chat', {
+      const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,
@@ -391,7 +391,7 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
       });
 
       if (!response.ok) {
-        throw new Error(`Nebula Chat API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`Thirdweb Chat API returned ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();

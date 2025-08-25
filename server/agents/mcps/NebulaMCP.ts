@@ -178,14 +178,9 @@ export class NebulaMCP extends BaseAgent {
         }
       }
 
-      // Hybrid approach: Chat first for analysis, then Execute for transactions
-      if (operationType === 'write') {
-        console.log(`[NebulaMCP] 🔄 HYBRID APPROACH: Using chat endpoint first for transaction analysis`);
-        return await this.processWithHybridApproach(taskId, description, userWalletAddress, sessionSigner);
-      } else {
-        console.log(`[NebulaMCP] 📖 Routing READ operation to /chat endpoint`);
-        return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
-      }
+      // Use chat endpoint for all operations - let API handle intelligence
+      console.log(`[NebulaMCP] 🧠 Using chat endpoint for all blockchain operations and intelligence`);
+      return await this.processWithChatEndpoint(taskId, description, userWalletAddress, sessionSigner);
       
     } catch (error) {
       console.error('[NebulaMCP] Enhanced blockchain API request failed:', error);
@@ -403,19 +398,16 @@ Request ID: ${requestId}`;
   // Enhanced Chat Endpoint for Read Operations
   private async processWithChatEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
     try {
-      // Intelligent prompt enhancement for read operations - generic for any network
+      // Simple prompt enhancement - let API handle all network intelligence
       let enhancedPrompt = description;
       if (userWalletAddress) {
-        const networkInfo = this.getNetworkInfo(userWalletAddress);
-        enhancedPrompt = `${description}. If no specific wallet address is mentioned in the request, check for the user's wallet address: ${userWalletAddress}. Check the native ${networkInfo.nativeCurrency} balance (not an ERC-20 token) on ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the native gas currency on this network, similar to ETH on Ethereum.`;
+        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
       }
       
       const requestBody = {
         context: {
-          chain_ids: [this.getNetworkInfo(userWalletAddress).chainId],
           ...(userWalletAddress && { from: userWalletAddress }),
-          ...(sessionSigner && { signer: sessionSigner }),
-          operation_type: 'read_operation'
+          ...(sessionSigner && { signer: sessionSigner })
         },
         messages: [{
           role: 'user',
@@ -452,42 +444,6 @@ Request ID: ${requestId}`;
     }
   }
 
-  // Generic network information detection
-  private getNetworkInfo(userWalletAddress?: string): { chainId: number; name: string; nativeCurrency: string } {
-    // Network configurations - easily extensible for new networks
-    const networks = {
-      123420001114: { name: 'Base Camp testnet', nativeCurrency: 'CAMP' },
-      1: { name: 'Ethereum Mainnet', nativeCurrency: 'ETH' },
-      137: { name: 'Polygon', nativeCurrency: 'MATIC' },
-      8453: { name: 'Base', nativeCurrency: 'ETH' },
-      42161: { name: 'Arbitrum', nativeCurrency: 'ETH' }
-    };
-    
-    // Default to Base Camp testnet for now, can be made dynamic based on user preferences or context
-    const defaultChainId = 123420001114;
-    
-    return {
-      chainId: defaultChainId,
-      ...networks[defaultChainId]
-    };
-  }
-
-  // Token symbol detection for native currencies
-  private detectNativeTokenSymbol(description: string, networkInfo: { chainId: number; name: string; nativeCurrency: string }): boolean {
-    const lowerDescription = description.toLowerCase();
-    const nativeCurrency = networkInfo.nativeCurrency.toLowerCase();
-    
-    // Check for various patterns that indicate native currency transfer
-    const nativePatterns = [
-      nativeCurrency,
-      'native',
-      'gas token',
-      'main token',
-      'network token'
-    ];
-    
-    return nativePatterns.some(pattern => lowerDescription.includes(pattern));
-  }
 
   // Enhanced operation type detection
   private detectOperationType(description: string): 'read' | 'write' {

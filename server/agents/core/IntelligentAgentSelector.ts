@@ -245,44 +245,7 @@ Priority: ${config.priority}
    */
   private async selectWithRAG(request: AgentSelectionRequest): Promise<AgentSelectionResult> {
     try {
-      // BALANCE CHECK SPECIAL ROUTING - Force Nebula selection
-      const taskLower = request.taskDescription.toLowerCase();
-      const isBalanceCheck = taskLower.includes('balance') || 
-                           (taskLower.includes('check') && (taskLower.includes('camp') || taskLower.includes('token'))) ||
-                           taskLower.includes('wallet balance') ||
-                           taskLower.includes('my balance') ||
-                           taskLower.includes('camp token');
-
-      if (isBalanceCheck) {
-        console.log('[IntelligentAgentSelector] BALANCE CHECK DETECTED - Forcing Nebula selection');
-        const nebulaSelection: AgentSelectionResult = {
-          primaryAgent: {
-            agentId: 'nebula-mcp',
-            agentName: 'NebulaMCP',
-            confidence: 0.95,
-            reasoning: ['Balance check detected - Nebula is specialized for balance operations with CAMP token expertise'],
-            agentType: 'mcp',
-            capabilities: ['balance_check', 'wallet_analysis', 'camp_token_operations'],
-            estimatedSuccess: 0.98
-          },
-          alternativeAgents: [],
-          taskAnalysis: {
-            category: 'blockchain',
-            complexity: 'simple',
-            estimatedDuration: 'short',
-            requiredCapabilities: ['balance_check', 'wallet_analysis', 'camp_token_operations']
-          },
-          reasoning: [
-            'Balance check operation detected',
-            'Nebula MCP is the specialized balance checking agent with CAMP token expertise',
-            'High confidence selection for balance operations',
-            'Wallet context will be automatically provided with session signer integration'
-          ]
-        };
-        
-        console.log('[IntelligentAgentSelector] Nebula selection result:', nebulaSelection);
-        return nebulaSelection;
-      }
+      // Natural AI-powered agent selection (no forced routing)
 
       // First, analyze if this is a blockchain task and get routing suggestions
       const blockchainAnalysis = BlockchainTaskRouter.analyzeBlockchainTask(request.taskDescription);

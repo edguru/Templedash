@@ -1,0 +1,229 @@
+[task-orchestrator] Creating task from user message {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  type: 'user_request',
+  priority: 'high'
+}
+[task-tracker] Task registered {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_registered from task-tracker to broadcast
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'Check my CAMP token balance',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'Check my CAMP token balance',
+  parameterKeys: []
+}
+[task-orchestrator] Added task to queue {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  priority: 'high',
+  queueSize: 1
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[task-tracker] Task state updated {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  category: 'user_request'
+}
+[TaskOrchestrator] Executing single-agent task 0b564dff-8abe-47d4-939e-a76f09986625 with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[BlockchainTaskRouter] AI-based analysis: {
+  task: 'check my camp token balance',
+  isBlockchainRelated: true,
+  networks: [ 'camp' ],
+  message: 'Pure AI agent selection - no hardcoded routing'
+}
+[IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'query',
+  suggestedAgent: undefined,
+  confidence: 0.7,
+  networks: [ 'camp' ],
+  reasoning: [ 'Blockchain context detected', 'Networks: camp' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: true,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+8:11:55 AM [express] POST /api/agents/chat 200 in 10002ms :: {"success":true,"response":"How can I a…
+[TaskOrchestrator] AI selected agent chaingpt-mcp for task 0b564dff-8abe-47d4-939e-a76f09986625 {
+  confidence: 0.33289276180435023,
+  reasoning: [ 'ChainGPTMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: chaingpt-mcp (confidence: 33.3%)',
+    'Selection Reasoning: ChainGPTMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Blockchain Research Analyst - Complex market analysis, research reports, and strategic blockchain intelligence',
+    'Success Rate: 93.0%',
+    'Average Latency: 3800ms'
+  ]
+}
+Publishing message: execute_task from task-orchestrator to chaingpt-mcp
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] UnifiedGoatAgent blockchain task check: {
+  description: 'Check my CAMP token balance',
+  detectedKeywords: [],
+  isBlockchain: false,
+  targetId: 'chaingpt-mcp'
+}
+[ChainGPTMCP] Received execute_task message: 0b564dff-8abe-47d4-939e-a76f09986625
+[chaingpt-mcp] Processing with ChainGPT API {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  description: 'Check my CAMP token balance'
+}
+[ChainGPTMCP] Making request to ChainGPT API {
+  url: 'https://api.chaingpt.org/chat/stream',
+  hasApiKey: true,
+  keyLength: 36,
+  requestBody: '{"model":"general_assistant","question":"Check my CAMP token balance","chatHistory":"off","useCustomContext":false}'
+}
+[TaskOrchestrator] Agent performance update: chaingpt-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+[ChainGPTMCP] ChainGPT API request failed: DOMException [TimeoutError]: The operation was aborted due to timeout
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async ChainGPTMCP.processWithChainGPTLLM (/home/runner/workspace/server/agents/mcps/ChainGPTMCP.ts:121:24)
+    at async ChainGPTMCP.handleMessage (/home/runner/workspace/server/agents/mcps/ChainGPTMCP.ts:66:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/ChainGPTMCP.ts:30:26)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+Publishing message: task_step_complete from chaingpt-mcp to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  agentType: undefined,
+  success: false,
+  hasResult: true
+}
+[task-orchestrator] Task queued { taskId: '0b564dff-8abe-47d4-939e-a76f09986625', priority: 'high' }
+[task-tracker] Task state updated {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  oldState: 'QUEUED',
+  newState: 'QUEUED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Task queued for retry { taskId: '0b564dff-8abe-47d4-939e-a76f09986625', attempt: 1 }
+[task-tracker] Task state updated {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  category: 'user_request'
+}
+[TaskOrchestrator] Executing single-agent task 0b564dff-8abe-47d4-939e-a76f09986625 with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[BlockchainTaskRouter] AI-based analysis: {
+  task: 'check my camp token balance',
+  isBlockchainRelated: true,
+  networks: [ 'camp' ],
+  message: 'Pure AI agent selection - no hardcoded routing'
+}
+[IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'query',
+  suggestedAgent: undefined,
+  confidence: 0.7,
+  networks: [ 'camp' ],
+  reasoning: [ 'Blockchain context detected', 'Networks: camp' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: true,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+[TaskOrchestrator] AI selected agent chaingpt-mcp for task 0b564dff-8abe-47d4-939e-a76f09986625 {
+  confidence: 0.33289276180435023,
+  reasoning: [ 'ChainGPTMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'blockchain',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: chaingpt-mcp (confidence: 33.3%)',
+    'Selection Reasoning: ChainGPTMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Blockchain Research Analyst - Complex market analysis, research reports, and strategic blockchain intelligence',
+    'Success Rate: 93.0%',
+    'Average Latency: 3800ms'
+  ]
+}
+Publishing message: execute_task from task-orchestrator to chaingpt-mcp
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] UnifiedGoatAgent blockchain task check: {
+  description: 'Check my CAMP token balance',
+  detectedKeywords: [],
+  isBlockchain: false,
+  targetId: 'chaingpt-mcp'
+}
+[ChainGPTMCP] Received execute_task message: 0b564dff-8abe-47d4-939e-a76f09986625
+[chaingpt-mcp] Processing with ChainGPT API {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  description: 'Check my CAMP token balance'
+}
+[ChainGPTMCP] Making request to ChainGPT API {
+  url: 'https://api.chaingpt.org/chat/stream',
+  hasApiKey: true,
+  keyLength: 36,
+  requestBody: '{"model":"general_assistant","question":"Check my CAMP token balance","chatHistory":"off","useCustomContext":false}'
+}
+[TaskOrchestrator] Agent performance update: chaingpt-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+[ChainGPTMCP] API response status: 201
+[ChainGPTMCP] Raw API response length: 224
+[ChainGPTMCP] API response preview: It appears that your current balance of CAMP tokens is zero. However, to provide you with an accurate balance, I need your wallet address. Please provide your wallet address so I can check the balance
+Publishing message: task_step_complete from chaingpt-mcp to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  agentType: undefined,
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[task-tracker] Task state updated {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  oldState: 'COMPLETED',
+  newState: 'COMPLETED',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[task-orchestrator] Task completed successfully {
+  taskId: '0b564dff-8abe-47d4-939e-a76f09986625',
+  result: 'It appears that your current balance of CAMP tokens is zero. However, to provide you with an accurate balance, I need your wallet address. Please provide your wallet address so I can check the balance of CAMP tokens for you.'
+}

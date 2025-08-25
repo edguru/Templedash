@@ -125,7 +125,7 @@ export class ChainGPTMCP extends BaseAgent {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(30000) // 30 second timeout
+        signal: AbortSignal.timeout(60000) // 60 second timeout for complex queries
       });
 
       console.log('[ChainGPTMCP] API response status:', response.status);

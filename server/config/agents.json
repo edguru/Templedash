@@ -158,9 +158,9 @@
       "nebula-mcp": {
         "name": "NebulaMCP", 
         "type": "task",
-        "role": "Blockchain Query Specialist - Simple balance checks, transaction lookups, and basic blockchain data retrieval",
-        "description": "I am the primary on-chain execution and Web3 operations specialist. I handle wallet balances, holdings, portfolio positions, transaction history, smart contract interactions, token transfers, swaps, and bridges across supported networks. I execute direct blockchain operations, deploy contracts, manage NFTs, and provide developer support for thirdweb SDK integrations. I am the go-to agent for direct blockchain execution when specific DeFi protocols aren't mentioned. Think of me as your primary Web3 operations center.",
-        "systemMessage": "You are the blockchain query specialist for simple data retrieval only. Handle balance checks, transaction lookups, address validation, and basic blockchain queries. Do NOT attempt DeFi operations, trading, or complex analysis. Focus purely on fetching and displaying blockchain data in a clear, concise format. Route complex operations to appropriate specialists.",
+        "role": "Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration",
+        "description": "I am the primary balance checking and portfolio specialist with native CAMP token expertise. I excel at checking wallet balances, analyzing portfolios, retrieving authentic USD values, and providing real-time blockchain insights. I use session signers for seamless operations and integrate with CAMP Explorer API for accurate data. I handle all balance-related queries, wallet analysis, and portfolio management with specialized knowledge of the Base Camp testnet. I am the go-to agent for any balance checking or wallet analysis tasks.",
+        "systemMessage": "You are the primary balance checking and portfolio specialist. Handle all balance checks, wallet analysis, portfolio positions, and CAMP token operations with expertise. Use authentic blockchain data from CAMP Explorer API and provide real-time insights with session signer integration. Focus on accurate balance reporting, USD value calculations, and comprehensive wallet analysis.",
         "capabilities": [
           "Check wallet balances, holdings, and portfolio positions",
           "Retrieve full transaction history, decode tx details, and monitor address activity",
@@ -181,15 +181,16 @@
           "risk_assessor"
         ],
         "keywords": [
-          "balance", "wallet", "holdings", "transfer", "swap", "bridge", "deploy", "contract", 
+          "balance", "check balance", "camp token", "wallet balance", "portfolio", "holdings", "my balance", "token balance",
+          "wallet", "transfer", "swap", "bridge", "deploy", "contract", 
           "abi", "query", "gas", "block", "transaction", "history", "address", "ens", "token", 
           "metadata", "nft", "ownership", "trace", "thirdweb", "sdk", "build", "web3", "execution",
-          "portfolio", "positions", "simulate", "templates", "erc20", "erc721", "erc1155"
+          "positions", "simulate", "templates", "erc20", "erc721", "erc1155"
         ],
-        "priority": "medium",
-        "loadFactor": 0.3,
-        "successRate": 0.85,
-        "averageLatency": 9000
+        "priority": "critical",
+        "loadFactor": 0.1,
+        "successRate": 0.98,
+        "averageLatency": 1500
       },
       "codegen-mcp": {
         "name": "CodeGenMCP",

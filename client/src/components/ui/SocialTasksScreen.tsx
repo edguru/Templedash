@@ -74,7 +74,7 @@ const SocialTasksScreen: React.FC<SocialTasksScreenProps> = ({ onTasksCompleted 
                   Stay updated with the latest features, announcements, and community highlights.
                 </p>
                 <a
-                  href="https://twitter.com/puppet_runner"
+                  href={process.env.TWITTER_URL || "https://twitter.com/puppet_runner"}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleTwitterClick}
@@ -112,7 +112,7 @@ const SocialTasksScreen: React.FC<SocialTasksScreenProps> = ({ onTasksCompleted 
                   Connect with other users, get support, and participate in exclusive community events.
                 </p>
                 <a
-                  href="https://t.me/puppet_runner"
+                  href={process.env.TELEGRAM_URL || "https://t.me/puppet_runner"}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={handleTelegramClick}

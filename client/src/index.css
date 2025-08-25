@@ -5,14 +5,15 @@
 @tailwind utilities;
 
 /* Mobile touch scrolling improvements */
-* {
+html, body {
+  height: 100%;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
 }
 
-/* Improve scrolling performance on mobile */
-body, html {
+* {
   -webkit-overflow-scrolling: touch;
-  overflow-x: hidden;
 }
 
 @layer base {
@@ -37,11 +38,7 @@ body, html {
 #root {
   width: 100%;
   height: 100%;
-}
-
-/* Only fix position when in game mode */
-body.game-mode #root {
-  position: fixed;
+  position: relative;
 }
 
 canvas {
@@ -146,8 +143,8 @@ canvas {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Prevent zoom on double tap */
-* {
+/* Prevent zoom on double tap but allow scrolling */
+input, button, a {
   touch-action: manipulation;
 }
 

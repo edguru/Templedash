@@ -1,0 +1,83 @@
+chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: nebula-mcp (confidence: 98.0%)',
+    'Selection Reasoning: Balance check detected - Nebula is the specialized balance agent with authentic data access',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+🧠 [TaskOrchestrator] Wallet determination result: {
+  taskDescription: 'Check my CAMP token balance',
+  userWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  targetWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  operationType: 'read',
+  logMessage: 'Read operation using user wallet: 0x4bcf74e971E677e95b8bFB0980721557987119Ae (no specific wallet mentioned)'
+}
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message 302027cb-d6e7-4b5d-af48-c72b7fdd67ac
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Enhanced Nebula Execute System {
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'read',
+  parametersReceived: [],
+  description: 'Check my CAMP token balance'
+}
+[NebulaMCP] 📖 READ OPERATION: Using chat endpoint for blockchain queries
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+4:20:42 PM [express] POST /api/agents/chat 200 in 30001ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  success: true,
+  resultLength: 501,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'd65efad3-5483-4f67-9e8d-a00fccd4cf18',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  messageType: 'agent_response',
+  responseLength: 501
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  success: true,
+  fullResponse: 'Your CAMP balance on the Base Camp testnet (chain ID: 123420001114) is: - **Wallet Address:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Network:** Base Camp testnet\n' +
+    '- **Native Token:** CAMP\n' +
+    '- **Balance:** 0.9067611579421302 CAMP (raw: 906,761,157,942,130,229 base units) You can transfer this balance as native CAMP using native transfer methods, since CAMP is the primary currency on this network. Would you like to send, receive, or analyze more details about your CAMP balance or transactions?'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '91414a04-70dc-4220-b2e6-1fb8c0745cff',
+  responsePreview: 'Your CAMP balance on the Base Camp testnet (chain ID: 123420001114) is: - **Wallet Address:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Network:** Base Camp testnet\n' +
+    '- **Native Token:** CAMP\n' +
+    '- **B...',
+  fullResponse: 'Your CAMP balance on the Base Camp testnet (chain ID: 123420001114) is: - **Wallet Address:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Network:** Base Camp testnet\n' +
+    '- **Native Token:** CAMP\n' +
+    '- **Balance:** 0.9067611579421302 CAMP (raw: 906,761,157,942,130,229 base units) You can transfer this balance as native CAMP using native transfer methods, since CAMP is the primary currency on this network. Would you like to send, receive, or analyze more details about your CAMP balance or transactions?'
+}

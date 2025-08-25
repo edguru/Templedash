@@ -89,7 +89,9 @@ export class CompanionHandler extends BaseAgent {
       agentName: message.payload.agentName, 
       taskId: message.payload.taskId,
       messageType: message.type,
-      responseLength: response?.length || 0
+      responseLength: response?.length || 0,
+      senderId: message.senderId,
+      targetId: message.targetId
     });
     
     // Enhanced debugging - print full agent response
@@ -161,7 +163,7 @@ export class CompanionHandler extends BaseAgent {
       id: uuidv4(),
       timestamp: new Date().toISOString(),
       senderId: this.agentId,
-      targetId: message.targetId,
+      targetId: message.targetId || message.senderId, // Ensure proper routing
       payload: {
         message: agentResponseMessage,
         taskCompleted: true,
@@ -171,6 +173,12 @@ export class CompanionHandler extends BaseAgent {
         sessionId: message.payload.sessionId
       }
     };
+
+    console.log(`[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER:`, {
+      taskId: message.payload.taskId,
+      targetId: companionResponse.targetId,
+      messageType: companionResponse.type
+    });
 
     await this.sendMessage(companionResponse);
   }
@@ -325,6 +333,7 @@ export class CompanionHandler extends BaseAgent {
               payload: {
                 message: userMessage,
                 userId: walletAddress,
+                sessionId: message.payload.context?.conversationId,
                 context: {
                   hasCompanion: false,
                   companionName: null,
@@ -335,19 +344,9 @@ export class CompanionHandler extends BaseAgent {
             
             await this.sendMessage(taskMessage);
             
-            return {
-              type: 'companion_response',
-              id: uuidv4(),
-              timestamp: new Date().toISOString(),
-              senderId: this.agentId,
-              targetId: message.senderId,
-              payload: {
-                message: "I'll help you with that request. Let me get that information for you...",
-                taskRouted: true,
-                contextAware: false,
-                sessionId: message.payload.context?.conversationId
-              }
-            };
+            // Don't send immediate response - wait for agent to complete
+            // The actual response will be sent via handleAgentResponse
+            return null;
           }
           
           return {
@@ -396,6 +395,7 @@ export class CompanionHandler extends BaseAgent {
             payload: {
               message: userMessage,
               userId: walletAddress,
+              sessionId: userContext?.sessionId || message.payload.context?.conversationId,
               context: {
                 hasCompanion: !!this.companionTraits,
                 companionName: this.companionTraits?.name,
@@ -406,32 +406,9 @@ export class CompanionHandler extends BaseAgent {
           
           await this.sendMessage(taskMessage);
           
-          // Return personalized acknowledgment based on task type
-          const personalizedGreeting = this.companionTraits ? 
-            this.getPersonalizedGreeting() : 
-            "I'll help you with that.";
-          
-          let taskDescription = "handle your request";
-          if (userMessage.toLowerCase().includes('mint')) {
-            taskDescription = "mint that NFT for you";
-          } else if (userMessage.toLowerCase().includes('balance')) {
-            taskDescription = "check your balance";
-          } else if (userMessage.toLowerCase().includes('transfer') || userMessage.toLowerCase().includes('send')) {
-            taskDescription = "process that transfer";
-          }
-          
-          return {
-            type: 'companion_response',
-            id: uuidv4(),
-            timestamp: new Date().toISOString(),
-            senderId: this.agentId,
-            targetId: message.senderId,
-            payload: {
-              message: `${personalizedGreeting} Let me ${taskDescription}...`,
-              taskRouted: true,
-              companionName: this.companionTraits?.name
-            }
-          };
+          // Don't send immediate response - wait for agent to complete
+          // The actual response will be sent via handleAgentResponse  
+          return null;
         } else {
           // Handle as regular companion chat with enhanced context
           const personalizedResponse = await this.generateContextualResponse(userMessage, userContext);

@@ -205,24 +205,15 @@ export class NebulaMCP extends BaseAgent {
       // Enhanced prompt for transaction execution
       const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). For security, all write operations must use the authenticated user's wallet.`;
 
-      // Phase 2: Execute configuration for unsigned transaction returns
+      // Phase 2: Execute configuration matching the API example format
       const requestBody = {
-        context: {
-          chain_ids: [123420001114], // Use numbers instead of strings and correct field name
-          from: userWalletAddress,
-          operation_type: 'write_operation'
-        },
-        messages: [{
-          role: 'user',
-          content: enhancedPrompt
-        }],
+        message: enhancedPrompt,
         stream: false,
-        // PHASE 2: Execute configuration for unsigned transaction returns
-        execute_config: {
-          mode: "client",
-          signer_wallet_address: userWalletAddress,
-          return_unsigned_transactions: true
-        }
+        session_id: uuidv4(),
+        context: JSON.stringify({
+          chainIds: [123420001114],
+          walletAddress: userWalletAddress
+        })
       };
 
       console.log(`[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint`, {
@@ -230,15 +221,14 @@ export class NebulaMCP extends BaseAgent {
         hasExecuteConfig: true,
         userWallet: userWalletAddress?.slice(0, 10) + '...',
         requestBodyStructure: {
+          hasMessage: !!requestBody.message,
           hasContext: !!requestBody.context,
-          hasMessages: !!requestBody.messages,
-          hasExecuteConfig: !!requestBody.execute_config,
-          chainIds: requestBody.context?.chain_ids,
-          fromAddress: requestBody.context?.from?.slice(0, 10) + '...'
+          hasSessionId: !!requestBody.session_id,
+          stream: requestBody.stream
         }
       });
       
-      const response = await fetch('https://api.thirdweb.com/ai/execute', {
+      const response = await fetch('https://nebula-api.thirdweb.com/execute', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,

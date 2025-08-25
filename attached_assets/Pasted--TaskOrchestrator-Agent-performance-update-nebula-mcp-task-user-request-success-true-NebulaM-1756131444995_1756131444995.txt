@@ -1,0 +1,46 @@
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[NebulaMCP] Execute API Error Response: 404 Not Found
+[NebulaMCP] Execute endpoint request failed: Error: Thirdweb Execute API returned 404: Not Found - 404 Not Found
+    at NebulaMCP.processWithExecuteEndpoint (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:260:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NebulaMCP.processWithNebulaLLM (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:184:16)
+    at async NebulaMCP.handleMessage (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:127:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:59:24)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '926e63c3-2477-4b34-9520-bba9dab69e69',
+  success: false,
+  resultLength: 59,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '34bd842f-752f-4219-8446-cc423317bd1b',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '926e63c3-2477-4b34-9520-bba9dab69e69',
+  messageType: 'agent_response',
+  responseLength: 59
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '926e63c3-2477-4b34-9520-bba9dab69e69',
+  success: false,
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '926e63c3-2477-4b34-9520-bba9dab69e69',
+  responsePreview: 'Failed to execute blockchain transaction. Please try again....',
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: 'Failed to execute blockchain transaction. Please try again.'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+2:16:35 PM [express] POST /api/agents/chat 200 in 10884ms :: {"success":true,"response":"Failed to e…
+[task-analyzer] Updated network status 

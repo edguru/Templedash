@@ -319,10 +319,16 @@ export class CompanionService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Database storage failed:', errorData);
-        // NFT was minted but database storage failed - this is still a success from user perspective
-        console.warn('⚠️ NFT minted successfully but database storage failed. The NFT exists on blockchain.');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('❌ Database storage failed:', errorData);
+        
+        // If user already has companion, this is expected after the first mint
+        if (response.status === 409) {
+          console.log('✅ User already has companion in database - this is expected after successful mint');
+        } else {
+          console.warn('⚠️ NFT minted successfully but database storage failed. The NFT exists on blockchain.');
+          // Don't throw error - NFT was successfully minted
+        }
       } else {
         console.log('✅ Companion stored in database successfully');
       }

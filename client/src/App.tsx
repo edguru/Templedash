@@ -117,22 +117,21 @@ function AppContent() {
     const checkCompanion = async () => {
       if (account?.address && authComplete && !companionChecked) {
         try {
+          console.log('🔍 Checking companion status for:', account.address);
           const { companionService } = await import('./lib/companionService');
-          const hasCompanion = await companionService.hasCompanion(account.address);
           
-          if (hasCompanion) {
-            const companionData = await companionService.getCompanionByOwner(account.address);
-            if (companionData) {
-              setCompanion(companionData.traits);
-              // Only proceed to main app if companion exists and is loaded
-              if (gamePhase !== 'main' && gamePhase !== 'playing') {
-                setGamePhase('main');
-              }
-            } else {
-              // Even if hasCompanion=true but no data, force creation
-              setGamePhase('companionPrompt');
+          // First try to get companion data directly (more reliable)
+          const companionData = await companionService.getCompanionByOwner(account.address);
+          
+          if (companionData && companionData.traits) {
+            console.log('✅ Found companion in system:', companionData.tokenId);
+            setCompanion(companionData.traits);
+            // Only proceed to main app if companion exists and is loaded
+            if (gamePhase !== 'main' && gamePhase !== 'playing') {
+              setGamePhase('main');
             }
           } else {
+            console.log('❌ No companion found - checking social tasks completion...');
             // No companion found - Check social tasks first
             // Since we can't use the hook here, we'll check localStorage directly
             const storageKey = `companion_onboarding_state_${account.address}`;
@@ -149,8 +148,10 @@ function AppContent() {
             }
             
             if (hasSocialTasks) {
+              console.log('✅ Social tasks completed - showing companion prompt');
               setGamePhase('companionPrompt');
             } else {
+              console.log('❌ Social tasks not completed - showing social tasks screen');
               setGamePhase('socialTasks');
             }
           }
@@ -224,13 +225,45 @@ function AppContent() {
                   try {
                     const { companionService } = await import('./lib/companionService');
                     if (account) {
-                      await companionService.mintCompanion(account, traits);
-                      setCompanion(traits);
-                      setGamePhase('main');
+                      console.log('🚀 Starting companion creation process...');
+                      const transactionHash = await companionService.mintCompanion(account, traits);
+                      console.log('✅ Companion minted successfully:', transactionHash);
+                      
+                      // Verify the companion was stored in database
+                      console.log('🔍 Verifying companion storage...');
+                      let retryCount = 0;
+                      const maxRetries = 3;
+                      let companionData = null;
+                      
+                      while (retryCount < maxRetries && !companionData) {
+                        try {
+                          await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+                          companionData = await companionService.getCompanionByOwner(account.address);
+                          if (companionData) {
+                            console.log('✅ Companion verified in database:', companionData.tokenId);
+                            break;
+                          }
+                        } catch (error) {
+                          console.log(`🔄 Verification attempt ${retryCount + 1}/${maxRetries} failed:`, error);
+                        }
+                        retryCount++;
+                      }
+                      
+                      if (companionData) {
+                        setCompanion(companionData.traits);
+                        // Force refresh companion check to avoid loop
+                        setCompanionChecked(false);
+                        setTimeout(() => setCompanionChecked(true), 100);
+                        setGamePhase('main');
+                      } else {
+                        console.warn('⚠️ Companion minted but not found in database. Setting traits directly.');
+                        setCompanion(traits);
+                        setGamePhase('main');
+                      }
                     }
                   } catch (error) {
-                    console.error('Error creating companion:', error);
-                    alert('Failed to create companion. Please try again.');
+                    console.error('❌ Error creating companion:', error);
+                    alert(`Failed to create companion: ${error.message || 'Unknown error'}. Please try again.`);
                   }
                 }}
                 onBack={() => setGamePhase('main')}

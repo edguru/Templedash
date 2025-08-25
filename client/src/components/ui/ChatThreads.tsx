@@ -189,14 +189,23 @@ export default function ChatThreads() {
 
   useEffect(() => {
     const handleResize = () => {
-      // Desktop: auto-open sidebar if closed
-      // Mobile: keep closed by default (like ChatGPT app)
-      if (window.innerWidth >= 768) {
+      // Only adjust sidebar on major screen transitions, preserve user intent
+      const isMobile = window.innerWidth < 768;
+      const isDesktop = window.innerWidth >= 768;
+      
+      // Only auto-adjust if transitioning between mobile/desktop
+      // Don't force changes during minor resizes
+      if (isDesktop && window.innerWidth >= 1024) {
+        // Large desktop screens: ensure sidebar is visible
         setShowSidebar(true);
-      } else {
-        setShowSidebar(false);
       }
+      // For mobile and tablet, preserve current state unless it's initial load
     };
+    
+    // Set initial state based on screen size
+    const initialState = window.innerWidth >= 768;
+    setShowSidebar(initialState);
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -477,7 +486,7 @@ export default function ChatThreads() {
   return (
     <div className="h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex relative">
       {/* Mobile Overlay */}
-      {showSidebar && window.innerWidth < 768 && (
+      {showSidebar && (
         <div 
           className="fixed inset-0 bg-black/30 z-40 md:hidden"
           onClick={() => setShowSidebar(false)}
@@ -566,11 +575,11 @@ export default function ChatThreads() {
                 key={thread.id}
                 onClick={() => {
                   setCurrentThreadId(thread.sessionId);
-                  // Mobile: close sidebar after selection (like ChatGPT app)
-                  // Desktop: keep sidebar open
+                  // Only auto-close on mobile screens (< 768px)
                   if (window.innerWidth < 768) {
                     setShowSidebar(false);
                   }
+                  // Desktop and tablet: keep sidebar open for easy navigation
                 }}
                 className={`p-4 md:p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group touch-manipulation ${
                   thread.id === currentThreadId 
@@ -629,10 +638,10 @@ export default function ChatThreads() {
             <button
               onClick={() => setShowSidebar(!showSidebar)}
               className="p-2 rounded-lg hover:bg-indigo-100 transition-colors touch-manipulation"
-              title="Toggle sidebar"
+              title={showSidebar ? "Close conversations" : "Open conversations"}
             >
-              {showSidebar ? (
-                <X size={20} className="text-indigo-600 md:hidden" />
+              {showSidebar && window.innerWidth < 768 ? (
+                <X size={20} className="text-indigo-600" />
               ) : (
                 <MessageCircle size={20} className="text-indigo-600" />
               )}

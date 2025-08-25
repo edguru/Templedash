@@ -26,6 +26,7 @@ import CharacterSelectPopup from "./components/ui/CharacterSelectPopup";
 import CompanionCreationScreen from "./components/ui/CompanionCreationScreen";
 import CompanionManagementScreen from "./components/ui/CompanionManagementScreen";
 import CompanionPromptScreen from "./components/ui/CompanionPromptScreen";
+import SocialTasksScreen from "./components/ui/SocialTasksScreen";
 
 // Import stores
 import { useGameState } from "./lib/stores/useGameState";
@@ -132,13 +133,31 @@ function AppContent() {
               setGamePhase('companionPrompt');
             }
           } else {
-            // No companion found - FORCE creation for ALL users (new and existing)
-            setGamePhase('companionPrompt');
+            // No companion found - Check social tasks first
+            // Since we can't use the hook here, we'll check localStorage directly
+            const storageKey = `companion_onboarding_state_${account.address}`;
+            const saved = localStorage.getItem(storageKey);
+            let hasSocialTasks = false;
+            
+            if (saved) {
+              try {
+                const parsedState = JSON.parse(saved);
+                hasSocialTasks = parsedState.hasFollowedTwitter && parsedState.hasJoinedTelegram;
+              } catch (error) {
+                console.error('Error parsing onboarding state:', error);
+              }
+            }
+            
+            if (hasSocialTasks) {
+              setGamePhase('companionPrompt');
+            } else {
+              setGamePhase('socialTasks');
+            }
           }
         } catch (error) {
           console.error('Error checking companion:', error);
-          // On any error, force companion creation to be safe
-          setGamePhase('companionPrompt');
+          // On any error, start with social tasks to be safe
+          setGamePhase('socialTasks');
         } finally {
           setCompanionChecked(true);
         }
@@ -237,6 +256,12 @@ function AppContent() {
               />
             )}
             
+            {gamePhase === 'socialTasks' && (
+              <SocialTasksScreen
+                onTasksCompleted={() => setGamePhase('companionPrompt')}
+              />
+            )}
+
             {gamePhase === 'companionPrompt' && (
               <CompanionPromptScreen
                 onCreateCompanion={() => setGamePhase('companionCreation')}

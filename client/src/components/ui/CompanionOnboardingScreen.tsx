@@ -309,10 +309,13 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
   const currentTutorialStep = tutorialSteps[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
+    <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50"
          style={{ 
+           minHeight: '100vh',
            paddingTop: '60px', // Space for close button
-           touchAction: 'auto'
+           touchAction: 'auto',
+           WebkitOverflowScrolling: 'touch',
+           overflow: 'auto'
          }}>
       
       {/* Header - Fixed */}

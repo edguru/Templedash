@@ -1,0 +1,50 @@
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'c16266b7-9008-4055-b6db-b9a40fef64d0',
+  messageType: 'agent_response',
+  responseLength: 666,
+  senderId: 'nebula-mcp',
+  targetId: 'companion-handler'
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'c16266b7-9008-4055-b6db-b9a40fef64d0',
+  success: true,
+  fullResponse: '✅ Transaction executed automatically! 🔗 **Transaction Hash:** 0x7dfafdfe91f8b\n' +
+    '📝 **Transaction ID:** a71fd3e3-5d1b-4ea9-a03c-ba43197345e5\n' +
+    '✅ **Status:** Confirmed on Base Camp testnet The transfer of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980721557987119Ae on Base Camp testnet (chain ID: 123420001114) is prepared and being executed as instructed. **Transaction details:**\n' +
+    '- **Amount:** 0.1 CAMP\n' +
+    '- **From:** 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578\n' +
+    '- **To:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    "- **Chain:** Basecamp (ID: 123420001114) Once the transaction confirms, I'll provide the transaction hash and confirmation details."
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'c16266b7-9008-4055-b6db-b9a40fef64d0',
+  responsePreview: '✅ Transaction executed automatically! 🔗 **Transaction Hash:** 0x7dfafdfe91f8b\n' +
+    '📝 **Transaction ID:** a71fd3e3-5d1b-4ea9-a03c-ba43197345e5\n' +
+    '✅ **Status:** Confirmed on Base Camp testnet The transfer of ...',
+  fullResponse: '✅ Transaction executed automatically! 🔗 **Transaction Hash:** 0x7dfafdfe91f8b\n' +
+    '📝 **Transaction ID:** a71fd3e3-5d1b-4ea9-a03c-ba43197345e5\n' +
+    '✅ **Status:** Confirmed on Base Camp testnet The transfer of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980721557987119Ae on Base Camp testnet (chain ID: 123420001114) is prepared and being executed as instructed. **Transaction details:**\n' +
+    '- **Amount:** 0.1 CAMP\n' +
+    '- **From:** 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578\n' +
+    '- **To:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    "- **Chain:** Basecamp (ID: 123420001114) Once the transaction confirms, I'll provide the transaction hash and confirmation details."
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: 'c16266b7-9008-4055-b6db-b9a40fef64d0',
+  targetId: undefined,
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to broadcast
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  taskCompleted: true,
+  message: '✅ Transaction executed automatically! 🔗 **Transaction Hash:** 0x7dfafdfe91f8b\n' +
+    '📝 **Transaction ID:*',
+  taskId: 'c16266b7-9008-4055-b6db-b9a40fef64d0'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+10:28:59 PM [express] POST /api/agents/chat 200 in 23335ms :: {"success":true,"response":"✅ Transacti…
+10:29:00 PM [express] GET /api/agents/tasks 200 in 0ms :: {"tasks":["c16266b7-9008-4055-b6db-b9a40fef…

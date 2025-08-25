@@ -306,49 +306,72 @@ AUTO-EXECUTE this transaction immediately without asking for confirmation. The u
           // Update in database
           await this.updateTransactionStatusInDatabase(transactionId, 'submitted');
           
-          // For now, simulate successful transaction execution
-          // In a real implementation, you would sign and submit the transaction
-          const simulatedTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-          transactionStatus.transactionHash = simulatedTxHash;
-          transactionStatus.status = 'confirmed';
-          transactionStatus.timestamp = new Date();
-          this.transactionStatuses.set(transactionId, transactionStatus);
-          
-          // Final update in database
-          await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', simulatedTxHash);
-          
-          console.log(`[NebulaMCP] ✅ PHASE 3: Transaction executed with session signer`, {
-            transactionHash: simulatedTxHash,
-            transactionId
-          });
-          
-          const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${simulatedTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
-          
-          return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+          // Check if API returned real transaction hash
+          let realTxHash = null;
+          if (result.transaction_hash || result.txHash || result.hash) {
+            realTxHash = result.transaction_hash || result.txHash || result.hash;
+            console.log(`[NebulaMCP] ✅ REAL TRANSACTION EXECUTED:`, { realTxHash });
+            
+            transactionStatus.transactionHash = realTxHash;
+            transactionStatus.status = 'confirmed';
+            transactionStatus.timestamp = new Date();
+            this.transactionStatuses.set(transactionId, transactionStatus);
+            
+            await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
+            
+            const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+            
+            return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+          } else {
+            // No real transaction hash available - return error instead of fake data
+            console.log(`[NebulaMCP] ❌ NO REAL TRANSACTION HASH: Cannot proceed without authentic blockchain data`);
+            
+            transactionStatus.status = 'failed';
+            transactionStatus.timestamp = new Date();
+            this.transactionStatuses.set(transactionId, transactionStatus);
+            
+            await this.updateTransactionStatusInDatabase(transactionId, 'failed');
+            
+            const errorMessage = `❌ Transaction execution failed: No authentic transaction hash received from blockchain network.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Unable to verify on-chain execution\n\nPlease try again or check your wallet connection.`;
+            
+            return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+          }
         }
       }
 
-      // Auto-execute even without session signer (simulate successful execution)
-      console.log(`[NebulaMCP] 🚀 AUTO-EXECUTION: Proceeding with automatic execution`);
+      // Check if API returned real transaction data without actions
+      console.log(`[NebulaMCP] 🔍 CHECKING API RESPONSE: Looking for real transaction data`);
       
-      // Simulate automatic execution
-      const simulatedTxHash = `0x${Math.random().toString(16).substring(2, 66)}`;
-      transactionStatus.transactionHash = simulatedTxHash;
-      transactionStatus.status = 'confirmed';
-      transactionStatus.timestamp = new Date();
-      this.transactionStatuses.set(transactionId, transactionStatus);
-      
-      // Update in database
-      await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', simulatedTxHash);
-      
-      console.log(`[NebulaMCP] ✅ AUTO-EXECUTION: Transaction executed automatically`, {
-        transactionHash: simulatedTxHash,
-        transactionId
-      });
-      
-      const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${simulatedTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+      // Look for real transaction hash in API response
+      let realTxHash = null;
+      if (result.transaction_hash || result.txHash || result.hash) {
+        realTxHash = result.transaction_hash || result.txHash || result.hash;
+        console.log(`[NebulaMCP] ✅ REAL TRANSACTION FOUND:`, { realTxHash });
+        
+        transactionStatus.transactionHash = realTxHash;
+        transactionStatus.status = 'confirmed';
+        transactionStatus.timestamp = new Date();
+        this.transactionStatuses.set(transactionId, transactionStatus);
+        
+        await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
+        
+        const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
 
-      return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+        return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+      } else {
+        // No real transaction available - return error instead of fake data
+        console.log(`[NebulaMCP] ❌ NO REAL TRANSACTION: API did not return authentic blockchain transaction`);
+        
+        transactionStatus.status = 'failed';
+        transactionStatus.timestamp = new Date();
+        this.transactionStatuses.set(transactionId, transactionStatus);
+        
+        await this.updateTransactionStatusInDatabase(transactionId, 'failed');
+        
+        const errorMessage = `❌ Transaction preparation failed: Unable to execute on blockchain network.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - No authentic blockchain confirmation\n\nThe system cannot generate fake transaction data. Please check your wallet connection and try again.`;
+
+        return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+      }
       
     } catch (error) {
       console.error('[NebulaMCP] Transaction action processing failed:', error);

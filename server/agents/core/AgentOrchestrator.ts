@@ -114,7 +114,7 @@ export class AgentOrchestrator {
               response: 'How can I assist you today?'
             });
           }
-        }, 10000); // 10 second timeout for blockchain operations
+        }, 30000); // 30 second timeout for blockchain operations
         
         // Send message to companion handler
         this.messageBroker.publish('user_message', userMessage);

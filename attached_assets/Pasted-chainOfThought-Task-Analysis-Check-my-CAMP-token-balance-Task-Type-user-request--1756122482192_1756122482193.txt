@@ -1,0 +1,61 @@
+chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: nebula-mcp (confidence: 98.0%)',
+    'Selection Reasoning: Balance check detected - Nebula is the specialized balance agent with authentic data access',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+💰 [TaskOrchestrator] Injected wallet address for balance check: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message c60ca193-04b9-4b43-9242-a58b01cf39d2
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Nebula LLM {
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] 🎯 DEBUG: Routing ALL requests to Thirdweb AI chat endpoint { description: 'Check my CAMP token balance', hasWallet: true }
+[nebula-mcp] Processing with Thirdweb Nebula API {
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  description: 'Check my CAMP token balance'
+}
+[NebulaMCP] Processing with wallet context: {
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  userWalletAddress: '0x4bcf74e9...',
+  hasWalletAddress: true,
+  parametersReceived: [ 'address', 'walletAddress', 'userWallet', 'userId' ],
+  description: 'Check my CAMP token balance'
+}
+[NebulaMCP] Making request to Thirdweb AI API
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+11:47:09 AM [express] POST /api/agents/chat 200 in 10001ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  success: true,
+  resultLength: 486,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'ba1d4002-3789-4e3f-97cd-c7936df7a232',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '51579559-ffb4-459d-9066-578f1aac48a3',
+  messageType: 'agent_response',
+  responseLength: 486
+}
+Publishing message: companion_response from companion-handler to companion-handler

@@ -201,10 +201,15 @@ export class NebulaMCP extends BaseAgent {
       console.log(`[NebulaMCP] 🎯 DEBUG: Thirdweb AI response:`, {
         status: response.status,
         responseKeys: Object.keys(result),
-        resultSnippet: JSON.stringify(result).substring(0, 200)
+        resultSnippet: JSON.stringify(result).substring(0, 200),
+        fullResult: result
       });
       
       const answer = result.message || result.content || result.response || 'No response from Thirdweb AI.';
+      console.log(`[NebulaMCP] 🎯 DEBUG: Extracted answer:`, {
+        answerLength: answer.length,
+        answerPreview: answer.substring(0, 100)
+      });
       
       return this.createTaskResponse(taskId, true, answer);
       

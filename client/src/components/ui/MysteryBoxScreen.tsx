@@ -5,6 +5,7 @@ import { useRewards } from "../../lib/stores/useRewards";
 import { useAudio } from "../../lib/stores/useAudio";
 import { useNFTService, MysteryBoxReward } from "../../lib/nftService";
 import { MYSTERY_BOX_CONFIG } from "../../lib/thirdweb";
+import TransactionDetailsModal from "./TransactionDetailsModal";
 
 interface Reward extends MysteryBoxReward {
   rarity: 'common' | 'rare' | 'legendary';
@@ -16,6 +17,8 @@ export default function MysteryBoxScreen() {
   const [reward, setReward] = useState<Reward | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [canClaim, setCanClaim] = useState(true);
+  const [transactionDetails, setTransactionDetails] = useState<any>(null);
+  const [showTxModal, setShowTxModal] = useState(false);
   const account = useActiveAccount();
   const { setGamePhase } = useGameState();
   const { openMysteryBox, addTokenReward } = useRewards();
@@ -93,6 +96,12 @@ export default function MysteryBoxScreen() {
         playSuccess();
         setIsOpening(false);
         setCanClaim(false);
+        
+        // Show transaction details
+        if (typeof window !== 'undefined' && (window as any).lastTransactionDetails) {
+          setTransactionDetails((window as any).lastTransactionDetails);
+          setShowTxModal(true);
+        }
       }, 2000);
 
     } catch (err) {
@@ -232,6 +241,13 @@ export default function MysteryBoxScreen() {
             </div>
           </>
         )}
+        
+        {/* Transaction Details Modal */}
+        <TransactionDetailsModal
+          transaction={transactionDetails}
+          isOpen={showTxModal}
+          onClose={() => setShowTxModal(false)}
+        />
       </div>
     </div>
   );

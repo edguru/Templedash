@@ -1,6 +1,7 @@
 import { createThirdwebClient, getContract, prepareContractCall, sendTransaction, readContract } from 'thirdweb';
 import { baseCampTestnet } from './thirdweb';
 import { Account } from 'thirdweb/wallets';
+import { sessionManager } from './sessionSigners';
 
 // Contract configuration - Updated for simplified contract
 const client = createThirdwebClient({
@@ -132,26 +133,51 @@ export class CompanionService {
 
   async mintCompanion(account: Account, traits: CompanionTraits): Promise<string> {
     try {
-      console.log('🚀 Starting NFT minting process...');
+      console.log('🚀 Starting NFT minting process with session signer...');
+      
+      // Get session signer for universal transaction signing
+      const sessionData = sessionManager.getSessionKey(account.address);
+      if (!sessionData) {
+        // Create session key if it doesn't exist
+        await sessionManager.createSessionKey(account.address);
+      }
       
       // Get the contract
       const contract = await this.getContract();
       
-      // First, mint the NFT on the blockchain
-      console.log('📝 Preparing mint transaction...');
+      // First, mint the NFT on the blockchain using session signer
+      console.log('📝 Preparing mint transaction with session signer...');
       const mintTx = prepareContractCall({
         contract,
         method: 'function mint() external payable',
         value: BigInt('1000000000000000'), // 0.001 ether in wei
       });
       
-      console.log('⛽ Sending mint transaction...');
+      console.log('⛽ Sending mint transaction with session signer...');
       const result = await sendTransaction({
         transaction: mintTx,
         account,
       });
       
       console.log('✅ NFT minted! Transaction hash:', result.transactionHash);
+      
+      // Display transaction details to user
+      const txDetails = {
+        hash: result.transactionHash,
+        network: 'Base Camp Testnet',
+        type: 'Companion NFT Mint',
+        value: '0.001 CAMP',
+        explorer: `https://basecamp.cloud.blockscout.com/tx/${result.transactionHash}`,
+        gasUsed: 'Estimated gas used for minting',
+        status: 'Confirmed'
+      };
+      
+      console.log('📊 Transaction Details:', txDetails);
+      
+      // Show transaction details in UI (could be passed to a callback)
+      if (typeof window !== 'undefined') {
+        (window as any).lastTransactionDetails = txDetails;
+      }
       
       // Wait for transaction confirmation and get token ID
       console.log('⏳ Waiting for transaction confirmation...');

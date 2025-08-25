@@ -50,6 +50,7 @@ export class CompanionHandler extends BaseAgent {
   private chainOfThought: ChainOfThoughtEngine;
   private conversationContext: Map<string, ConversationContext> = new Map();
   private chatContextManager: ChatContextManager;
+  private pendingUserMessages: Map<string, { message: string; userContext: UserChatContext | null; timestamp: number }> = new Map();
   private openai: OpenAI;
   
   constructor(messageBroker: MessageBroker) {
@@ -127,6 +128,33 @@ export class CompanionHandler extends BaseAgent {
       fullResponse: response
     });
     
+    // Get the agent response message
+    const agentResponseMessage = message.payload.userFriendlyResponse || message.payload.result;
+    
+    // Save the agent response to conversation history if we have context
+    if (message.payload.sessionId && agentResponseMessage) {
+      const pendingMessage = this.pendingUserMessages.get(message.payload.sessionId);
+      if (pendingMessage) {
+        await this.saveCompleteConversationTurn(
+          message.payload.sessionId, 
+          pendingMessage.message, 
+          agentResponseMessage, 
+          pendingMessage.userContext
+        );
+        this.pendingUserMessages.delete(message.payload.sessionId);
+      } else {
+        // Fallback: save just the agent response if no pending message found
+        await this.chatContextManager.saveConversation({
+          sessionId: message.payload.sessionId,
+          userMessage: '[Task request]',
+          companionResponse: agentResponseMessage,
+          messageType: 'task',
+          taskExecuted: true,
+          executedByAgent: message.payload.agentName
+        });
+      }
+    }
+
     // Forward the response as a companion response to maintain the UI flow
     const companionResponse: AgentMessage = {
       type: 'companion_response',
@@ -135,11 +163,12 @@ export class CompanionHandler extends BaseAgent {
       senderId: this.agentId,
       targetId: message.targetId,
       payload: {
-        message: message.payload.userFriendlyResponse || message.payload.result,
+        message: agentResponseMessage,
         taskCompleted: true,
         executedBy: message.payload.agentName,
         chainOfThought: message.payload.chainOfThought,
-        companionName: this.companionTraits?.name
+        companionName: this.companionTraits?.name,
+        sessionId: message.payload.sessionId
       }
     };
 
@@ -315,7 +344,8 @@ export class CompanionHandler extends BaseAgent {
               payload: {
                 message: "I'll help you with that request. Let me get that information for you...",
                 taskRouted: true,
-                contextAware: false
+                contextAware: false,
+                sessionId: message.payload.context?.conversationId
               }
             };
           }
@@ -697,46 +727,56 @@ CURRENT TASK: Respond to user query while embodying all personality traits and m
     }
   }
 
-  // Save user message to database
-  private async saveUserMessage(sessionId: string, message: string, userContext: UserChatContext | null): Promise<void> {
+  // Save complete conversation turn (user message + companion response)
+  private async saveCompleteConversationTurn(sessionId: string, userMessage: string, companionResponse: string, userContext: UserChatContext | null): Promise<void> {
     try {
       // Skip if this is a temporary session ID (indicates error in user resolution)
       if (sessionId.startsWith('temp-session-')) {
-        this.logActivity('Skipping message save for temporary session', { sessionId });
+        this.logActivity('Skipping conversation save for temporary session', { sessionId });
         return;
       }
       
-      const sentiment = this.chatContextManager.analyzeSentiment(message);
+      const sentiment = this.chatContextManager.analyzeSentiment(userMessage);
       await this.chatContextManager.saveConversation({
         sessionId,
-        userMessage: message,
+        userMessage,
+        companionResponse,
         messageType: 'chat',
         sentiment
       });
+
+      this.logActivity('Saved complete conversation turn', { 
+        sessionId, 
+        userMessageLength: userMessage.length,
+        responseLength: companionResponse.length 
+      });
     } catch (error) {
-      console.error('[CompanionHandler] Failed to save user message:', error);
+      console.error('[CompanionHandler] Failed to save conversation turn:', error);
       // Don't throw - just log and continue
     }
   }
 
-  // Save companion response to database
+  // Legacy methods kept for compatibility but redirect to complete conversation saving
+  private async saveUserMessage(sessionId: string, message: string, userContext: UserChatContext | null): Promise<void> {
+    // Store the user message temporarily - we'll save the complete turn when we have the response
+    this.pendingUserMessages.set(sessionId, { message, userContext, timestamp: Date.now() });
+  }
+
   private async saveCompanionResponse(sessionId: string, response: string, userContext: UserChatContext | null): Promise<void> {
-    try {
-      // Skip if this is a temporary session ID (indicates error in user resolution)
-      if (sessionId.startsWith('temp-session-')) {
-        this.logActivity('Skipping response save for temporary session', { sessionId });
-        return;
-      }
-      
+    // Get the pending user message and save the complete conversation turn
+    const pendingMessage = this.pendingUserMessages.get(sessionId);
+    if (pendingMessage) {
+      await this.saveCompleteConversationTurn(sessionId, pendingMessage.message, response, userContext);
+      this.pendingUserMessages.delete(sessionId);
+    } else {
+      // Fallback: if no pending user message, just save the response (shouldn't happen in normal flow)
+      console.warn('[CompanionHandler] No pending user message found for session:', sessionId);
       await this.chatContextManager.saveConversation({
         sessionId,
-        userMessage: '', // This will be populated by the context manager
+        userMessage: '[Previous message]',
         companionResponse: response,
         messageType: 'chat'
       });
-    } catch (error) {
-      console.error('[CompanionHandler] Failed to save companion response:', error);
-      // Don't throw - just log and continue
     }
   }
 

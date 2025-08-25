@@ -1,0 +1,215 @@
+ChatContextManager] Updated session title {
+  sessionId: '77a62a2a-e452-4a67-9192-3d8e3a363629',
+  title: "What's the analysis of sol in..."
+}
+9:48:38 PM [express] PATCH /api/chat/sessions/77a62a2a-e452-4a67-9192-3d8e3a363629 200 in 758ms :: {…
+Processing user message from 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578: What's the analysis of sol in last 24 hours...
+Publishing message: user_message from undefined to broadcast
+[companion-handler] Processing companion message with chat context { type: 'user_message' }
+[companion-handler] AI intent analysis completed {
+  message: "What's the analysis of sol in last 24 hours",
+  isTask: true,
+  confidence: 0.9,
+  taskType: 'action_request'
+}
+[companion-handler] Routing task message to orchestrator {
+  message: "What's the analysis of sol in last 24 hours",
+  confidence: 0.9,
+  taskType: 'action_request',
+  reasoning: [
+    "The user is asking for an analysis of 'sol' which likely refers to a cryptocurrency.",
+    'The request specifies a time frame of the last 24 hours, indicating a need for data retrieval.',
+    'This involves accessing external data sources to provide the requested analysis, categorizing it as a task.'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: "What's the analysis of sol in last 24 hours",
+  userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578',
+  fullPayload: {
+    message: "What's the analysis of sol in last 24 hours",
+    userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578',
+    sessionId: 'c225f48a-2a32-47cb-92c4-d44f7dd3f543',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578',
+  taskType: 'user_request'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  type: 'user_request',
+  priority: 'low'
+}
+[task-tracker] Task registered {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578'
+}
+Publishing message: task_registered from task-tracker to broadcast
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: "What's the analysis of sol in last 24 hours",
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: "What's the analysis of sol in last 24 hours",
+  parameterKeys: []
+}
+[task-orchestrator] Added task to queue {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  priority: 'low',
+  queueSize: 1
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[task-analyzer] Updated network status 
+[task-tracker] Task state updated {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  category: 'user_request'
+}
+[TaskOrchestrator] Executing single-agent task acf2785e-576b-4bad-a4f7-7dc3084573c8 with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[BlockchainTaskRouter] AI-based analysis: {
+  task: "what's the analysis of sol in last 24 hours",
+  isBlockchainRelated: false,
+  networks: [ 'solana' ],
+  message: 'Pure AI agent selection - no hardcoded routing'
+}
+[IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'general',
+  suggestedAgent: undefined,
+  confidence: 0.3,
+  networks: [ 'solana' ],
+  reasoning: [ 'General task - no blockchain context detected' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: false,
+  networks: [ 'solana' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+[TaskOrchestrator] AI selected agent chaingpt-mcp for task acf2785e-576b-4bad-a4f7-7dc3084573c8 {
+  confidence: 0.2916999689623614,
+  reasoning: [ 'ChainGPTMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'general',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [],
+    needsExecution: true
+  },
+  chainOfThought: [
+    "Task Analysis: What's the analysis of sol in last 24 hours",
+    'Task Type: user_request, Priority: low',
+    'AI Selected Agent: chaingpt-mcp (confidence: 29.2%)',
+    'Selection Reasoning: ChainGPTMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Blockchain Research Analyst - Complex market analysis, research reports, and strategic blockchain intelligence',
+    'Success Rate: 93.0%',
+    'Average Latency: 3800ms'
+  ]
+}
+🧠 [TaskOrchestrator] Wallet determination result: {
+  taskDescription: "What's the analysis of sol in last 24 hours",
+  userWallet: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578',
+  targetWallet: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578',
+  operationType: 'read',
+  logMessage: 'Default operation using user wallet: 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578'
+}
+Publishing message: execute_task from task-orchestrator to chaingpt-mcp
+[UnifiedGoatAgent] blockchainKeywords not initialized, using fallback detection
+[DEBUG] UnifiedGoatAgent blockchain task check: {
+  description: "What's the analysis of sol in last 24 hours",
+  detectedKeywords: [],
+  isBlockchain: false,
+  targetId: 'chaingpt-mcp'
+}
+[research-agent] Processing research request { type: 'execute_task' }
+[ChainGPTMCP] Received execute_task message: acf2785e-576b-4bad-a4f7-7dc3084573c8
+[chaingpt-mcp] Processing with ChainGPT API {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  description: "What's the analysis of sol in last 24 hours"
+}
+[ChainGPTMCP] Making request to ChainGPT API {
+  url: 'https://api.chaingpt.org/chat/stream',
+  hasApiKey: true,
+  keyLength: 36,
+  requestBody: `{"model":"general_assistant","question":"What's the analysis of sol in last 24 hours","chatHistory":"off","useCustomContext":false}`
+}
+[research-agent] Executing research operation {
+  researchType: 'general_research',
+  scope: 'focused',
+  dataRequirements: [ 'general_data' ],
+  analysisDepth: 'surface',
+  timeframe: 'current',
+  sources: [
+    'industry_reports',
+    'market_data',
+    'public_apis',
+    'expert_analysis'
+  ]
+}
+[TaskOrchestrator] Agent performance update: chaingpt-mcp, task: user_request, success: true
+[AgentOrchestrator] ⏰ TIMEOUT - No response received in 30 seconds, using fallback
+9:49:09 PM [express] POST /api/agents/chat 200 in 30002ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 
+[ChainGPTMCP] API response status: 201
+[ChainGPTMCP] Raw API response length: 905
+[ChainGPTMCP] API response preview: Over the last 24 hours, Solana (SOL) has experienced a price of approximately **$187.75**, reflecting a decline of **8.42%**. The trading volume during this period was around **$12.8 billion**, with S
+Publishing message: task_step_complete from chaingpt-mcp to task-orchestrator
+[companion-handler] *** RECEIVED TASK COMPLETION *** {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  agentType: undefined,
+  success: true,
+  hasResult: true
+}
+Publishing message: companion_response from companion-handler to task-orchestrator
+[task-tracker] Task state updated {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  oldState: 'COMPLETED',
+  newState: 'COMPLETED',
+  userId: '0xd176F4C8ACeDfb20E6E81539f94c928a0A434578'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+Publishing message: task_complete from task-orchestrator to companion-handler
+Publishing message: task_result from task-orchestrator to broadcast
+[task-orchestrator] Task completed successfully {
+  taskId: 'acf2785e-576b-4bad-a4f7-7dc3084573c8',
+  result: 'Over the last 24 hours, Solana (SOL) has experienced a price of approximately **$187.75**, reflecting a decline of **8.42%**. The trading volume during this period was around **$12.8 billion**, with Solana currently ranked **6th** in market capitalization, which stands at about **$101.37 billion**.\n' +
+    '\n' +
+    '### Key Performance Metrics:\n' +
+    '- **Current Price:** $187.75\n' +
+    '- **24-Hour Price Change:** -8.42%\n' +
+    '- **24-Hour Trading Volume:** $12,803,449,673.71\n' +
+    '- **Market Cap:** $101,374,078,163.88\n' +
+    '- **Market Cap Dominance:** 2.6868%\n' +
+    '\n' +
+    '### Additional Insights:\n' +
+    '- Solana has a circulating supply of approximately **540.56 million SOL** out of a total supply of **608.33 million SOL**.\n' +
+    '- The price has seen fluctuations, with a notable drop from a recent high of around **$213.01**.\n' +
+    '\n' +
+    'For more detailed information, you can visit the [Solana website](https://solana.com) or check their [explorer](https://explorer.solana.com).'
+}
+[task-analyzer] Updated network statu

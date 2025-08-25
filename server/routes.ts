@@ -566,9 +566,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const agentSystem = new AgentSystem();
   console.log('Agent system initialized');
 
-  // Agent System API Routes
+  // Agent System API Routes with Extended Timeout
   app.post('/api/agents/chat', async (req: any, res) => {
     try {
+      // Set extended timeout for complex AI operations (2 minutes)
+      req.setTimeout(120000); // 2 minutes
+      res.setTimeout(120000); // 2 minutes
+      
       const { message, userId, walletAddress, conversationId = uuidv4() } = req.body;
       const effectiveUserId = walletAddress || userId || `temp_${Date.now()}`;
       
@@ -576,7 +580,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Missing message' });
       }
 
-      const response = await agentSystem.processUserMessage(effectiveUserId, message, conversationId, walletAddress);
+      console.log('[API Route] Processing agent chat message with extended timeout');
+      
+      // Add timeout promise wrapper to catch any hanging operations
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Agent processing timeout after 115 seconds')), 115000);
+      });
+      
+      const responsePromise = agentSystem.processUserMessage(effectiveUserId, message, conversationId, walletAddress);
+      
+      const response = await Promise.race([responsePromise, timeoutPromise]);
       
       res.json({
         success: true,
@@ -586,8 +599,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         conversationId
       });
     } catch (error) {
-      console.error('Agent chat error:', error);
-      res.status(500).json({ error: 'Failed to process message' });
+      console.error('[API Route] Agent chat error:', error);
+      
+      // Enhanced error response for timeouts
+      if ((error as any).message?.includes('timeout')) {
+        res.status(504).json({ 
+          error: 'Request timeout - operation taking longer than expected',
+          success: true,
+          response: 'Your request is being processed. Please check back in a moment or try rephrasing your request.',
+          timeout: true
+        });
+      } else {
+        res.status(500).json({ error: 'Failed to process message' });
+      }
     }
   });
 

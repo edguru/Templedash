@@ -217,20 +217,20 @@ EXECUTE this transaction - do not just prepare it. If this involves native curre
         }
       };
 
-      console.log('[NebulaMCP] Making request to /execute endpoint for transaction execution');
+      console.log('[NebulaMCP] Making request to Nebula /execute endpoint for transaction execution');
       
-      const response = await fetch('https://api.thirdweb.com/ai/execute', {
+      const response = await fetch('https://nebula-api.thirdweb.com/execute', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(60000)
+        signal: AbortSignal.timeout(120000) // 2 minutes for complex blockchain operations
       });
 
       if (!response.ok) {
-        throw new Error(`Thirdweb Execute API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`Nebula Execute API returned ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -380,18 +380,18 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
 
       console.log('[NebulaMCP] Making request to /chat endpoint for read operation');
       
-      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+      const response = await fetch('https://nebula-api.thirdweb.com/chat', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(60000) // Increased to 60 seconds for slow API responses
+        signal: AbortSignal.timeout(120000) // 2 minutes for complex blockchain operations
       });
 
       if (!response.ok) {
-        throw new Error(`Thirdweb Chat API returned ${response.status}: ${response.statusText}`);
+        throw new Error(`Nebula Chat API returned ${response.status}: ${response.statusText}`);
       }
 
       const result = await response.json();

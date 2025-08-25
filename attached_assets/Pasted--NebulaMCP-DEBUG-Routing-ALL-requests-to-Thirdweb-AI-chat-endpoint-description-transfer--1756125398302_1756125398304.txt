@@ -1,0 +1,85 @@
+[NebulaMCP] 🎯 DEBUG: Routing ALL requests to Thirdweb AI chat endpoint {
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f',
+  hasWallet: true
+}
+[nebula-mcp] Processing with Thirdweb Nebula API {
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE'
+}
+[NebulaMCP] Processing with wallet context: {
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  userWalletAddress: '0x4bcf74e9...',
+  hasWalletAddress: true,
+  parametersReceived: [],
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f'
+}
+[NebulaMCP] Making request to Thirdweb AI API
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+12:35:49 PM [express] POST /api/agents/chat 200 in 30001ms :: {"success":true,"response":"How can I a…
+[NebulaMCP] 🎯 DEBUG: Thirdweb AI response: {
+  status: 200,
+  responseKeys: [ 'message', 'actions', 'session_id', 'request_id' ],
+  resultSnippet: '{"message":"I\'ve prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet ([`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.com/123420001114/0x4bcf74e9',
+  fullResult: {
+    message: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet ([`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.com/123420001114/0x4bcf74e971E677e95b8bFB0980721557987119Ae)) to [`0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE`](https://thirdweb.com/123420001114/0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE).\n" +
+      '\n' +
+      '- **Amount**: 0.1 CAMP (100,000,000,000,000,000 base units)\n' +
+      '- **Sender**: [`0x4bcf74e971E677e95b8bFB0980721557987119Ae`](https://thirdweb.com/123420001114/0x4bcf74e971E677e95b8bFB0980721557987119Ae)\n' +
+      '- **Recipient**: [`0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE`](https://thirdweb.com/123420001114/0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE)\n' +
+      '- **Network**: Base Camp testnet (Chain ID: 123420001114)\n' +
+      '- **Current wallet balance**: 0.9068 CAMP (906,761,157,942,130,229 base units)\n' +
+      '- **Status**: Transfer transaction prepared and ready for execution\n' +
+      '\n' +
+      'If you need the unsigned transaction payload for manual signing or more details, let me know!\n',
+    actions: [ [Object] ],
+    session_id: '036d86a4-fc86-4866-837c-75386c5c4cc2',
+    request_id: '64ba9e62-e5db-4b52-9081-4f919f804e08'
+  }
+}
+[NebulaMCP] 🎯 DEBUG: Extracted and cleaned answer: {
+  rawLength: 994,
+  cleanedLength: 663,
+  rawPreview: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet ([`0",
+  cleanedPreview: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet (0x4"
+}
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  success: true,
+  resultLength: 663,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '090b96f4-bd12-47ca-b8d0-d1d07aabb50c',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  messageType: 'agent_response',
+  responseLength: 663
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  success: true,
+  fullResponse: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet (0x4bcf74e971E677e95b8bFB0980721557987119Ae) to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE. - **Amount**: 0.1 CAMP (100,000,000,000,000,000 base units)\n" +
+    '- **Sender**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Recipient**: 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Network**: Base Camp testnet (Chain ID: 123420001114)\n' +
+    '- **Current wallet balance**: 0.9068 CAMP (906,761,157,942,130,229 base units)\n' +
+    '- **Status**: Transfer transaction prepared and ready for execution If you need the unsigned transaction payload for manual signing or more details, let me know!'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'f8f6e791-15cf-4f58-b82b-9862b7dc8307',
+  responsePreview: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet (0x4bcf74e971E677e95b8bFB0980721557987119Ae) to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE. - **Amount**...",
+  fullResponse: "I've prepared the transfer of 0.1 CAMP (the native token on Base Camp testnet) from your wallet (0x4bcf74e971E677e95b8bFB0980721557987119Ae) to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE. - **Amount**: 0.1 CAMP (100,000,000,000,000,000 base units)\n" +
+    '- **Sender**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Recipient**: 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Network**: Base Camp testnet (Chain ID: 123420001114)\n' +
+    '- **Current wallet balance**: 0.9068 CAMP (906,761,157,942,130,229 base units)\n' +
+    '- **Status**: Transfer transaction prepared and ready for execution If you need the unsigned transaction payload for manual signing or more details, let me know!'
+}
+Publishing message: companion_response from companion-handler to companion-handler

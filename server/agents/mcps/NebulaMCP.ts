@@ -344,12 +344,20 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         operationType
       });
       
+      // 🚨 AUTH INVESTIGATION: Try both authorization methods
+      const authHeaders = {
+        'x-secret-key': this.thirdwebSecretKey,
+        'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+        'Content-Type': 'application/json'
+      };
+      
+      console.log(`[NebulaMCP] 🔐 AUTH DEBUG: Using both x-secret-key and Bearer token`);
+      console.log(`[NebulaMCP] 🔐 SECRET KEY EXISTS:`, !!this.thirdwebSecretKey);
+      console.log(`[NebulaMCP] 🔐 SECRET KEY PREFIX:`, this.thirdwebSecretKey?.substring(0, 10) + '...');
+      
       const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',
-        headers: {
-          'x-secret-key': this.thirdwebSecretKey,
-          'Content-Type': 'application/json'
-        },
+        headers: authHeaders,
         body: JSON.stringify(requestBody),
         signal: AbortSignal.timeout(120000) // 2 minutes for complex blockchain operations
       });
@@ -359,6 +367,17 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
       }
 
       const result = await response.json();
+      
+      // 🚨 CRITICAL DEBUG: Log full API response to identify authorization issues
+      console.log(`[NebulaMCP] 🔍 FULL API RESPONSE:`, JSON.stringify(result, null, 2));
+      console.log(`[NebulaMCP] 🔍 RESPONSE KEYS:`, Object.keys(result));
+      console.log(`[NebulaMCP] 🔍 AUTH CHECK - Looking for transaction hash:`, {
+        transaction_hash: result.transaction_hash,
+        txHash: result.txHash, 
+        hash: result.hash,
+        actions: result.actions?.length || 0,
+        message: result.message
+      });
       
       // Check if transaction was executed or needs processing
       if (result.actions && result.actions.length > 0) {
@@ -373,6 +392,15 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         
         const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${realTxHash}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+      }
+      
+      // 🚨 NO TRANSACTION HASH FOUND - This indicates authorization failure
+      if (isWriteOperation) {
+        console.log(`[NebulaMCP] ⚠️ AUTH ISSUE: Write operation claimed success but NO transaction hash found`);
+        console.log(`[NebulaMCP] 🔍 POSSIBLE AUTH PROBLEM: API response suggests auto execution failed silently`);
+        
+        // Try manual signing fallback since auto execution failed
+        return await this.tryManualSigningFallback(taskId, description, userWalletAddress, { id: taskId });
       }
       
       // Regular response (read operations or informational)

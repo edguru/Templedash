@@ -1,0 +1,35 @@
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'f764f280-749c-48fc-ba5b-0ba007d78514',
+  success: true,
+  fullResponse: 'The transfer of 0.1 CAMP has been executed on Base Camp testnet (chain ID: 123420001114): - **From**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **To**: 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Amount**: 0.1 CAMP (100,000,000,000,000,000 base units)\n' +
+    '- **Transaction ID**: 53e28d19-6b79-4e0e-b220-ff465844d09d The transaction has been auto-executed on the Base Camp testnet as instructed. Would you like the on-chain transaction hash or receipt details?'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'f764f280-749c-48fc-ba5b-0ba007d78514',
+  responsePreview: 'The transfer of 0.1 CAMP has been executed on Base Camp testnet (chain ID: 123420001114): - **From**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **To**: 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- ...',
+  fullResponse: 'The transfer of 0.1 CAMP has been executed on Base Camp testnet (chain ID: 123420001114): - **From**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **To**: 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Amount**: 0.1 CAMP (100,000,000,000,000,000 base units)\n' +
+    '- **Transaction ID**: 53e28d19-6b79-4e0e-b220-ff465844d09d The transaction has been auto-executed on the Base Camp testnet as instructed. Would you like the on-chain transaction hash or receipt details?'
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: 'f764f280-749c-48fc-ba5b-0ba007d78514',
+  targetId: undefined,
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to broadcast
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  taskCompleted: true,
+  message: 'The transfer of 0.1 CAMP has been executed on Base Camp testnet (chain ID: 123420001114): - **From**',
+  taskId: 'f764f280-749c-48fc-ba5b-0ba007d78514'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+11:12:38 PM [express] POST /api/agents/chat 200 in 32161ms :: {"success":true,"response":"The transfe…
+11:12:39 PM [express] GET /api/agents/tasks 200 in 0ms :: {"tasks":["f764f280-749c-48fc-ba5b-0ba007d7…

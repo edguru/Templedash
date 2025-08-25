@@ -189,11 +189,15 @@ export default function ChatThreads() {
 
   useEffect(() => {
     const handleResize = () => {
-      setShowSidebar(window.innerWidth >= 768);
+      // Only auto-open sidebar when transitioning from mobile to desktop
+      // Don't auto-close when going from desktop to mobile to preserve user intent
+      if (window.innerWidth >= 768 && !showSidebar) {
+        setShowSidebar(true);
+      }
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [showSidebar]);
 
   const checkSessionKey = () => {
     if (!account?.address) return;
@@ -560,10 +564,11 @@ export default function ChatThreads() {
                 key={thread.id}
                 onClick={() => {
                   setCurrentThreadId(thread.sessionId);
-                  // Close sidebar on mobile after selection
+                  // Only close sidebar on mobile after selection, keep open on desktop
                   if (window.innerWidth < 768) {
                     setShowSidebar(false);
                   }
+                  // On desktop (>= 768px), keep sidebar open
                 }}
                 className={`p-4 md:p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group touch-manipulation ${
                   thread.id === currentThreadId 

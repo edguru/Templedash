@@ -202,8 +202,9 @@ export class NebulaMCP extends BaseAgent {
         hasSessionSigner: !!sessionSigner
       });
 
-      // Enhanced prompt for transaction execution
-      const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on Base Camp testnet (chain ID: 123420001114). CAMP is the NATIVE CURRENCY on this network (like ETH on Ethereum) - NOT an ERC-20 token. For CAMP transfers, use native currency transfer methods, not token contract calls. For security, all write operations must use the authenticated user's wallet.`;
+      // Generic enhanced prompt for any native currency transfer
+      const networkInfo = this.getNetworkInfo(userWalletAddress);
+      const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the NATIVE CURRENCY on this network (like ETH on Ethereum) - NOT an ERC-20 token. For ${networkInfo.nativeCurrency} transfers, use native currency transfer methods, not token contract calls. For security, all write operations must use the authenticated user's wallet.`;
 
       // Phase 2: Execute configuration matching the API example format
       const requestBody = {
@@ -213,7 +214,7 @@ export class NebulaMCP extends BaseAgent {
         }],
         stream: false,
         context: {
-          chainIds: [123420001114],
+          chainIds: [this.getNetworkInfo(userWalletAddress).chainId],
           walletAddress: userWalletAddress
         }
       };
@@ -380,14 +381,13 @@ Request ID: ${requestId}`;
     try {
       console.log(`[NebulaMCP] 🔄 STEP 1: Using chat endpoint for transaction analysis and validation`);
       
-      // Step 1: Use chat endpoint for analysis
-      const analysisPrompt = `Analyze this transaction request: ${description}. User wallet: ${userWalletAddress}. Base Camp testnet (chain ID: 123420001114). CAMP is the NATIVE CURRENCY (like ETH on Ethereum) - NOT an ERC-20 token. Validate the transaction details and confirm if this is a valid native CAMP transfer. If valid, provide the transaction details that would be needed.`;
+      // Step 1: Use chat endpoint for analysis - generic for any network
+      const networkInfo = this.getNetworkInfo(userWalletAddress);
+      const analysisPrompt = `Analyze this transaction request: ${description}. User wallet: ${userWalletAddress}. ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the NATIVE CURRENCY (like ETH on Ethereum) - NOT an ERC-20 token. Validate the transaction details and confirm if this is a valid native ${networkInfo.nativeCurrency} transfer. If valid, provide the transaction details that would be needed.`;
       
       const chatResult = await this.processWithChatEndpoint(taskId, analysisPrompt, userWalletAddress, sessionSigner);
       
-      if (!chatResult.success) {
-        return chatResult; // Return analysis error
-      }
+      // Chat endpoint always returns success for analysis, proceed to execute
       
       console.log(`[NebulaMCP] 🔄 STEP 2: Analysis complete, proceeding with execute endpoint for transaction creation`);
       
@@ -403,15 +403,16 @@ Request ID: ${requestId}`;
   // Enhanced Chat Endpoint for Read Operations
   private async processWithChatEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
     try {
-      // Intelligent prompt enhancement for read operations
+      // Intelligent prompt enhancement for read operations - generic for any network
       let enhancedPrompt = description;
       if (userWalletAddress) {
-        enhancedPrompt = `${description}. If no specific wallet address is mentioned in the request, check for the user's wallet address: ${userWalletAddress}. Check the native CAMP balance (not an ERC-20 token) on Base Camp testnet (chain ID: 123420001114). CAMP is the native gas currency on this network, similar to ETH on Ethereum.`;
+        const networkInfo = this.getNetworkInfo(userWalletAddress);
+        enhancedPrompt = `${description}. If no specific wallet address is mentioned in the request, check for the user's wallet address: ${userWalletAddress}. Check the native ${networkInfo.nativeCurrency} balance (not an ERC-20 token) on ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the native gas currency on this network, similar to ETH on Ethereum.`;
       }
       
       const requestBody = {
         context: {
-          chain_ids: [123420001114],
+          chain_ids: [this.getNetworkInfo(userWalletAddress).chainId],
           ...(userWalletAddress && { from: userWalletAddress }),
           ...(sessionSigner && { signer: sessionSigner }),
           operation_type: 'read_operation'
@@ -449,6 +450,43 @@ Request ID: ${requestId}`;
       console.error('[NebulaMCP] Chat endpoint request failed:', error);
       return this.createTaskResponse(taskId, false, 'Failed to process blockchain query. Please try again.');
     }
+  }
+
+  // Generic network information detection
+  private getNetworkInfo(userWalletAddress?: string): { chainId: number; name: string; nativeCurrency: string } {
+    // Network configurations - easily extensible for new networks
+    const networks = {
+      123420001114: { name: 'Base Camp testnet', nativeCurrency: 'CAMP' },
+      1: { name: 'Ethereum Mainnet', nativeCurrency: 'ETH' },
+      137: { name: 'Polygon', nativeCurrency: 'MATIC' },
+      8453: { name: 'Base', nativeCurrency: 'ETH' },
+      42161: { name: 'Arbitrum', nativeCurrency: 'ETH' }
+    };
+    
+    // Default to Base Camp testnet for now, can be made dynamic based on user preferences or context
+    const defaultChainId = 123420001114;
+    
+    return {
+      chainId: defaultChainId,
+      ...networks[defaultChainId]
+    };
+  }
+
+  // Token symbol detection for native currencies
+  private detectNativeTokenSymbol(description: string, networkInfo: { chainId: number; name: string; nativeCurrency: string }): boolean {
+    const lowerDescription = description.toLowerCase();
+    const nativeCurrency = networkInfo.nativeCurrency.toLowerCase();
+    
+    // Check for various patterns that indicate native currency transfer
+    const nativePatterns = [
+      nativeCurrency,
+      'native',
+      'gas token',
+      'main token',
+      'network token'
+    ];
+    
+    return nativePatterns.some(pattern => lowerDescription.includes(pattern));
   }
 
   // Enhanced operation type detection

@@ -35,7 +35,7 @@ html, body {
 }
 
 /* Enhanced mobile chat optimizations */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .chat-scroll-area {
     height: calc(100vh - 160px);
     height: calc(100dvh - 160px);
@@ -48,6 +48,16 @@ html, body {
     left: 0;
     right: 0;
     z-index: 10;
+  }
+  
+  /* Prevent chat list from vanishing on mobile when sending messages */
+  .mobile-sidebar-fix {
+    transform: translateX(0) !important;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .mobile-sidebar-hidden {
+    transform: translateX(-100%) !important;
   }
 }
 

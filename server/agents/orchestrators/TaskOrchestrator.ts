@@ -449,7 +449,8 @@ export class TaskOrchestrator extends BaseAgent {
     
     // For blockchain operations, inject appropriate wallet address using intelligent determination
     if (this.isBlockchainOperation(selectedAgent.capability.capabilityName, task.type)) {
-      const walletInfo = this.determineWalletAddress(task.description, task.userId);
+      const messageWalletAddress = (task as any)?.walletAddress || (task as any)?.parameters?.walletAddress;
+      const walletInfo = this.determineWalletAddress(task.description, task.userId, messageWalletAddress);
       
       if (walletInfo.targetWallet) {
         enhancedParameters = {
@@ -524,8 +525,9 @@ export class TaskOrchestrator extends BaseAgent {
     // Prepare parameters with intelligent wallet address injection for blockchain operations
     let enhancedParameters = task.parameters || {};
     
-    // Intelligent wallet address handling
-    const walletInfo = this.determineWalletAddress(task.description, task.userId);
+    // Intelligent wallet address handling - extract walletAddress from task context
+    const messageWalletAddress = (task as any)?.walletAddress || (task as any)?.parameters?.walletAddress;
+    const walletInfo = this.determineWalletAddress(task.description, task.userId, messageWalletAddress);
     
     console.log(`🧠 [TaskOrchestrator] Wallet determination result:`, {
       taskDescription: task.description,
@@ -595,14 +597,15 @@ export class TaskOrchestrator extends BaseAgent {
     }
   }
 
-  // Intelligent wallet address determination
-  private determineWalletAddress(description: string, userId: string): {
+  // Intelligent wallet address determination  
+  private determineWalletAddress(description: string, userId: string, walletAddress?: string): {
     targetWallet: string;
     userWallet: string;
     operationType: 'read' | 'write';
     logMessage: string;
   } {
-    const userWallet = userId && userId.startsWith('0x') ? userId : '';
+    // Priority: use walletAddress parameter first, then userId if it's a valid address
+    const userWallet = walletAddress || (userId && userId.startsWith('0x') ? userId : '');
     
     // Extract wallet address from description using regex
     const walletRegex = /0x[a-fA-F0-9]{40}/g;

@@ -38,6 +38,7 @@ export default function ChatThreads() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [currentThreadId, setCurrentThreadId] = useState<string>('');
   const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // Desktop: open, Mobile: closed by default
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
   const [inputValue, setInputValue] = useState('');
@@ -78,6 +79,20 @@ export default function ChatThreads() {
       checkSessionKey();
     }
   }, [account]);
+
+  // Handle window resize for mobile/desktop detection
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile && !showSidebar) {
+        setShowSidebar(true); // Always show sidebar on desktop
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [showSidebar]);
 
   const initializeUser = async () => {
     if (!account?.address) return;
@@ -496,9 +511,9 @@ export default function ChatThreads() {
       {/* Sidebar - Thread List */}
       <div className={`${
         showSidebar ? 'w-80 md:w-80' : 'w-0 md:w-0'
-      } ${window.innerWidth < 768 ? 'fixed left-0 top-0 h-full z-50' : 'relative'} 
+      } ${isMobile ? 'fixed left-0 top-0 h-full z-50' : 'relative'} 
       transition-all duration-300 bg-white/90 backdrop-blur-sm border-r border-indigo-200/50 flex flex-col shadow-lg md:shadow-none
-      ${showSidebar ? 'overflow-visible' : 'overflow-hidden'}`}>
+      ${showSidebar ? 'overflow-visible mobile-sidebar-fix' : 'overflow-hidden mobile-sidebar-hidden'}`}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-indigo-200/50">
           <div className="flex items-center justify-between mb-4">

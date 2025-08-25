@@ -99,6 +99,27 @@ export class CompanionHandler extends BaseAgent {
       fullResponse: response
     });
     
+    // Check if this is a write operation that needs execution verification
+    const isWriteOperation = this.isWriteOperation(response);
+    const isExecuted = this.isTaskExecuted(response);
+    
+    if (isWriteOperation && !isExecuted) {
+      console.log(`[CompanionHandler] ⏳ WRITE OPERATION NOT EXECUTED - Waiting for execution confirmation`, {
+        taskId: message.payload.taskId,
+        agentName: message.payload.agentName,
+        isWriteOperation,
+        isExecuted
+      });
+      
+      // Store the response but don't send to user yet
+      // TODO: Implement a pending responses system that waits for execution confirmation
+      this.logActivity('Write operation pending execution - response delayed', {
+        taskId: message.payload.taskId,
+        agentName: message.payload.agentName
+      });
+      return;
+    }
+    
     // Log the cleaned response that will be sent to user
     console.log(`[CompanionHandler] 📤 RESPONSE TO USER:`, {
       taskId: message.payload.taskId,
@@ -123,6 +144,46 @@ export class CompanionHandler extends BaseAgent {
     };
 
     await this.sendMessage(companionResponse);
+  }
+
+  private isWriteOperation(response: string): boolean {
+    if (!response) return false;
+    
+    const writeIndicators = [
+      'transfer', 'send', 'swap', 'execute', 'transaction', 
+      'prepared', 'unsigned', 'manual signing', 'broadcast'
+    ];
+    
+    const lowerResponse = response.toLowerCase();
+    return writeIndicators.some(indicator => lowerResponse.includes(indicator));
+  }
+
+  private isTaskExecuted(response: string): boolean {
+    if (!response) return false;
+    
+    const executionIndicators = [
+      'transaction hash:', 'tx hash:', 'executed successfully',
+      'confirmed', 'transaction id:', 'completed successfully'
+    ];
+    
+    const preparationIndicators = [
+      'prepared', 'unsigned transaction', 'manual signing',
+      'sign and broadcast', 'transaction prepared'
+    ];
+    
+    const lowerResponse = response.toLowerCase();
+    
+    // Check for execution confirmation
+    const hasExecutionConfirmation = executionIndicators.some(indicator => 
+      lowerResponse.includes(indicator)
+    );
+    
+    // Check for preparation only (not executed)
+    const isOnlyPrepared = preparationIndicators.some(indicator => 
+      lowerResponse.includes(indicator)
+    ) && !hasExecutionConfirmation;
+    
+    return hasExecutionConfirmation && !isOnlyPrepared;
   }
 
   private async handleTaskCompletion(message: AgentMessage): Promise<void> {

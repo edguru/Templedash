@@ -1,0 +1,51 @@
+   complexity: 'simple',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'balance_check', 'authentic_data_access' ]
+  },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: nebula-mcp (confidence: 98.0%)',
+    'Selection Reasoning: Balance check detected - Nebula is the specialized balance agent with authentic data access',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+🧠 [TaskOrchestrator] Wallet determination result: {
+  taskDescription: 'Check my CAMP token balance',
+  userWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  targetWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  operationType: 'read',
+  logMessage: 'Read operation using user wallet: 0x4bcf74e971E677e95b8bFB0980721557987119Ae (no specific wallet mentioned)'
+}
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message df8fb8e2-02f6-4fca-ac58-1894017d1a80
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: 'c05f6c88-9434-41bd-bead-5361d96f73e2',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Enhanced Nebula Execute System {
+  taskId: 'c05f6c88-9434-41bd-bead-5361d96f73e2',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: 'c05f6c88-9434-41bd-bead-5361d96f73e2',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'read',
+  parametersReceived: [],
+  description: 'Check my CAMP token balance'
+}
+[NebulaMCP] 📖 READ OPERATION: Using chat endpoint for blockchain queries
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+3:22:50 PM [express] POST /api/agents/chat 200 in 30001ms :: {"success":true,"response":"How can I a…
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'c05f6c88-9434-41bd-bead-5361d96f73e2',
+  success: true,

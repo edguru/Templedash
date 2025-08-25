@@ -1,0 +1,199 @@
+reasoning: [
+    "step1: The message includes a command to 'transfer', which indicates an action request.",
+    "step2: The message specifies an amount '0.1 camp' and a destination address '0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE', which are typical components of a blockchain transaction.",
+    'step3: The structure and content of the message align with a request for a blockchain operation, confirming it as a task.'
+  ]
+}
+Publishing message: analyze_task from companion-handler to task-orchestrator
+[task-orchestrator] Handling message { type: 'analyze_task' }
+[TaskOrchestrator] Processing analyze_task: {
+  userMessage: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  fullPayload: {
+    message: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+    context: {
+      hasCompanion: false,
+      companionName: undefined,
+      personalityGreeting: 'Hello'
+    }
+  }
+}
+[TaskOrchestrator] Task created: {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  taskType: 'user_request'
+}
+[task-orchestrator] Creating task from user message {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  type: 'user_request',
+  priority: 'medium'
+}
+[task-tracker] Task registered {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_registered from task-tracker to broadcast
+[task-analyzer] Analyzing task { type: 'analyze_task' }
+[task-analyzer] Applying detailed system prompt analysis {
+  category: undefined,
+  priority: undefined,
+  userMessage: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  systemPromptLength: 2627
+}
+[task-analyzer] Checking task feasibility with enhanced analysis {
+  category: undefined,
+  userMessage: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  parameterKeys: []
+}
+[task-orchestrator] Added task to queue {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  priority: 'medium',
+  queueSize: 1
+}
+[task-analyzer] Comprehensive task analysis completed {
+  feasible: true,
+  stepsGenerated: 1,
+  securityLevel: 'medium',
+  estimatedCost: 0.001,
+  approvalRequired: false
+}
+Publishing message: task_analysis from task-analyzer to companion-handler
+[task-tracker] Task state updated {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  oldState: 'RUNNING',
+  newState: 'RUNNING',
+  userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+}
+Publishing message: task_state_changed from task-tracker to broadcast
+[task-orchestrator] Executing task with intelligent delegation {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  category: 'user_request'
+}
+[TaskOrchestrator] Executing single-agent task c6e06f8f-da72-4a31-bb6b-15c4e20934d2 with intelligent AI selection
+[IntelligentAgentSelector] Routing to TASK agents using RAG selection
+[BlockchainTaskRouter] AI-based analysis: {
+  task: 'transfer 0.1 camp to 0x390ab4d6642b525c6af166f507f0ac85d4c53dce',
+  isBlockchainRelated: false,
+  networks: [ 'camp' ],
+  message: 'Pure AI agent selection - no hardcoded routing'
+}
+[IntelligentAgentSelector] Blockchain task analysis: {
+  taskType: 'general',
+  suggestedAgent: undefined,
+  confidence: 0.3,
+  networks: [ 'camp' ],
+  reasoning: [ 'General task - no blockchain context detected' ]
+}
+[IntelligentAgentSelector] Pure AI selection request: {
+  isPureAI: true,
+  blockchainContext: false,
+  networks: [ 'camp' ],
+  message: 'Using pure AI intelligence for agent selection'
+}
+[TaskOrchestrator] AI selected agent nebula-mcp for task c6e06f8f-da72-4a31-bb6b-15c4e20934d2 {
+  confidence: 0.31360889108498746,
+  reasoning: [ 'NebulaMCP matched based on capabilities and use cases' ],
+  taskAnalysis: {
+    category: 'general',
+    complexity: 'moderate',
+    estimatedDuration: 'short',
+    requiredCapabilities: [ 'token_transfer' ],
+    needsExecution: true
+  },
+  chainOfThought: [
+    'Task Analysis: transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+    'Task Type: user_request, Priority: medium',
+    'AI Selected Agent: nebula-mcp (confidence: 31.4%)',
+    'Selection Reasoning: NebulaMCP matched based on capabilities and use cases',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+🧠 [TaskOrchestrator] Wallet determination result: {
+  taskDescription: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  userWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  targetWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  operationType: 'write',
+  logMessage: "Write operation detected - using user wallet: 0x4bcf74e971E677e95b8bFB0980721557987119Ae (security: always use user's wallet for transactions)"
+}
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message b2e942a1-2d3b-47a0-a1a8-dc7759311955
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Enhanced Nebula Execute System {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'write',
+  parametersReceived: [],
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f'
+}
+[NebulaMCP] 🚀 PHASE 1 & 2: Routing WRITE operation to /execute endpoint with unsigned tx config
+[nebula-mcp] PHASE 1 & 2: Using /execute endpoint with unsigned transaction configuration {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  description: 'transfer 0.1 camp to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+  hasSessionSigner: false
+}
+[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint {
+  endpoint: '/execute',
+  hasExecuteConfig: true,
+  userWallet: '0x4bcf74e9...'
+}
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+[NebulaMCP] Execute endpoint request failed: Error: Thirdweb Execute API returned 400: Bad Request
+    at NebulaMCP.processWithExecuteEndpoint (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:241:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NebulaMCP.processWithNebulaLLM (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:184:16)
+    at async NebulaMCP.handleMessage (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:127:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:59:24)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  success: false,
+  resultLength: 59,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '5b2dffbf-3fd3-4ab7-a5ec-704733298ce5',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  messageType: 'agent_response',
+  responseLength: 59
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  success: false,
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'c6e06f8f-da72-4a31-bb6b-15c4e20934d2',
+  responsePreview: 'Failed to execute blockchain transaction. Please try again....',
+  fullResponse: 'Failed to execute blockchain transaction. Please try again.'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: 'Failed to execute blockchain transaction. Please try again.'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+2:10:01 PM [express] POST /api/agents/chat 200 in 16928ms :: {"success":true,"response":"Failed to e…
+[task-analyzer] Upda

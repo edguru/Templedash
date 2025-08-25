@@ -207,27 +207,38 @@ export class NebulaMCP extends BaseAgent {
 
       // Phase 2: Execute configuration for unsigned transaction returns
       const requestBody = {
-        message: enhancedPrompt,
-        stream: false,
-        session_id: uuidv4(),
         context: {
-          chainIds: ['123420001114'],
-          walletAddress: userWalletAddress
+          chain_ids: [123420001114], // Use numbers instead of strings and correct field name
+          from: userWalletAddress,
+          operation_type: 'write_operation'
         },
+        messages: [{
+          role: 'user',
+          content: enhancedPrompt
+        }],
+        stream: false,
         // PHASE 2: Execute configuration for unsigned transaction returns
         execute_config: {
           mode: "client",
-          signer_wallet_address: userWalletAddress
+          signer_wallet_address: userWalletAddress,
+          return_unsigned_transactions: true
         }
       };
 
       console.log(`[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint`, {
         endpoint: '/execute',
         hasExecuteConfig: true,
-        userWallet: userWalletAddress?.slice(0, 10) + '...'
+        userWallet: userWalletAddress?.slice(0, 10) + '...',
+        requestBodyStructure: {
+          hasContext: !!requestBody.context,
+          hasMessages: !!requestBody.messages,
+          hasExecuteConfig: !!requestBody.execute_config,
+          chainIds: requestBody.context?.chain_ids,
+          fromAddress: requestBody.context?.from?.slice(0, 10) + '...'
+        }
       });
       
-      const response = await fetch('https://nebula-api.thirdweb.com/execute', {
+      const response = await fetch('https://api.thirdweb.com/ai/execute', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,
@@ -238,7 +249,15 @@ export class NebulaMCP extends BaseAgent {
       });
 
       if (!response.ok) {
-        throw new Error(`Thirdweb Execute API returned ${response.status}: ${response.statusText}`);
+        let errorMessage = `Thirdweb Execute API returned ${response.status}: ${response.statusText}`;
+        try {
+          const errorBody = await response.text();
+          console.error(`[NebulaMCP] Execute API Error Response:`, errorBody);
+          errorMessage += ` - ${errorBody}`;
+        } catch (e) {
+          console.error(`[NebulaMCP] Could not read error response body`);
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();

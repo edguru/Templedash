@@ -212,7 +212,6 @@ export class NebulaMCP extends BaseAgent {
           content: enhancedPrompt
         }],
         stream: false,
-        session_id: uuidv4(),
         context: {
           chainIds: [123420001114],
           walletAddress: userWalletAddress
@@ -227,7 +226,6 @@ export class NebulaMCP extends BaseAgent {
           hasMessages: !!requestBody.messages,
           messagesLength: requestBody.messages?.length,
           hasContext: !!requestBody.context,
-          hasSessionId: !!requestBody.session_id,
           stream: requestBody.stream,
           contextType: typeof requestBody.context
         }

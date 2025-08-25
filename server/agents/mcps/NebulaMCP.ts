@@ -190,7 +190,7 @@ export class NebulaMCP extends BaseAgent {
 
 
   // Phase 3 & 4: Process unsigned transactions and implement monitoring
-  private async processTransactionActions(taskId: string, result: any, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
+  private async processTransactionActions(taskId: string, result: any, userWalletAddress: string, sessionSigner: any, description?: string): Promise<AgentMessage> {
     try {
       console.log(`[NebulaMCP] 🔐 PHASE 3 & 4: Processing unsigned transactions with session signer`);
       
@@ -261,52 +261,9 @@ export class NebulaMCP extends BaseAgent {
             
             return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
           } else {
-            // Try session key signing if available
-            if (sessionSigner && sessionSigner.privateKey) {
-              console.log(`[NebulaMCP] 🔐 Session signer available - attempting manual execution`);
-              
-              try {
-                // Here you would implement actual session key signing
-                // For now, we'll prepare the transaction but require real implementation
-                console.log(`[NebulaMCP] 🔑 Session key signing not yet implemented - preparing transaction`);
-                
-                transactionStatus.status = 'pending';
-                transactionStatus.timestamp = new Date();
-                this.transactionStatuses.set(transactionId, transactionStatus);
-                
-                await this.updateTransactionStatusInDatabase(transactionId, 'pending');
-                
-                const pendingMessage = `⚠️ Transaction prepared but requires signature implementation.\n\n📝 **Transaction ID:** ${transactionId}\n⏳ **Status:** Pending - Session key signing needs implementation\n\nTransaction data available for manual signing.`;
-                
-                return this.createTaskResponse(taskId, false, this.cleanResponseFormat(pendingMessage));
-                
-              } catch (signingError) {
-                console.error(`[NebulaMCP] Session key signing failed:`, signingError);
-                
-                transactionStatus.status = 'failed';
-                transactionStatus.timestamp = new Date();
-                this.transactionStatuses.set(transactionId, transactionStatus);
-                
-                await this.updateTransactionStatusInDatabase(transactionId, 'failed');
-                
-                const errorMessage = `❌ Session key signing failed.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Unable to sign with session key\n\nPlease try again or use manual wallet signing.`;
-                
-                return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
-              }
-            } else {
-              // No session signer available and auto execution failed
-              console.log(`[NebulaMCP] ❌ NO EXECUTION METHOD: Auto execution failed and no session signer available`);
-              
-              transactionStatus.status = 'failed';
-              transactionStatus.timestamp = new Date();
-              this.transactionStatuses.set(transactionId, transactionStatus);
-              
-              await this.updateTransactionStatusInDatabase(transactionId, 'failed');
-              
-              const errorMessage = `❌ Transaction execution failed: No execution method available.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - Auto execution failed and no session key available\n\nPlease connect your wallet and try again.`;
-              
-              return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
-            }
+            // Auto execution failed - try manual signing fallback
+            console.log(`[NebulaMCP] 🔄 Auto execution failed - attempting manual signing fallback`);
+            return await this.tryManualSigningFallback(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus);
           }
         }
       }
@@ -331,18 +288,9 @@ export class NebulaMCP extends BaseAgent {
 
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       } else {
-        // No real transaction available - return error instead of fake data
-        console.log(`[NebulaMCP] ❌ NO REAL TRANSACTION: API did not return authentic blockchain transaction`);
-        
-        transactionStatus.status = 'failed';
-        transactionStatus.timestamp = new Date();
-        this.transactionStatuses.set(transactionId, transactionStatus);
-        
-        await this.updateTransactionStatusInDatabase(transactionId, 'failed');
-        
-        const errorMessage = `❌ Transaction preparation failed: Unable to execute on blockchain network.\n\n📝 **Transaction ID:** ${transactionId}\n⚠️ **Status:** Failed - No authentic blockchain confirmation\n\nThe system cannot generate fake transaction data. Please check your wallet connection and try again.`;
-
-        return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+        // Auto execution failed - try manual signing fallback
+        console.log(`[NebulaMCP] 🔄 Auto execution failed - attempting manual signing fallback`);
+        return await this.tryManualSigningFallback(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus);
       }
       
     } catch (error) {
@@ -415,7 +363,7 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
       // Check if transaction was executed or needs processing
       if (result.actions && result.actions.length > 0) {
         console.log(`[NebulaMCP] 📦 Received transaction actions - processing with session key fallback`);
-        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner);
+        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner, description);
       } 
       
       // Check for direct transaction hash (successful auto execution)
@@ -439,6 +387,84 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
     }
   }
 
+
+  // Manual signing fallback when auto execution fails
+  private async tryManualSigningFallback(taskId: string, description: string, userWalletAddress: string, transactionStatus: any): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] 📝 Manual signing fallback - requesting transaction payload`);
+      
+      // Modified prompt to request unsigned transaction payload
+      const manualSigningPrompt = `${description}. User wallet address: ${userWalletAddress}. 
+
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network.
+
+DO NOT execute this transaction. Instead, please prepare the unsigned transaction payload and return the transaction data that needs to be signed manually. Provide the transaction details including:
+- Transaction data (to, value, data, gas, gasPrice)
+- Network details (chainId, nonce)
+- Raw transaction payload for manual signing
+
+The user will sign this transaction manually in their wallet.`;
+
+      const requestBody = {
+        context: {
+          from: userWalletAddress,
+          chain_ids: [123420001114],
+          auto_execute_transactions: false, // Explicitly disable auto execution
+          prepare_transaction: true // Request transaction preparation only
+        },
+        messages: [{
+          role: 'user',
+          content: manualSigningPrompt
+        }],
+        stream: false
+      };
+
+      console.log('[NebulaMCP] 📝 Making request for manual signing payload');
+      
+      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+        method: 'POST',
+        headers: {
+          'x-secret-key': this.thirdwebSecretKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(120000)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Manual signing request failed: ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Update transaction status to pending manual signature
+      transactionStatus.status = 'pending';
+      transactionStatus.timestamp = new Date();
+      this.transactionStatuses.set(transactionStatus.id, transactionStatus);
+      await this.updateTransactionStatusInDatabase(transactionStatus.id, 'pending');
+      
+      // Format response for manual signing
+      const rawResponse = result.message || result.content || result.response || 'Transaction payload prepared.';
+      
+      const manualSigningMessage = `📝 **Manual Signing Required**\n\nAuto execution failed. Please sign this transaction manually in your wallet:\n\n${rawResponse}\n\n📝 **Transaction ID:** ${transactionStatus.id}\n⏳ **Status:** Pending manual signature\n\n⚠️ Please copy the transaction data above and sign it in your wallet, then submit the signed transaction.`;
+      
+      console.log(`[NebulaMCP] 📝 Manual signing payload prepared for user`);
+      return this.createTaskResponse(taskId, true, this.cleanResponseFormat(manualSigningMessage));
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Manual signing fallback failed:', error);
+      
+      // Update transaction status to failed
+      transactionStatus.status = 'failed';
+      transactionStatus.timestamp = new Date();
+      this.transactionStatuses.set(transactionStatus.id, transactionStatus);
+      await this.updateTransactionStatusInDatabase(transactionStatus.id, 'failed');
+      
+      const errorMessage = `❌ Transaction failed: Both auto execution and manual signing preparation failed.\n\n📝 **Transaction ID:** ${transactionStatus.id}\n⚠️ **Status:** Failed\n\nPlease try again or check your wallet connection.`;
+      
+      return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+    }
+  }
 
   // Enhanced operation type detection
   private detectOperationType(description: string): 'read' | 'write' {

@@ -1,0 +1,71 @@
+chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: nebula-mcp (confidence: 98.0%)',
+    'Selection Reasoning: Balance check detected - Nebula is the specialized balance agent with authentic data access',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+💰 [TaskOrchestrator] Injected wallet address for balance check: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message fb083193-ef2e-4e7b-9f62-dfb20aa04b8f
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Nebula LLM {
+  taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] 🤔 DEBUG: Is balance check? {
+  isBalance: true,
+  description: 'Check my CAMP token balance',
+  matchedKeywords: [ 'balance', 'camp token', 'token balance' ]
+}
+[NebulaMCP] ➡️ DEBUG: Routing to balance check handler
+[NebulaMCP] 💰 DEBUG: Starting balance check {
+  taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe',
+  description: 'Check my CAMP token balance',
+  walletAddress: '0x4bcf74e9...',
+  hasWalletAddress: true
+}
+[NebulaMCP] 🔍 DEBUG: Fetching CAMP balance for wallet: 0x4bcf74e971E677e95b8bFB0980721557987119Ae
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[NebulaMCP] 📊 DEBUG: Balance fetch result { success: true, balance: '0.000', error: undefined }
+[NebulaMCP] ✅ DEBUG: Successfully retrieved balance: 0.000 CAMP
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe',
+  success: true,
+  resultLength: 627,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] ✅ DEBUG: Created successful task response { taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe', responseLength: 627 }
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'b0f050b3-4eb5-45f2-b9bb-800b51c26794',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'bfd02e87-8d41-4832-b826-d862a75486fe',
+  messageType: 'agent_response',
+  responseLength: 627
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  message: '💰 **Your CAMP Token Balance:**\n' +
+    '        \n' +
+    '🔗 **Wallet:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '\ud83d'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+9:58:45 AM [express] POST /api/agents/chat 200 in 9723ms :: {"success":true,"response":"💰 **Your CA…

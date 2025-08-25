@@ -143,8 +143,9 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
 
   private async fetchCAMPBalance(walletAddress: string): Promise<{ success: boolean; balance?: string; error?: string }> {
     try {
-      // Use the Base Camp Blockscout API for authentic balance data
-      const response = await fetch(`https://basecamp.cloud.blockscout.com/api/v2/addresses/${walletAddress}/tokens`, {
+      // CAMP is the native token, so fetch from main address endpoint, not tokens
+      console.log(`[NebulaMCP] 🔍 DEBUG: Fetching native CAMP balance from address endpoint`);
+      const response = await fetch(`https://basecamp.cloud.blockscout.com/api/v2/addresses/${walletAddress}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json'
@@ -157,10 +158,14 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
       }
 
       const data = await response.json();
+      console.log(`[NebulaMCP] 📊 DEBUG: API response received`, {
+        hasCoinBalance: !!data.coin_balance,
+        coinBalance: data.coin_balance,
+        addressHash: data.hash?.substring(0, 10) + '...'
+      });
       
-      // Look for CAMP token or native balance
-      const campBalance = this.extractCAMPBalance(data);
-      // USD calculation removed - handled by AI agents now
+      // Extract native CAMP balance from coin_balance field
+      const campBalance = this.extractNativeCAMPBalance(data);
 
       return {
         success: true,
@@ -175,23 +180,22 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
     }
   }
 
-  private extractCAMPBalance(data: any): string {
-    // CAMP is the native token on Base Camp testnet
-    if (data.items && Array.isArray(data.items)) {
-      // Look for CAMP token in the list
-      const campToken = data.items.find((token: any) => 
-        token.token?.symbol === 'CAMP' || 
-        token.token?.name?.toLowerCase().includes('camp')
-      );
-      
-      if (campToken) {
-        const balance = campToken.value || '0';
-        const decimals = campToken.token?.decimals || 18;
-        return this.formatBalance(balance, decimals);
-      }
+  private extractNativeCAMPBalance(data: any): string {
+    // CAMP is the native token on Base Camp testnet - check coin_balance field
+    console.log(`[NebulaMCP] 🔍 DEBUG: Extracting native CAMP balance`, {
+      hasCoinBalance: !!data.coin_balance,
+      coinBalanceRaw: data.coin_balance
+    });
+    
+    if (data.coin_balance) {
+      // Native CAMP balance is in wei (18 decimals)
+      const balance = data.coin_balance;
+      const formattedBalance = this.formatBalance(balance, 18);
+      console.log(`[NebulaMCP] ✅ DEBUG: Formatted balance: ${formattedBalance} CAMP`);
+      return formattedBalance;
     }
     
-    // Fallback to checking native balance or return 0
+    console.log(`[NebulaMCP] ⚠️ DEBUG: No coin_balance found, returning 0.000`);
     return '0.000';
   }
 

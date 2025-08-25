@@ -237,11 +237,12 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
   const currentTutorialStep = tutorialSteps[currentStep];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-y-auto overflow-x-hidden" 
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-y-auto overflow-x-hidden relative" 
          style={{ 
            WebkitOverflowScrolling: 'touch',
            touchAction: 'pan-y',
-           overscrollBehavior: 'contain'
+           overscrollBehavior: 'contain',
+           paddingTop: '80px' // Add top padding to ensure close button doesn't overlap content
          }}>
       {/* Header - Mobile Optimized */}
       <div className="bg-white shadow-sm border-b">
@@ -304,13 +305,12 @@ export default function CompanionOnboardingScreen({ onComplete, onSkip }: Compan
             </div>
 
             {/* Step Content - Mobile Optimized */}
-            <div className="max-w-3xl mx-auto" 
+            <div className="max-w-3xl mx-auto sm:overflow-visible sm:max-h-none" 
                  style={{ 
                    overflowY: 'auto',
                    maxHeight: '50vh',
                    WebkitOverflowScrolling: 'touch'
-                 }}
-                 className="sm:overflow-visible sm:max-h-none">
+                 }}>
               {currentTutorialStep.content}
             </div>
           </div>

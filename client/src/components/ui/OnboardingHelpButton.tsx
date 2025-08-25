@@ -27,11 +27,13 @@ export default function OnboardingHelpButton({ className = '' }: OnboardingHelpB
 
   if (showOnboarding) {
     return (
-      <div className="fixed inset-0 z-50">
-        <div className="absolute top-4 right-4 z-10">
+      <div className="fixed inset-0 z-50 overflow-y-auto">
+        {/* Enhanced close button with better mobile visibility */}
+        <div className="absolute top-4 right-4 z-50 pointer-events-auto">
           <button
             onClick={handleOnboardingClose}
-            className="bg-white rounded-full p-2 shadow-lg hover:bg-gray-50 transition-colors"
+            className="bg-white rounded-full p-3 shadow-xl hover:bg-gray-50 transition-colors border border-gray-200 flex items-center justify-center"
+            style={{ minWidth: '44px', minHeight: '44px' }}
           >
             <X size={20} className="text-gray-600" />
           </button>

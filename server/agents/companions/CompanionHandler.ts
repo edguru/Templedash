@@ -149,13 +149,43 @@ export class CompanionHandler extends BaseAgent {
   private isWriteOperation(response: string): boolean {
     if (!response) return false;
     
-    const writeIndicators = [
-      'transfer', 'send', 'swap', 'execute', 'transaction', 
-      'prepared', 'unsigned', 'manual signing', 'broadcast'
+    const lowerResponse = response.toLowerCase();
+    
+    // Strong indicators this is actually a write operation result
+    const strongWriteIndicators = [
+      'prepared a', 'executing', 'transaction prepared',
+      'unsigned transaction', 'manual signing', 'broadcast',
+      'transaction details:', 'execute this transaction'
     ];
     
-    const lowerResponse = response.toLowerCase();
-    return writeIndicators.some(indicator => lowerResponse.includes(indicator));
+    // If it has strong indicators, it's definitely a write operation
+    if (strongWriteIndicators.some(indicator => lowerResponse.includes(indicator))) {
+      return true;
+    }
+    
+    // Balance check indicators (should NOT be treated as write operations)
+    const balanceIndicators = [
+      'balance:', 'current balance', 'balance information',
+      'here\'s the balance', 'your balance is', 'balance was determined'
+    ];
+    
+    // If it's clearly a balance response, it's NOT a write operation
+    if (balanceIndicators.some(indicator => lowerResponse.includes(indicator))) {
+      return false;
+    }
+    
+    // Suggestion indicators (mentions of operations in suggestions, not actual operations)
+    const suggestionPatterns = [
+      'would you like to', 'do you want to', 'you can also',
+      'or check', 'see transaction history'
+    ];
+    
+    // If it's just suggestions, it's NOT a write operation
+    if (suggestionPatterns.some(pattern => lowerResponse.includes(pattern))) {
+      return false;
+    }
+    
+    return false;
   }
 
   private isTaskExecuted(response: string): boolean {

@@ -1,0 +1,40 @@
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '59ff4725-b3bf-4c9f-917e-c8fec503ff76',
+  success: true,
+  fullResponse: 'The transfer transaction of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980721557987119Ae on Base Camp testnet (chain ID: 123420001114) is prepared and ready to execute. - **From (user wallet)**: 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578\n' +
+    '- **To**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Chain**: Basecamp (Testnet) | Chain ID: 123420001114\n' +
+    '- **Amount**: 0.1 CAMP (native token)\n' +
+    '- **Wei/base units**: 100000000000000000 The next step will execute this transaction from your wallet on the Base Camp testnet. Would you like to proceed with execution? (If yes, please confirm or specify any custom gas settings if required.) Unsigned transaction data is available for manual signing.\n' +
+    'Transaction ID: ac190d77-2a2b-46a1-a92d-d4726704ace9\n' +
+    'Session ID: ce735ca1-f3fe-48e2-ba91-89f8145f7e95\n' +
+    'Request ID: 707cdbb1-33b9-4bdf-bb2a-85ddc4cd40ef'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '59ff4725-b3bf-4c9f-917e-c8fec503ff76',
+  responsePreview: 'The transfer transaction of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980721557987119Ae on Base Camp testnet (chain ID: 123420001114) is prepared and ready to execute. - **F...',
+  fullResponse: 'The transfer transaction of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980721557987119Ae on Base Camp testnet (chain ID: 123420001114) is prepared and ready to execute. - **From (user wallet)**: 0xd176F4C8ACeDfb20E6E81539f94c928a0A434578\n' +
+    '- **To**: 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **Chain**: Basecamp (Testnet) | Chain ID: 123420001114\n' +
+    '- **Amount**: 0.1 CAMP (native token)\n' +
+    '- **Wei/base units**: 100000000000000000 The next step will execute this transaction from your wallet on the Base Camp testnet. Would you like to proceed with execution? (If yes, please confirm or specify any custom gas settings if required.) Unsigned transaction data is available for manual signing.\n' +
+    'Transaction ID: ac190d77-2a2b-46a1-a92d-d4726704ace9\n' +
+    'Session ID: ce735ca1-f3fe-48e2-ba91-89f8145f7e95\n' +
+    'Request ID: 707cdbb1-33b9-4bdf-bb2a-85ddc4cd40ef'
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: '59ff4725-b3bf-4c9f-917e-c8fec503ff76',
+  targetId: undefined,
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to broadcast
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  taskCompleted: true,
+  message: 'The transfer transaction of 0.1 CAMP (100000000000000000 base units) to 0x4bcf74e971E677e95b8bFB0980',
+  taskId: '59ff4725-b3bf-4c9f-917e-c8fec503ff76'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+10:21:19 PM [express] POST /api/agents/chat 200 in 34133ms :: {"success":true,"response":"The transfe…
+10:21:20 PM [express] GET /api/agents/tasks 200 in 0ms :: {"tasks":["59ff4725-b3bf-4c9f-917e-c8fec503…

@@ -188,92 +188,6 @@ export class NebulaMCP extends BaseAgent {
     }
   }
 
-  // Phase 1 & 2: Enhanced Execute Endpoint with Configuration
-  private async processWithExecuteEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
-    try {
-      this.logActivity('PHASE 1 & 2: Using /execute endpoint with unsigned transaction configuration', { 
-        taskId, 
-        description: description?.substring(0, 100),
-        hasSessionSigner: !!sessionSigner
-      });
-
-      // Generic enhanced prompt for any native currency transfer
-      const networkInfo = this.getNetworkInfo(userWalletAddress);
-      const enhancedPrompt = `${description}. Execute this transaction using the user's wallet address: ${userWalletAddress}. IMPORTANT: This is a write operation on ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the NATIVE CURRENCY on this network (like ETH on Ethereum) - NOT an ERC-20 token. For ${networkInfo.nativeCurrency} transfers, use native currency transfer methods, not token contract calls. For security, all write operations must use the authenticated user's wallet.`;
-
-      // Phase 2: Execute configuration matching the API example format
-      const requestBody = {
-        messages: [{
-          role: 'user',
-          content: enhancedPrompt
-        }],
-        stream: false,
-        context: {
-          chainIds: [this.getNetworkInfo(userWalletAddress).chainId],
-          walletAddress: userWalletAddress
-        }
-      };
-
-      console.log(`[NebulaMCP] 🎯 PHASE 1: Making request to /execute endpoint`, {
-        endpoint: '/execute',
-        hasExecuteConfig: true,
-        userWallet: userWalletAddress?.slice(0, 10) + '...',
-        requestBodyStructure: {
-          hasMessages: !!requestBody.messages,
-          messagesLength: requestBody.messages?.length,
-          hasContext: !!requestBody.context,
-          stream: requestBody.stream,
-          contextType: typeof requestBody.context
-        }
-      });
-      
-      const response = await fetch('https://nebula-api.thirdweb.com/execute', {
-        method: 'POST',
-        headers: {
-          'x-secret-key': this.thirdwebSecretKey,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(60000) // Increased to 60 seconds for consistent timeout across endpoints
-      });
-
-      if (!response.ok) {
-        let errorMessage = `Thirdweb Execute API returned ${response.status}: ${response.statusText}`;
-        try {
-          const errorBody = await response.text();
-          console.error(`[NebulaMCP] Execute API Error Response:`, errorBody);
-          errorMessage += ` - ${errorBody}`;
-        } catch (e) {
-          console.error(`[NebulaMCP] Could not read error response body`);
-        }
-        throw new Error(errorMessage);
-      }
-
-      const result = await response.json();
-      console.log(`[NebulaMCP] 🎯 PHASE 1 & 2: Execute endpoint response:`, {
-        status: response.status,
-        responseKeys: Object.keys(result),
-        hasActions: !!result.actions,
-        actionsCount: result.actions?.length || 0,
-        resultSnippet: JSON.stringify(result).substring(0, 200)
-      });
-
-      // Phase 3 & 4: Process unsigned transactions and monitor status
-      if (result.actions && result.actions.length > 0) {
-        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner);
-      } else {
-        // Regular response without transaction
-        const rawAnswer = result.message || result.content || result.response || 'Transaction executed successfully.';
-        const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
-        return this.createTaskResponse(taskId, true, cleanedAnswer);
-      }
-      
-    } catch (error) {
-      console.error('[NebulaMCP] Execute endpoint request failed:', error);
-      return this.createTaskResponse(taskId, false, 'Failed to execute blockchain transaction. Please try again.');
-    }
-  }
-
   // Phase 3 & 4: Process unsigned transactions and implement monitoring
   private async processTransactionActions(taskId: string, result: any, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
     try {
@@ -371,37 +285,14 @@ Request ID: ${requestId}`;
     }
   }
 
-  // Hybrid Approach: Chat first for analysis, then Execute for transaction creation
-  private async processWithHybridApproach(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
-    try {
-      console.log(`[NebulaMCP] 🔄 STEP 1: Using chat endpoint for transaction analysis and validation`);
-      
-      // Step 1: Use chat endpoint for analysis - generic for any network
-      const networkInfo = this.getNetworkInfo(userWalletAddress);
-      const analysisPrompt = `Analyze this transaction request: ${description}. User wallet: ${userWalletAddress}. ${networkInfo.name} (chain ID: ${networkInfo.chainId}). ${networkInfo.nativeCurrency} is the NATIVE CURRENCY (like ETH on Ethereum) - NOT an ERC-20 token. Validate the transaction details and confirm if this is a valid native ${networkInfo.nativeCurrency} transfer. If valid, provide the transaction details that would be needed.`;
-      
-      const chatResult = await this.processWithChatEndpoint(taskId, analysisPrompt, userWalletAddress, sessionSigner);
-      
-      // Chat endpoint always returns success for analysis, proceed to execute
-      
-      console.log(`[NebulaMCP] 🔄 STEP 2: Analysis complete, proceeding with execute endpoint for transaction creation`);
-      
-      // Step 2: Use execute endpoint for actual transaction creation
-      return await this.processWithExecuteEndpoint(taskId, description, userWalletAddress, sessionSigner);
-      
-    } catch (error) {
-      console.error('[NebulaMCP] Hybrid approach failed:', error);
-      return this.createTaskResponse(taskId, false, 'Failed to process transaction using hybrid approach. Please try again.');
-    }
-  }
 
   // Enhanced Chat Endpoint for Read Operations
   private async processWithChatEndpoint(taskId: string, description: string, userWalletAddress: string, sessionSigner: any): Promise<AgentMessage> {
     try {
-      // Simple prompt enhancement - let API handle all network intelligence
+      // Enhanced prompt with Base Camp network as default
       let enhancedPrompt = description;
       if (userWalletAddress) {
-        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Default to Base Camp testnet (chain ID: 123420001114) where CAMP is the native currency unless another network is explicitly specified. Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
       }
       
       const requestBody = {

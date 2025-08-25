@@ -3,7 +3,7 @@ import { BaseAgent } from '../core/BaseAgent';
 import { MessageBroker } from '../core/MessageBroker';
 import { AgentMessage } from '../types/AgentTypes';
 import { v4 as uuidv4 } from 'uuid';
-import { campPriceService } from '../../lib/campPriceService';
+// USD calculations now handled by AI agents - no backend price service needed
 import { ServerSessionManager } from '../../lib/SessionManager';
 
 export class NebulaMCP extends BaseAgent {
@@ -75,11 +75,11 @@ export class NebulaMCP extends BaseAgent {
       const balanceData = await this.fetchCAMPBalance(walletAddress);
       
       if (balanceData.success) {
+        // Let the agent calculate USD value through AI instead of backend
         const response = `💰 **Your CAMP Token Balance:**
         
 🔗 **Wallet:** ${walletAddress}
 💎 **Balance:** ${balanceData.balance} CAMP
-💵 **USD Value:** $${balanceData.usdValue}
 🌐 **Network:** Base Camp Testnet
 
 📊 **Transaction Details:**
@@ -87,7 +87,9 @@ export class NebulaMCP extends BaseAgent {
 - **Explorer:** [View on Block Explorer](https://basecamp.cloud.blockscout.com/address/${walletAddress})
 - **Last Updated:** ${new Date().toLocaleString()}
 
-Your balance has been verified using authentic blockchain data from the CAMP Explorer API.`;
+Your balance has been verified using authentic blockchain data from the CAMP Explorer API.
+
+Note: To get USD value calculations, please use ChainGPT agent which handles real-time market pricing and USD conversions.`;
 
         return this.createTaskResponse(taskId, true, response);
       } else {
@@ -99,7 +101,7 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
     }
   }
 
-  private async fetchCAMPBalance(walletAddress: string): Promise<{ success: boolean; balance?: string; usdValue?: string; error?: string }> {
+  private async fetchCAMPBalance(walletAddress: string): Promise<{ success: boolean; balance?: string; error?: string }> {
     try {
       // Use the Base Camp Blockscout API for authentic balance data
       const response = await fetch(`https://basecamp.cloud.blockscout.com/api/v2/addresses/${walletAddress}/tokens`, {
@@ -118,12 +120,11 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
       
       // Look for CAMP token or native balance
       const campBalance = this.extractCAMPBalance(data);
-      const usdValue = this.calculateUSDValue(campBalance);
+      // USD calculation removed - handled by AI agents now
 
       return {
         success: true,
-        balance: campBalance,
-        usdValue: usdValue
+        balance: campBalance
       };
     } catch (error) {
       console.error('[NebulaMCP] API request failed:', error);
@@ -172,14 +173,7 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
     }
   }
 
-  private calculateUSDValue(campBalance: string): string {
-    // For testnet, use a mock USD value or fetch from price API
-    // In production, you would integrate with price APIs
-    const mockPrice = 0.001; // $0.001 per CAMP token (testnet)
-    const balance = parseFloat(campBalance);
-    const usdValue = balance * mockPrice;
-    return usdValue.toFixed(6);
-  }
+  // USD calculations now handled by AI agents in their prompts
 
   async handleMessage(message: AgentMessage): Promise<AgentMessage | null> {
     try {

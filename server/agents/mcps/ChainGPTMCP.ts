@@ -93,14 +93,14 @@ export class ChainGPTMCP extends BaseAgent {
       if (parameters?.walletAddress || parameters?.address) {
         const address = parameters.walletAddress || parameters.address;
         contextInjection = {
-          purpose: "Assist with blockchain and Web3 queries",
+          purpose: "Assist with blockchain and Web3 queries. For balance checks, ALWAYS include USD value calculations using current CAMP token pricing (approximately $0.002 for testnet, with market variations). Calculate USD values by multiplying token amounts with current market price. Always provide both token amounts and USD equivalent values.",
           aiTone: "PRE_SET_TONE",
           selectedTone: "INFORMATIVE"
         };
         useCustomContext = true;
         
-        // Include wallet context in the question
-        questionWithContext = `${description}\n\nUser's wallet address: ${address}`;
+        // Include wallet context and USD calculation instructions
+        questionWithContext = `${description}\n\nUser's wallet address: ${address}\n\nIMPORTANT: For any balance or token amount mentioned, calculate and include the USD equivalent value. Use current CAMP token market price (approximately $0.002 for Base Camp testnet with realistic market variations). Always show both the token amount and USD value (e.g., "150.5 CAMP (~$0.301 USD)").`;
       }
 
       const requestBody = {

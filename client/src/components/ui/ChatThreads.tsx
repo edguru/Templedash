@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { 
   Send, Bot, User, Loader2, Plus, Search, MessageCircle, 
-  Clock, Trash2, Archive, Star, Filter 
+  Clock, Trash2, Archive, Star, Filter, X 
 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { sessionManager } from '../../lib/sessionSigners';
@@ -37,7 +37,7 @@ interface ActiveTask {
 export default function ChatThreads() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [currentThreadId, setCurrentThreadId] = useState<string>('');
-  const [showSidebar, setShowSidebar] = useState(true); // Always show sidebar initially
+  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768); // Show sidebar based on screen size
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
   const [inputValue, setInputValue] = useState('');
@@ -469,16 +469,36 @@ export default function ChatThreads() {
   ];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex">
+    <div className="h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex relative">
+      {/* Mobile Overlay */}
+      {showSidebar && window.innerWidth < 768 && (
+        <div 
+          className="fixed inset-0 bg-black/30 z-40 md:hidden"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+
       {/* Sidebar - Thread List */}
-      <div className={`${showSidebar ? 'w-80' : 'w-0'} transition-all duration-300 overflow-hidden bg-white/80 backdrop-blur-sm border-r border-indigo-200/50 flex flex-col`}>
+      <div className={`${
+        showSidebar ? 'w-80 md:w-80' : 'w-0'
+      } ${window.innerWidth < 768 ? 'fixed left-0 top-0 h-full z-50' : 'relative'} 
+      transition-all duration-300 overflow-hidden bg-white/90 backdrop-blur-sm border-r border-indigo-200/50 flex flex-col shadow-lg md:shadow-none`}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-indigo-200/50">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-800">Conversations</h2>
+            <div className="flex items-center space-x-2">
+              <h2 className="text-lg font-bold text-gray-800">Conversations</h2>
+              {/* Mobile Close Button */}
+              <button
+                onClick={() => setShowSidebar(false)}
+                className="md:hidden p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X size={16} className="text-gray-500" />
+              </button>
+            </div>
             <button
               onClick={createNewThread}
-              className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl touch-manipulation"
             >
               <Plus size={16} />
             </button>
@@ -540,13 +560,16 @@ export default function ChatThreads() {
                 key={thread.id}
                 onClick={() => {
                   setCurrentThreadId(thread.sessionId);
-                setShowSidebar(false);
-              }}
-              className={`p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group ${
-                thread.id === currentThreadId 
-                  ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg' 
-                  : 'hover:bg-indigo-50 bg-white/50'
-              }`}
+                  // Close sidebar on mobile after selection
+                  if (window.innerWidth < 768) {
+                    setShowSidebar(false);
+                  }
+                }}
+                className={`p-4 md:p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group touch-manipulation ${
+                  thread.id === currentThreadId 
+                    ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white shadow-lg' 
+                    : 'hover:bg-indigo-50 bg-white/50 active:bg-indigo-100'
+                }`}
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1 min-w-0">
@@ -570,18 +593,18 @@ export default function ChatThreads() {
                 </div>
                 
                 {/* Thread Actions */}
-                <div className="flex flex-col space-y-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="flex flex-col space-y-1 ml-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => toggleThreadStar(thread.id, e)}
-                    className={`p-1 rounded hover:bg-black/10 ${thread.isStarred ? 'text-yellow-400' : thread.id === currentThreadId ? 'text-white' : 'text-gray-400'}`}
+                    className={`p-2 md:p-1 rounded hover:bg-black/10 touch-manipulation ${thread.isStarred ? 'text-yellow-400' : thread.id === currentThreadId ? 'text-white' : 'text-gray-400'}`}
                   >
-                    <Star size={12} />
+                    <Star size={16} className="md:w-3 md:h-3" />
                   </button>
                   <button
                     onClick={(e) => deleteThread(thread.sessionId, e)}
-                    className={`p-1 rounded hover:bg-black/10 ${thread.id === currentThreadId ? 'text-white' : 'text-gray-400'}`}
+                    className={`p-2 md:p-1 rounded hover:bg-black/10 touch-manipulation ${thread.id === currentThreadId ? 'text-white' : 'text-gray-400'}`}
                   >
-                    <Trash2 size={12} />
+                    <Trash2 size={16} className="md:w-3 md:h-3" />
                   </button>
                 </div>
               </div>
@@ -598,10 +621,14 @@ export default function ChatThreads() {
           <div className="flex items-center space-x-3 flex-1">
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2 rounded-lg hover:bg-indigo-100 transition-colors"
+              className="p-2 rounded-lg hover:bg-indigo-100 transition-colors touch-manipulation"
               title="Toggle sidebar"
             >
-              <MessageCircle size={20} className="text-indigo-600" />
+              {showSidebar ? (
+                <X size={20} className="text-indigo-600 md:hidden" />
+              ) : (
+                <MessageCircle size={20} className="text-indigo-600" />
+              )}
             </button>
             <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
               <Bot className="text-white" size={20} />

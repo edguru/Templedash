@@ -124,7 +124,7 @@ export default function MessageRenderer({ content, className = '' }: MessageRend
   };
   
   return (
-    <div className={`text-sm leading-relaxed ${className}`}>
+    <div className={`text-sm leading-relaxed message-content ${className}`}>
       {formatContent(content)}
     </div>
   );

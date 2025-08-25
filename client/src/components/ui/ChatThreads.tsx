@@ -697,7 +697,7 @@ export default function ChatThreads() {
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-lg ${
+                className={`max-w-[90%] sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl shadow-lg word-wrap break-words overflow-hidden ${
                   message.role === 'user'
                     ? 'bg-gradient-to-r from-indigo-500 to-purple-500 text-white mr-2 sm:mr-0'
                     : 'bg-white/80 backdrop-blur-sm border border-indigo-200/50 ml-2 sm:ml-0'
@@ -714,10 +714,10 @@ export default function ChatThreads() {
                     {message.role === 'assistant' ? (
                       <MessageRenderer 
                         content={message.content} 
-                        className="text-gray-800" 
+                        className="text-gray-800 message-content" 
                       />
                     ) : (
-                      <p className="text-white break-words">
+                      <p className="text-white break-words message-content">
                         {message.content}
                       </p>
                     )}

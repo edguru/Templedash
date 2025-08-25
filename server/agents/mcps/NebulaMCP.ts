@@ -76,146 +76,15 @@ export class NebulaMCP extends BaseAgent {
     return Array.from(this.capabilities);
   }
 
-  private isBalanceCheckRequest(description: string): boolean {
-    const balanceKeywords = ['balance', 'check balance', 'camp token', 'token balance', 'my balance', 'wallet balance'];
-    return balanceKeywords.some(keyword => description.toLowerCase().includes(keyword.toLowerCase()));
-  }
+  // Removed balance check detection - all requests go to Thirdweb AI
 
-  private async handleBalanceCheck(taskId: string, description: string, walletAddress?: string): Promise<AgentMessage> {
-    try {
-      console.log(`[NebulaMCP] 💰 DEBUG: Starting balance check`, {
-        taskId,
-        description,
-        walletAddress: walletAddress?.slice(0, 10) + '...',
-        hasWalletAddress: !!walletAddress
-      });
+  // Remove direct balance check - let Thirdweb AI handle all blockchain operations
 
-      if (!walletAddress) {
-        console.log(`[NebulaMCP] ❌ DEBUG: No wallet address provided`);
-        return this.createTaskResponse(taskId, false, 'I need your wallet address to check your balance. Please provide your wallet address.');
-      }
+  // Removed direct API calls - NebulaMCP should only use Thirdweb AI chat endpoint
 
-      console.log(`[NebulaMCP] 🔍 DEBUG: Fetching CAMP balance for wallet: ${walletAddress}`);
+  // Removed balance extraction - handled by Thirdweb AI
 
-      // Use the CAMP Explorer API for authentic balance data
-      const balanceData = await this.fetchCAMPBalance(walletAddress);
-      
-      console.log(`[NebulaMCP] 📊 DEBUG: Balance fetch result`, {
-        success: balanceData.success,
-        balance: balanceData.balance,
-        error: balanceData.error
-      });
-
-      if (balanceData.success) {
-        console.log(`[NebulaMCP] ✅ DEBUG: Successfully retrieved balance: ${balanceData.balance} CAMP`);
-        
-        // Let the agent calculate USD value through AI instead of backend
-        const response = `💰 **Your CAMP Token Balance:**
-        
-🔗 **Wallet:** ${walletAddress}
-💎 **Balance:** ${balanceData.balance} CAMP
-🌐 **Network:** Base Camp Testnet
-
-📊 **Transaction Details:**
-- **Gasless Experience:** ✅ Using session signers
-- **Explorer:** [View on Block Explorer](https://basecamp.cloud.blockscout.com/address/${walletAddress})
-- **Last Updated:** ${new Date().toLocaleString()}
-
-Your balance has been verified using authentic blockchain data from the CAMP Explorer API.
-
-Note: To get USD value calculations, please use ChainGPT agent which handles real-time market pricing and USD conversions.`;
-
-        const taskResponse = this.createTaskResponse(taskId, true, response);
-        console.log(`[NebulaMCP] ✅ DEBUG: Created successful task response`, {
-          taskId,
-          responseLength: response.length
-        });
-        return taskResponse;
-      } else {
-        console.log(`[NebulaMCP] ❌ DEBUG: Balance fetch failed:`, balanceData.error);
-        return this.createTaskResponse(taskId, false, `Unable to fetch balance: ${balanceData.error}`);
-      }
-    } catch (error) {
-      console.error('[NebulaMCP] Balance check failed:', error);
-      return this.createTaskResponse(taskId, false, 'Failed to check balance. Please try again.');
-    }
-  }
-
-  private async fetchCAMPBalance(walletAddress: string): Promise<{ success: boolean; balance?: string; error?: string }> {
-    try {
-      // CAMP is the native token, so fetch from main address endpoint, not tokens
-      console.log(`[NebulaMCP] 🔍 DEBUG: Fetching native CAMP balance from address endpoint`);
-      const response = await fetch(`https://basecamp.cloud.blockscout.com/api/v2/addresses/${walletAddress}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json'
-        },
-        signal: AbortSignal.timeout(30000)
-      });
-
-      if (!response.ok) {
-        throw new Error(`API returned ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log(`[NebulaMCP] 📊 DEBUG: API response received`, {
-        hasCoinBalance: !!data.coin_balance,
-        coinBalance: data.coin_balance,
-        addressHash: data.hash?.substring(0, 10) + '...'
-      });
-      
-      // Extract native CAMP balance from coin_balance field
-      const campBalance = this.extractNativeCAMPBalance(data);
-
-      return {
-        success: true,
-        balance: campBalance
-      };
-    } catch (error) {
-      console.error('[NebulaMCP] API request failed:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      };
-    }
-  }
-
-  private extractNativeCAMPBalance(data: any): string {
-    // CAMP is the native token on Base Camp testnet - check coin_balance field
-    console.log(`[NebulaMCP] 🔍 DEBUG: Extracting native CAMP balance`, {
-      hasCoinBalance: !!data.coin_balance,
-      coinBalanceRaw: data.coin_balance
-    });
-    
-    if (data.coin_balance) {
-      // Native CAMP balance is in wei (18 decimals)
-      const balance = data.coin_balance;
-      const formattedBalance = this.formatBalance(balance, 18);
-      console.log(`[NebulaMCP] ✅ DEBUG: Formatted balance: ${formattedBalance} CAMP`);
-      return formattedBalance;
-    }
-    
-    console.log(`[NebulaMCP] ⚠️ DEBUG: No coin_balance found, returning 0.000`);
-    return '0.000';
-  }
-
-  private formatBalance(balance: string, decimals: number): string {
-    try {
-      const balanceNum = BigInt(balance);
-      const divisor = BigInt(10 ** decimals);
-      const wholePart = balanceNum / divisor;
-      const fractionalPart = balanceNum % divisor;
-      
-      // Format to 3 decimal places
-      const fractionalString = fractionalPart.toString().padStart(decimals, '0');
-      const trimmedFractional = fractionalString.substring(0, 3);
-      
-      return `${wholePart}.${trimmedFractional}`;
-    } catch (error) {
-      console.error('[NebulaMCP] Balance formatting error:', error);
-      return '0.000';
-    }
-  }
+  // Removed balance formatting - handled by Thirdweb AI
 
   // USD calculations now handled by AI agents in their prompts
 
@@ -253,20 +122,11 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
     });
     
     try {
-      // Check if this is a balance check request
-      const isBalance = this.isBalanceCheckRequest(description);
-      console.log(`[NebulaMCP] 🤔 DEBUG: Is balance check?`, {
-        isBalance,
-        description,
-        matchedKeywords: ['balance', 'check balance', 'camp token', 'token balance', 'my balance', 'wallet balance'].filter(kw => 
-          description?.toLowerCase().includes(kw.toLowerCase())
-        )
+      // All requests go directly to Thirdweb AI chat endpoint
+      console.log(`[NebulaMCP] 🎯 DEBUG: Routing ALL requests to Thirdweb AI chat endpoint`, {
+        description: description?.substring(0, 50),
+        hasWallet: !!walletAddress
       });
-      
-      if (isBalance) {
-        console.log(`[NebulaMCP] ➡️ DEBUG: Routing to balance check handler`);
-        return await this.handleBalanceCheck(taskId, description, walletAddress);
-      }
       this.logActivity('Processing with Thirdweb Nebula API', { 
         taskId, 
         description: description?.substring(0, 100)
@@ -302,9 +162,9 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
         }
       }
       
-      // Enhanced prompt with wallet context for better results
+      // Enhanced prompt for native CAMP balance on Base Camp testnet
       const enhancedPrompt = userWalletAddress 
-        ? `${description}. User's wallet address is ${userWalletAddress}. Check the CAMP token balance for this specific wallet on Base Camp testnet (chain ID: 123420001114). Provide the balance in CAMP tokens and calculate USD value using current market rates.`
+        ? `${description}. User's wallet address is ${userWalletAddress}. Check the native CAMP balance (not an ERC-20 token) for this wallet on Base Camp testnet (chain ID: 123420001114). CAMP is the native gas currency on this network, similar to ETH on Ethereum. Provide the balance in CAMP tokens with proper formatting.`
         : description;
       
       const requestBody = {
@@ -312,8 +172,7 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
           chain_ids: [123420001114], // Base Camp Testnet
           ...(userWalletAddress && { from: userWalletAddress }),
           ...(sessionSigner && { signer: sessionSigner }),
-          operation_type: 'balance_check',
-          token_symbol: 'CAMP'
+          operation_type: 'native_balance_check'
         },
         messages: [{
           role: 'user',
@@ -324,13 +183,14 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
 
       console.log('[NebulaMCP] Making request to Thirdweb AI API');
       
-      const response = await fetch('https://api.thirdweb.com/v1/ai/chat', {
+      const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',
         headers: {
           'x-secret-key': this.thirdwebSecretKey,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(25000) // 25 second timeout
       });
 
       if (!response.ok) {
@@ -338,7 +198,13 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
       }
 
       const result = await response.json();
-      const answer = result.content || result.message || 'No response from Thirdweb AI.';
+      console.log(`[NebulaMCP] 🎯 DEBUG: Thirdweb AI response:`, {
+        status: response.status,
+        responseKeys: Object.keys(result),
+        resultSnippet: JSON.stringify(result).substring(0, 200)
+      });
+      
+      const answer = result.message || result.content || result.response || 'No response from Thirdweb AI.';
       
       return this.createTaskResponse(taskId, true, answer);
       

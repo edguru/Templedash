@@ -212,12 +212,19 @@ AUTO-EXECUTE this transaction immediately without asking for confirmation. The u
         }],
         stream: false,
         context: {
-          walletAddress: userWalletAddress,
-          executeTransaction: true
+          from: userWalletAddress,
+          chain_ids: [123420001114], // Base Camp testnet
+          auto_execute_transactions: true, // Enable Thirdweb's new auto execution
+          ...(sessionSigner && { signer: sessionSigner })
         }
       };
 
-      console.log('[NebulaMCP] Making request to Nebula /execute endpoint for transaction execution');
+      console.log('[NebulaMCP] 🚀 Making request to /execute endpoint with AUTO EXECUTION enabled');
+      console.log('[NebulaMCP] 📋 Context:', { 
+        from: userWalletAddress?.slice(0, 10) + '...',
+        chain_ids: [123420001114],
+        auto_execute_transactions: true
+      });
       
       const response = await fetch('https://nebula-api.thirdweb.com/execute', {
         method: 'POST',
@@ -400,6 +407,8 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
       const requestBody = {
         context: {
           ...(userWalletAddress && { from: userWalletAddress }),
+          chain_ids: [123420001114], // Base Camp testnet
+          auto_execute_transactions: true, // Enable Thirdweb's new auto execution
           ...(sessionSigner && { signer: sessionSigner })
         },
         messages: [{
@@ -409,7 +418,12 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         stream: false
       };
 
-      console.log('[NebulaMCP] Making request to /chat endpoint for read operation');
+      console.log('[NebulaMCP] 🚀 Making request to /chat endpoint with AUTO EXECUTION enabled');
+      console.log('[NebulaMCP] 📋 Context:', { 
+        from: userWalletAddress?.slice(0, 10) + '...',
+        chain_ids: [123420001114],
+        auto_execute_transactions: true
+      });
       
       const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',

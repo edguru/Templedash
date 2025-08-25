@@ -30,6 +30,24 @@ export class NebulaMCP extends BaseAgent {
   protected initialize(): void {
     this.logActivity('Initializing Nebula MCP as pure LLM integration');
     this.setupCapabilities();
+    
+    // Subscribe to nebula_request messages specifically
+    this.messageBroker.subscribe('nebula_request', async (message: AgentMessage) => {
+      console.log(`[NebulaMCP] 🔄 DEBUG: Subscription handler received message ${message.id}`);
+      const response = await this.handleMessage(message);
+      if (response) {
+        console.log(`[NebulaMCP] 📤 DEBUG: Sending response via message broker:`, {
+          responseId: response.id,
+          type: response.type,
+          targetId: response.targetId
+        });
+        await this.sendMessage(response);
+        console.log(`[NebulaMCP] ✅ DEBUG: Response sent successfully`);
+      } else {
+        console.log(`[NebulaMCP] ❌ DEBUG: No response to send`);
+      }
+    });
+    console.log('[NebulaMCP] 🔔 DEBUG: Subscribed to nebula_request messages');
   }
 
   private setupCapabilities(): void {
@@ -65,16 +83,32 @@ export class NebulaMCP extends BaseAgent {
 
   private async handleBalanceCheck(taskId: string, description: string, walletAddress?: string): Promise<AgentMessage> {
     try {
+      console.log(`[NebulaMCP] 💰 DEBUG: Starting balance check`, {
+        taskId,
+        description,
+        walletAddress: walletAddress?.slice(0, 10) + '...',
+        hasWalletAddress: !!walletAddress
+      });
+
       if (!walletAddress) {
+        console.log(`[NebulaMCP] ❌ DEBUG: No wallet address provided`);
         return this.createTaskResponse(taskId, false, 'I need your wallet address to check your balance. Please provide your wallet address.');
       }
 
-      console.log(`[NebulaMCP] Checking balance for wallet: ${walletAddress}`);
+      console.log(`[NebulaMCP] 🔍 DEBUG: Fetching CAMP balance for wallet: ${walletAddress}`);
 
       // Use the CAMP Explorer API for authentic balance data
       const balanceData = await this.fetchCAMPBalance(walletAddress);
       
+      console.log(`[NebulaMCP] 📊 DEBUG: Balance fetch result`, {
+        success: balanceData.success,
+        balance: balanceData.balance,
+        error: balanceData.error
+      });
+
       if (balanceData.success) {
+        console.log(`[NebulaMCP] ✅ DEBUG: Successfully retrieved balance: ${balanceData.balance} CAMP`);
+        
         // Let the agent calculate USD value through AI instead of backend
         const response = `💰 **Your CAMP Token Balance:**
         
@@ -91,8 +125,14 @@ Your balance has been verified using authentic blockchain data from the CAMP Exp
 
 Note: To get USD value calculations, please use ChainGPT agent which handles real-time market pricing and USD conversions.`;
 
-        return this.createTaskResponse(taskId, true, response);
+        const taskResponse = this.createTaskResponse(taskId, true, response);
+        console.log(`[NebulaMCP] ✅ DEBUG: Created successful task response`, {
+          taskId,
+          responseLength: response.length
+        });
+        return taskResponse;
       } else {
+        console.log(`[NebulaMCP] ❌ DEBUG: Balance fetch failed:`, balanceData.error);
         return this.createTaskResponse(taskId, false, `Unable to fetch balance: ${balanceData.error}`);
       }
     } catch (error) {
@@ -177,12 +217,22 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
 
   async handleMessage(message: AgentMessage): Promise<AgentMessage | null> {
     try {
-      if (message.type === 'execute_task') {
+      console.log(`[NebulaMCP] 🔍 DEBUG: Received message`, {
+        type: message.type,
+        taskId: message.payload?.taskId,
+        description: message.payload?.description?.substring(0, 50),
+        hasWalletAddress: !!message.payload?.walletAddress
+      });
+
+      if (message.type === 'execute_task' || message.type === 'nebula_request') {
+        console.log(`[NebulaMCP] ✅ DEBUG: Processing ${message.type} message for balance check`);
         return await this.processWithNebulaLLM(message);
       }
+      
+      console.log(`[NebulaMCP] ❌ DEBUG: Unhandled message type: ${message.type}`);
       return null;
     } catch (error) {
-      console.error('[NebulaMCP] Error handling message:', error);
+      console.error('[NebulaMCP] ❌ DEBUG: Error handling message:', error);
       return this.createErrorResponse(message, `Nebula operation failed: ${error}`);
     }
   }
@@ -191,9 +241,26 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
     const { taskId, description, parameters } = message.payload;
     const walletAddress = message.payload.walletAddress || parameters?.walletAddress;
     
+    console.log(`[NebulaMCP] 🔄 DEBUG: Processing with Nebula LLM`, {
+      taskId,
+      description: description?.substring(0, 50),
+      hasWalletAddress: !!walletAddress,
+      messageType: message.type
+    });
+    
     try {
       // Check if this is a balance check request
-      if (this.isBalanceCheckRequest(description)) {
+      const isBalance = this.isBalanceCheckRequest(description);
+      console.log(`[NebulaMCP] 🤔 DEBUG: Is balance check?`, {
+        isBalance,
+        description,
+        matchedKeywords: ['balance', 'check balance', 'camp token', 'token balance', 'my balance', 'wallet balance'].filter(kw => 
+          description?.toLowerCase().includes(kw.toLowerCase())
+        )
+      });
+      
+      if (isBalance) {
+        console.log(`[NebulaMCP] ➡️ DEBUG: Routing to balance check handler`);
         return await this.handleBalanceCheck(taskId, description, walletAddress);
       }
       this.logActivity('Processing with Thirdweb Nebula API', { 
@@ -278,16 +345,31 @@ Note: To get USD value calculations, please use ChainGPT agent which handles rea
   }
 
   private createTaskResponse(taskId: string, success: boolean, result: string): AgentMessage {
+    console.log(`[NebulaMCP] 📤 DEBUG: Creating agent_response message`, {
+      taskId,
+      success,
+      resultLength: result.length,
+      targetAgent: 'companion-handler'
+    });
+    
     return {
-      type: 'task_step_complete',
+      type: 'agent_response',
       id: uuidv4(),
       timestamp: new Date().toISOString(),
       senderId: this.agentId,
-      targetId: 'task-orchestrator',
+      targetId: 'companion-handler',
       payload: {
         taskId,
         success,
-        result
+        userFriendlyResponse: result,
+        agentName: 'NebulaMCP',
+        executedBy: this.agentId,
+        result,
+        chainOfThought: [
+          'Balance check executed by Nebula specialist',
+          'Authentic CAMP Explorer API data retrieved',
+          success ? 'Balance check completed successfully' : 'Balance check failed'
+        ]
       }
     };
   }

@@ -34,25 +34,9 @@ interface ActiveTask {
 }
 
 export default function ChatThreads() {
-  const [threads, setThreads] = useState<ChatThread[]>([
-    {
-      id: '1',
-      title: 'Web3 Welcome',
-      preview: 'Hi! I\'m your Web3 companion...',
-      lastMessage: new Date(),
-      messageCount: 1,
-      isStarred: false,
-      isArchived: false,
-      messages: [{
-        id: '1',
-        role: 'assistant',
-        content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
-        timestamp: new Date()
-      }]
-    }
-  ]);
+  const [threads, setThreads] = useState<ChatThread[]>([]);
   
-  const [currentThreadId, setCurrentThreadId] = useState<string>('1');
+  const [currentThreadId, setCurrentThreadId] = useState<string>('');
   const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
@@ -64,7 +48,7 @@ export default function ChatThreads() {
   
   const account = useActiveAccount();
 
-  const currentThread = threads.find(t => t.id === currentThreadId) || threads[0];
+  const currentThread = threads.find(t => t.id === currentThreadId);
   const filteredThreads = threads.filter(thread => {
     const matchesSearch = thread.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          thread.preview.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -168,6 +152,13 @@ export default function ChatThreads() {
     setCurrentThreadId(newThread.id);
     setShowSidebar(false); // Auto-hide on mobile after creating
   };
+
+  // Auto-create first thread if none exist
+  useEffect(() => {
+    if (threads.length === 0 && account?.address) {
+      createNewThread();
+    }
+  }, [account?.address, threads.length]);
 
   const updateCurrentThread = (updater: (thread: ChatThread) => ChatThread) => {
     setThreads(prev => prev.map(thread => 
@@ -387,22 +378,31 @@ export default function ChatThreads() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm border-b border-indigo-200/50 px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-1">
             <button
               onClick={() => setShowSidebar(!showSidebar)}
-              className="p-2 rounded-lg hover:bg-indigo-100 transition-colors md:hidden"
+              className="p-2 rounded-lg hover:bg-indigo-100 transition-colors"
+              title="Toggle sidebar"
             >
               <MessageCircle size={20} className="text-indigo-600" />
             </button>
             <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
               <Bot className="text-white" size={20} />
             </div>
-            <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent truncate">
                 {currentThread?.title || 'Puppets AI'}
               </h1>
               <p className="text-sm text-indigo-600">AI Companion & Web3 Assistant</p>
             </div>
+            {/* New Chat Button */}
+            <button
+              onClick={createNewThread}
+              className="p-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+              title="Start new conversation"
+            >
+              <Plus size={18} />
+            </button>
           </div>
           
           {activeTasks.length > 0 && (
@@ -468,8 +468,8 @@ export default function ChatThreads() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Example Prompts */}
-        {currentThread?.messages.length === 0 && (
+        {/* Example Prompts - Only show when no threads exist or current thread is empty */}
+        {(threads.length === 0 || (currentThread && currentThread.messages.length === 0)) && (
           <div className="px-4 py-2">
             <p className="text-sm text-indigo-600 mb-3 font-medium">✨ Try these examples:</p>
             <div className="flex flex-wrap gap-2">
@@ -482,6 +482,24 @@ export default function ChatThreads() {
                   {prompt}
                 </button>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* No threads placeholder */}
+        {threads.length === 0 && (
+          <div className="flex-1 flex items-center justify-center px-4">
+            <div className="text-center">
+              <MessageCircle size={48} className="mx-auto mb-4 text-indigo-300" />
+              <h3 className="text-lg font-medium text-indigo-600 mb-2">Start Your First Conversation</h3>
+              <p className="text-indigo-500 mb-4">Create a new thread to begin chatting with your AI companion</p>
+              <button
+                onClick={createNewThread}
+                className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Plus size={20} className="inline mr-2" />
+                Start New Chat
+              </button>
             </div>
           </div>
         )}

@@ -1,0 +1,84 @@
+ },
+  chainOfThought: [
+    'Task Analysis: Check my CAMP token balance',
+    'Task Type: user_request, Priority: high',
+    'AI Selected Agent: nebula-mcp (confidence: 98.0%)',
+    'Selection Reasoning: Balance check detected - Nebula is the specialized balance agent with authentic data access',
+    'Agent Type: task, Role: Primary Balance and Portfolio Specialist - Real-time balance checking with native CAMP token expertise and session signer integration',
+    'Success Rate: 98.0%',
+    'Average Latency: 1500ms'
+  ]
+}
+🧠 [TaskOrchestrator] Wallet determination result: {
+  taskDescription: 'Check my CAMP token balance',
+  userWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  targetWallet: '0x4bcf74e971E677e95b8bFB0980721557987119Ae',
+  operationType: 'read',
+  logMessage: 'Read operation using user wallet: 0x4bcf74e971E677e95b8bFB0980721557987119Ae (no specific wallet mentioned)'
+}
+Publishing message: nebula_request from task-orchestrator to nebula-mcp
+[NebulaMCP] 🔄 DEBUG: Subscription handler received message b570d090-783b-4ce9-a538-a3f2fb87e961
+[NebulaMCP] 🔍 DEBUG: Received message {
+  type: 'nebula_request',
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true
+}
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Enhanced Nebula Execute System {
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  description: 'Check my CAMP token balance',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'read',
+  parametersReceived: [],
+  description: 'Check my CAMP token balance'
+}
+[NebulaMCP] 📖 Routing READ operation to /chat endpoint
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+1:59:14 PM [express] POST /api/agents/chat 200 in 30004ms :: {"success":true,"response":"How can I a…
+[NebulaMCP] Chat endpoint request failed: DOMException [TimeoutError]: The operation was aborted due to timeout
+    at node:internal/deps/undici/undici:13510:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NebulaMCP.processWithChatEndpoint (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:391:24)
+    at async NebulaMCP.processWithNebulaLLM (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:187:16)
+    at async NebulaMCP.handleMessage (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:127:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:59:24)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  success: false,
+  resultLength: 53,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '3f7f5941-18ad-432c-83ef-161db7b86f21',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  messageType: 'agent_response',
+  responseLength: 53
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  success: false,
+  fullResponse: 'Failed to process blockchain query. Please try again.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'db07a04f-6965-4251-b5d6-7f52fa3a5f2a',
+  responsePreview: 'Failed to process blockchain query. Please try again....',
+  fullResponse: 'Failed to process blockchain query. Please try again.'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[NebulaMCP] ✅ DEBUG: Response sent successfully

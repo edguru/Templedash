@@ -234,7 +234,7 @@ export class NebulaMCP extends BaseAgent {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(40000) // Extended timeout for transaction execution
+        signal: AbortSignal.timeout(60000) // Increased to 60 seconds for consistent timeout across endpoints
       });
 
       if (!response.ok) {
@@ -395,7 +395,7 @@ Request ID: ${requestId}`;
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(35000)
+        signal: AbortSignal.timeout(60000) // Increased to 60 seconds for slow API responses
       });
 
       if (!response.ok) {

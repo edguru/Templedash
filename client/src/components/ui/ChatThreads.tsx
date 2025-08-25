@@ -17,6 +17,7 @@ interface ChatMessage {
 
 interface ChatThread {
   id: string;
+  sessionId: string;
   title: string;
   preview: string;
   lastMessage: Date;
@@ -35,15 +36,16 @@ interface ActiveTask {
 
 export default function ChatThreads() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
-  
   const [currentThreadId, setCurrentThreadId] = useState<string>('');
   const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingThreads, setIsLoadingThreads] = useState(true);
   const [activeTasks, setActiveTasks] = useState<ActiveTask[]>([]);
   const [hasSessionKey, setHasSessionKey] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const account = useActiveAccount();
@@ -71,10 +73,119 @@ export default function ChatThreads() {
 
   useEffect(() => {
     if (account?.address) {
+      initializeUser();
       fetchActiveTasks();
       checkSessionKey();
     }
   }, [account]);
+
+  const initializeUser = async () => {
+    if (!account?.address) return;
+    
+    try {
+      // Get or create user through wallet auth
+      const response = await fetch('/api/auth/wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: account.address,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserId(data.user.id);
+        await fetchChatThreads(data.user.id);
+      }
+    } catch (error) {
+      console.error('Error initializing user:', error);
+    }
+  };
+
+  const fetchChatThreads = async (userIdParam?: number) => {
+    const effectiveUserId = userIdParam || userId;
+    if (!effectiveUserId) return;
+
+    try {
+      setIsLoadingThreads(true);
+      const response = await fetch(`/api/chat/sessions/${effectiveUserId}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        const sessions = data.sessions || [];
+        
+        // Convert backend sessions to frontend thread format
+        const convertedThreads: ChatThread[] = await Promise.all(
+          sessions.map(async (session: any) => {
+            // Load messages for each session to get preview
+            const messagesResponse = await fetch(`/api/chat/history/${session.sessionId}`);
+            let messages: ChatMessage[] = [];
+            let preview = 'No messages yet';
+
+            if (messagesResponse.ok) {
+              const historyData = await messagesResponse.json();
+              messages = convertHistoryToMessages(historyData.history || []);
+              if (messages.length > 0) {
+                const lastUserMessage = messages.filter(m => m.role === 'user').pop();
+                preview = lastUserMessage ? lastUserMessage.content.slice(0, 50) + '...' : preview;
+              }
+            }
+
+            return {
+              id: session.sessionId,
+              sessionId: session.sessionId,
+              title: session.title || 'New Chat',
+              preview,
+              lastMessage: new Date(session.lastMessageAt),
+              messageCount: session.messageCount || 0,
+              isStarred: false, // TODO: Add starred field to backend
+              isArchived: session.isArchived || false,
+              messages
+            };
+          })
+        );
+
+        setThreads(convertedThreads);
+        
+        // Set current thread to the most recent one if none selected
+        if (!currentThreadId && convertedThreads.length > 0) {
+          setCurrentThreadId(convertedThreads[0].sessionId);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching chat threads:', error);
+    } finally {
+      setIsLoadingThreads(false);
+    }
+  };
+
+  const convertHistoryToMessages = (history: any[]): ChatMessage[] => {
+    const messages: ChatMessage[] = [];
+    
+    history.forEach((conversation: any) => {
+      if (conversation.userMessage) {
+        messages.push({
+          id: `user-${conversation.id}`,
+          role: 'user',
+          content: conversation.userMessage,
+          timestamp: new Date(conversation.createdAt)
+        });
+      }
+      
+      if (conversation.companionResponse) {
+        messages.push({
+          id: `assistant-${conversation.id}`,
+          role: 'assistant',
+          content: conversation.companionResponse,
+          timestamp: new Date(conversation.createdAt)
+        });
+      }
+    });
+    
+    return messages;
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -136,29 +247,50 @@ export default function ChatThreads() {
     }
   };
 
-  const createNewThread = () => {
-    const newThread: ChatThread = {
-      id: Date.now().toString(),
-      title: 'New Conversation',
-      preview: 'Start a new conversation...',
-      lastMessage: new Date(),
-      messageCount: 0,
-      isStarred: false,
-      isArchived: false,
-      messages: []
-    };
+  const createNewThread = async () => {
+    if (!userId) return;
     
-    setThreads(prev => [newThread, ...prev]);
-    setCurrentThreadId(newThread.id);
-    setShowSidebar(false); // Auto-hide on mobile after creating
+    try {
+      const response = await fetch('/api/chat/sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          title: 'New Chat'
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const newThread: ChatThread = {
+          id: data.sessionId,
+          sessionId: data.sessionId,
+          title: 'New Chat',
+          preview: 'Start a new conversation...',
+          lastMessage: new Date(),
+          messageCount: 0,
+          isStarred: false,
+          isArchived: false,
+          messages: []
+        };
+        
+        setThreads(prev => [newThread, ...prev]);
+        setCurrentThreadId(data.sessionId);
+        setShowSidebar(false); // Auto-hide on mobile after creating
+      }
+    } catch (error) {
+      console.error('Error creating new thread:', error);
+    }
   };
 
   // Auto-create first thread if none exist
   useEffect(() => {
-    if (threads.length === 0 && account?.address) {
+    if (threads.length === 0 && userId && account?.address) {
       createNewThread();
     }
-  }, [account?.address, threads.length]);
+  }, [userId, threads.length]);
 
   const updateCurrentThread = (updater: (thread: ChatThread) => ChatThread) => {
     setThreads(prev => prev.map(thread => 
@@ -173,12 +305,45 @@ export default function ChatThreads() {
     ));
   };
 
-  const deleteThread = (threadId: string, e: React.MouseEvent) => {
+  const deleteThread = async (threadId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setThreads(prev => prev.filter(thread => thread.id !== threadId));
-    if (currentThreadId === threadId && threads.length > 1) {
-      const remainingThreads = threads.filter(t => t.id !== threadId);
-      setCurrentThreadId(remainingThreads[0].id);
+    
+    try {
+      const response = await fetch(`/api/chat/sessions/${threadId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        setThreads(prev => prev.filter(thread => thread.id !== threadId));
+        if (currentThreadId === threadId && threads.length > 1) {
+          const remainingThreads = threads.filter(t => t.id !== threadId);
+          setCurrentThreadId(remainingThreads[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting thread:', error);
+    }
+  };
+
+  const renameThread = async (threadId: string, newTitle: string) => {
+    try {
+      const response = await fetch(`/api/chat/sessions/${threadId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: newTitle
+        }),
+      });
+
+      if (response.ok) {
+        setThreads(prev => prev.map(thread => 
+          thread.id === threadId ? { ...thread, title: newTitle } : thread
+        ));
+      }
+    } catch (error) {
+      console.error('Error renaming thread:', error);
     }
   };
 
@@ -199,9 +364,15 @@ export default function ChatThreads() {
       messages: [...thread.messages, userMessage],
       lastMessage: new Date(),
       messageCount: thread.messageCount + 1,
-      title: thread.messageCount === 0 ? inputValue.trim().slice(0, 30) + '...' : thread.title,
       preview: inputValue.trim().slice(0, 50) + '...'
     }));
+
+    // Auto-generate title from first message
+    const currentThread = threads.find(t => t.id === currentThreadId);
+    if (currentThread && currentThread.messageCount === 0 && inputValue.trim()) {
+      const autoTitle = generateTitleFromMessage(inputValue.trim());
+      await renameThread(currentThreadId, autoTitle);
+    }
 
     setInputValue('');
     setIsLoading(true);
@@ -215,6 +386,7 @@ export default function ChatThreads() {
         body: JSON.stringify({
           message: userMessage.content,
           userId: account.address,
+          walletAddress: account.address,
           conversationId: currentThreadId
         })
       });
@@ -261,6 +433,31 @@ export default function ChatThreads() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const generateTitleFromMessage = (message: string): string => {
+    // Remove common prefixes and clean up the message
+    const cleanMessage = message
+      .replace(/^(please|can you|could you|help me|i want to|i need to)\s*/i, '')
+      .replace(/\?$/, '')
+      .trim();
+
+    // Take first 30 characters and ensure it ends properly
+    let title = cleanMessage.slice(0, 30);
+    if (cleanMessage.length > 30) {
+      // Find the last complete word
+      const lastSpace = title.lastIndexOf(' ');
+      if (lastSpace > 15) {
+        title = title.slice(0, lastSpace) + '...';
+      } else {
+        title = title + '...';
+      }
+    }
+
+    // Capitalize first letter
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+    
+    return title || 'New Chat';
   };
 
   const examplePrompts = [
@@ -323,7 +520,7 @@ export default function ChatThreads() {
             <div
               key={thread.id}
               onClick={() => {
-                setCurrentThreadId(thread.id);
+                setCurrentThreadId(thread.sessionId);
                 setShowSidebar(false);
               }}
               className={`p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group ${
@@ -362,7 +559,7 @@ export default function ChatThreads() {
                     <Star size={12} />
                   </button>
                   <button
-                    onClick={(e) => deleteThread(thread.id, e)}
+                    onClick={(e) => deleteThread(thread.sessionId, e)}
                     className={`p-1 rounded hover:bg-black/10 ${thread.id === currentThreadId ? 'text-white' : 'text-gray-400'}`}
                   >
                     <Trash2 size={12} />

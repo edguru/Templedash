@@ -669,6 +669,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update chat session title (rename)
+  app.patch('/api/chat/sessions/:sessionId', async (req: any, res) => {
+    try {
+      const { sessionId } = req.params;
+      const { title } = req.body;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID is required' });
+      }
+      
+      if (!title || title.trim().length === 0) {
+        return res.status(400).json({ error: 'Title is required' });
+      }
+
+      const chatContextManager = agentSystem.getChatContextManager();
+      await chatContextManager.updateSessionTitle(sessionId, title.trim());
+      
+      res.json({ success: true, sessionId, title: title.trim() });
+    } catch (error) {
+      console.error('Update chat session error:', error);
+      res.status(500).json({ error: 'Failed to update chat session' });
+    }
+  });
+
+  // Archive/delete chat session
+  app.delete('/api/chat/sessions/:sessionId', async (req: any, res) => {
+    try {
+      const { sessionId } = req.params;
+      
+      if (!sessionId) {
+        return res.status(400).json({ error: 'Session ID is required' });
+      }
+
+      const chatContextManager = agentSystem.getChatContextManager();
+      await chatContextManager.archiveChatSession(sessionId);
+      
+      res.json({ success: true, sessionId, archived: true });
+    } catch (error) {
+      console.error('Archive chat session error:', error);
+      res.status(500).json({ error: 'Failed to archive chat session' });
+    }
+  });
+
   // Intelligent agent-powered balance check endpoint
   app.get('/api/balance/:walletAddress', async (req: any, res) => {
     try {

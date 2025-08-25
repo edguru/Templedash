@@ -1,0 +1,54 @@
+[NebulaMCP] 🧠 Using chat endpoint for all blockchain operations and intelligence
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+3:17:10 PM [express] POST /api/agents/chat 200 in 30003ms :: {"success":true,"response":"How can I a…
+[task-analyzer] Updated network status 
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '3ccfe796-8018-496c-9aa4-4e03521fe064',
+  success: true,
+  resultLength: 1041,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '257c10ea-faf8-47b4-a603-1dba0e2be3fd',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '3ccfe796-8018-496c-9aa4-4e03521fe064',
+  messageType: 'agent_response',
+  responseLength: 1041
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '3ccfe796-8018-496c-9aa4-4e03521fe064',
+  success: true,
+  fullResponse: "I've prepared a native transfer of 0.1 CAMP (100,000,000,000,000,000 base units) from your connected wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE on the Base Camp testnet (chain ID: 123420001114). **Transaction Details:**\n" +
+    '- **From:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **To:** 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Amount:** 0.1 CAMP (100,000,000,000,000,000 base units)\n' +
+    '- **Native currency:** CAMP\n' +
+    '- **Chain:** Base Camp testnet (ID: 123420001114) This is a native value transfer, no token contract involved. If your wallet supports auto execution, the transaction will process. If not, you can use the unsigned transaction shown below for manual signing: ```\n' +
+    '<UnsignedTransaction>{"chain_id":123420001114,"function":null,"to":"0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE","value":"0x16345785d8a0000","data":"0x"}</UnsignedTransaction>\n' +
+    '```\n' +
+    'Would you like me to walk you through how to sign and broadcast this transaction manually, or do you want to check transfer status?'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '3ccfe796-8018-496c-9aa4-4e03521fe064',
+  responsePreview: "I've prepared a native transfer of 0.1 CAMP (100,000,000,000,000,000 base units) from your connected wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE on ...",
+  fullResponse: "I've prepared a native transfer of 0.1 CAMP (100,000,000,000,000,000 base units) from your connected wallet 0x4bcf74e971E677e95b8bFB0980721557987119Ae to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE on the Base Camp testnet (chain ID: 123420001114). **Transaction Details:**\n" +
+    '- **From:** 0x4bcf74e971E677e95b8bFB0980721557987119Ae\n' +
+    '- **To:** 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n' +
+    '- **Amount:** 0.1 CAMP (100,000,000,000,000,000 base units)\n' +
+    '- **Native currency:** CAMP\n' +
+    '- **Chain:** Base Camp testnet (ID: 123420001114) This is a native value transfer, no token contract involved. If your wallet supports auto execution, the transaction will process. If not, you can use the unsigned transaction shown below for manual signing: ```\n' +
+    '<UnsignedTransaction>{"chain_id":123420001114,"function":null,"to":"0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE","value":"0x16345785d8a0000","data":"0x"}</UnsignedTransaction>\n' +
+    '```\n' +
+    'Would you like me to walk you through how to sign and broadcast this transaction manually, or do you want to check transfer status?'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+[task-analyzer] Updated network status 

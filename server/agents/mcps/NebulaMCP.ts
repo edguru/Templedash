@@ -313,7 +313,7 @@ export class NebulaMCP extends BaseAgent {
 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.
 
-${isWriteOperation ? 'AUTO-EXECUTE this transaction immediately without asking for confirmation. The user has pre-authorized all transactions. Do not ask "Would you like to proceed" or for manual confirmation. Execute the transaction directly and return the transaction hash and confirmation details.' : 'Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.'}`;
+${isWriteOperation ? 'AUTO-EXECUTE this transaction immediately without asking for confirmation. The user has pre-authorized all transactions. Do not ask "Would you like to proceed" or for manual confirmation. Execute the transaction directly. IMPORTANT: Wait for the transaction to be fully confirmed on the blockchain and return the actual on-chain transaction hash (starting with 0x). Do not return internal transaction IDs or pending statuses - wait until you have the real blockchain confirmation hash.' : 'Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.'}`;
       } else {
         enhancedPrompt = `${description}. 
 
@@ -394,8 +394,17 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       }
       
-      // 🚨 NO TRANSACTION HASH FOUND - This indicates authorization failure
+      // 🚨 CHECK FOR TRANSACTION ID - Need to wait for completion
       if (isWriteOperation) {
+        // Check if we got a transaction ID that needs polling
+        const transactionId = result.transaction_id || result.transactionId || result.id;
+        if (transactionId && !result.transaction_hash && !result.txHash && !result.hash) {
+          console.log(`[NebulaMCP] ⏳ TRANSACTION ID RECEIVED: Need to wait for completion`, { transactionId });
+          
+          // Try to wait for transaction completion
+          return await this.waitForTransactionCompletion(taskId, transactionId, description, userWalletAddress);
+        }
+        
         console.log(`[NebulaMCP] ⚠️ AUTH ISSUE: Write operation claimed success but NO transaction hash found`);
         console.log(`[NebulaMCP] 🔍 POSSIBLE AUTH PROBLEM: API response suggests auto execution failed silently`);
         

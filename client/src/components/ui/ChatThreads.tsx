@@ -37,7 +37,7 @@ interface ActiveTask {
 export default function ChatThreads() {
   const [threads, setThreads] = useState<ChatThread[]>([]);
   const [currentThreadId, setCurrentThreadId] = useState<string>('');
-  const [showSidebar, setShowSidebar] = useState(window.innerWidth >= 768);
+  const [showSidebar, setShowSidebar] = useState(true); // Always show sidebar initially
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'starred' | 'recent'>('all');
   const [inputValue, setInputValue] = useState('');
@@ -516,11 +516,30 @@ export default function ChatThreads() {
         
         {/* Thread List */}
         <div className="flex-1 overflow-y-auto p-2">
-          {filteredThreads.map((thread) => (
-            <div
-              key={thread.id}
-              onClick={() => {
-                setCurrentThreadId(thread.sessionId);
+          {isLoadingThreads ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="flex items-center space-x-2">
+                <Loader2 className="animate-spin text-indigo-500" size={20} />
+                <span className="text-indigo-600">Loading conversations...</span>
+              </div>
+            </div>
+          ) : filteredThreads.length === 0 ? (
+            <div className="text-center py-8">
+              <MessageCircle size={32} className="mx-auto mb-3 text-indigo-300" />
+              <p className="text-sm text-indigo-500">No conversations yet</p>
+              <button
+                onClick={createNewThread}
+                className="mt-3 text-sm bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+              >
+                Start First Chat
+              </button>
+            </div>
+          ) : (
+            filteredThreads.map((thread) => (
+              <div
+                key={thread.id}
+                onClick={() => {
+                  setCurrentThreadId(thread.sessionId);
                 setShowSidebar(false);
               }}
               className={`p-3 rounded-lg mb-2 cursor-pointer transition-all duration-200 group ${
@@ -566,8 +585,9 @@ export default function ChatThreads() {
                   </button>
                 </div>
               </div>
-            </div>
-          ))}
+              </div>
+            ))
+          )}
         </div>
       </div>
 

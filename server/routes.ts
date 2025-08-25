@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { db } from "./storage";
-import { users, gameScores, tokenClaims, nftOwnership, contracts, companions } from '../shared/schema';
+import { users, gameScores, tokenClaims, nftOwnership, contracts, companions, conversations, chatSessions, transactionStatuses, tasks, insertTaskSchema } from '../shared/schema';
 import { storeContract, getContract, updateContractAddress, getAllContracts } from "./contractService";
 import { eq, desc, sum, count, and, sql } from 'drizzle-orm';
 
@@ -709,6 +709,128 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Archive chat session error:', error);
       res.status(500).json({ error: 'Failed to archive chat session' });
+    }
+  });
+  
+  // Task Management API Endpoints
+  app.get('/api/tasks/active/:userId', async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (!userId || userId <= 0) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const activeTasks = await db.select()
+        .from(tasks)
+        .where(and(
+          eq(tasks.userId, userId),
+          or(
+            eq(tasks.status, 'pending'),
+            eq(tasks.status, 'running')
+          )
+        ))
+        .orderBy(desc(tasks.createdAt));
+      
+      res.json({ tasks: activeTasks });
+    } catch (error) {
+      console.error('Error fetching active tasks:', error);
+      res.status(500).json({ error: 'Failed to fetch tasks' });
+    }
+  });
+
+  app.get('/api/tasks/history/:userId', async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      if (!userId || userId <= 0) {
+        return res.status(400).json({ error: 'Invalid user ID' });
+      }
+
+      const taskHistory = await db.select()
+        .from(tasks)
+        .where(and(
+          eq(tasks.userId, userId),
+          or(
+            eq(tasks.status, 'completed'),
+            eq(tasks.status, 'failed'),
+            eq(tasks.status, 'cancelled')
+          )
+        ))
+        .orderBy(desc(tasks.completedAt))
+        .limit(limit);
+      
+      res.json({ tasks: taskHistory });
+    } catch (error) {
+      console.error('Error fetching task history:', error);
+      res.status(500).json({ error: 'Failed to fetch task history' });
+    }
+  });
+
+  app.patch('/api/tasks/:taskId/status', async (req: any, res) => {
+    try {
+      const { taskId } = req.params;
+      const { status, result, error: taskError, progress } = req.body;
+      
+      if (!taskId) {
+        return res.status(400).json({ error: 'Task ID is required' });
+      }
+      
+      const updateData: any = {
+        status,
+        updatedAt: new Date(),
+      };
+      
+      if (progress !== undefined) updateData.progress = progress;
+      if (result) updateData.result = typeof result === 'string' ? result : JSON.stringify(result);
+      if (taskError) updateData.error = taskError;
+      if (status === 'running') updateData.startedAt = new Date();
+      if (['completed', 'failed', 'cancelled'].includes(status)) {
+        updateData.completedAt = new Date();
+      }
+
+      await db.update(tasks)
+        .set(updateData)
+        .where(eq(tasks.id, taskId));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      res.status(500).json({ error: 'Failed to update task status' });
+    }
+  });
+  
+  // Create new task endpoint
+  app.post('/api/tasks', async (req: any, res) => {
+    try {
+      const { userId, type, category, description, parameters, priority, userWallet, sessionId } = req.body;
+      
+      if (!userId || !description || !userWallet) {
+        return res.status(400).json({ error: 'userId, description, and userWallet are required' });
+      }
+      
+      const taskId = uuidv4();
+      
+      const newTask = await db.insert(tasks).values({
+        id: taskId,
+        userId: parseInt(userId),
+        type: type || 'user_request',
+        category: category || 'general',
+        description,
+        parameters: parameters ? JSON.stringify(parameters) : null,
+        status: 'pending',
+        priority: priority || 'medium',
+        progress: 0,
+        userWallet,
+        sessionId,
+        retryCount: 0,
+        maxRetries: 3
+      }).returning();
+      
+      res.json({ success: true, task: newTask[0] });
+    } catch (error) {
+      console.error('Error creating task:', error);
+      res.status(500).json({ error: 'Failed to create task' });
     }
   });
 

@@ -95,24 +95,49 @@ export default function ChatScreen() {
     try {
       setIsLoadingHistory(true);
       
-      // Try to load existing chat sessions
-      const sessionsResponse = await fetch(`/api/chat/sessions/${account.address}`);
-      if (sessionsResponse.ok) {
-        const sessionsData = await sessionsResponse.json();
-        setChatSessions(sessionsData.sessions || []);
+      // First resolve wallet address to userId
+      const authResponse = await fetch('/api/auth/wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: account.address,
+        }),
+      });
+      
+      if (authResponse.ok) {
+        const authData = await authResponse.json();
+        const userId = authData.user.id;
         
-        // Use the most recent session or create new one
-        if (sessionsData.sessions && sessionsData.sessions.length > 0) {
-          const mostRecentSession = sessionsData.sessions[0];
-          setCurrentSessionId(mostRecentSession.sessionId);
-          await loadChatHistory(mostRecentSession.sessionId);
+        // Try to load existing chat sessions using userId
+        const sessionsResponse = await fetch(`/api/chat/sessions/${userId}`);
+        if (sessionsResponse.ok) {
+          const sessionsData = await sessionsResponse.json();
+          setChatSessions(sessionsData.sessions || []);
+          
+          // Use the most recent session or create new one
+          if (sessionsData.sessions && sessionsData.sessions.length > 0) {
+            const mostRecentSession = sessionsData.sessions[0];
+            setCurrentSessionId(mostRecentSession.sessionId);
+            await loadChatHistory(mostRecentSession.sessionId);
+          } else {
+            // Create new session
+            await createNewChatSession(userId);
+          }
         } else {
-          // Create new session
-          await createNewChatSession();
+          // If sessions endpoint fails, create new session
+          await createNewChatSession(userId);
         }
       } else {
-        // If sessions endpoint fails, create new session
-        await createNewChatSession();
+        console.error('Failed to authenticate wallet:', authResponse.statusText);
+        // Fallback to default welcome message
+        setMessages([{
+          id: '1',
+          role: 'assistant',
+          content: "Hi! I'm your Web3 companion. I can help you deploy contracts, mint NFTs, transfer tokens, and automate blockchain tasks. What would you like to do?",
+          timestamp: new Date()
+        }]);
       }
     } catch (error) {
       console.error('Error initializing chat session:', error);
@@ -129,17 +154,35 @@ export default function ChatScreen() {
   };
 
   // Create new chat session
-  const createNewChatSession = async () => {
+  const createNewChatSession = async (userId?: number) => {
     if (!account?.address) return;
     
     try {
+      // If userId not provided, get it from auth
+      let effectiveUserId = userId;
+      if (!effectiveUserId) {
+        const authResponse = await fetch('/api/auth/wallet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            walletAddress: account.address,
+          }),
+        });
+        if (authResponse.ok) {
+          const authData = await authResponse.json();
+          effectiveUserId = authData.user.id;
+        }
+      }
+      
       const response = await fetch('/api/chat/sessions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId: account.address,
+          userId: effectiveUserId,
           title: 'New Chat'
         }),
       });
@@ -225,11 +268,27 @@ export default function ChatScreen() {
     if (!account?.address) return;
     
     try {
-      const response = await fetch(`/api/agents/tasks?userId=${account.address}`);
+      // First resolve wallet address to userId
+      const authResponse = await fetch('/api/auth/wallet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          walletAddress: account.address,
+        }),
+      });
       
-      if (response.ok) {
-        const data = await response.json();
-        setActiveTasks(data.tasks || []);
+      if (authResponse.ok) {
+        const authData = await authResponse.json();
+        const userId = authData.user.id;
+        
+        const response = await fetch(`/api/tasks/active/${userId}`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setActiveTasks(data.tasks || []);
+        }
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);

@@ -221,3 +221,55 @@ export const insertTransactionStatusSchema = createInsertSchema(transactionStatu
 
 export type TransactionStatus = typeof transactionStatuses.$inferSelect;
 export type InsertTransactionStatus = z.infer<typeof insertTransactionStatusSchema>;
+
+// Tasks table for persistent task management
+export const tasks = pgTable("tasks", {
+  id: text("id").primaryKey(), // UUID
+  userId: integer("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull(), // 'user_request', 'scheduled', 'webhook'
+  category: text("category").default("general"), // 'defi', 'nft', 'token', 'general'
+  description: text("description").notNull(),
+  parameters: text("parameters"), // JSON string
+  status: text("status").notNull().default("pending"), // 'pending', 'running', 'completed', 'failed', 'cancelled'
+  priority: text("priority").notNull().default("medium"), // 'low', 'medium', 'high'
+  progress: integer("progress").default(0), // 0-100
+  assignedAgent: text("assigned_agent"), // Agent ID
+  result: text("result"), // JSON string
+  error: text("error"),
+  userWallet: text("user_wallet").notNull(),
+  sessionId: text("session_id"),
+  estimatedDuration: integer("estimated_duration"), // In seconds
+  actualDuration: integer("actual_duration"), // In seconds
+  retryCount: integer("retry_count").default(0),
+  maxRetries: integer("max_retries").default(3),
+  metadata: text("metadata"), // JSON string for additional data
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertTaskSchema = createInsertSchema(tasks).pick({
+  id: true,
+  userId: true,
+  type: true,
+  category: true,
+  description: true,
+  parameters: true,
+  status: true,
+  priority: true,
+  progress: true,
+  assignedAgent: true,
+  result: true,
+  error: true,
+  userWallet: true,
+  sessionId: true,
+  estimatedDuration: true,
+  actualDuration: true,
+  retryCount: true,
+  maxRetries: true,
+  metadata: true,
+});
+
+export type Task = typeof tasks.$inferSelect;
+export type InsertTask = z.infer<typeof insertTaskSchema>;

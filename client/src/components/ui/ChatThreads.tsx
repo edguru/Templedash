@@ -484,7 +484,7 @@ export default function ChatThreads() {
   ];
 
   return (
-    <div className="h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex relative">
+    <div className="h-full bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex relative max-h-screen">
       {/* Mobile Overlay */}
       {showSidebar && (
         <div 
@@ -495,9 +495,10 @@ export default function ChatThreads() {
 
       {/* Sidebar - Thread List */}
       <div className={`${
-        showSidebar ? 'w-80 md:w-80' : 'w-0'
+        showSidebar ? 'w-80 md:w-80' : 'w-0 md:w-0'
       } ${window.innerWidth < 768 ? 'fixed left-0 top-0 h-full z-50' : 'relative'} 
-      transition-all duration-300 overflow-hidden bg-white/90 backdrop-blur-sm border-r border-indigo-200/50 flex flex-col shadow-lg md:shadow-none`}>
+      transition-all duration-300 bg-white/90 backdrop-blur-sm border-r border-indigo-200/50 flex flex-col shadow-lg md:shadow-none
+      ${showSidebar ? 'overflow-visible' : 'overflow-hidden'}`}>
         {/* Sidebar Header */}
         <div className="p-4 border-b border-indigo-200/50">
           <div className="flex items-center justify-between mb-4">
@@ -550,7 +551,7 @@ export default function ChatThreads() {
         </div>
         
         {/* Thread List */}
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="flex-1 chat-scroll-area p-2 min-h-0">
           {isLoadingThreads ? (
             <div className="flex items-center justify-center py-8">
               <div className="flex items-center space-x-2">
@@ -674,7 +675,7 @@ export default function ChatThreads() {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="flex-1 chat-scroll-area px-4 py-4 space-y-4 min-h-0">
           {currentThread?.messages.map((message) => (
             <div
               key={message.id}

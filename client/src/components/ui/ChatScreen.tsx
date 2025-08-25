@@ -317,7 +317,7 @@ export default function ChatScreen() {
   ];
 
   return (
-    <div className="h-screen bg-gray-50 flex flex-col">
+    <div className="h-full bg-gray-50 flex flex-col max-h-screen">
       {/* Header - Mobile Optimized */}
       <div className="bg-white border-b px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <div className="flex items-center space-x-2 sm:space-x-3">
@@ -341,7 +341,7 @@ export default function ChatScreen() {
       </div>
 
       {/* Messages - Mobile Optimized */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4">
+      <div className="flex-1 chat-scroll-area px-3 sm:px-6 py-3 sm:py-4 space-y-3 sm:space-y-4 min-h-0">
         {messages.map((message) => (
           <div
             key={message.id}

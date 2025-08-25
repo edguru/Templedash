@@ -199,7 +199,11 @@ export class NebulaMCP extends BaseAgent {
       console.log(`[NebulaMCP] ⚡ EXECUTE: Processing write operation with execute endpoint`);
       
       // Enhanced prompt with Base Camp network as default for execution
-      const enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Default to Base Camp testnet (chain ID: 123420001114) where CAMP is the native currency unless another network is explicitly specified. EXECUTE this transaction - do not just prepare it. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+      const enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. 
+
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any token or balance operations, search on Base Camp testnet first.
+
+EXECUTE this transaction - do not just prepare it. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
 
       const requestBody = {
         messages: [{
@@ -351,7 +355,15 @@ Request ID: ${requestId}`;
       // Enhanced prompt with Base Camp network as default
       let enhancedPrompt = description;
       if (userWalletAddress) {
-        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. Default to Base Camp testnet (chain ID: 123420001114) where CAMP is the native currency unless another network is explicitly specified. Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. 
+
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.
+
+Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.`;
+      } else {
+        enhancedPrompt = `${description}. 
+
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.`;
       }
       
       const requestBody = {

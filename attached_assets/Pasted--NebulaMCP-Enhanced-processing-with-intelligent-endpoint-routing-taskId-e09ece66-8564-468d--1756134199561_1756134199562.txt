@@ -1,0 +1,48 @@
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: 'e09ece66-8564-468d-a6fb-b469e76b461b',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'write',
+  parametersReceived: [],
+  description: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f'
+}
+[NebulaMCP] 🧠 Using chat endpoint for all blockchain operations and intelligence
+[NebulaMCP] Making request to /chat endpoint for read operation
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+3:01:41 PM [express] POST /api/agents/chat 200 in 30001ms :: {"success":true,"response":"How can I a…
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: 'e09ece66-8564-468d-a6fb-b469e76b461b',
+  success: true,
+  resultLength: 485,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: 'c38cd37d-151b-43f1-a55e-02e1173c48fb',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: 'e09ece66-8564-468d-a6fb-b469e76b461b',
+  messageType: 'agent_response',
+  responseLength: 485
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: 'e09ece66-8564-468d-a6fb-b469e76b461b',
+  success: true,
+  fullResponse: 'I was unable to find a token called "CAMP" as either a native currency or ERC20 token on Ethereum Mainnet. The only native asset here is ETH (Ether). To proceed, please clarify:\n' +
+    '- The exact blockchain network and contract address for the "CAMP" token you want to transfer.\n' +
+    '- If "CAMP" is the native coin on another network, let me know which one (e.g., Base, BSC, Polygon, etc.). Once you provide this information, I can automatically set the correct network and complete the transfer.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: 'e09ece66-8564-468d-a6fb-b469e76b461b',
+  responsePreview: 'I was unable to find a token called "CAMP" as either a native currency or ERC20 token on Ethereum Mainnet. The only native asset here is ETH (Ether). To proceed, please clarify:\n' +
+    '- The exact blockchain...',
+  fullResponse: 'I was unable to find a token called "CAMP" as either a native currency or ERC20 token on Ethereum Mainnet. The only native asset here is ETH (Ether). To proceed, please clarify:\n' +
+    '- The exact blockchain network and contract address for the "CAMP" token you want to transfer.\n' +
+    '- If "CAMP" is the native coin on another network, let me know which one (e.g., Base, BSC, Polygon, etc.). Once you provide this information, I can automatically set the correct network and complete the transfer.'
+}
+Publishing message: companion_response from companion-handler to companion-handler
+[NebulaMCP] ✅ DEBUG: Response sent successfully

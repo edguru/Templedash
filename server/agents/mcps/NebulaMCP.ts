@@ -398,7 +398,7 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
         // Step 3: Auto execution failed - extract explorer URL and try manual signing
         console.log(`[NebulaMCP] 🔄 Step 3: Auto execution failed - attempting manual signing fallback`);
         const explorerUrl = this.extractExplorerUrl(result);
-        return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl || undefined);
+        return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, result, explorerUrl || undefined);
       } else {
         // Read operations - return with mandatory explorer URL
         const rawAnswer = result.message || result.content || result.response || 'No response available.';
@@ -528,10 +528,35 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
   // Enhanced manual signing fallback with polling
   private async tryManualSigningFallbackWithPolling(taskId: string, description: string, userWalletAddress: string, transactionStatus: any, explorerUrl?: string): Promise<AgentMessage> {
     try {
-      console.log(`[NebulaMCP] 📝 Step 3: Manual signing fallback with polling monitoring`);
+      console.log(`[NebulaMCP] 📝 Step 3: Manual signing fallback - extracting transaction from response`);
       
-      // Get structured transaction data
-      const transactionPayload = await this.getStructuredTransactionData(description, userWalletAddress);
+      // First try to extract transaction data from the transactionStatus (Nebula response)
+      let transactionPayload = null;
+      
+      if (transactionStatus?.actions && transactionStatus.actions.length > 0) {
+        const action = transactionStatus.actions[0];
+        if (action.type === 'sign_transaction' && action.data) {
+          transactionPayload = {
+            type: "manual_signing_required",
+            transaction: {
+              to: action.data.to,
+              value: action.data.value,
+              data: action.data.data || "0x",
+              gasLimit: "0x5208", // Default gas for native transfer
+              chainId: action.data.chainId || 123420001114
+            },
+            description: `Transfer to ${action.data.to}`,
+            isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft')
+          };
+          console.log('[NebulaMCP] ✅ Extracted transaction data from existing response');
+        }
+      }
+      
+      // Fallback to API call if no transaction data found
+      if (!transactionPayload) {
+        console.log('[NebulaMCP] ❌ No transaction data in response, attempting API call');
+        transactionPayload = await this.getStructuredTransactionData(description, userWalletAddress);
+      }
       
       if (!transactionPayload || !transactionPayload.transaction) {
         throw new Error('Failed to prepare transaction data for manual signing');

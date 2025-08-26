@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Console Test</title>
+</head>
+<body>
+    <h1>Console Test Page</h1>
+    <button onclick="testLogs()">Test Console Logs</button>
+    <script>
+        console.log('✅ PAGE LOADED - Console working');
+        
+        function testLogs() {
+            console.log('🔥 BUTTON CLICKED - Testing console logs');
+            console.log('📊 API Test Response Structure:', {
+                success: true,
+                payload: {
+                    transactionData: {
+                        transaction: {
+                            to: "0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE",
+                            value: "0x38d7ea4c68000"
+                        },
+                        requiresManualSigning: true
+                    },
+                    requiresManualSigning: true
+                }
+            });
+        }
+        
+        // Test fetch to API
+        async function testAPI() {
+            try {
+                console.log('🔄 Testing API call...');
+                const response = await fetch('/api/agents/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Transfer 0.001 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+                        userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+                    })
+                });
+                const data = await response.json();
+                console.log('✅ API Response:', data);
+                console.log('🔍 Has payload:', !!data.payload);
+                console.log('🔍 Requires manual signing:', data.payload?.requiresManualSigning);
+            } catch (error) {
+                console.error('❌ API Error:', error);
+            }
+        }
+        
+        // Auto-test after 2 seconds
+        setTimeout(testAPI, 2000);
+    </script>
+</body>
+</html>

@@ -39,6 +39,10 @@ export default function ChatScreen() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // CRITICAL: Add immediate logging to verify component is loading
+  console.log('[ChatScreen] 🚀 COMPONENT LOADED AND RUNNING');
+  console.log('[ChatScreen] 🔍 Current pending transaction state:', pendingTransaction);
   
   const account = useActiveAccount();
 
@@ -312,6 +316,9 @@ export default function ChatScreen() {
     setInputValue('');
     setIsLoading(true);
 
+    console.log('[ChatScreen] 🚀 FORM SUBMITTED:', userMessage.content);
+    console.log('[ChatScreen] 🔄 STARTING API REQUEST');
+
     try {
       const response = await fetch('/api/agents/chat', {
         method: 'POST',
@@ -329,18 +336,26 @@ export default function ChatScreen() {
       if (response.ok) {
         const data = await response.json();
         
-        // Enhanced debugging for payload data
-        console.log('[ChatScreen] 🔍 DEBUG: Full API response:', {
-          success: data.success,
-          taskCreated: data.taskCreated,
-          taskId: data.taskId,
-          hasPayload: !!data.payload,
-          payloadKeys: data.payload ? Object.keys(data.payload) : null,
-          payload: data.payload
-        });
+        // CRITICAL: Emergency logging test
+        window.console?.log?.('🚨 EMERGENCY LOG TEST - Can you see this?');
+        console.log('🚨 EMERGENCY LOG TEST - Standard console');
+        
+        try {
+          // Enhanced debugging for payload data
+          console.log('[ChatScreen] 🔍 DEBUG: Full API response:', {
+            success: data.success,
+            taskCreated: data.taskCreated,
+            taskId: data.taskId,
+            hasPayload: !!data.payload,
+            payloadKeys: data.payload ? Object.keys(data.payload) : null,
+            payload: data.payload
+          });
 
-        // CRITICAL: Log the raw response for debugging
-        console.log('[ChatScreen] 🔍 RAW API RESPONSE:', JSON.stringify(data, null, 2));
+          // CRITICAL: Log the raw response for debugging
+          console.log('[ChatScreen] 🔍 RAW API RESPONSE:', JSON.stringify(data, null, 2));
+        } catch (logError) {
+          console.error('❌ LOGGING ERROR:', logError);
+        }
         
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -353,15 +368,16 @@ export default function ChatScreen() {
         setMessages(prev => [...prev, assistantMessage]);
 
         // Check if response contains transaction data requiring manual signing
-        console.log('[ChatScreen] 🚀 TRANSACTION DETECTION START 🚀');
-        
-        if (data.payload) {
-          console.log('[ChatScreen] 🔍 DEBUG: Payload found, checking for transaction data:', {
-            hasRequiresManualSigning: 'requiresManualSigning' in data.payload,
-            hasTransactionData: 'transactionData' in data.payload,
-            requiresManualSigning: data.payload.requiresManualSigning,
-            payload: data.payload
-          });
+        try {
+          console.log('[ChatScreen] 🚀 TRANSACTION DETECTION START 🚀');
+          
+          if (data.payload) {
+            console.log('[ChatScreen] 🔍 DEBUG: Payload found, checking for transaction data:', {
+              hasRequiresManualSigning: 'requiresManualSigning' in data.payload,
+              hasTransactionData: 'transactionData' in data.payload,
+              requiresManualSigning: data.payload.requiresManualSigning,
+              payload: data.payload
+            });
           
           // Check for direct transaction data in payload
           if (data.payload.requiresManualSigning && data.payload.transactionData) {
@@ -394,10 +410,23 @@ export default function ChatScreen() {
             });
           }
         } else {
-          console.log('[ChatScreen] ❌ No payload found in response');
+            console.log('[ChatScreen] ❌ No payload found in response');
+          }
+          
+          console.log('[ChatScreen] 🏁 TRANSACTION DETECTION END 🏁');
+        } catch (detectionError) {
+          console.error('[ChatScreen] ❌ TRANSACTION DETECTION ERROR:', detectionError);
+          // Still try to set pending transaction if we have the data
+          if (data.payload?.requiresManualSigning && data.payload?.transactionData) {
+            console.log('[ChatScreen] 🔧 FALLBACK: Setting pending transaction despite error');
+            setPendingTransaction({
+              requiresManualSigning: true,
+              transactionId: data.taskId || 'unknown',
+              transactionData: data.payload.transactionData,
+              taskId: data.taskId
+            });
+          }
         }
-        
-        console.log('[ChatScreen] 🏁 TRANSACTION DETECTION END 🏁');
 
         // Save conversation to chat history if we have a session
         if (currentSessionId) {

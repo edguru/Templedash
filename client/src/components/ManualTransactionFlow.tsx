@@ -15,6 +15,8 @@ export const ManualTransactionFlow: React.FC<ManualTransactionFlowProps> = ({
   onError,
   onCancel
 }) => {
+  console.log('[ManualTransactionFlow] 🚨 COMPONENT LOADED - Emergency test');
+  
   const { status, executeManualTransaction, reset } = useManualTransaction();
   const [isModalOpen, setIsModalOpen] = useState(false);
 

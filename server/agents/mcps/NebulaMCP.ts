@@ -344,14 +344,13 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         operationType
       });
       
-      // 🚨 AUTH INVESTIGATION: Try both authorization methods
+      // ✅ FIXED AUTH: Use correct Thirdweb API authentication format
       const authHeaders = {
-        'x-secret-key': this.thirdwebSecretKey,
         'Authorization': `Bearer ${this.thirdwebSecretKey}`,
         'Content-Type': 'application/json'
       };
       
-      console.log(`[NebulaMCP] 🔐 AUTH DEBUG: Using both x-secret-key and Bearer token`);
+      console.log(`[NebulaMCP] 🔐 AUTH FIXED: Using correct Bearer token format`);
       console.log(`[NebulaMCP] 🔐 SECRET KEY EXISTS:`, !!this.thirdwebSecretKey);
       console.log(`[NebulaMCP] 🔐 SECRET KEY PREFIX:`, this.thirdwebSecretKey?.substring(0, 10) + '...');
       
@@ -452,7 +451,7 @@ The user will sign this transaction manually in their wallet.`;
       const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',
         headers: {
-          'x-secret-key': this.thirdwebSecretKey,
+          'Authorization': `Bearer ${this.thirdwebSecretKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),

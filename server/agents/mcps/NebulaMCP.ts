@@ -263,7 +263,8 @@ export class NebulaMCP extends BaseAgent {
             
             await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
             
-            const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+            const explorerUrl = this.getExplorerUrl(realTxHash);
+            const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
             
             return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
           } else {
@@ -290,7 +291,8 @@ export class NebulaMCP extends BaseAgent {
         
         await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
         
-        const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+        const explorerUrl = this.getExplorerUrl(realTxHash);
+        const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
 
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       } else {

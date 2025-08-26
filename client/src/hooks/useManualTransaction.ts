@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useActiveAccount, useSendTransaction } from 'thirdweb/react';
 import { prepareTransaction } from 'thirdweb';
 import { baseCamp } from '../lib/chains';
+import { client } from '../lib/thirdweb';
 
 interface TransactionData {
   type: string;
@@ -66,6 +67,7 @@ export const useManualTransaction = () => {
         data: transaction.data as `0x${string}`,
         gas: BigInt(transaction.gasLimit),
         chain: baseCamp,
+        client: client,
       });
 
       console.log('[useManualTransaction] Prepared transaction:', {

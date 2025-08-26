@@ -3,6 +3,7 @@ import { Send, Bot, User, Loader2 } from 'lucide-react';
 import { useActiveAccount } from 'thirdweb/react';
 import { sessionManager } from '../../lib/sessionSigners';
 import MessageRenderer from './MessageRenderer';
+import { ManualTransactionFlow } from '../ManualTransactionFlow';
 
 interface ChatMessage {
   id: string;
@@ -36,6 +37,7 @@ export default function ChatScreen() {
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [pendingTransaction, setPendingTransaction] = useState<any>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const account = useActiveAccount();
@@ -337,6 +339,17 @@ export default function ChatScreen() {
 
         setMessages(prev => [...prev, assistantMessage]);
 
+        // Check if response contains transaction data requiring manual signing
+        if (data.payload && data.payload.requiresManualSigning && data.payload.transactionData) {
+          console.log('[ChatScreen] Manual transaction detected:', data.payload);
+          setPendingTransaction({
+            requiresManualSigning: true,
+            transactionId: data.taskId || 'unknown',
+            transactionData: data.payload.transactionData,
+            taskId: data.taskId
+          });
+        }
+
         // Save conversation to chat history if we have a session
         if (currentSessionId) {
           await saveChatTurn(userMessage.content, assistantMessage.content, currentSessionId);
@@ -512,6 +525,49 @@ export default function ChatScreen() {
           </form>
         )}
       </div>
+
+      {/* Manual Transaction Flow */}
+      {pendingTransaction && (
+        <ManualTransactionFlow
+          transactionPayload={pendingTransaction}
+          onSuccess={(txHash) => {
+            console.log('[ChatScreen] Transaction successful:', txHash);
+            setPendingTransaction(null);
+            // Add success message to chat
+            const successMessage: ChatMessage = {
+              id: Date.now().toString(),
+              role: 'assistant',
+              content: `✅ Transaction confirmed successfully!\n\n🔗 **Transaction Hash:** ${txHash}\n🌐 **Explorer:** https://basecamp.blockscout.com/tx/${txHash}`,
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, successMessage]);
+          }}
+          onError={(error) => {
+            console.error('[ChatScreen] Transaction failed:', error);
+            setPendingTransaction(null);
+            // Add error message to chat
+            const errorMessage: ChatMessage = {
+              id: Date.now().toString(),
+              role: 'assistant',
+              content: `❌ Transaction failed: ${error}`,
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, errorMessage]);
+          }}
+          onCancel={() => {
+            console.log('[ChatScreen] Transaction cancelled');
+            setPendingTransaction(null);
+            // Add cancellation message to chat
+            const cancelMessage: ChatMessage = {
+              id: Date.now().toString(),
+              role: 'assistant',
+              content: `⚠️ Transaction cancelled by user.`,
+              timestamp: new Date()
+            };
+            setMessages(prev => [...prev, cancelMessage]);
+          }}
+        />
+      )}
     </div>
   );
 }

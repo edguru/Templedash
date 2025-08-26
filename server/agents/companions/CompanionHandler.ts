@@ -178,7 +178,8 @@ export class CompanionHandler extends BaseAgent {
         chainOfThought: message.payload.chainOfThought,
         companionName: this.companionTraits?.name,
         sessionId: message.payload.sessionId,
-        taskId: message.payload.taskId // Include taskId for proper routing
+        taskId: message.payload.taskId, // Include taskId for proper routing
+        agentResponsePayload: message.payload // Pass through the full agent payload for transaction data
       }
     };
 

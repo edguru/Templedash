@@ -80,7 +80,8 @@ export class AgentOrchestrator {
               success: true,
               taskCreated: companionMessage.payload.taskRouted || companionMessage.payload.taskCompleted || false,
               taskId: companionMessage.payload.taskId || null,
-              response: companionMessage.payload.message
+              response: companionMessage.payload.message,
+              payload: companionMessage.payload.agentResponsePayload // Include agent response payload for transaction data
             });
           }
         });
@@ -103,7 +104,8 @@ export class AgentOrchestrator {
               success: true,
               taskCreated: true,
               taskId: taskMessage.payload.taskId || null,
-              response: taskMessage.payload.result
+              response: taskMessage.payload.result,
+              payload: taskMessage.payload.agentResponsePayload // Include agent response payload for transaction data
             });
           } else {
             console.log('[AgentOrchestrator] ⚠️ LATE TASK RESULT - Response already sent, ignoring', {

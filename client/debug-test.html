@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+</head>
+<body>
+    <h1>JavaScript Debug Test</h1>
+    <button id="testBtn">Test Console & API</button>
+    <div id="results"></div>
+    
+    <script>
+        // Test 1: Basic console logging
+        console.log('✅ BASIC CONSOLE TEST - If you see this, console works');
+        console.warn('⚠️ WARNING TEST - Console warnings work');
+        console.error('❌ ERROR TEST - Console errors work');
+        
+        // Test 2: DOM manipulation
+        document.getElementById('testBtn').addEventListener('click', async () => {
+            console.log('🔥 BUTTON CLICKED - Event listeners work');
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Button clicked successfully!</p>';
+            
+            // Test 3: API call
+            try {
+                console.log('🔄 TESTING API CALL...');
+                const response = await fetch('/api/agents/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: 'Transfer 0.001 CAMP to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE',
+                        userId: '0x4bcf74e971E677e95b8bFB0980721557987119Ae'
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('✅ API RESPONSE RECEIVED:', {
+                    success: data.success,
+                    hasPayload: !!data.payload,
+                    requiresManualSigning: data.payload?.requiresManualSigning,
+                    transactionData: data.payload?.transactionData
+                });
+                
+                results.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                
+            } catch (error) {
+                console.error('❌ API ERROR:', error);
+                results.innerHTML += `<p style="color:red">API Error: ${error.message}</p>`;
+            }
+        });
+        
+        // Test 4: Immediate execution test
+        setTimeout(() => {
+            console.log('⏰ TIMEOUT TEST - setTimeout works');
+        }, 1000);
+        
+        // Test 5: Error handling
+        try {
+            console.log('🔧 TRY-CATCH TEST - Error handling works');
+        } catch (e) {
+            console.error('This should not appear');
+        }
+    </script>
+</body>
+</html>

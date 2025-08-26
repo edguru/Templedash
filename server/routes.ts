@@ -640,6 +640,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Transaction confirmation endpoint
+  app.post('/api/agents/confirm-transaction', async (req: any, res) => {
+    try {
+      const { transactionId, transactionHash, isCompanionNFT } = req.body;
+
+      if (!transactionId || !transactionHash) {
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Missing transactionId or transactionHash' 
+        });
+      }
+
+      console.log('[ConfirmTransaction] Processing transaction confirmation:', {
+        transactionId,
+        transactionHash,
+        isCompanionNFT
+      });
+
+      // Send message to NebulaMCP to confirm the transaction
+      const confirmationMessage = {
+        id: uuidv4(),
+        type: 'transaction_confirmation',
+        timestamp: new Date().toISOString(),
+        payload: {
+          transactionId,
+          transactionHash,
+          isCompanionNFT
+        },
+        sourceId: 'api-endpoint',
+        targetId: 'nebula-mcp'
+      };
+
+      // Send directly to NebulaMCP for transaction confirmation
+      await agentSystem.confirmTransaction(transactionId, transactionHash, isCompanionNFT);
+
+      console.log('[ConfirmTransaction] ✅ Transaction confirmation processed');
+
+      res.json({
+        success: true,
+        message: 'Transaction confirmation processed',
+        transactionId,
+        transactionHash
+      });
+
+    } catch (error) {
+      console.error('[ConfirmTransaction] Error:', error);
+      res.status(500).json({
+        success: false,
+        error: 'Internal server error during transaction confirmation'
+      });
+    }
+  });
+
   // Chat History Management API Endpoints
   app.get('/api/chat/sessions/:userId', async (req: any, res) => {
     try {

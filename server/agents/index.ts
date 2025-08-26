@@ -171,6 +171,15 @@ export class AgentSystem {
     throw new Error('ChatContextManager not available - CompanionHandler not found');
   }
 
+  // Transaction confirmation - delegate to NebulaMCP
+  async confirmTransaction(transactionId: string, transactionHash: string, isCompanionNFT: boolean = false) {
+    const nebulaMCP = this.registry.getAgent('nebula-mcp') as NebulaMCP;
+    if (!nebulaMCP || !('confirmTransaction' in nebulaMCP)) {
+      throw new Error('NebulaMCP not available for transaction confirmation');
+    }
+    return (nebulaMCP as any).confirmTransaction(transactionId, transactionHash, isCompanionNFT);
+  }
+
   async shutdown() {
     console.log('Shutting down agent system...');
     await this.orchestrator.shutdown();

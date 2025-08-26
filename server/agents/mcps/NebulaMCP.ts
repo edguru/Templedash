@@ -127,6 +127,12 @@ export class NebulaMCP extends BaseAgent {
         return await this.processWithNebulaLLM(message);
       }
       
+      if (message.type === 'transaction_confirmation') {
+        console.log(`[NebulaMCP] ✅ DEBUG: Processing transaction confirmation`);
+        const { transactionId, transactionHash, isCompanionNFT } = message.payload;
+        return await this.confirmTransaction(transactionId, transactionHash, isCompanionNFT);
+      }
+      
       console.log(`[NebulaMCP] ❌ DEBUG: Unhandled message type: ${message.type}`);
       return null;
     } catch (error) {
@@ -415,29 +421,40 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
   }
 
 
-  // Manual signing fallback when auto execution fails
+  // Enhanced manual signing with frontend transaction creation
   private async tryManualSigningFallback(taskId: string, description: string, userWalletAddress: string, transactionStatus: any): Promise<AgentMessage> {
     try {
-      console.log(`[NebulaMCP] 📝 Manual signing fallback - requesting transaction payload`);
+      console.log(`[NebulaMCP] 📝 Manual signing fallback - requesting structured transaction data`);
       
-      // Modified prompt to request unsigned transaction payload
+      // Enhanced prompt for structured transaction data
       const manualSigningPrompt = `${description}. User wallet address: ${userWalletAddress}. 
 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network.
 
-DO NOT execute this transaction. Instead, please prepare the unsigned transaction payload and return the transaction data that needs to be signed manually. Provide the transaction details including:
-- Transaction data (to, value, data, gas, gasPrice)
-- Network details (chainId, nonce)
-- Raw transaction payload for manual signing
+DO NOT execute this transaction. Instead, prepare structured transaction data in the following JSON format for frontend execution:
 
-The user will sign this transaction manually in their wallet.`;
+{
+  "type": "manual_signing_required",
+  "transaction": {
+    "to": "0x...",
+    "value": "0x...",
+    "data": "0x...",
+    "gasLimit": "0x...",
+    "chainId": 123420001114
+  },
+  "description": "Human readable description of what this transaction does",
+  "isCompanionNFT": false
+}
+
+For companion NFT minting, set "isCompanionNFT": true.
+Return only this JSON structure without additional text.`;
 
       const requestBody = {
         context: {
           from: userWalletAddress,
           chain_ids: [123420001114],
-          auto_execute_transactions: false, // Explicitly disable auto execution
-          prepare_transaction: true // Request transaction preparation only
+          auto_execute_transactions: false,
+          prepare_transaction: true
         },
         messages: [{
           role: 'user',
@@ -446,7 +463,7 @@ The user will sign this transaction manually in their wallet.`;
         stream: false
       };
 
-      console.log('[NebulaMCP] 📝 Making request for manual signing payload');
+      console.log('[NebulaMCP] 📝 Making request for structured transaction data');
       
       const response = await fetch('https://api.thirdweb.com/ai/chat', {
         method: 'POST',
@@ -463,20 +480,84 @@ The user will sign this transaction manually in their wallet.`;
       }
 
       const result = await response.json();
+      console.log(`[NebulaMCP] 📋 Raw API response:`, JSON.stringify(result, null, 2));
+      
+      // Extract transaction actions if available
+      let transactionData = null;
+      let isCompanionNFT = false;
+      
+      if (result.actions && result.actions.length > 0) {
+        // Use transaction actions from API response
+        const action = result.actions[0];
+        transactionData = {
+          type: "manual_signing_required",
+          transaction: {
+            to: action.to || action.contract?.address,
+            value: action.value || "0x0",
+            data: action.data || "0x",
+            gasLimit: action.gasLimit || "0x5208",
+            chainId: 123420001114
+          },
+          description: description,
+          isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft')
+        };
+        console.log(`[NebulaMCP] ✅ Extracted transaction data from actions`);
+      } else {
+        // Try to extract JSON from message
+        const rawMessage = result.message || result.content || result.response || '';
+        try {
+          const jsonMatch = rawMessage.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            transactionData = JSON.parse(jsonMatch[0]);
+            console.log(`[NebulaMCP] ✅ Parsed transaction data from message`);
+          }
+        } catch (parseError) {
+          console.log(`[NebulaMCP] ⚠️ Could not parse JSON from message, creating fallback`);
+        }
+      }
+      
+      // Fallback if no structured data found
+      if (!transactionData) {
+        transactionData = {
+          type: "manual_signing_required",
+          transaction: null,
+          description: description,
+          isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft'),
+          rawMessage: result.message || result.content || result.response || 'Transaction preparation failed'
+        };
+      }
       
       // Update transaction status to pending manual signature
       transactionStatus.status = 'pending';
       transactionStatus.timestamp = new Date();
+      transactionStatus.unsignedTx = transactionData;
       this.transactionStatuses.set(transactionStatus.id, transactionStatus);
       await this.updateTransactionStatusInDatabase(transactionStatus.id, 'pending');
       
-      // Format response for manual signing
-      const rawResponse = result.message || result.content || result.response || 'Transaction payload prepared.';
+      // Create response that triggers frontend manual signing
+      const response_payload = {
+        requiresManualSigning: true,
+        transactionId: transactionStatus.id,
+        transactionData: transactionData,
+        taskId: taskId
+      };
       
-      const manualSigningMessage = `📝 **Manual Signing Required**\n\nAuto execution failed. Please sign this transaction manually in your wallet:\n\n${rawResponse}\n\n📝 **Transaction ID:** ${transactionStatus.id}\n⏳ **Status:** Pending manual signature\n\n⚠️ Please copy the transaction data above and sign it in your wallet, then submit the signed transaction.`;
+      console.log(`[NebulaMCP] 🚀 Triggering frontend manual signing:`, response_payload);
       
-      console.log(`[NebulaMCP] 📝 Manual signing payload prepared for user`);
-      return this.createTaskResponse(taskId, true, this.cleanResponseFormat(manualSigningMessage));
+      return {
+        id: uuidv4(),
+        type: 'task_response',
+        timestamp: new Date().toISOString(),
+        payload: {
+          taskId: taskId,
+          success: true,
+          response: 'Manual signing required - transaction prepared for frontend execution',
+          requiresManualSigning: true,
+          transactionData: response_payload
+        },
+        sourceId: 'nebula-mcp',
+        targetId: 'task-orchestrator'
+      };
       
     } catch (error) {
       console.error('[NebulaMCP] Manual signing fallback failed:', error);
@@ -487,9 +568,90 @@ The user will sign this transaction manually in their wallet.`;
       this.transactionStatuses.set(transactionStatus.id, transactionStatus);
       await this.updateTransactionStatusInDatabase(transactionStatus.id, 'failed');
       
-      const errorMessage = `❌ Transaction failed: Both auto execution and manual signing preparation failed.\n\n📝 **Transaction ID:** ${transactionStatus.id}\n⚠️ **Status:** Failed\n\nPlease try again or check your wallet connection.`;
+      return this.createTaskResponse(taskId, false, 'Transaction preparation failed. Please try again.');
+    }
+  }
+
+  // New method to handle transaction confirmation from frontend
+  async confirmTransaction(transactionId: string, transactionHash: string, isCompanionNFT: boolean = false): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] ✅ Confirming transaction:`, { transactionId, transactionHash, isCompanionNFT });
       
-      return this.createTaskResponse(taskId, false, this.cleanResponseFormat(errorMessage));
+      // Update transaction status in memory and database
+      const transactionStatus = this.transactionStatuses.get(transactionId);
+      if (transactionStatus) {
+        transactionStatus.status = 'confirmed';
+        transactionStatus.transactionHash = transactionHash;
+        transactionStatus.timestamp = new Date();
+        this.transactionStatuses.set(transactionId, transactionStatus);
+        
+        await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', transactionHash);
+        
+        // If this is a companion NFT, trigger companion creation in database
+        if (isCompanionNFT) {
+          console.log(`[NebulaMCP] 🤖 Companion NFT transaction confirmed - triggering companion creation`);
+          await this.handleCompanionNFTCreation(transactionHash, transactionStatus.userWallet);
+        }
+        
+        let successMessage = `✅ Transaction confirmed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet`;
+        
+        if (isCompanionNFT) {
+          successMessage += `\n\n🤖 **Companion NFT created!** Your new AI companion has been minted and will be added to your account.`;
+        }
+        
+        return this.createTaskResponse(transactionStatus.taskId, true, successMessage);
+      } else {
+        throw new Error(`Transaction ${transactionId} not found`);
+      }
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Transaction confirmation failed:', error);
+      return this.createTaskResponse('unknown', false, 'Failed to confirm transaction. Please try again.');
+    }
+  }
+
+  // Handle companion NFT creation in database after successful transaction
+  private async handleCompanionNFTCreation(transactionHash: string, userWallet: string): Promise<void> {
+    try {
+      console.log(`[NebulaMCP] 🤖 Creating companion in database for wallet: ${userWallet}`);
+      
+      // Import companions schema
+      const { companions } = await import('../../../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      
+      // Check if user already has a companion (should be prevented by UI, but double-check)
+      const existingCompanions = await this.db.select().from(companions).where(eq(companions.walletAddress, userWallet));
+      
+      if (existingCompanions.length > 0) {
+        console.log(`[NebulaMCP] ⚠️ User ${userWallet} already has a companion, skipping creation`);
+        return;
+      }
+      
+      // Create companion record
+      const companionData = {
+        walletAddress: userWallet,
+        name: 'New Companion', // Default name, user can change later
+        personality: 'friendly', // Default personality
+        relationshipType: 'friend', // Default relationship
+        traits: JSON.stringify({
+          intelligence: 7,
+          humor: 7,
+          loyalty: 8,
+          empathy: 7,
+          flirtiness: 3
+        }),
+        nftTransactionHash: transactionHash,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      
+      await this.db.insert(companions).values(companionData);
+      
+      console.log(`[NebulaMCP] ✅ Companion created successfully for wallet: ${userWallet}`);
+      
+    } catch (error) {
+      console.error('[NebulaMCP] ❌ Failed to create companion in database:', error);
+      // Don't throw - transaction was successful, companion creation is secondary
     }
   }
 

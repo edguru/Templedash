@@ -317,10 +317,12 @@ export class NebulaMCP extends BaseAgent {
       if (userWalletAddress) {
         enhancedPrompt = `${description}. User wallet: ${userWalletAddress}. 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
+IMPORTANT: CAMP is the native gas token on Base Camp testnet (like ETH on Ethereum). For CAMP transfers, send native token directly without contract address.
 ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: Include the appropriate blockchain explorer URL for the network being used in your response.' : 'Analyze and provide details along with the appropriate blockchain explorer URL for the network being used (MANDATORY)'}`;
       } else {
         enhancedPrompt = `${description}. 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
+IMPORTANT: CAMP is the native gas token on Base Camp testnet (like ETH on Ethereum). For CAMP transfers, send native token directly without contract address.
 ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: Include the appropriate blockchain explorer URL for the network being used in your response.' : 'Analyze and provide details along with the appropriate blockchain explorer URL for the network being used (MANDATORY)'}`;
       }
       
@@ -372,10 +374,10 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
       
       // Step 2 & 3: Enhanced transaction handling with Thirdweb Engine polling
       if (isWriteOperation) {
-        // Check for transaction ID for polling
+        // Check for transaction ID for polling ONLY if present
         const transactionId = result.transaction_id || result.transactionId || result.id;
         
-        if (transactionId) {
+        if (transactionId && typeof transactionId === 'string' && transactionId.length > 0) {
           console.log(`[NebulaMCP] 🔄 Step 2: Found transaction ID, starting polling:`, transactionId);
           return await this.pollTransactionStatus(taskId, transactionId, description, userWalletAddress, result);
         }
@@ -582,27 +584,22 @@ DO NOT execute this transaction. Instead, prepare structured transaction data in
 For companion NFT minting, set "isCompanionNFT": true.
 Return only this JSON structure.`;
 
-      const requestBody = {
-        context: {
-          from: userWalletAddress,
-          chain_ids: [123420001114],
-          auto_execute_transactions: false,
-          prepare_transaction: true
-        },
-        messages: [{
-          role: 'user',
-          content: manualSigningPrompt
-        }],
-        stream: false
-      };
-
-      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+      const response = await fetch('https://nebula-api.thirdweb.com/chat', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+          'x-secret-key': this.thirdwebSecretKey,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          message: manualSigningPrompt,
+          context: {
+            from: userWalletAddress,
+            chain_ids: [123420001114],
+            auto_execute_transactions: false,
+            prepare_transaction: true
+          },
+          stream: false
+        }),
         signal: AbortSignal.timeout(30000)
       });
 
@@ -673,29 +670,26 @@ DO NOT execute this transaction. Instead, prepare structured transaction data in
 For companion NFT minting, set "isCompanionNFT": true.
 Return only this JSON structure without additional text.`;
 
-      const requestBody = {
-        context: {
-          from: userWalletAddress,
-          chain_ids: [123420001114],
-          auto_execute_transactions: false,
-          prepare_transaction: true
-        },
-        messages: [{
-          role: 'user',
-          content: manualSigningPrompt
-        }],
-        stream: false
-      };
+
 
       console.log('[NebulaMCP] 📝 Making request for structured transaction data');
       
-      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+      const response = await fetch('https://nebula-api.thirdweb.com/chat', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+          'x-secret-key': this.thirdwebSecretKey,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify({
+          message: manualSigningPrompt,
+          context: {
+            from: userWalletAddress,
+            chain_ids: [123420001114],
+            auto_execute_transactions: false,
+            prepare_transaction: true
+          },
+          stream: false
+        }),
         signal: AbortSignal.timeout(120000)
       });
 

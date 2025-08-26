@@ -10,7 +10,9 @@ Puppet Runner is an NFT-powered infinite runner game that combines gaming mechan
 - **✅ Seamless Manual Signing**: Frontend transaction preparation, user wallet signing, and automatic database updates upon confirmation
 - **✅ Companion NFT Integration**: Automatic companion database creation upon successful NFT transaction confirmation
 - **✅ Explorer URL Integration**: Automatic Base Camp explorer links for all transactions with monitoring capabilities
-- **✅ Fixed Authentication**: Corrected Authorization header format for all Thirdweb API calls
+- **✅ Fixed Authentication**: Corrected to lowercase `x-secret-key` header format for all Nebula API calls
+- **✅ Native CAMP Token Support**: Enhanced prompts to handle CAMP as native gas token on Base Camp testnet
+- **✅ Improved Transaction Polling**: Only poll when transaction ID is actually returned from Nebula API
 - **🔒 STRICT DATA INTEGRITY ENFORCEMENT**: Implemented comprehensive rules preventing ANY false information generation across all 18 agents
 - **✅ Authentic Data Only Policy**: Zero tolerance for mock, simulated, placeholder, or fake data - especially for wallet balances, transactions, and financial information
 - **🎯 COMPREHENSIVE AGENT MANAGEMENT SYSTEM**: Created centralized JSON configuration for all 18 agents with roles, system messages, tools, and performance metrics

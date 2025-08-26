@@ -312,16 +312,16 @@ export class NebulaMCP extends BaseAgent {
       const operationType = this.detectOperationType(description);
       const isWriteOperation = operationType === 'write';
       
-      // Step 1: Enhanced prompt with mandatory explorer URL for read operations
+      // Step 1: Enhanced prompt with mandatory explorer URL for all operations
       let enhancedPrompt = description;
       if (userWalletAddress) {
         enhancedPrompt = `${description}. User wallet: ${userWalletAddress}. 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
-${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze and provide details along with explorer url(MANDATORY)'}`;
+${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: Include the appropriate blockchain explorer URL for the network being used in your response.' : 'Analyze and provide details along with the appropriate blockchain explorer URL for the network being used (MANDATORY)'}`;
       } else {
         enhancedPrompt = `${description}. 
 IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
-${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze and provide details along with explorer url(MANDATORY)'}`;
+${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: Include the appropriate blockchain explorer URL for the network being used in your response.' : 'Analyze and provide details along with the appropriate blockchain explorer URL for the network being used (MANDATORY)'}`;
       }
       
       // Try auto execution first, fallback to session keys if needed
@@ -388,8 +388,11 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze 
           const realTxHash = result.transaction_hash || result.txHash || result.hash;
           console.log(`[NebulaMCP] ✅ Immediate auto execution successful:`, { realTxHash });
           
-          const explorerUrl = `https://basecamp.blockscout.com/tx/${realTxHash}`;
-          const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on Base Camp testnet`;
+          // Extract explorer URL from API response or construct based on network
+          const explorerUrl = this.extractExplorerUrl(result) || `https://basecamp.blockscout.com/tx/${realTxHash}`;
+          const networkInfo = this.extractNetworkInfo(result);
+          
+          const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on ${networkInfo}`;
           return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
         }
         
@@ -437,8 +440,11 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze 
               const transactionHash = statusResult.transactionHash || statusResult.transaction_hash;
               console.log(`[NebulaMCP] ✅ Transaction confirmed via polling:`, { transactionHash });
               
-              const explorerUrl = `https://basecamp.blockscout.com/tx/${transactionHash}`;
-              const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on Base Camp testnet`;
+              // Extract explorer URL from original result or construct based on network
+              const explorerUrl = this.extractExplorerUrl(result) || this.extractExplorerUrl(statusResult) || `https://basecamp.blockscout.com/tx/${transactionHash}`;
+              const networkInfo = this.extractNetworkInfo(result) || this.extractNetworkInfo(statusResult) || 'Base Camp testnet';
+              
+              const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on ${networkInfo}`;
               
               return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
             }
@@ -468,21 +474,56 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze 
     }
   }
 
-  // Extract explorer URL from API response
-  private extractExplorerUrl(result: any): string {
+  // Extract explorer URL from API response (network-aware)
+  private extractExplorerUrl(result: any): string | null {
     // Check for existing explorer URL in response
     if (result.explorerUrl || result.explorer_url) {
       return result.explorerUrl || result.explorer_url;
     }
     
-    // Check for transaction hash to construct explorer URL
-    if (result.transaction_hash || result.txHash || result.hash) {
-      const txHash = result.transaction_hash || result.txHash || result.hash;
-      return `https://basecamp.blockscout.com/tx/${txHash}`;
+    // Check for explorer URL in the message content (Nebula should provide this)
+    if (result.message || result.content || result.response) {
+      const message = result.message || result.content || result.response;
+      const explorerMatch = message.match(/https?:\/\/[^\s]+(?:blockscout|etherscan|polygonscan|arbiscan|optimistic\.etherscan|basescan|bscscan)\.[\w\/\-\.]+/i);
+      if (explorerMatch) {
+        return explorerMatch[0];
+      }
     }
     
-    // Default Base Camp explorer
-    return 'https://basecamp.blockscout.com';
+    return null;
+  }
+
+  // Extract network information from API response
+  private extractNetworkInfo(result: any): string | null {
+    // Check for network info in response
+    if (result.network || result.chain || result.chainId) {
+      const networkInfo = result.network || result.chain || result.chainId;
+      if (typeof networkInfo === 'string') return networkInfo;
+      if (typeof networkInfo === 'number') {
+        // Map common chain IDs to network names
+        const chainMap: { [key: number]: string } = {
+          1: 'Ethereum Mainnet',
+          137: 'Polygon',
+          42161: 'Arbitrum One',
+          10: 'Optimism',
+          8453: 'Base',
+          56: 'BNB Smart Chain',
+          123420001114: 'Base Camp testnet'
+        };
+        return chainMap[networkInfo] || `Chain ID ${networkInfo}`;
+      }
+    }
+    
+    // Check for network info in the message content
+    if (result.message || result.content || result.response) {
+      const message = result.message || result.content || result.response;
+      const networkMatch = message.match(/(Ethereum|Polygon|Arbitrum|Optimism|Base|BNB|BSC|Base Camp)[\s\w]*/i);
+      if (networkMatch) {
+        return networkMatch[0];
+      }
+    }
+    
+    return null;
   }
 
   // Enhanced manual signing fallback with polling

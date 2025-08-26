@@ -79,11 +79,13 @@ export const useManualTransaction = () => {
 
       setStatus({ status: 'pending' });
 
+      console.log('[useManualTransaction] 🔐 Requesting wallet signature...');
+      
       // Send the transaction and wait for confirmation
       const result = await sendTransaction(tx);
       const transactionHash = result.transactionHash;
 
-      console.log('[useManualTransaction] Transaction sent:', transactionHash);
+      console.log('[useManualTransaction] ✅ Transaction sent:', transactionHash);
       setStatus({ status: 'confirming', transactionHash });
 
       // Confirm the transaction with the backend
@@ -98,7 +100,21 @@ export const useManualTransaction = () => {
 
     } catch (error: any) {
       console.error('[useManualTransaction] Transaction failed:', error);
-      const errorMessage = error.message || 'Transaction failed';
+      
+      // Handle specific error types
+      let errorMessage = 'Transaction failed';
+      if (error.message) {
+        if (error.message.includes('User rejected')) {
+          errorMessage = 'Transaction rejected by user';
+        } else if (error.message.includes('insufficient funds')) {
+          errorMessage = 'Insufficient funds for transaction';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error - please check your connection';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       setStatus({ status: 'failed', error: errorMessage });
       onError?.(errorMessage);
     }

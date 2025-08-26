@@ -358,15 +358,28 @@ export default function ChatScreen() {
             payload: data.payload
           });
           
+          // Check for direct transaction data in payload
           if (data.payload.requiresManualSigning && data.payload.transactionData) {
             console.log('[ChatScreen] ✅ Manual transaction detected - setting pending transaction:', data.payload);
             setPendingTransaction({
               requiresManualSigning: true,
-              transactionId: data.taskId || 'unknown',
+              transactionId: data.payload.transactionId || data.taskId || 'unknown',
               transactionData: data.payload.transactionData,
               taskId: data.taskId
             });
-          } else if (data.payload.agentResponsePayload?.requiresManualSigning) {
+          } 
+          // Check for transaction data in nested structure
+          else if (data.payload.transactionData && data.payload.transactionData.requiresManualSigning) {
+            console.log('[ChatScreen] ✅ Manual transaction detected in nested structure - setting pending transaction:', data.payload.transactionData);
+            setPendingTransaction({
+              requiresManualSigning: true,
+              transactionId: data.payload.transactionData.transactionId || data.taskId || 'unknown',
+              transactionData: data.payload.transactionData,
+              taskId: data.taskId
+            });
+          }
+          // Check for transaction data in agent response payload
+          else if (data.payload.agentResponsePayload?.requiresManualSigning) {
             console.log('[ChatScreen] ✅ Manual transaction detected in agentResponsePayload - setting pending transaction:', data.payload.agentResponsePayload);
             setPendingTransaction({
               requiresManualSigning: true,

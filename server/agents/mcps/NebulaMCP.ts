@@ -347,11 +347,11 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
       
       // ✅ FIXED AUTH: Use correct Nebula API authentication format
       const authHeaders = {
-        'X-Secret-Key': this.thirdwebSecretKey,
+        'x-secret-key': this.thirdwebSecretKey,
         'Content-Type': 'application/json'
       };
       
-      console.log(`[NebulaMCP] 🔐 AUTH FIXED: Using correct X-Secret-Key header for Nebula API`);
+      console.log(`[NebulaMCP] 🔐 AUTH FIXED: Using correct x-secret-key header for Nebula API`);
       console.log(`[NebulaMCP] 🔐 SECRET KEY EXISTS:`, !!this.thirdwebSecretKey);
       console.log(`[NebulaMCP] 🔐 SECRET KEY PREFIX:`, this.thirdwebSecretKey?.substring(0, 10) + '...');
       
@@ -396,7 +396,7 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
         // Step 3: Auto execution failed - extract explorer URL and try manual signing
         console.log(`[NebulaMCP] 🔄 Step 3: Auto execution failed - attempting manual signing fallback`);
         const explorerUrl = this.extractExplorerUrl(result);
-        return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+        return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl || undefined);
       } else {
         // Read operations - return with mandatory explorer URL
         const rawAnswer = result.message || result.content || result.response || 'No response available.';
@@ -425,7 +425,7 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
           // Poll transaction status
           const statusResponse = await fetch(`https://api.thirdweb.com/engine/transaction/${transactionId}`, {
             headers: {
-              'X-Secret-Key': this.thirdwebSecretKey,
+              'x-secret-key': this.thirdwebSecretKey,
               'Content-Type': 'application/json'
             }
           });
@@ -462,12 +462,12 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
       // Polling timeout - fallback to manual signing
       console.log(`[NebulaMCP] ⏰ Polling timeout - falling back to manual signing`);
       const explorerUrl = this.extractExplorerUrl(result);
-      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl || undefined);
       
     } catch (error) {
       console.error('[NebulaMCP] Polling failed:', error);
       const explorerUrl = this.extractExplorerUrl(result);
-      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl || undefined);
     }
   }
 
@@ -779,7 +779,7 @@ Return only this JSON structure without additional text.`;
           requiresManualSigning: true,
           transactionData: response_payload
         },
-        sourceAgentId: 'nebula-mcp',
+        senderId: 'nebula-mcp',
         targetId: 'task-orchestrator'
       };
       

@@ -324,18 +324,15 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if 
 ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: Include the appropriate blockchain explorer URL for the network being used in your response.' : 'Analyze and provide details along with the appropriate blockchain explorer URL for the network being used (MANDATORY)'}`;
       }
       
-      // Try auto execution first, fallback to session keys if needed
+      // Nebula API uses simpler message format with context
       const requestBody = {
+        message: enhancedPrompt,
         context: {
           ...(userWalletAddress && { from: userWalletAddress }),
           chain_ids: [123420001114], // Base Camp testnet
           auto_execute_transactions: isWriteOperation, // Only auto-execute for write operations
           ...(sessionSigner && { signer: sessionSigner })
         },
-        messages: [{
-          role: 'user',
-          content: enhancedPrompt
-        }],
         stream: false
       };
 
@@ -348,17 +345,17 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
         operationType
       });
       
-      // ✅ FIXED AUTH: Use correct Thirdweb API authentication format
+      // ✅ FIXED AUTH: Use correct Nebula API authentication format
       const authHeaders = {
-        'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+        'X-Secret-Key': this.thirdwebSecretKey,
         'Content-Type': 'application/json'
       };
       
-      console.log(`[NebulaMCP] 🔐 AUTH FIXED: Using correct Bearer token format`);
+      console.log(`[NebulaMCP] 🔐 AUTH FIXED: Using correct X-Secret-Key header for Nebula API`);
       console.log(`[NebulaMCP] 🔐 SECRET KEY EXISTS:`, !!this.thirdwebSecretKey);
       console.log(`[NebulaMCP] 🔐 SECRET KEY PREFIX:`, this.thirdwebSecretKey?.substring(0, 10) + '...');
       
-      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+      const response = await fetch('https://nebula-api.thirdweb.com/chat', {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify(requestBody),
@@ -428,7 +425,7 @@ ${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation. MANDATORY: 
           // Poll transaction status
           const statusResponse = await fetch(`https://api.thirdweb.com/engine/transaction/${transactionId}`, {
             headers: {
-              'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+              'X-Secret-Key': this.thirdwebSecretKey,
               'Content-Type': 'application/json'
             }
           });

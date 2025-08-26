@@ -1,0 +1,82 @@
+[NebulaMCP] ✅ DEBUG: Processing nebula_request message for balance check
+[NebulaMCP] 🔄 DEBUG: Processing with Enhanced Nebula Execute System {
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  description: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f',
+  hasWalletAddress: true,
+  messageType: 'nebula_request'
+}
+[NebulaMCP] Enhanced processing with intelligent endpoint routing: {
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  userWalletAddress: '0x4bcf74e9...',
+  operationType: 'write',
+  parametersReceived: [],
+  description: 'Transfer 0.1 CAMP to 0x390Ab4d6642b525C6Af166F507f'
+}
+[NebulaMCP] 🚀 UNIFIED OPERATION: Using chat endpoint with auto execution for all blockchain operations
+[NebulaMCP] 🚀 Making request to /chat endpoint - AUTO EXECUTION
+[NebulaMCP] 📋 Context: {
+  from: '0x4bcf74e9...',
+  chain_ids: [ 123420001114 ],
+  auto_execute_transactions: true,
+  hasSessionSigner: false,
+  operationType: 'write'
+}
+[NebulaMCP] 🔐 AUTH FIXED: Using correct Bearer token format
+[NebulaMCP] 🔐 SECRET KEY EXISTS: true
+[NebulaMCP] 🔐 SECRET KEY PREFIX: GbYxDSS8OV...
+[TaskOrchestrator] Agent performance update: nebula-mcp, task: user_request, success: true
+[task-analyzer] Updated network status 
+[NebulaMCP] Chat endpoint request failed: Error: Thirdweb Chat API returned 401: Unauthorized
+    at NebulaMCP.processWithChatEndpoint (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:369:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NebulaMCP.processWithNebulaLLM (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:189:14)
+    at async NebulaMCP.handleMessage (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:127:16)
+    at async <anonymous> (/home/runner/workspace/server/agents/mcps/NebulaMCP.ts:59:24)
+    at async MessageBroker.listener (/home/runner/workspace/server/agents/core/MessageBroker.ts:40:9)
+[NebulaMCP] 📤 DEBUG: Creating agent_response message {
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  success: false,
+  resultLength: 53,
+  targetAgent: 'companion-handler'
+}
+[NebulaMCP] 📤 DEBUG: Sending response via message broker: {
+  responseId: '906d2baf-8449-4b10-8540-01d6037abcb6',
+  type: 'agent_response',
+  targetId: 'companion-handler'
+}
+Publishing message: agent_response from nebula-mcp to companion-handler
+[companion-handler] *** RECEIVED AGENT RESPONSE *** {
+  agentName: 'NebulaMCP',
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  messageType: 'agent_response',
+  responseLength: 53,
+  senderId: 'nebula-mcp',
+  targetId: 'companion-handler'
+}
+[CompanionHandler] 📋 FULL AGENT RESPONSE: {
+  agent: 'NebulaMCP',
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  success: false,
+  fullResponse: 'Failed to process blockchain query. Please try again.'
+}
+[CompanionHandler] 📤 RESPONSE TO USER: {
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  responsePreview: 'Failed to process blockchain query. Please try again....',
+  fullResponse: 'Failed to process blockchain query. Please try again.'
+}
+[CompanionHandler] 📤 SENDING FINAL RESPONSE TO USER: {
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b',
+  targetId: undefined,
+  messageType: 'companion_response'
+}
+Publishing message: companion_response from companion-handler to broadcast
+[AgentOrchestrator] Received companion response: {
+  taskRouted: undefined,
+  taskCompleted: true,
+  message: 'Failed to process blockchain query. Please try again.',
+  taskId: '49b899a8-0215-49c9-b7bd-b54f2c08fb1b'
+}
+[NebulaMCP] ✅ DEBUG: Response sent successfully
+6:39:20 PM [express] POST /api/agents/chat 200 in 13494ms :: {"success":true,"response":"Failed to p…
+6:39:21 PM [express] GET /api/agents/tasks 200 in 1ms :: {"tasks":["49b899a8-0215-49c9-b7bd-b54f2c08…
+[task-analyzer] Updated network status 

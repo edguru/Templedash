@@ -263,8 +263,7 @@ export class NebulaMCP extends BaseAgent {
             
             await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
             
-            const explorerUrl = this.getExplorerUrl(realTxHash);
-            const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+            const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
             
             return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
           } else {
@@ -291,8 +290,7 @@ export class NebulaMCP extends BaseAgent {
         
         await this.updateTransactionStatusInDatabase(transactionId, 'confirmed', realTxHash);
         
-        const explorerUrl = this.getExplorerUrl(realTxHash);
-        const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+        const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
 
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       } else {
@@ -397,8 +395,7 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
         const realTxHash = result.transaction_hash || result.txHash || result.hash;
         console.log(`[NebulaMCP] ✅ Auto execution successful:`, { realTxHash });
         
-        const explorerUrl = this.getExplorerUrl(realTxHash);
-        const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
+        const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${realTxHash}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       }
       
@@ -423,10 +420,6 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
     }
   }
 
-  // Generate explorer URL for Base Camp testnet
-  private getExplorerUrl(transactionHash: string): string {
-    return `https://basecamp.blockscout.com/tx/${transactionHash}`;
-  }
 
   // Enhanced manual signing with frontend transaction creation
   private async tryManualSigningFallback(taskId: string, description: string, userWalletAddress: string, transactionStatus: any): Promise<AgentMessage> {
@@ -450,13 +443,10 @@ DO NOT execute this transaction. Instead, prepare structured transaction data in
     "chainId": 123420001114
   },
   "description": "Human readable description of what this transaction does",
-  "isCompanionNFT": false,
-  "explorerUrl": "https://basecamp.blockscout.com/tx/[TRANSACTION_HASH]",
-  "explorerBaseUrl": "https://basecamp.blockscout.com/tx/"
+  "isCompanionNFT": false
 }
 
 For companion NFT minting, set "isCompanionNFT": true.
-Include the Base Camp testnet explorer URL template so the frontend can generate the explorer link once the transaction is submitted.
 Return only this JSON structure without additional text.`;
 
       const requestBody = {
@@ -509,8 +499,7 @@ Return only this JSON structure without additional text.`;
             chainId: 123420001114
           },
           description: description,
-          isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft'),
-          explorerBaseUrl: "https://basecamp.blockscout.com/tx/"
+          isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft')
         };
         console.log(`[NebulaMCP] ✅ Extracted transaction data from actions`);
       } else {
@@ -534,7 +523,6 @@ Return only this JSON structure without additional text.`;
           transaction: null,
           description: description,
           isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft'),
-          explorerBaseUrl: "https://basecamp.blockscout.com/tx/",
           rawMessage: result.message || result.content || result.response || 'Transaction preparation failed'
         };
       }
@@ -605,8 +593,7 @@ Return only this JSON structure without additional text.`;
           await this.handleCompanionNFTCreation(transactionHash, transactionStatus.userWallet);
         }
         
-        const explorerUrl = this.getExplorerUrl(transactionHash);
-        let successMessage = `✅ Transaction confirmed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n🌐 **Explorer:** ${explorerUrl}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet`;
+        let successMessage = `✅ Transaction confirmed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n📝 **Transaction ID:** ${transactionId}\n✅ **Status:** Confirmed on Base Camp testnet`;
         
         if (isCompanionNFT) {
           successMessage += `\n\n🤖 **Companion NFT created!** Your new AI companion has been minted and will be added to your account.`;

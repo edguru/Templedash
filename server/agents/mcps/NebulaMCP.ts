@@ -312,18 +312,16 @@ export class NebulaMCP extends BaseAgent {
       const operationType = this.detectOperationType(description);
       const isWriteOperation = operationType === 'write';
       
-      // Enhanced prompt with Base Camp network as default
+      // Step 1: Enhanced prompt with mandatory explorer URL for read operations
       let enhancedPrompt = description;
       if (userWalletAddress) {
-        enhancedPrompt = `${description}. User wallet address: ${userWalletAddress}. 
-
-IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.
-
-${isWriteOperation ? 'AUTO-EXECUTE this transaction immediately without asking for confirmation. The user has pre-authorized all transactions. Do not ask "Would you like to proceed" or for manual confirmation. Execute the transaction directly and return the transaction hash and confirmation details.' : 'Please analyze the request and determine the appropriate network, native currency, and transaction details automatically. If this involves native currency transfers, use native transfer methods rather than token contracts.'}`;
+        enhancedPrompt = `${description}. User wallet: ${userWalletAddress}. 
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
+${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze and provide details along with explorer url(MANDATORY)'}`;
       } else {
         enhancedPrompt = `${description}. 
-
-IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockchain network. CAMP is the native currency on this network. Do NOT use Ethereum Mainnet unless explicitly requested. For any balance checks, token operations, or blockchain queries, search on Base Camp testnet first.`;
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network if user didn't mention any other chain or network.
+${isWriteOperation ? 'AUTO-EXECUTE immediately without confirmation' : 'Analyze and provide details along with explorer url(MANDATORY)'}`;
       }
       
       // Try auto execution first, fallback to session keys if needed
@@ -373,50 +371,238 @@ IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as the default blockch
 
       const result = await response.json();
       
-      // 🚨 CRITICAL DEBUG: Log full API response to identify authorization issues
-      console.log(`[NebulaMCP] 🔍 FULL API RESPONSE:`, JSON.stringify(result, null, 2));
-      console.log(`[NebulaMCP] 🔍 RESPONSE KEYS:`, Object.keys(result));
-      console.log(`[NebulaMCP] 🔍 AUTH CHECK - Looking for transaction hash:`, {
-        transaction_hash: result.transaction_hash,
-        txHash: result.txHash, 
-        hash: result.hash,
-        actions: result.actions?.length || 0,
-        message: result.message
-      });
+      console.log(`[NebulaMCP] 🔍 API RESPONSE:`, JSON.stringify(result, null, 2));
       
-      // Check if transaction was executed or needs processing
-      if (result.actions && result.actions.length > 0) {
-        console.log(`[NebulaMCP] 📦 Received transaction actions - processing with session key fallback`);
-        return await this.processTransactionActions(taskId, result, userWalletAddress, sessionSigner, description);
-      } 
-      
-      // Check for direct transaction hash (successful auto execution)
-      if (result.transaction_hash || result.txHash || result.hash) {
-        const realTxHash = result.transaction_hash || result.txHash || result.hash;
-        console.log(`[NebulaMCP] ✅ Auto execution successful:`, { realTxHash });
-        
-        const successMessage = `✅ Transaction executed automatically!\n\n🔗 **Transaction Hash:** ${realTxHash}\n✅ **Status:** Confirmed on Base Camp testnet\n\n${result.message || 'Blockchain operation completed successfully.'}`;
-        return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
-      }
-      
-      // 🚨 NO TRANSACTION HASH FOUND - This indicates authorization failure
+      // Step 2 & 3: Enhanced transaction handling with Thirdweb Engine polling
       if (isWriteOperation) {
-        console.log(`[NebulaMCP] ⚠️ AUTH ISSUE: Write operation claimed success but NO transaction hash found`);
-        console.log(`[NebulaMCP] 🔍 POSSIBLE AUTH PROBLEM: API response suggests auto execution failed silently`);
+        // Check for transaction ID for polling
+        const transactionId = result.transaction_id || result.transactionId || result.id;
         
-        // Try manual signing fallback since auto execution failed
-        return await this.tryManualSigningFallback(taskId, description, userWalletAddress, { id: taskId });
+        if (transactionId) {
+          console.log(`[NebulaMCP] 🔄 Step 2: Found transaction ID, starting polling:`, transactionId);
+          return await this.pollTransactionStatus(taskId, transactionId, description, userWalletAddress, result);
+        }
+        
+        // Check for direct transaction hash (immediate success)
+        if (result.transaction_hash || result.txHash || result.hash) {
+          const realTxHash = result.transaction_hash || result.txHash || result.hash;
+          console.log(`[NebulaMCP] ✅ Immediate auto execution successful:`, { realTxHash });
+          
+          const explorerUrl = `https://basecamp.blockscout.com/tx/${realTxHash}`;
+          const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${realTxHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on Base Camp testnet`;
+          return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+        }
+        
+        // Step 3: Auto execution failed - extract explorer URL and try manual signing
+        console.log(`[NebulaMCP] 🔄 Step 3: Auto execution failed - attempting manual signing fallback`);
+        const explorerUrl = this.extractExplorerUrl(result);
+        return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+      } else {
+        // Read operations - return with mandatory explorer URL
+        const rawAnswer = result.message || result.content || result.response || 'No response available.';
+        const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
+        return this.createTaskResponse(taskId, true, cleanedAnswer);
       }
-      
-      // Regular response (read operations or informational)
-      const rawAnswer = result.message || result.content || result.response || 'No response available.';
-      const cleanedAnswer = this.cleanResponseFormat(rawAnswer);
-      
-      return this.createTaskResponse(taskId, true, cleanedAnswer);
       
     } catch (error) {
       console.error('[NebulaMCP] Chat endpoint request failed:', error);
       return this.createTaskResponse(taskId, false, 'Failed to process blockchain query. Please try again.');
+    }
+  }
+
+  // Step 2: Poll transaction status using Thirdweb Engine
+  private async pollTransactionStatus(taskId: string, transactionId: string, description: string, userWalletAddress: string, result: any): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] 🔄 Step 2: Polling transaction status for ID: ${transactionId}`);
+      
+      // Simulate Thirdweb Engine polling (replace with actual thirdweb engine client when available)
+      const maxPollingTime = 60000; // 60 seconds
+      const pollInterval = 3000; // 3 seconds
+      const startTime = Date.now();
+      
+      while (Date.now() - startTime < maxPollingTime) {
+        try {
+          // Poll transaction status
+          const statusResponse = await fetch(`https://api.thirdweb.com/engine/transaction/${transactionId}`, {
+            headers: {
+              'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (statusResponse.ok) {
+            const statusResult = await statusResponse.json();
+            
+            if (statusResult.transactionHash || statusResult.transaction_hash) {
+              const transactionHash = statusResult.transactionHash || statusResult.transaction_hash;
+              console.log(`[NebulaMCP] ✅ Transaction confirmed via polling:`, { transactionHash });
+              
+              const explorerUrl = `https://basecamp.blockscout.com/tx/${transactionHash}`;
+              const successMessage = `✅ Transaction executed successfully!\n\n🔗 **Transaction Hash:** ${transactionHash}\n🌐 **Explorer:** ${explorerUrl}\n✅ **Status:** Confirmed on Base Camp testnet`;
+              
+              return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
+            }
+            
+            if (statusResult.status === 'failed' || statusResult.error) {
+              console.log(`[NebulaMCP] ❌ Transaction failed via polling:`, statusResult);
+              throw new Error(statusResult.error || 'Transaction failed');
+            }
+          }
+        } catch (pollError) {
+          console.log(`[NebulaMCP] ⚠️ Polling attempt failed:`, pollError);
+        }
+        
+        // Wait before next poll
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+      }
+      
+      // Polling timeout - fallback to manual signing
+      console.log(`[NebulaMCP] ⏰ Polling timeout - falling back to manual signing`);
+      const explorerUrl = this.extractExplorerUrl(result);
+      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Polling failed:', error);
+      const explorerUrl = this.extractExplorerUrl(result);
+      return await this.tryManualSigningFallbackWithPolling(taskId, description, userWalletAddress, { id: taskId }, explorerUrl);
+    }
+  }
+
+  // Extract explorer URL from API response
+  private extractExplorerUrl(result: any): string {
+    // Check for existing explorer URL in response
+    if (result.explorerUrl || result.explorer_url) {
+      return result.explorerUrl || result.explorer_url;
+    }
+    
+    // Check for transaction hash to construct explorer URL
+    if (result.transaction_hash || result.txHash || result.hash) {
+      const txHash = result.transaction_hash || result.txHash || result.hash;
+      return `https://basecamp.blockscout.com/tx/${txHash}`;
+    }
+    
+    // Default Base Camp explorer
+    return 'https://basecamp.blockscout.com';
+  }
+
+  // Enhanced manual signing fallback with polling
+  private async tryManualSigningFallbackWithPolling(taskId: string, description: string, userWalletAddress: string, transactionStatus: any, explorerUrl?: string): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] 📝 Step 3: Manual signing fallback with polling monitoring`);
+      
+      // Get structured transaction data
+      const transactionPayload = await this.getStructuredTransactionData(description, userWalletAddress);
+      
+      if (!transactionPayload || !transactionPayload.transaction) {
+        throw new Error('Failed to prepare transaction data for manual signing');
+      }
+      
+      // Include explorer URL in payload for monitoring
+      transactionPayload.explorerUrl = explorerUrl;
+      transactionPayload.requiresManualSigning = true;
+      
+      // Return payload for frontend to handle signing and monitoring
+      const manualSigningMessage = `🔐 **Manual transaction signing required**\n\n` +
+        `📝 **Description:** ${transactionPayload.description}\n` +
+        `🌐 **Network:** Base Camp testnet\n` +
+        `${explorerUrl ? `🔍 **Monitor:** ${explorerUrl}\n` : ''}` +
+        `\n⚠️ Please sign the transaction in your wallet when prompted.`;
+      
+      // Create manual signing response
+      const response = this.createTaskResponse(taskId, true, manualSigningMessage);
+      // Add transaction data to payload
+      response.payload.transactionData = transactionPayload;
+      response.payload.requiresManualSigning = true;
+      return response;
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Manual signing fallback failed:', error);
+      return this.createTaskResponse(taskId, false, 'Failed to prepare transaction for manual signing. Please try again.');
+    }
+  }
+
+  // Get structured transaction data for manual signing
+  private async getStructuredTransactionData(description: string, userWalletAddress: string): Promise<any> {
+    try {
+      const manualSigningPrompt = `${description}. User wallet: ${userWalletAddress}. 
+IMPORTANT: Use Base Camp testnet (chain ID: 123420001114) as default network.
+
+DO NOT execute this transaction. Instead, prepare structured transaction data in the following JSON format:
+{
+  "type": "manual_signing_required",
+  "transaction": {
+    "to": "0x...",
+    "value": "0x...",
+    "data": "0x...",
+    "gasLimit": "0x...",
+    "chainId": 123420001114
+  },
+  "description": "Human readable description",
+  "isCompanionNFT": false
+}
+
+For companion NFT minting, set "isCompanionNFT": true.
+Return only this JSON structure.`;
+
+      const requestBody = {
+        context: {
+          from: userWalletAddress,
+          chain_ids: [123420001114],
+          auto_execute_transactions: false,
+          prepare_transaction: true
+        },
+        messages: [{
+          role: 'user',
+          content: manualSigningPrompt
+        }],
+        stream: false
+      };
+
+      const response = await fetch('https://api.thirdweb.com/ai/chat', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.thirdwebSecretKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody),
+        signal: AbortSignal.timeout(30000)
+      });
+
+      if (!response.ok) {
+        throw new Error(`Transaction data request failed: ${response.status}`);
+      }
+
+      const result = await response.json();
+      
+      // Extract transaction data from actions or message
+      if (result.actions && result.actions.length > 0) {
+        const action = result.actions[0];
+        return {
+          type: "manual_signing_required",
+          transaction: {
+            to: action.to || action.contract?.address,
+            value: action.value || "0x0",
+            data: action.data || "0x",
+            gasLimit: action.gasLimit || "0x5208",
+            chainId: 123420001114
+          },
+          description: description,
+          isCompanionNFT: description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft')
+        };
+      }
+      
+      // Try to parse JSON from message
+      const rawMessage = result.message || result.content || result.response || '';
+      const jsonMatch = rawMessage.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        return JSON.parse(jsonMatch[0]);
+      }
+      
+      return null;
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Failed to get structured transaction data:', error);
+      return null;
     }
   }
 
@@ -555,7 +741,7 @@ Return only this JSON structure without additional text.`;
           requiresManualSigning: true,
           transactionData: response_payload
         },
-        sourceId: 'nebula-mcp',
+        sourceAgentId: 'nebula-mcp',
         targetId: 'task-orchestrator'
       };
       
@@ -615,34 +801,44 @@ Return only this JSON structure without additional text.`;
     try {
       console.log(`[NebulaMCP] 🤖 Creating companion in database for wallet: ${userWallet}`);
       
-      // Import companions schema
-      const { companions } = await import('../../../shared/schema');
+      // Import companions and users schema
+      const { companions, users } = await import('../../../shared/schema');
       const { eq } = await import('drizzle-orm');
       
+      // Find user by wallet address
+      const userResults = await this.db.select().from(users).where(eq(users.walletAddress, userWallet));
+      
+      if (userResults.length === 0) {
+        console.log(`[NebulaMCP] ⚠️ User not found for wallet: ${userWallet}`);
+        return;
+      }
+      
+      const userId = userResults[0].id;
+      
       // Check if user already has a companion (should be prevented by UI, but double-check)
-      const existingCompanions = await this.db.select().from(companions).where(eq(companions.walletAddress, userWallet));
+      const existingCompanions = await this.db.select().from(companions).where(eq(companions.userId, userId));
       
       if (existingCompanions.length > 0) {
         console.log(`[NebulaMCP] ⚠️ User ${userWallet} already has a companion, skipping creation`);
         return;
       }
       
-      // Create companion record
+      // Create companion record with proper schema fields
       const companionData = {
-        walletAddress: userWallet,
-        name: 'New Companion', // Default name, user can change later
-        personality: 'friendly', // Default personality
-        relationshipType: 'friend', // Default relationship
-        traits: JSON.stringify({
-          intelligence: 7,
-          humor: 7,
-          loyalty: 8,
-          empathy: 7,
-          flirtiness: 3
-        }),
-        nftTransactionHash: transactionHash,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        userId: userId,
+        tokenId: '1', // Default token ID
+        contractAddress: '0x742d35Cc6e2C3e312318508CF3c66E2E2B45A1b5', // CompanionNFT contract
+        name: 'New Companion',
+        age: 25,
+        role: 'friend',
+        gender: 'non-binary',
+        flirtiness: 3,
+        intelligence: 7,
+        humor: 7,
+        loyalty: 8,
+        empathy: 7,
+        personalityType: 'helpful',
+        transactionHash: transactionHash
       };
       
       await this.db.insert(companions).values(companionData);

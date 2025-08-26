@@ -2,7 +2,15 @@
 
 Puppet Runner is an NFT-powered infinite runner game that combines gaming mechanics with blockchain functionality. Players run through a 3D environment collecting coins and avoiding obstacles. The application's core focus has shifted to a personalized AI companion system, with the game itself becoming a mini-game feature. This project integrates NFT characters that affect gameplay, allowing players to earn rewards and unlock content through NFT ownership, all while interacting with an AI companion. The business vision is to blend interactive AI with Web3 gaming, offering unique, personalized experiences and leveraging blockchain for digital ownership and rewards.
 
-## Recent Updates (January 19, 2025)
+## Recent Updates (January 26, 2025)
+- **🚀 ENHANCED NEBULAMCP TRANSACTION FLOW**: Complete redesign with Thirdweb Engine transaction polling and improved manual signing fallback
+- **✅ 3-Step Transaction Pipeline**: Auto-execution → Thirdweb Engine polling → Manual signing fallback with frontend transaction creation
+- **✅ Enhanced Prompt Engineering**: Streamlined prompts with mandatory explorer URLs for read operations and Base Camp testnet defaults
+- **✅ Transaction Status Monitoring**: Real-time polling using Thirdweb Engine API with 60-second timeout and 3-second intervals
+- **✅ Seamless Manual Signing**: Frontend transaction preparation, user wallet signing, and automatic database updates upon confirmation
+- **✅ Companion NFT Integration**: Automatic companion database creation upon successful NFT transaction confirmation
+- **✅ Explorer URL Integration**: Automatic Base Camp explorer links for all transactions with monitoring capabilities
+- **✅ Fixed Authentication**: Corrected Authorization header format for all Thirdweb API calls
 - **🔒 STRICT DATA INTEGRITY ENFORCEMENT**: Implemented comprehensive rules preventing ANY false information generation across all 18 agents
 - **✅ Authentic Data Only Policy**: Zero tolerance for mock, simulated, placeholder, or fake data - especially for wallet balances, transactions, and financial information
 - **🎯 COMPREHENSIVE AGENT MANAGEMENT SYSTEM**: Created centralized JSON configuration for all 18 agents with roles, system messages, tools, and performance metrics

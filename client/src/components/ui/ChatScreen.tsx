@@ -338,6 +338,9 @@ export default function ChatScreen() {
           payloadKeys: data.payload ? Object.keys(data.payload) : null,
           payload: data.payload
         });
+
+        // CRITICAL: Log the raw response for debugging
+        console.log('[ChatScreen] 🔍 RAW API RESPONSE:', JSON.stringify(data, null, 2));
         
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
@@ -350,6 +353,8 @@ export default function ChatScreen() {
         setMessages(prev => [...prev, assistantMessage]);
 
         // Check if response contains transaction data requiring manual signing
+        console.log('[ChatScreen] 🚀 TRANSACTION DETECTION START 🚀');
+        
         if (data.payload) {
           console.log('[ChatScreen] 🔍 DEBUG: Payload found, checking for transaction data:', {
             hasRequiresManualSigning: 'requiresManualSigning' in data.payload,
@@ -391,6 +396,8 @@ export default function ChatScreen() {
         } else {
           console.log('[ChatScreen] ❌ No payload found in response');
         }
+        
+        console.log('[ChatScreen] 🏁 TRANSACTION DETECTION END 🏁');
 
         // Save conversation to chat history if we have a session
         if (currentSessionId) {

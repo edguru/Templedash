@@ -106,12 +106,18 @@ export class CompanionHandler extends BaseAgent {
     const isWriteOperation = this.isWriteOperation(response);
     const isExecuted = this.isTaskExecuted(response);
     
-    if (isWriteOperation && !isExecuted) {
+    // Check for manual signing requirement - these should be sent immediately
+    const requiresManualSigning = message.payload.requiresManualSigning || 
+                                   message.payload.transactionData?.requiresManualSigning ||
+                                   response?.toLowerCase().includes('manual signing');
+
+    if (isWriteOperation && !isExecuted && !requiresManualSigning) {
       console.log(`[CompanionHandler] ⏳ WRITE OPERATION NOT EXECUTED - Waiting for execution confirmation`, {
         taskId: message.payload.taskId,
         agentName: message.payload.agentName,
         isWriteOperation,
-        isExecuted
+        isExecuted,
+        requiresManualSigning
       });
       
       // Store the response but don't send to user yet
@@ -121,6 +127,15 @@ export class CompanionHandler extends BaseAgent {
         agentName: message.payload.agentName
       });
       return;
+    }
+
+    // Manual signing transactions should be sent immediately
+    if (requiresManualSigning) {
+      console.log(`[CompanionHandler] 🔐 MANUAL SIGNING REQUIRED - Sending response immediately`, {
+        taskId: message.payload.taskId,
+        agentName: message.payload.agentName,
+        hasTransactionData: !!message.payload.transactionData
+      });
     }
     
     // Log the cleaned response that will be sent to user

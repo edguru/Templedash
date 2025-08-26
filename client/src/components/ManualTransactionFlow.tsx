@@ -19,7 +19,14 @@ export const ManualTransactionFlow: React.FC<ManualTransactionFlowProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
+    console.log('[ManualTransactionFlow] 🔍 Effect triggered with payload:', {
+      hasPayload: !!transactionPayload,
+      requiresManualSigning: transactionPayload?.requiresManualSigning,
+      payload: transactionPayload
+    });
+
     if (transactionPayload && transactionPayload.requiresManualSigning) {
+      console.log('[ManualTransactionFlow] ✅ Starting manual transaction flow');
       setIsModalOpen(true);
       
       // Start the manual transaction process immediately
@@ -36,6 +43,8 @@ export const ManualTransactionFlow: React.FC<ManualTransactionFlowProps> = ({
           setTimeout(() => setIsModalOpen(false), 2000);
         }
       );
+    } else {
+      console.log('[ManualTransactionFlow] ❌ No manual signing required or missing payload');
     }
   }, [transactionPayload, executeManualTransaction, onSuccess, onError]);
 

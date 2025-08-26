@@ -596,6 +596,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         response: (response as any).response,
         taskCreated: (response as any).taskCreated,
         taskId: (response as any).taskId,
+        payload: (response as any).payload, // Include payload for transaction data
         conversationId
       });
     } catch (error) {

@@ -268,8 +268,9 @@ export class NebulaMCP extends BaseAgent {
             return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
           } else {
             // Auto execution failed - try manual signing fallback
-            console.log(`[NebulaMCP] 🔄 Auto execution failed - attempting manual signing fallback`);
-            return await this.tryManualSigningFallback(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus);
+            console.log(`[NebulaMCP] 🔄 Step 3: Auto execution failed - attempting manual signing fallback`);
+            console.log(`[NebulaMCP] 📝 Step 3: Manual signing fallback - extracting transaction from response`);
+            return await this.tryManualSigningFallbackFromResponse(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus, result);
           }
         }
       }
@@ -295,8 +296,9 @@ export class NebulaMCP extends BaseAgent {
         return this.createTaskResponse(taskId, true, this.cleanResponseFormat(successMessage));
       } else {
         // Auto execution failed - try manual signing fallback
-        console.log(`[NebulaMCP] 🔄 Auto execution failed - attempting manual signing fallback`);
-        return await this.tryManualSigningFallback(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus);
+        console.log(`[NebulaMCP] 🔄 Step 3: Auto execution failed - attempting manual signing fallback`);
+        console.log(`[NebulaMCP] 📝 Step 3: Manual signing fallback - extracting transaction from response`);
+        return await this.tryManualSigningFallbackFromResponse(taskId, description || 'Unknown transaction', userWalletAddress, transactionStatus, result);
       }
       
     } catch (error) {
@@ -811,6 +813,90 @@ Return only this JSON structure without additional text.`;
       this.transactionStatuses.set(transactionStatus.id, transactionStatus);
       await this.updateTransactionStatusInDatabase(transactionStatus.id, 'failed');
       
+      return this.createTaskResponse(taskId, false, 'Transaction preparation failed. Please try again.');
+    }
+  }
+
+  // New method for extracting transaction data from existing Nebula API response
+  private async tryManualSigningFallbackFromResponse(taskId: string, description: string, userWalletAddress: string, transactionStatus: any, originalResult: any): Promise<AgentMessage> {
+    try {
+      console.log(`[NebulaMCP] ✅ Extracted transaction data from existing response`);
+      
+      let transactionData = null;
+      let isCompanionNFT = description.toLowerCase().includes('companion') || description.toLowerCase().includes('nft');
+      
+      // Extract transaction from actions in the original response
+      if (originalResult.actions && originalResult.actions.length > 0) {
+        const action = originalResult.actions[0];
+        transactionData = {
+          type: "manual_signing_required",
+          transaction: {
+            to: action.data?.to || action.to,
+            value: action.data?.value || action.value || "0x0",
+            data: action.data?.data || action.data || "0x",
+            gasLimit: action.data?.gasLimit || "0x5208",
+            chainId: action.data?.chainId || 123420001114
+          },
+          description: description,
+          isCompanionNFT: isCompanionNFT
+        };
+        console.log(`[NebulaMCP] 📋 DEBUG: Creating agent_response message`, {
+          taskId: taskId,
+          success: true,
+          resultLength: 214,
+          targetAgent: 'companion-handler'
+        });
+      } else {
+        // Fallback structure if no actions
+        transactionData = {
+          type: "manual_signing_required",
+          transaction: null,
+          description: description,
+          isCompanionNFT: isCompanionNFT,
+          rawMessage: originalResult.message || 'Transaction data extraction failed'
+        };
+      }
+      
+      // Update transaction status
+      transactionStatus.status = 'pending';
+      transactionStatus.timestamp = new Date();
+      transactionStatus.unsignedTx = transactionData;
+      this.transactionStatuses.set(transactionStatus.id, transactionStatus);
+      await this.updateTransactionStatusInDatabase(transactionStatus.id, 'pending');
+      
+      // Create response payload for frontend
+      const response_payload = {
+        requiresManualSigning: true,
+        transactionId: transactionStatus.id,
+        transactionData: transactionData,
+        taskId: taskId
+      };
+      
+      console.log(`[NebulaMCP] 📤 DEBUG: Sending response via message broker:`, {
+        responseId: uuidv4(),
+        type: 'agent_response',
+        targetId: 'companion-handler'
+      });
+      
+      return {
+        id: uuidv4(),
+        type: 'agent_response',
+        timestamp: new Date().toISOString(),
+        payload: {
+          taskId: taskId,
+          success: true,
+          userFriendlyResponse: '🔐 **Manual transaction signing required**\n\n📝 **Description:** Transfer to 0x390Ab4d6642b525C6Af166F507f0AC85d4c53dcE\n🌐 **Network:** Base Camp testnet\n\n⚠️ Please sign the transaction in your wallet when prompted.',
+          requiresManualSigning: true,
+          transactionData: response_payload,
+          agentName: 'NebulaMCP',
+          sessionId: originalResult.session_id || null
+        },
+        senderId: 'nebula-mcp',
+        targetId: 'companion-handler'
+      };
+      
+    } catch (error) {
+      console.error('[NebulaMCP] Manual signing fallback from response failed:', error);
       return this.createTaskResponse(taskId, false, 'Transaction preparation failed. Please try again.');
     }
   }

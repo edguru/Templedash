@@ -329,6 +329,16 @@ export default function ChatScreen() {
       if (response.ok) {
         const data = await response.json();
         
+        // Enhanced debugging for payload data
+        console.log('[ChatScreen] 🔍 DEBUG: Full API response:', {
+          success: data.success,
+          taskCreated: data.taskCreated,
+          taskId: data.taskId,
+          hasPayload: !!data.payload,
+          payloadKeys: data.payload ? Object.keys(data.payload) : null,
+          payload: data.payload
+        });
+        
         const assistantMessage: ChatMessage = {
           id: (Date.now() + 1).toString(),
           role: 'assistant',
@@ -340,14 +350,33 @@ export default function ChatScreen() {
         setMessages(prev => [...prev, assistantMessage]);
 
         // Check if response contains transaction data requiring manual signing
-        if (data.payload && data.payload.requiresManualSigning && data.payload.transactionData) {
-          console.log('[ChatScreen] Manual transaction detected:', data.payload);
-          setPendingTransaction({
-            requiresManualSigning: true,
-            transactionId: data.taskId || 'unknown',
-            transactionData: data.payload.transactionData,
-            taskId: data.taskId
+        if (data.payload) {
+          console.log('[ChatScreen] 🔍 DEBUG: Payload found, checking for transaction data:', {
+            hasRequiresManualSigning: 'requiresManualSigning' in data.payload,
+            hasTransactionData: 'transactionData' in data.payload,
+            requiresManualSigning: data.payload.requiresManualSigning,
+            payload: data.payload
           });
+          
+          if (data.payload.requiresManualSigning && data.payload.transactionData) {
+            console.log('[ChatScreen] ✅ Manual transaction detected - setting pending transaction:', data.payload);
+            setPendingTransaction({
+              requiresManualSigning: true,
+              transactionId: data.taskId || 'unknown',
+              transactionData: data.payload.transactionData,
+              taskId: data.taskId
+            });
+          } else if (data.payload.agentResponsePayload?.requiresManualSigning) {
+            console.log('[ChatScreen] ✅ Manual transaction detected in agentResponsePayload - setting pending transaction:', data.payload.agentResponsePayload);
+            setPendingTransaction({
+              requiresManualSigning: true,
+              transactionId: data.taskId || 'unknown',
+              transactionData: data.payload.agentResponsePayload.transactionData,
+              taskId: data.taskId
+            });
+          }
+        } else {
+          console.log('[ChatScreen] ❌ No payload found in response');
         }
 
         // Save conversation to chat history if we have a session
